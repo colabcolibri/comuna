@@ -30,9 +30,17 @@
   * {
     border-color: var(--border);
   }
+}
 
-  *:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-  }
+[data-slot="input"]:focus,
+[data-slot="input"]:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible,
+[data-slot="input-otp-slot"][data-active="true"] {
+  outline: none;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  box-shadow: none;
 }

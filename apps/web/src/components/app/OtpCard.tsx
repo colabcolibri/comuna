@@ -16,7 +16,7 @@ import {
   InputOTPGroup,
   InputOTPSlot,
   Label,
-} from '@community/ui/';
+} from '@community/ui';
 import { Mail } from 'lucide-react';
 import { useState } from 'react';
 
