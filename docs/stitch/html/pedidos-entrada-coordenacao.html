@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pedidos de Entrada — Rede Alumni Coordenação</title>
+<!-- Material Symbols Font -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Web Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Public+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container": "#f0edee",
+            "outline-variant": "#c6c6cd",
+            "primary-container": "#6c748b",
+            "on-primary-container": "#fefcff",
+            "primary": "#545c72",
+            "tertiary-fixed": "#fcdeb5",
+            "error": "#ba1a1a",
+            "secondary-container": "#dddfea",
+            "on-secondary-fixed-variant": "#434750",
+            "inverse-surface": "#303031",
+            "on-primary-fixed-variant": "#3e465b",
+            "tertiary": "#6e5938",
+            "surface-container-highest": "#e4e2e3",
+            "secondary-fixed-dim": "#c4c6d1",
+            "surface-variant": "#e4e2e3",
+            "on-background": "#1b1b1c",
+            "on-secondary": "#ffffff",
+            "on-error-container": "#93000a",
+            "outline": "#76777d",
+            "on-secondary-container": "#5f626c",
+            "tertiary-fixed-dim": "#dec29a",
+            "surface-dim": "#dcd9da",
+            "primary-fixed-dim": "#bec6e0",
+            "surface-tint": "#565e74",
+            "on-primary": "#ffffff",
+            "on-error": "#ffffff",
+            "inverse-primary": "#bec6e0",
+            "surface-bright": "#fbf9f9",
+            "secondary": "#5b5e68",
+            "secondary-fixed": "#e0e2ed",
+            "on-tertiary-fixed": "#271901",
+            "on-surface-variant": "#45464c",
+            "primary-fixed": "#dae2fc",
+            "background": "#fbf9f9",
+            "on-tertiary-fixed-variant": "#574425",
+            "on-surface": "#1b1b1c",
+            "on-primary-fixed": "#131b2e",
+            "surface-container-low": "#f6f3f4",
+            "on-tertiary": "#ffffff",
+            "tertiary-container": "#88714f",
+            "surface-container-lowest": "#ffffff",
+            "error-container": "#ffdad6",
+            "on-secondary-fixed": "#181c24",
+            "inverse-on-surface": "#f3f0f1",
+            "surface-container-high": "#eae7e8",
+            "on-tertiary-container": "#fffbff",
+            "surface": "#fbf9f9"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin": "1.5rem",
+            "space-xl": "2.5rem",
+            "space-lg": "1.5rem",
+            "space-xs": "0.25rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "gutter": "1rem"
+          },
+          "fontFamily": {
+            "body-md": ["Inter"],
+            "headline-lg-mobile": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-lg": ["Inter"],
+            "label-md": ["Public Sans"],
+            "label-sm": ["Public Sans"],
+            "headline-md": ["Inter"],
+            "headline-sm": ["Inter"]
+          },
+          "fontSize": {
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "headline-lg": ["30px", { "lineHeight": "38px", "fontWeight": "600" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "label-md": ["13px", { "lineHeight": "18px", "fontWeight": "500" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "headline-md": ["22px", { "lineHeight": "28px", "fontWeight": "600" }],
+            "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Accessible focus ring replacement */
+    *:focus-visible {
+      outline: 2px solid #545c72;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface flex flex-col min-h-full font-body-md text-body-md antialiased selection:bg-secondary-container selection:text-on-surface">
+<!-- Skip link for WCAG 2.2 AA -->
+<a class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-surface-container-lowest focus:text-primary focus:shadow-md focus:rounded-lg focus:border focus:border-outline" href="#main-content">
+    Pular para o conteúdo principal
+  </a>
+<!-- Top Navigation Bar (Shared Component Anchor) -->
+<header class="bg-surface-container-lowest dark:bg-surface-container-low border-b border-outline-variant dark:border-outline sticky top-0 z-30">
+<div class="flex justify-between items-center w-full px-space-lg max-w-7xl mx-auto h-16">
+<!-- Brand & Primary Nav Group -->
+<div class="flex items-center gap-8">
+<span class="text-headline-sm font-headline-sm text-primary dark:text-primary-fixed font-bold tracking-tight">
+          Rede Alumni Coordenação
+        </span>
+<nav aria-label="Navegação do painel institucional" class="hidden md:flex items-center gap-6 pt-1">
+<!-- Active tab: Pedidos de Entrada -->
+<a aria-current="page" class="border-b-2 border-primary dark:border-primary-fixed text-primary dark:text-primary-fixed font-label-md text-label-md pb-2 tracking-normal" href="#">
+            Pedidos de Entrada
+          </a>
+<!-- Inactive tabs -->
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-on-surface dark:hover:text-surface-bright font-label-md text-label-md pb-2 transition-colors duration-150" href="#">
+            Diretório
+          </a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-on-surface dark:hover:text-surface-bright font-label-md text-label-md pb-2 transition-colors duration-150" href="#">
+            Configurações
+          </a>
+</nav>
+</div>
+<!-- Trailing Identity (Calm, no badges/bells) -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-low border border-outline-variant text-on-surface">
+<span aria-hidden="true" class="material-symbols-outlined text-primary text-xl">account_circle</span>
+<span class="font-label-md text-label-md font-medium text-on-surface">Administrador</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas (Constrained to 1120px desktop max-w-5xl) -->
+<main class="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10" id="main-content">
+<!-- Page Header & Institutional Context -->
+<section aria-labelledby="page-title" class="mb-8">
+<div class="flex flex-col md:flex-row md:items-baseline md:justify-between gap-2 border-b border-outline-variant/50 pb-6">
+<div>
+<h1 class="text-headline-lg font-headline-lg text-on-surface tracking-tight" id="page-title">
+            Pedidos de entrada
+          </h1>
+<p class="mt-2 text-body-lg font-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
+            Revise e delibere solicitações de novos membros para acesso ao diretório institucional de egressos.
+          </p>
+</div>
+<div class="inline-flex items-center gap-2 self-start md:self-auto px-3 py-1.5 rounded-lg bg-surface-container text-on-surface-variant border border-outline-variant/60 font-label-sm text-label-sm">
+<span aria-hidden="true" class="w-2 h-2 rounded-full bg-primary inline-block"></span>
+<span>Ciclo Ativo • 2024.2</span>
+</div>
+</div>
+</section>
+<!-- Institutional Privacy & Policy Banner -->
+<aside aria-label="Aviso de conformidade e privacidade" class="mb-6 rounded-lg bg-surface-container-low border border-outline-variant p-4 flex items-start gap-3.5">
+<span aria-hidden="true" class="material-symbols-outlined text-primary mt-0.5 shrink-0">verified_user</span>
+<p class="text-body-md font-body-md text-on-surface-variant leading-normal">
+        A aprovação concede acesso intermediado ao diretório público e garante a conformidade com as diretrizes de privacidade dos membros. Os dados de contato permanecem protegidos até consentimento expresso.
+      </p>
+</aside>
+<!-- Content Workspace -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-none overflow-hidden">
+<!-- Top Filters Toolbar -->
+<div class="p-4 sm:p-5 border-b border-outline-variant space-y-4">
+<!-- Status Segmentation Controls -->
+<div class="flex flex-wrap items-center justify-between gap-3">
+<fieldset aria-label="Filtrar pedidos por status" class="flex items-center p-1 bg-surface-container rounded-lg border border-outline-variant/60">
+<legend class="sr-only">Status do pedido</legend>
+<!-- Pendente (Active state) -->
+<button aria-pressed="true" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md bg-surface-container-lowest text-on-surface font-label-md text-label-md shadow-sm border border-outline-variant/50 min-h-[38px] transition-colors" type="button">
+<span aria-hidden="true" class="w-2 h-2 rounded-full bg-tertiary inline-block"></span>
+<span>Pendente</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm font-semibold">8</span>
+</button>
+<!-- Aprovado -->
+<button aria-pressed="false" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md min-h-[38px] transition-colors" type="button">
+<span>Aprovado</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">42</span>
+</button>
+<!-- Recusado -->
+<button aria-pressed="false" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-md text-on-surface-variant hover:text-on-surface font-label-md text-label-md min-h-[38px] transition-colors" type="button">
+<span>Recusado</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm">5</span>
+</button>
+</fieldset>
+<!-- Batch Action State Indicator (Quiet & Institutional) -->
+<div class="flex items-center gap-2 text-on-surface-variant font-label-sm text-label-sm">
+<span aria-hidden="true" class="material-symbols-outlined text-base">fact_check</span>
+<span>0 selecionados</span>
+</div>
+</div>
+<!-- Auxiliary Search and Graduation Filter Bar -->
+<div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+<!-- Search input -->
+<div class="relative flex-1">
+<label class="sr-only" for="search-input">Buscar por nome ou e-mail</label>
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-outline">
+<span aria-hidden="true" class="material-symbols-outlined text-lg">search</span>
+</div>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface placeholder:text-outline font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary h-[44px]" id="search-input" placeholder="Buscar por nome ou e-mail..." type="search"/>
+</div>
+<!-- Turma Filter Select -->
+<div class="relative w-full sm:w-56">
+<label class="sr-only" for="turma-filter">Filtrar por turma de graduação</label>
+<select class="w-full pl-3.5 pr-8 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary h-[44px] appearance-none" id="turma-filter">
+<option value="todas">Todas as turmas</option>
+<option value="2024">Turma 2024</option>
+<option value="2023">Turma 2023</option>
+<option value="2022">Turma 2022</option>
+<option value="2021">Turma 2021</option>
+<option value="2020">Turma 2020</option>
+<option value="anteriores">Turmas Anteriores</option>
+</select>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-outline">
+<span aria-hidden="true" class="material-symbols-outlined text-base">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- High-Legibility Moderation Table -->
+<div class="overflow-x-auto">
+<table aria-label="Tabela de solicitações de entrada pendentes" class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant text-on-surface-variant font-label-sm text-label-sm">
+<th class="py-3.5 px-4 w-12 text-center" scope="col">
+<input aria-label="Selecionar todos os pedidos da página" class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+</th>
+<th class="py-3.5 px-4 font-semibold" scope="col">Nome</th>
+<th class="py-3.5 px-4 font-semibold" scope="col">Email</th>
+<th class="py-3.5 px-4 font-semibold" scope="col">Turma</th>
+<th class="py-3.5 px-4 font-semibold" scope="col">Data</th>
+<th class="py-3.5 px-4 text-right font-semibold" scope="col">Ações</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/60 font-body-md text-body-md">
+<!-- Row 1: Mariana Santos Queiroz -->
+<tr class="hover:bg-surface-container-low/60 transition-colors duration-150">
+<td class="py-4 px-4 text-center">
+<input aria-label="Selecionar Mariana Santos Queiroz" class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div aria-hidden="true" class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-label-md font-semibold shrink-0">
+                    MQ
+                  </div>
+<div>
+<div class="font-medium text-on-surface">Mariana Santos Queiroz</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm">Engenharia de Computação</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-on-surface-variant font-mono text-sm">
+                mariana.queiroz@alumni.usp.br
+              </td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm border border-outline-variant/60">
+                  Turma 2021
+                </span>
+</td>
+<td class="py-4 px-4 text-on-surface-variant whitespace-nowrap">
+                14 de out, 2024
+              </td>
+<td class="py-4 px-4 text-right whitespace-nowrap">
+<div class="inline-flex items-center justify-end gap-2">
+<button aria-label="Aprovar entrada de Mariana Santos Queiroz" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors min-h-[44px]" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">check</span>
+<span>Aprovar</span>
+</button>
+<button aria-label="Recusar entrada de Mariana Santos Queiroz" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-outline-variant text-error bg-surface-container-lowest hover:bg-error-container hover:text-on-error-container font-label-md text-label-md transition-colors min-h-[44px]" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">close</span>
+<span>Recusar</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Rodrigo Albuquerque Silva -->
+<tr class="hover:bg-surface-container-low/60 transition-colors duration-150">
+<td class="py-4 px-4 text-center">
+<input aria-label="Selecionar Rodrigo Albuquerque Silva" class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div aria-hidden="true" class="w-9 h-9 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-md text-label-md font-semibold shrink-0">
+                    RA
+                  </div>
+<div>
+<div class="font-medium text-on-surface">Rodrigo Albuquerque Silva</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm">Administração de Empresas</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-on-surface-variant font-mono text-sm">
+                rodrigo.silva@fgv.br
+              </td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm border border-outline-variant/60">
+                  Turma 2020
+                </span>
+</td>
+<td class="py-4 px-4 text-on-surface-variant whitespace-nowrap">
+                14 de out, 2024
+              </td>
+<td class="py-4 px-4 text-right whitespace-nowrap">
+<div class="inline-flex items-center justify-end gap-2">
+<button aria-label="Aprovar entrada de Rodrigo Albuquerque Silva" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors min-h-[44px]" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">check</span>
+<span>Aprovar</span>
+</button>
+<button aria-label="Recusar entrada de Rodrigo Albuquerque Silva" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-outline-variant text-error bg-surface-container-lowest hover:bg-error-container hover:text-on-error-container font-label-md text-label-md transition-colors min-h-[44px]" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">close</span>
+<span>Recusar</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Beatriz Lima Fontes -->
+<tr class="hover:bg-surface-container-low/60 transition-colors duration-150">
+<td class="py-4 px-4 text-center">
+<input aria-label="Selecionar Beatriz Lima Fontes" class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div aria-hidden="true" class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-label-md font-semibold shrink-0">
+                    BF
+                  </div>
+<div>
+<div class="font-medium text-on-surface">Beatriz Lima Fontes</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm">Direito Constitucional</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-on-surface-variant font-mono text-sm">
+                beatriz.fontes@alumni.ufrj.br
+              </td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm border border-outline-variant/60">
+                  Turma 2022
+                </span>
+</td>
+<td class="py-4 px-4 text-on-surface-variant whitespace-nowrap">
+                13 de out, 2024
+              </td>
+<td class="py-4 px-4 text-right whitespace-nowrap">
+<div class="inline-flex items-center justify-end gap-2">
+<button aria-label="Aprovar entrada de Beatriz Lima Fontes" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors min-h-[44px]" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">check</span>
+<span>Aprovar</span>
+</button>
+<button aria-label="Recusar entrada de Beatriz Lima Fontes" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-outline-variant text-error bg-surface-container-lowest hover:bg-error-container hover:text-on-error-container font-label-md text-label-md transition-colors min-h-[44px]" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">close</span>
+<span>Recusar</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Lucas Mendonça Pacheco -->
+<tr class="hover:bg-surface-container-low/60 transition-colors duration-150">
+<td class="py-4 px-4 text-center">
+<input aria-label="Selecionar Lucas Mendonça Pacheco" class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div aria-hidden="true" class="w-9 h-9 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-md text-label-md font-semibold shrink-0">
+                    LP
+                  </div>
+<div>
+<div class="font-medium text-on-surface">Lucas Mendonça Pacheco</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm">Design de Produto</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-on-surface-variant font-mono text-sm">
+                lucas.mendonca@designalumni.org
+              </td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm border border-outline-variant/60">
+                  Turma 2023
+                </span>
+</td>
+<td class="py-4 px-4 text-on-surface-variant whitespace-nowrap">
+                12 de out, 2024
+              </td>
+<td class="py-4 px-4 text-right whitespace-nowrap">
+<div class="inline-flex items-center justify-end gap-2">
+<button aria-label="Aprovar entrada de Lucas Mendonça Pacheco" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors min-h-[44px]" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">check</span>
+<span>Aprovar</span>
+</button>
+<button aria-label="Recusar entrada de Lucas Mendonça Pacheco" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-outline-variant text-error bg-surface-container-lowest hover:bg-error-container hover:text-on-error-container font-label-md text-label-md transition-colors min-h-[44px]" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">close</span>
+<span>Recusar</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Gabriela Rocha Ramos -->
+<tr class="hover:bg-surface-container-low/60 transition-colors duration-150">
+<td class="py-4 px-4 text-center">
+<input aria-label="Selecionar Gabriela Rocha Ramos" class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div aria-hidden="true" class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-label-md text-label-md font-semibold shrink-0">
+                    GR
+                  </div>
+<div>
+<div class="font-medium text-on-surface">Gabriela Rocha Ramos</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm">Medicina Preventiva</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-on-surface-variant font-mono text-sm">
+                g.rocha@hcnet.usp.br
+              </td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm border border-outline-variant/60">
+                  Turma 2019
+                </span>
+</td>
+<td class="py-4 px-4 text-on-surface-variant whitespace-nowrap">
+                11 de out, 2024
+              </td>
+<td class="py-4 px-4 text-right whitespace-nowrap">
+<div class="inline-flex items-center justify-end gap-2">
+<button aria-label="Aprovar entrada de Gabriela Rocha Ramos" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors min-h-[44px]" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">check</span>
+<span>Aprovar</span>
+</button>
+<button aria-label="Recusar entrada de Gabriela Rocha Ramos" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-outline-variant text-error bg-surface-container-lowest hover:bg-error-container hover:text-on-error-container font-label-md text-label-md transition-colors min-h-[44px]" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">close</span>
+<span>Recusar</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 6: Tiago Faria Nogueira -->
+<tr class="hover:bg-surface-container-low/60 transition-colors duration-150">
+<td class="py-4 px-4 text-center">
+<input aria-label="Selecionar Tiago Faria Nogueira" class="rounded border-outline-variant text-primary focus:ring-primary h-4 w-4" type="checkbox"/>
+</td>
+<td class="py-4 px-4">
+<div class="flex items-center gap-3">
+<div aria-hidden="true" class="w-9 h-9 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-md text-label-md font-semibold shrink-0">
+                    TN
+                  </div>
+<div>
+<div class="font-medium text-on-surface">Tiago Faria Nogueira</div>
+<div class="text-on-surface-variant font-label-sm text-label-sm">Economia Aplicada</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-4 text-on-surface-variant font-mono text-sm">
+                tiago.faria@alumni.unicamp.br
+              </td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm border border-outline-variant/60">
+                  Turma 2021
+                </span>
+</td>
+<td class="py-4 px-4 text-on-surface-variant whitespace-nowrap">
+                10 de out, 2024
+              </td>
+<td class="py-4 px-4 text-right whitespace-nowrap">
+<div class="inline-flex items-center justify-end gap-2">
+<button aria-label="Aprovar entrada de Tiago Faria Nogueira" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors min-h-[44px]" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">check</span>
+<span>Aprovar</span>
+</button>
+<button aria-label="Recusar entrada de Tiago Faria Nogueira" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-outline-variant text-error bg-surface-container-lowest hover:bg-error-container hover:text-on-error-container font-label-md text-label-md transition-colors min-h-[44px]" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">close</span>
+<span>Recusar</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<nav aria-label="Navegação da tabela" class="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-outline-variant bg-surface-container-lowest">
+<p class="font-body-md text-body-md text-on-surface-variant">
+          Exibindo <span class="font-medium text-on-surface">6</span> de <span class="font-medium text-on-surface">8</span> pedidos pendentes
+        </p>
+<div class="flex items-center gap-2">
+<button aria-label="Ir para página anterior" class="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-outline-variant bg-surface-container text-outline cursor-not-allowed font-label-md text-label-md min-h-[44px]" disabled="" type="button">
+<span aria-hidden="true" class="material-symbols-outlined text-base">chevron_left</span>
+<span>Anterior</span>
+</button>
+<button aria-label="Ir para próxima página" class="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface-container font-label-md text-label-md transition-colors min-h-[44px]" type="button">
+<span>Próximo</span>
+<span aria-hidden="true" class="material-symbols-outlined text-base">chevron_right</span>
+</button>
+</div>
+</nav>
+</div>
+<!-- Status Legend Reference Card -->
+<div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="p-4 rounded-lg bg-surface-container-low border border-outline-variant/60 flex items-start gap-3">
+<span aria-hidden="true" class="w-3 h-3 rounded-full bg-tertiary mt-1 shrink-0"></span>
+<div>
+<span class="font-label-md text-label-md font-semibold text-on-surface block">Pendente (8)</span>
+<p class="text-on-surface-variant font-body-md text-body-md mt-0.5">Aguardando validação com a base acadêmica institucional.</p>
+</div>
+</div>
+<div class="p-4 rounded-lg bg-surface-container-low border border-outline-variant/60 flex items-start gap-3">
+<span aria-hidden="true" class="w-3 h-3 rounded-full bg-primary mt-1 shrink-0"></span>
+<div>
+<span class="font-label-md text-label-md font-semibold text-on-surface block">Aprovado (42)</span>
+<p class="text-on-surface-variant font-body-md text-body-md mt-0.5">Membro ativo com perfil indexado e visível na plataforma.</p>
+</div>
+</div>
+<div class="p-4 rounded-lg bg-surface-container-low border border-outline-variant/60 flex items-start gap-3">
+<span aria-hidden="true" class="w-3 h-3 rounded-full bg-error mt-1 shrink-0"></span>
+<div>
+<span class="font-label-md text-label-md font-semibold text-on-surface block">Recusado (5)</span>
+<p class="text-on-surface-variant font-body-md text-body-md mt-0.5">Vínculo não reconhecido ou dados cadastrais inconsistentes.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Institutional Footer (Shared Component Anchor) -->
+<footer class="bg-surface-container-low dark:bg-surface-dim border-t border-outline-variant dark:border-outline mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-space-lg py-space-md max-w-7xl mx-auto gap-space-sm">
+<span class="text-label-md font-label-md text-on-surface dark:text-surface-bright font-semibold">
+        © 2025 Rede Alumni Coordenação Institucional. Todos os direitos reservados.
+      </span>
+<nav aria-label="Links institucionais" class="flex flex-wrap items-center gap-5">
+<a class="text-on-surface-variant dark:text-outline-variant font-label-sm text-label-sm hover:text-primary dark:hover:text-primary-fixed hover:underline transition-colors duration-150" href="#">
+          Termos de Uso
+        </a>
+<a class="text-on-surface-variant dark:text-outline-variant font-label-sm text-label-sm hover:text-primary dark:hover:text-primary-fixed hover:underline transition-colors duration-150" href="#">
+          Privacidade
+        </a>
+<a class="text-on-surface-variant dark:text-outline-variant font-label-sm text-label-sm hover:text-primary dark:hover:text-primary-fixed hover:underline transition-colors duration-150" href="#">
+          Conformidade
+        </a>
+<a class="text-on-surface-variant dark:text-outline-variant font-label-sm text-label-sm hover:text-primary dark:hover:text-primary-fixed hover:underline transition-colors duration-150" href="#">
+          Acessibilidade
+        </a>
+</nav>
+</div>
+</footer>
+</body></html>

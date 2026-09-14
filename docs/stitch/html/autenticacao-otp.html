@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Entrar | Rede Alumni - Autenticação OTP</title>
+<!-- Google Fonts: Inter & Public Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Public+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config strictly conforming to Design System -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-high": "#eae7e8",
+            "tertiary": "#6e5938",
+            "outline-variant": "#c6c6cd",
+            "on-surface-variant": "#45464c",
+            "surface-variant": "#e4e2e3",
+            "surface-dim": "#dcd9da",
+            "secondary-fixed-dim": "#c4c6d1",
+            "inverse-surface": "#303031",
+            "on-background": "#1b1b1c",
+            "secondary-container": "#dddfea",
+            "on-secondary-fixed-variant": "#434750",
+            "surface": "#fbf9f9",
+            "on-secondary-fixed": "#181c24",
+            "on-error": "#ffffff",
+            "inverse-on-surface": "#f3f0f1",
+            "tertiary-container": "#88714f",
+            "error": "#ba1a1a",
+            "surface-container-lowest": "#ffffff",
+            "on-surface": "#1b1b1c",
+            "secondary-fixed": "#e0e2ed",
+            "background": "#fbf9f9",
+            "inverse-primary": "#bec6e0",
+            "surface-container-highest": "#e4e2e3",
+            "surface-container": "#f0edee",
+            "primary-container": "#6c748b",
+            "on-secondary-container": "#5f626c",
+            "on-primary": "#ffffff",
+            "on-tertiary-container": "#fffbff",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed": "#fcdeb5",
+            "primary-fixed": "#dae2fc",
+            "surface-tint": "#565e74",
+            "on-primary-fixed-variant": "#3e465b",
+            "primary": "#545c72",
+            "on-primary-fixed": "#131b2e",
+            "surface-container-low": "#f6f3f4",
+            "on-tertiary": "#ffffff",
+            "tertiary-fixed-dim": "#dec29a",
+            "error-container": "#ffdad6",
+            "on-error-container": "#93000a",
+            "primary-fixed-dim": "#bec6e0",
+            "on-primary-container": "#fefcff",
+            "secondary": "#5b5e68",
+            "on-tertiary-fixed-variant": "#574425",
+            "surface-bright": "#fbf9f9",
+            "outline": "#76777d",
+            "on-tertiary-fixed": "#271901"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "space-xl": "2.5rem",
+            "space-lg": "1.5rem",
+            "margin": "1.5rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "space-xs": "0.25rem",
+            "gutter": "1rem"
+          },
+          fontFamily: {
+            "body-md": ["Inter", "sans-serif"],
+            "headline-lg-mobile": ["Inter", "sans-serif"],
+            "body-lg": ["Inter", "sans-serif"],
+            "label-md": ["Public Sans", "sans-serif"],
+            "headline-lg": ["Inter", "sans-serif"],
+            "label-sm": ["Public Sans", "sans-serif"],
+            "headline-md": ["Inter", "sans-serif"],
+            "headline-sm": ["Inter", "sans-serif"]
+          },
+          fontSize: {
+            "body-md": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+            "headline-lg-mobile": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+            "body-lg": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "label-md": ["13px", { lineHeight: "18px", fontWeight: "500" }],
+            "headline-lg": ["30px", { lineHeight: "38px", fontWeight: "600" }],
+            "label-sm": ["12px", { lineHeight: "16px", fontWeight: "600" }],
+            "headline-md": ["22px", { lineHeight: "28px", fontWeight: "600" }],
+            "headline-sm": ["18px", { lineHeight: "24px", fontWeight: "600" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Hide native number input spinners */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col bg-surface text-on-surface antialiased font-body-md selection:bg-secondary-container selection:text-on-secondary-fixed">
+<!-- Header / Navigation Bar minimalista e institucional -->
+<header class="w-full border-b border-outline-variant/50 bg-surface">
+<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<!-- Wordmark Alumni -->
+<a aria-label="Página Inicial Rede Alumni" class="flex items-center gap-2 group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg p-1" href="#">
+<span class="font-headline-sm text-headline-sm text-on-surface tracking-tight font-semibold">
+          Alumni
+        </span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary mb-0.5"></span>
+</a>
+<!-- Link sutil de retorno à Vitrine -->
+<a class="inline-flex items-center gap-1.5 font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors duration-150 py-2 px-3 rounded-lg hover:bg-surface-container-low focus:outline-none focus-visible:ring-2 focus-visible:ring-primary" href="#">
+<span aria-hidden="true" class="material-symbols-outlined text-[18px]">arrow_back</span>
+<span>Voltar para a Vitrine</span>
+</a>
+</div>
+</header>
+<!-- Conteúdo Principal Desktop: Card OTP Centralizado -->
+<main class="flex-1 flex items-center justify-center p-6 py-12 md:py-16">
+<div class="w-full max-w-[440px]">
+<!-- Card Container de Autenticação -->
+<section aria-labelledby="auth-heading" class="bg-surface-container-lowest border border-outline-variant/70 rounded-xl p-8 sm:p-10 shadow-sm relative">
+<!-- Cabeçalho do Card -->
+<div class="mb-6 text-center">
+<div aria-hidden="true" class="w-12 h-12 rounded-xl bg-surface-container-low border border-outline-variant/50 mx-auto mb-4 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">mark_email_read</span>
+</div>
+<h1 class="font-headline-md text-headline-md text-on-surface tracking-tight font-semibold mb-2" id="auth-heading">
+            Entrar
+          </h1>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+            Digite seu e-mail institucional ou cadastrado para receber um código de acesso de 6 dígitos sem senha.
+          </p>
+</div>
+<!-- Bloco de E-mail de Origem com Opção de Alteração -->
+<div class="mb-6 p-3.5 bg-surface-container-low/80 border border-outline-variant/60 rounded-lg flex items-center justify-between gap-3">
+<div class="min-w-0 flex-1">
+<span class="block font-label-sm text-label-sm text-on-surface-variant mb-0.5">
+              E-mail cadastrado
+            </span>
+<span class="block font-body-md text-body-md text-on-surface font-medium truncate">
+              mariana.duarte@alumni.org
+            </span>
+</div>
+<button aria-label="Alterar endereço de e-mail informado" class="shrink-0 font-label-md text-label-md text-primary hover:text-on-primary-fixed-variant font-semibold underline underline-offset-4 decoration-primary/40 hover:decoration-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded px-1 py-1" type="button">
+            Alterar
+          </button>
+</div>
+<!-- Formulário OTP -->
+<form action="#" id="otp-form" method="POST" novalidate="" onsubmit="event.preventDefault();">
+<fieldset class="mb-4">
+<legend class="block font-label-md text-label-md text-on-surface font-medium mb-3 text-center">
+              Código de 6 dígitos enviado para seu e-mail
+            </legend>
+<!-- Grupo dos 6 dígitos OTP (WCAG AA: min-w-[48px] min-h-[48px] para área de toque e visualização confortável) -->
+<div aria-label="Dígitos do código de verificação" class="flex items-center justify-between gap-2 sm:gap-2.5" role="group">
+<!-- Dígito 1 (Preenchido) -->
+<div class="flex-1">
+<label class="sr-only" for="otp-1">Primeiro dígito do código</label>
+<input aria-describedby="otp-error-feedback" aria-invalid="true" class="w-full h-13 min-h-[52px] text-center font-headline-md text-headline-md text-on-surface font-semibold bg-surface-container-lowest border-2 border-outline-variant rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-center selection:bg-transparent" id="otp-1" inputmode="numeric" maxlength="1" name="otp_1" pattern="[0-9]*" required="" type="text" value="4"/>
+</div>
+<!-- Dígito 2 (Preenchido) -->
+<div class="flex-1">
+<label class="sr-only" for="otp-2">Segundo dígito do código</label>
+<input aria-describedby="otp-error-feedback" aria-invalid="true" class="w-full h-13 min-h-[52px] text-center font-headline-md text-headline-md text-on-surface font-semibold bg-surface-container-lowest border-2 border-outline-variant rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-center selection:bg-transparent" id="otp-2" inputmode="numeric" maxlength="1" name="otp_2" pattern="[0-9]*" required="" type="text" value="8"/>
+</div>
+<!-- Dígito 3 (Preenchido) -->
+<div class="flex-1">
+<label class="sr-only" for="otp-3">Terceiro dígito do código</label>
+<input aria-describedby="otp-error-feedback" aria-invalid="true" class="w-full h-13 min-h-[52px] text-center font-headline-md text-headline-md text-on-surface font-semibold bg-surface-container-lowest border-2 border-outline-variant rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-center selection:bg-transparent" id="otp-3" inputmode="numeric" maxlength="1" name="otp_3" pattern="[0-9]*" required="" type="text" value="2"/>
+</div>
+<!-- Dígito 4 (Preenchido) -->
+<div class="flex-1">
+<label class="sr-only" for="otp-4">Quarto dígito do código</label>
+<input aria-describedby="otp-error-feedback" aria-invalid="true" class="w-full h-13 min-h-[52px] text-center font-headline-md text-headline-md text-on-surface font-semibold bg-surface-container-lowest border-2 border-outline-variant rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-center selection:bg-transparent" id="otp-4" inputmode="numeric" maxlength="1" name="otp_4" pattern="[0-9]*" required="" type="text" value="9"/>
+</div>
+<!-- Dígito 5 (Ativo / Cursor / Aguardando) -->
+<div class="flex-1">
+<label class="sr-only" for="otp-5">Quinto dígito do código</label>
+<input aria-describedby="otp-error-feedback" aria-invalid="true" autofocus="" class="w-full h-13 min-h-[52px] text-center font-headline-md text-headline-md text-on-surface font-semibold bg-surface-container-lowest border-2 border-primary ring-2 ring-primary/20 rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-center" id="otp-5" inputmode="numeric" maxlength="1" name="otp_5" pattern="[0-9]*" required="" type="text"/>
+</div>
+<!-- Dígito 6 (Vazio) -->
+<div class="flex-1">
+<label class="sr-only" for="otp-6">Sexto dígito do código</label>
+<input aria-describedby="otp-error-feedback" aria-invalid="true" class="w-full h-13 min-h-[52px] text-center font-headline-md text-headline-md text-on-surface font-semibold bg-surface-container-lowest border-2 border-outline-variant rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-center" id="otp-6" inputmode="numeric" maxlength="1" name="otp_6" pattern="[0-9]*" required="" type="text"/>
+</div>
+</div>
+</fieldset>
+<!-- Mensagem de Erro Acessível em Linha -->
+<div class="mb-5 flex items-center gap-2 p-2.5 bg-error-container/40 border border-error/20 rounded-lg text-error" id="otp-error-feedback" role="alert">
+<span aria-hidden="true" class="material-symbols-outlined text-[18px] shrink-0 text-error">error</span>
+<span class="font-label-md text-label-md font-medium text-error leading-tight">
+              Código inválido ou expirado. Solicite outro.
+            </span>
+</div>
+<!-- Ação Primária Destacada (Único CTA primário da tela) -->
+<button class="w-full h-12 min-h-[48px] bg-[#0f172a] hover:bg-[#1e293b] active:bg-[#020617] text-white font-label-md text-label-md font-semibold rounded-lg transition duration-150 ease-in-out flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary/30 shadow-sm" type="submit">
+<span>Verificar e entrar</span>
+<span aria-hidden="true" class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</form>
+<!-- Ação Secundária: Reenviar código e apoio -->
+<div class="mt-6 pt-5 border-t border-outline-variant/40 text-center space-y-2">
+<div class="flex items-center justify-center gap-1.5">
+<button class="font-label-md text-label-md font-semibold text-primary hover:text-on-primary-fixed-variant transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded py-1 px-1.5" type="button">
+              Reenviar código
+            </button>
+<span aria-hidden="true" class="text-outline text-xs">•</span>
+<span aria-live="polite" class="font-label-sm text-label-sm text-on-surface-variant font-medium">
+              disponível agora
+            </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant/90 text-xs">
+            Não recebeu? Verifique a caixa de spam ou solicite novo envio.
+          </p>
+</div>
+<!-- Nota de Privacidade e Confiança Institucional -->
+<div class="mt-6 pt-4 border-t border-outline-variant/30 flex items-start gap-2.5 text-on-surface-variant">
+<span aria-hidden="true" class="material-symbols-outlined text-[16px] text-outline shrink-0 mt-0.5">lock</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant leading-relaxed">
+            Acesso restrito e intermediado para membros da rede. Seus dados nunca são compartilhados publicamente.
+          </p>
+</div>
+</section>
+<!-- Selo sutil institucional -->
+<div class="mt-6 text-center">
+<p class="font-label-sm text-label-sm text-outline flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span>Ambiente protegido por criptografia de ponta a ponta</span>
+</p>
+</div>
+</div>
+</main>
+<!-- Footer discreto institucional com WCAG AA e Shared Components alignment -->
+<footer class="w-full border-t border-outline-variant/50 bg-surface py-6 px-6">
+<div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+        © 2025 Rede Alumni. Diretório profissional institucional. Todos os direitos reservados.
+      </p>
+<div class="flex items-center gap-6">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded" href="#">
+          Privacidade
+        </a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded" href="#">
+          Termos de Uso
+        </a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded" href="#">
+          Acessibilidade
+        </a>
+</div>
+</div>
+</footer>
+<!-- Vanilla JS micro-interactions for seamless OTP box typing & navigation -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputs = Array.from(document.querySelectorAll('#otp-form input[type="text"]'));
+
+      inputs.forEach((input, index) => {
+        // Automatically focus next input on entry
+        input.addEventListener('input', (e) => {
+          const val = e.target.value;
+          if (val.length >= 1) {
+            e.target.value = val.slice(-1); // Only take single character
+            if (index < inputs.length - 1) {
+              inputs[index + 1].focus();
+              inputs[index + 1].select();
+            }
+          }
+        });
+
+        // Handle backspace navigation
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !input.value && index > 0) {
+            inputs[index - 1].focus();
+          }
+        });
+
+        // Support pasting full 6 digit code
+        input.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const pasteData = (e.clipboardData || window.clipboardData).getData('text').trim();
+          if (/^\d+$/.test(pasteData)) {
+            const digits = pasteData.slice(0, inputs.length).split('');
+            digits.forEach((digit, i) => {
+              if (inputs[i]) {
+                inputs[i].value = digit;
+              }
+            });
+            const nextFocus = Math.min(digits.length, inputs.length - 1);
+            inputs[nextFocus].focus();
+          }
+        });
+      });
+    });
+  </script>
+</body></html>
