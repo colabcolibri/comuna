@@ -1,6 +1,6 @@
 ---
 title: Database Design
-status: draft
+status: approved
 version: 2.2
 updated: 2026-09-14
 depends_on: [05_architecture.md]

@@ -1,6 +1,6 @@
 ---
 title: Decision Log
-status: draft
+status: approved
 version: 1.0
 updated: 2026-09-14
 depends_on: []
@@ -63,6 +63,7 @@ python3 .agent/scripts/meridian_delivery.py prepend-decision \
 
 | Date | Title | Affected |
 | ---- | ----- | -------- |
+| 2026-09-14 | Manager reaprovou docs de fase 00-11 para v2.0.0 | `05_architecture.md` |
 | 2026-09-14 | Comunidades genéricas, plugins e monorepo | `00_scope.md` |
 | 2026-09-14 | Waiver: planejar v2.0.0 com 03 draft e 05 em review | `05_architecture.md` |
 | 2026-09-14 | Super-admin fora da UI Stitch; replanejamento v2.0.0 | `00_scope.md` |
@@ -70,4 +71,4 @@ python3 .agent/scripts/meridian_delivery.py prepend-decision \
 
 ## Gate
 
-`status: draft` — as regras do registro de decisões estão estabelecidas.
+`status: approved` — regras do registro estáveis; fatos novos só via `prepend-decision`.

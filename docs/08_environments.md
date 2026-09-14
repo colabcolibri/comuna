@@ -1,6 +1,6 @@
 ---
 title: Environments and Setup
-status: draft
+status: approved
 version: 1.3
 updated: 2026-09-14
 depends_on: [01_tech_stack.md, 05_architecture.md]
@@ -31,6 +31,7 @@ blocks: []
 ### Pré-requisitos
 
 - Node.js ^20
+- pnpm 11
 - Docker Desktop (Postgres + Mailpit)
 
 ### Infra
@@ -39,19 +40,26 @@ blocks: []
 docker compose up -d
 ```
 
-- Postgres: `localhost:5432`
-- Mailpit UI: conferir `docker-compose.yml` (não misturar 8025 vs 8026 no código)
+- Postgres: `localhost:5433` (`docker-compose.yml` mapeia 5433→5432)
+- Mailpit UI: `http://localhost:8026` (SMTP `1026`)
 
-### App
+### Apps (web + admin)
+
+- `apps/web` é o Next de membros (`apps/web/src`). Não há `src/` na raiz.
+- `apps/admin` é um Next mínimo na porta 3015, sem AppNavbar Stitch.
 
 ```bash
 cp .env.example .env
-npm install
-# aplicar migrações quando a US de db existir
-npm run dev
+pnpm install
+pnpm db:migrate
+pnpm db:seed
+pnpm dev
+# outra aba:
+pnpm dev:admin
 ```
 
-- App: `http://localhost:3014`
+- Web (membros): `http://localhost:3014`
+- Admin stub: `http://localhost:3015` (`apps/admin`) — sem Stitch. Ops real nesta release: `http://localhost:3014/ops` com cookie de `super_admin` (seed: `INITIAL_SUPER_ADMIN_EMAIL`, default `ops@community.local`).
 - **Não** usar reset de banco.
 
 ## Seed do super-admin
@@ -60,4 +68,4 @@ Script de seed (US EPIC-11) insere `global_role = super_admin` para `INITIAL_SUP
 
 ## CI
 
-GitHub Actions alvo: `lint` + `npm test`. E2E Playwright quando a US de pipeline existir. Deploy prod é **HAR** (humano).
+GitHub Actions alvo: `lint` + `pnpm test`. E2E Playwright quando a US de pipeline existir. Deploy prod é **HAR** (humano).

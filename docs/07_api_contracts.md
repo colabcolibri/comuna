@@ -1,6 +1,6 @@
 ---
 title: API Contracts
-status: draft
+status: approved
 version: 1.2
 updated: 2026-09-14
 depends_on: [05_architecture.md, 06_database.md]

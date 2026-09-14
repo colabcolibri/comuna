@@ -1,6 +1,6 @@
 ---
 title: Scope
-status: draft
+status: approved
 version: 1.3
 updated: 2026-09-14
 depends_on: []

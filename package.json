@@ -2,12 +2,16 @@
   "name": "alumni-platform",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@11.5.2",
   "scripts": {
-    "dev": "next dev -p 3014 --turbo",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "test": "vitest run"
+    "dev": "pnpm --filter @community/web dev",
+    "dev:admin": "pnpm --filter @community/admin dev",
+    "build": "pnpm --filter @community/web build",
+    "start": "pnpm --filter @community/web start",
+    "lint": "pnpm --filter @community/web exec next lint",
+    "test": "vitest run",
+    "db:migrate": "node scripts/db-migrate.cjs",
+    "db:seed": "node scripts/db-seed.cjs"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.3.3",

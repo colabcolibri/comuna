@@ -1,6 +1,6 @@
 ---
 title: System Architecture
-status: review
+status: approved
 version: 1.5
 updated: 2026-09-14
 depends_on: [00_scope.md, 01_tech_stack.md, 02_security.md, 03_user_types.md, 04_principles.md]

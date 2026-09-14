@@ -10,7 +10,9 @@ dist/
 .turbo/
 
 # Testing & Coverage
-coverage/
+*.tsbuildinfo
+__pycache__/
+*.pyc
 .vitest/
 
 # Environment & Secrets

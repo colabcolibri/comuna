@@ -82,6 +82,42 @@ importers:
         specifier: ^2.0.2
         version: 2.1.9(@types/node@20.19.43)(happy-dom@20.14.5)(lightningcss@1.32.0)
 
+  apps/admin:
+    dependencies:
+      next:
+        specifier: ^16.3.5
+        version: 16.3.5(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: ^19.0.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.3.0(react@19.3.0)
+
+  apps/web: {}
+
+  packages/core/auth: {}
+
+  packages/core/communities: {}
+
+  packages/core/db: {}
+
+  packages/core/identity: {}
+
+  packages/core/memberships: {}
+
+  packages/core/module-runtime: {}
+
+  packages/modules/contact-mediated: {}
+
+  packages/modules/directory: {}
+
+  packages/modules/showcase: {}
+
+  packages/ui/admin: {}
+
+  packages/ui/member: {}
+
 packages:
 
   '@alloc/quick-lru@5.3.0':

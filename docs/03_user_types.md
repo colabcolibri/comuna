@@ -1,6 +1,6 @@
 ---
 title: User Types and Roles
-status: draft
+status: approved
 version: 1.3
 updated: 2026-09-14
 depends_on: [00_scope.md, 02_security.md]

@@ -1,6 +1,6 @@
 ---
 title: Security
-status: draft
+status: approved
 version: 1.2
 updated: 2026-09-14
 depends_on: [00_scope.md, 01_tech_stack.md]

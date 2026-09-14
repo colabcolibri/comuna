@@ -34,7 +34,7 @@ db/
 docs/
 ```
 
-Pastas `apps/` e `packages/` já existem no disco com README (contrato). O Next da raiz (`src/`) **não** foi movido nesta alteração — isso é US de scaffold.
+Pastas `apps/` e `packages/` existem no disco. O Next de membros vive em `apps/web/src`.
 
 ## Workspaces
 
@@ -45,4 +45,4 @@ Alvo: `package.json` `"workspaces": ["apps/*", "packages/core/*", "packages/modu
 - `apps/web` não importa `packages/ui/admin`.
 - `apps/admin` não importa `packages/ui/member` nem rotas Stitch.
 - Módulo não importa outro módulo; só `core`.
-- Código legado em `src/` some quando a US de move fechar.
+Código legado na raiz `src/` foi movido para `apps/web/src`.

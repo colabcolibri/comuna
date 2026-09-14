@@ -1,6 +1,6 @@
 ---
 title: Tech Stack
-status: draft
+status: approved
 version: 1.2
 updated: 2026-09-14
 depends_on: [00_scope.md]
@@ -13,7 +13,7 @@ blocks: [02_security.md, 04_principles.md, 08_environments.md, 09_design_system.
 
 Monorepo: duas apps Next (`apps/web`, `apps/admin`) + pacotes (`packages/core/*`, `packages/modules/*`, `packages/ui/*`). PostgreSQL via `pg`. Sem Redis. OTP no Postgres.
 
-Hoje o Next ainda vive na raiz (`src/`). A árvore `apps/` e `packages/` é o contrato; a US de scaffold liga workspaces e move o código.
+Hoje o Next de membros vive em `apps/web`. Pacotes `@community/*` via pnpm workspaces.
 
 ## Runtime and language
 
@@ -21,7 +21,7 @@ Hoje o Next ainda vive na raiz (`src/`). A árvore `apps/` e `packages/` é o co
 | ----- | ---------- | ------- | --------- |
 | Language | TypeScript | ^5.5 | Já no repo |
 | Runtime | Node.js | ^20 LTS | Next 16 |
-| Workspaces | npm workspaces (alvo) | `package.json` workspaces | Um lockfile; pacotes `@community/*` |
+| Workspaces | pnpm | `pnpm-workspace.yaml` + `pnpm-lock.yaml` | Um lockfile; pacotes `@community/*`. Não npm. |
 
 ## Application surfaces
 

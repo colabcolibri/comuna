@@ -1,6 +1,6 @@
 ---
 title: Test strategy
-status: draft
+status: approved
 version: 1.1
 updated: 2026-09-14
 depends_on: [01_tech_stack.md, 04_principles.md, 08_environments.md]
@@ -12,13 +12,13 @@ blocks: []
 ## Overview
 
 - **Test stack id:** `ts-vitest`. Playwright entra quando a auth persistir (não fechar US de auth só com unit de hash).
-- **CI:** lint + `npm test` no `08` (Actions ainda a documentar/criar).
+- **CI:** lint + `pnpm test` no `08` (Actions ainda a documentar/criar).
 
 ## Pyramid
 
 | Level | Scope | Target % of tests | Focus |
 | ----- | ----- | ----------------- | ----- |
-| Unit | OTP hash, RBAC, sanitização, SQL builders | ~60% | `src/lib/**` |
+| Unit | OTP hash, RBAC, sanitização, SQL builders | ~60% | `packages/**` e `apps/web/src/lib/**` |
 | Integration | Rotas + Postgres de teste | ~30% | OTP persistido, isolamento `community_id` |
 | E2E | Login real, contato, fila coord | ~10% | Playwright quando Mailpit + DB existirem |
 
@@ -26,10 +26,10 @@ blocks: []
 
 | Layer | Tool | Config | Command |
 | ----- | ---- | ------ | ------- |
-| Unit / Integration | Vitest | `vitest.config.ts` | `npm test` |
-| E2E | Playwright | `playwright.config.ts` (alvo) | `npm run test:e2e` |
+| Unit / Integration | Vitest | `vitest.config.ts` | `pnpm test` |
+| E2E | Playwright | `playwright.config.ts` (alvo) | `pnpm test:e2e` |
 
-Hoje só existem testes ao lado de `src/lib/**/*.test.ts` e `templates.test.tsx`. Não há E2E.
+Hoje os testes vivem em `packages/**/*.test.ts` e `apps/web/src/**/*.test.ts(x)`. Não há E2E.
 
 ## Layout & conventions
 

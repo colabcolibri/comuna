@@ -1,6 +1,6 @@
 ---
 title: Design System
-status: draft
+status: approved
 version: 1.1
 updated: 2026-09-14
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
@@ -12,7 +12,7 @@ blocks: []
 ## Overview
 
 - **Surfaces:** `apps/web` (Stitch + plugins). Admin **não** usa este contrato.
-- **Primary UI stack:** `ts-shadcn` — primitives em `src/components/ui/` (read-only em US de tela). Composição em `src/components/templates/` hoje e `src/components/app/` no alvo v2.0.0.
+- **Primary UI stack:** `ts-shadcn` — primitives em `apps/web/src/components/ui/` (read-only em US de tela). Composição em `apps/web/src/components/templates/` e `apps/web/src/components/app/`.
 - **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, sidebars de comunidade.
 - **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
@@ -52,9 +52,9 @@ O `09` antigo listava Inter no body — **errado** frente ao Stitch. Body = Atki
 
 | Template | Purpose | Path today / alvo |
 | -------- | ------- | ----------------- |
-| `AppCardTemplate` | Card genérico | `src/components/templates/AppCardTemplate.tsx` |
+| `AppCardTemplate` | Card genérico | `apps/web/src/components/templates/AppCardTemplate.tsx` |
 | `AppDialogTemplate` | Modal | `templates/AppDialogTemplate.tsx` |
-| `AppOtpForm` | OTP | `src/components/AppOtpForm.tsx` — deve virar fiel ao HTML `autenticacao-otp.html` |
+| `OtpCard` | OTP | `apps/web/src/components/app/OtpCard.tsx` — layout `autenticacao-otp.html` |
 | Directory grid | Diretório | página `src/app/directory` vs `diretorio-talentos.html` |
 | Coord table | Pedidos de entrada | hoje `src/app/admin/approvals` — mover para `/coord` |
 
