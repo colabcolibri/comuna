@@ -25,7 +25,7 @@ A stack tecnológica do **Alumni Platform** foca em desenvolvimento web moderno,
 
 | Surface | Framework / host | Path in repo | Notes |
 | ------- | ---------------- | ------------ | ----- |
-| Web app | Next.js / React / React Server Components | `src/` ou `app/` | SSR/SSG para vitrine pública de talentos e SEO |
+| Web app | Next.js ^16.3.5 / React Server Components | `src/` ou `app/` | SSR/SSG para vitrine pública de talentos e SEO |
 | API / backend | Next.js API Routes / Server Actions | `src/app/api/` | Rotas de API integradas para auth passwordless e busca |
 | CLI | n/a | n/a | Fora de escopo |
 | Mobile | n/a | n/a | Fora de escopo na v1 |
