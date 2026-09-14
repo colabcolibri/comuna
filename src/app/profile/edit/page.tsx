@@ -4,12 +4,17 @@ import React, { useState } from 'react';
 import { AppCardTemplate } from '@/components/templates/AppCardTemplate';
 import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
 import { Button } from '@/components/ui/button';
+import { useI18n } from '@/lib/i18n/I18nContext';
 
 export default function ProfileEditPage() {
+  const { t } = useI18n();
+
   const [fullName, setFullName] = useState('Sergio Luciano Jr');
   const [gender, setGender] = useState('Masculino');
-  const [headline, setHeadline] = useState('Engenheiro de Software & Arquiteto AI');
-  const [bio, setBio] = useState('Passionado por sistemas distribuídos e plataformas comunitárias.');
+  const [headlinePt, setHeadlinePt] = useState('Engenheiro de Software & Arquiteto AI');
+  const [headlineEn, setHeadlineEn] = useState('Software Engineer & AI Architect');
+  const [bioPt, setBioPt] = useState('Apaixonado por sistemas distribuídos e plataformas comunitárias.');
+  const [bioEn, setBioEn] = useState('Passionate about distributed systems and community platforms.');
   const [birthCity, setBirthCity] = useState('São Paulo, SP');
   const [currentCity, setCurrentCity] = useState('Florianópolis, SC');
   const [isPublicShowcase, setIsPublicShowcase] = useState(true);
@@ -22,10 +27,10 @@ export default function ProfileEditPage() {
   };
 
   return (
-    <main style={{ maxWidth: '800px', margin: '2rem auto', padding: '0 1rem', fontFamily: 'sans-serif' }}>
+    <main style={{ maxWidth: '850px', margin: '2rem auto', padding: '0 1rem', fontFamily: 'sans-serif' }}>
       <header style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#0f172a' }}>⚙️ Edição de Perfil do Ex-Aluno</h1>
-        <p style={{ color: '#64748b' }}>Gerencie suas informações pessoais, localização, habilidades e visibilidade na rede.</p>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#0f172a' }}>{t.profile.title}</h1>
+        <p style={{ color: '#64748b' }}>{t.profile.subtitle}</p>
       </header>
 
       {saved && (
@@ -33,19 +38,18 @@ export default function ProfileEditPage() {
           <AppAlertTemplate
             variant="success"
             title="Perfil Atualizado!"
-            message="Suas alterações foram salvas com sucesso no banco PostgreSQL."
+            message={t.profile.savedSuccess}
           />
         </div>
       )}
 
       <form onSubmit={handleSave}>
         <AppCardTemplate
-          title="Informações Pessoais & Localização"
-          subtitle="Dados de origem, moradia atual e idiomas."
+          title={t.profile.personalTitle}
           content={
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>Nome Completo</label>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>{t.profile.fullName}</label>
                 <input
                   type="text"
                   value={fullName}
@@ -56,7 +60,7 @@ export default function ProfileEditPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>Cidade de Nascimento (IBGE/OSM)</label>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>{t.profile.birthCity}</label>
                   <input
                     type="text"
                     value={birthCity}
@@ -65,7 +69,7 @@ export default function ProfileEditPage() {
                   />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>Cidade Atual (IBGE/OSM)</label>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>{t.profile.currentCity}</label>
                   <input
                     type="text"
                     value={currentCity}
@@ -74,48 +78,57 @@ export default function ProfileEditPage() {
                   />
                 </div>
               </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>Gênero</label>
-                <select
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value)}
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '6px' }}
-                >
-                  <option value="Masculino">Masculino</option>
-                  <option value="Feminino">Feminino</option>
-                  <option value="Não-binário">Não-binário</option>
-                  <option value="Prefiro não informar">Prefiro não informar</option>
-                </select>
-              </div>
             </div>
           }
         />
 
+        {/* Seção de Conteúdo Bilíngue (PT & EN) */}
         <div style={{ marginTop: '1.5rem' }}>
           <AppCardTemplate
-            title="Perfil da Rede & Disponibilidade"
-            subtitle="Como outros membros e recrutadores enxergam você."
+            title="🇧🇷 🇺🇸 Conteúdo do Perfil em 2 Idiomas (Bilingual Profile Content)"
+            subtitle="Insira seu título e bio em Português e Inglês para recrutadores locais e internacionais."
             content={
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>Título Profissional (Headline)</label>
-                  <input
-                    type="text"
-                    value={headline}
-                    onChange={(e) => setHeadline(e.target.value)}
-                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '6px' }}
-                  />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>{t.profile.headlinePt}</label>
+                    <input
+                      type="text"
+                      value={headlinePt}
+                      onChange={(e) => setHeadlinePt(e.target.value)}
+                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '6px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>{t.profile.headlineEn}</label>
+                    <input
+                      type="text"
+                      value={headlineEn}
+                      onChange={(e) => setHeadlineEn(e.target.value)}
+                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '6px' }}
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>Bio / Resumo Profissional</label>
-                  <textarea
-                    rows={4}
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '6px' }}
-                  />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>{t.profile.bioPt}</label>
+                    <textarea
+                      rows={4}
+                      value={bioPt}
+                      onChange={(e) => setBioPt(e.target.value)}
+                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '6px' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#334155', marginBottom: '0.25rem' }}>{t.profile.bioEn}</label>
+                    <textarea
+                      rows={4}
+                      value={bioEn}
+                      onChange={(e) => setBioEn(e.target.value)}
+                      style={{ width: '100%', padding: '0.5rem', border: '1px solid #cbd5e1', borderRadius: '6px' }}
+                    />
+                  </div>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
@@ -127,14 +140,14 @@ export default function ProfileEditPage() {
                     style={{ width: '1.2rem', height: '1.2rem', cursor: 'pointer' }}
                   />
                   <label htmlFor="showcase-check" style={{ fontSize: '0.9375rem', color: '#1e293b', fontWeight: 500, cursor: 'pointer' }}>
-                    Exibir meu perfil na Vitrine Pública de Talentos para Recrutadores
+                    {t.profile.publicShowcase}
                   </label>
                 </div>
               </div>
             }
             footer={
               <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-                <Button type="submit">Salvar Alterações</Button>
+                <Button type="submit">{t.profile.saveBtn}</Button>
               </div>
             }
           />
