@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import AppOtpForm from '@/components/AppOtpForm';
 import { useI18n } from '@/lib/i18n/I18nContext';
 
@@ -28,9 +28,9 @@ export default function HomePage() {
             {t.home.localStatus}
           </h2>
           <ul style={{ lineHeight: '2.2', color: '#334155', paddingLeft: '1.25rem', margin: '1rem 0 0 0', fontSize: '0.9375rem' }}>
-            <li>🟢 <strong>{t.home.webApp}:</strong> <code style={{ background: '#f1f5f9', padding: '0.15rem 0.5rem', borderRadius: '4px', border: '1px solid #e2e8f0' }}>http://localhost:3014</code></li>
+            <li>🟢 <strong>Aplicação Web:</strong> <code style={{ background: '#f1f5f9', padding: '0.15rem 0.5rem', borderRadius: '4px', border: '1px solid #e2e8f0' }}>http://localhost:3014</code></li>
             <li>🐘 <strong>PostgreSQL (v18.6 Docker):</strong> Porta <code>5433</code> (Database: <code>alumni_db</code>)</li>
-            <li>📬 <strong>{t.home.mailpit}:</strong> <a href="http://localhost:8026" target="_blank" rel="noreferrer" style={{ color: '#2563eb', fontWeight: 500 }}>http://localhost:8026</a> (SMTP: <code>1026</code>)</li>
+            <li>📬 <strong>Mailpit (Captura de E-mails):</strong> <a href="http://localhost:8026" target="_blank" rel="noreferrer" style={{ color: '#2563eb', fontWeight: 500 }}>http://localhost:8026</a> (SMTP: <code>1026</code>)</li>
           </ul>
 
           <div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f0f9ff', borderRadius: '8px', border: '1px solid #bae6fd', fontSize: '0.875rem', color: '#0369a1' }}>
