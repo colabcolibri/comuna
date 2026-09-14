@@ -16,6 +16,7 @@ Plataforma de conexão e contratação para a rede de ex-alunos (alumni).
 | [07_api_contracts.md](07_api_contracts.md) | draft | Contratos de API e integração |
 | [08_environments.md](08_environments.md) | draft | Setup local, CI/CD e variáveis de ambiente |
 | [09_design_system.md](09_design_system.md) | draft | Sistema de design e componentes de UI |
+| [stitch/](stitch/README.md) | reference | Templates Stitch (HTML + capturas) — não é contrato |
 | [10_test_strategy.md](10_test_strategy.md) | draft | Pirâmide de testes e estratégia de QA |
 | [11_decisions.md](11_decisions.md) | draft | Registro de decisões (histórico via SQLite) |
 
