@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: alumni_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: alumni_db
+    ports:
+      - '5433:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: alumni_mailpit
+    ports:
+      - '8026:8025' # Interface Web do Mailpit
+      - '1026:1025' # Servidor SMTP do Mailpit
+
+volumes:
+  pgdata:
