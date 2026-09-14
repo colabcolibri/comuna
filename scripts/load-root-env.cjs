@@ -1,8 +1,9 @@
-import type { NextConfig } from 'next';
-import fs from 'fs';
-import path from 'path';
+'use strict';
 
-function applyEnvFile(file: string) {
+const fs = require('fs');
+const path = require('path');
+
+function applyEnvFile(file) {
   if (!fs.existsSync(file)) {
     return;
   }
@@ -23,24 +24,16 @@ function applyEnvFile(file: string) {
     ) {
       value = value.slice(1, -1);
     }
-    if (!process.env[key]) {
+    if (process.env[key] === undefined || process.env[key] === '') {
       process.env[key] = value;
     }
   }
 }
 
-const monorepoRoot = path.join(__dirname, '../..');
-applyEnvFile(path.join(monorepoRoot, '.env'));
-applyEnvFile(path.join(monorepoRoot, '.env.local'));
+function loadRootEnv() {
+  const root = path.resolve(__dirname, '..');
+  applyEnvFile(path.join(root, '.env'));
+  applyEnvFile(path.join(root, '.env.local'));
+}
 
-const nextConfig: NextConfig = {
-  transpilePackages: [
-    '@community/auth',
-    '@community/db',
-    '@community/identity',
-    '@community/module-runtime',
-    '@community/ui',
-  ],
-};
-
-export default nextConfig;
+module.exports = { loadRootEnv };

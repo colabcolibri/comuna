@@ -23,6 +23,7 @@ const EXPECTED_PACKAGES: { dir: string; name: string }[] = [
   { dir: 'packages/modules/directory', name: '@community/directory' },
   { dir: 'packages/modules/showcase', name: '@community/showcase' },
   { dir: 'packages/modules/contact-mediated', name: '@community/contact-mediated' },
+  { dir: 'packages/ui/primitives', name: '@community/ui' },
   { dir: 'packages/ui/member', name: '@community/ui-member' },
   { dir: 'packages/ui/admin', name: '@community/ui-admin' },
 ];

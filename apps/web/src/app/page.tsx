@@ -11,10 +11,10 @@ const CONTENT = {
 export default function HomePage() {
   const copy = pickContent(CONTENT, 'pt-BR');
   return (
-    <main className="flex-1 flex items-center justify-center p-6 py-12 md:py-16">
-      <div className="w-full max-w-[440px]">
+    <main className="flex flex-1 items-center justify-center p-4 py-10 sm:p-6 md:py-16">
+      <div className="w-full min-w-0 max-w-md">
         <OtpCard />
-        <p className="mt-6 text-center text-xs text-muted">{copy.hint}</p>
+        <p className="mt-6 text-center text-xs text-muted-foreground">{copy.hint}</p>
       </div>
     </main>
   );

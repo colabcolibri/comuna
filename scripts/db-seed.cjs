@@ -2,6 +2,7 @@
 'use strict';
 
 const { Client } = require('pg');
+const { loadRootEnv } = require('./load-root-env.cjs');
 
 const MODULES = ['directory', 'showcase', 'contact-mediated'];
 
@@ -50,8 +51,12 @@ async function seed(url, email) {
 }
 
 async function main() {
+  loadRootEnv();
   const url = process.env.DATABASE_URL;
-  const email = process.env.INITIAL_SUPER_ADMIN_EMAIL || 'ops@community.local';
+  const email =
+    process.env.INITIAL_SUPER_ADMIN_EMAIL ||
+    process.env.INITIAL_ADMIN_EMAIL ||
+    'admin@example.com';
   if (!url) throw new Error('DATABASE_URL is required');
   await seed(url, email);
 }

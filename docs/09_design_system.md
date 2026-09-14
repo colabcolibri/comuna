@@ -1,8 +1,8 @@
 ---
 title: Design System
 status: approved
-version: 1.1
-updated: 2026-09-14
+version: 1.2
+updated: 2026-09-15
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
 ---
@@ -11,14 +11,14 @@ blocks: []
 
 ## Overview
 
-- **Surfaces:** `apps/web` (Stitch + plugins). Admin **não** usa este contrato.
-- **Primary UI stack:** `ts-shadcn` — primitives em `apps/web/src/components/ui/` (read-only em US de tela). Composição em `apps/web/src/components/templates/` e `apps/web/src/components/app/`.
+- **Surfaces:** `apps/web` (Stitch + plugins). Admin **não** usa o contrato Stitch; usa os mesmos primitives.
+- **Primary UI stack:** `ts-shadcn` — primitives em `packages/ui/primitives` (`@community/ui`). Compostos membro em `packages/ui/member` e, hoje, `apps/web/src/components/{templates,app}/`.
 - **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, sidebars de comunidade.
 - **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
 ## Colors
 
-Alinhado a `docs/stitch/DESIGN.md`.
+Light: Stitch. Dark: `.dark` no mesmo arquivo. Utilities (`bg-background`) leem `var(--background)`, não hex no `@theme`.
 
 | Token | Role | Theme key / CSS var |
 | ----- | ---- | ------------------- |
@@ -34,8 +34,8 @@ Alinhado a `docs/stitch/DESIGN.md`.
 
 | Mode | When it applies | Token set / file |
 | ---- | --------------- | ---------------- |
-| Light | Padrão Stitch | `globals.css` |
-| Dark | Não é requisito da v2.0.0 membro | Não inventar tokens escuros para “completar shadcn” |
+| Light | Padrão Stitch | `:root` em `packages/ui/primitives/src/styles.css` |
+| Dark | Classe `.dark` + `next-themes` (`system` default) | Mesmo arquivo |
 
 ## Typography
 

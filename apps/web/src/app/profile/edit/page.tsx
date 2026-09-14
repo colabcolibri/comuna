@@ -3,9 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { AppCardTemplate } from '@/components/templates/AppCardTemplate';
 import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Button, Input, Textarea } from '@community/ui';
 import { pickContent } from '@community/identity';
 
 const CONTENT = {

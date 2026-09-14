@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Dialog } from '@/components/ui/dialog';
+import { Dialog } from '@community/ui';
 
 export interface AppDialogTemplateProps {
   isOpen: boolean;

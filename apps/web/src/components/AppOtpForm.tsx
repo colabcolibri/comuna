@@ -133,7 +133,7 @@ export default function AppOtpForm() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ex: admin@alumni.org ou aluno@org.com"
+              placeholder="ex: admin@example.com"
               required
               style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #94a3b8', fontSize: '1rem', boxSizing: 'border-box' }}
             />

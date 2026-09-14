@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "react-jsx",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": false,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "cn": ["./src/lib/utils.ts"]
+    }
+  },
+  "include": ["src"]
+}

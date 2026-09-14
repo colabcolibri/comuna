@@ -27,14 +27,15 @@ packages/
     showcase/
     contact-mediated/
   ui/
-    member/            # Stitch
-    admin/
+    primitives/        # shadcn — @community/ui
+    member/            # compostos Stitch
+    admin/             # compostos ops
 db/
   migrations/          # SQL datado — ainda na raiz até a US mover
 docs/
 ```
 
-Pastas `apps/` e `packages/` existem no disco. O Next de membros vive em `apps/web/src`.
+Pastas `apps/` e `packages/` existem no disco. O Next de membros vive em `apps/web/src`. CLI shadcn: `packages/ui/primitives`.
 
 ## Workspaces
 
@@ -44,5 +45,6 @@ Alvo: `package.json` `"workspaces": ["apps/*", "packages/core/*", "packages/modu
 
 - `apps/web` não importa `packages/ui/admin`.
 - `apps/admin` não importa `packages/ui/member` nem rotas Stitch.
+- As duas apps importam `@community/ui` (primitives).
 - Módulo não importa outro módulo; só `core`.
 Código legado na raiz `src/` foi movido para `apps/web/src`.

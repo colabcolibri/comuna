@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const { Client } = require('pg');
+const { loadRootEnv } = require('./load-root-env.cjs');
 
 const dir = path.resolve(__dirname, '../db/migrations');
 
@@ -43,6 +44,7 @@ async function applyMigrations(connectionString) {
 }
 
 async function main() {
+  loadRootEnv();
   const url = process.env.DATABASE_URL;
   if (!url) {
     throw new Error('DATABASE_URL is required');

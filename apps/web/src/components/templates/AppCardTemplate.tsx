@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@community/ui';
 
 export interface AppCardTemplateProps {
   title?: React.ReactNode;

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ThemeToggle } from '@community/ui';
 import { pickContent } from '@community/identity';
 
 const CONTENT = {
@@ -42,12 +43,15 @@ export default function MemberHeader() {
             {copy.brand}
             <span className="w-1.5 h-1.5 rounded-full bg-cta mb-0.5" aria-hidden />
           </Link>
-          <Link
-            href="/showcase"
-            className="inline-flex items-center min-h-11 px-3 text-sm text-muted hover:text-text"
-          >
-            {copy.back}
-          </Link>
+          <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+            <ThemeToggle />
+            <Link
+              href="/showcase"
+              className="inline-flex items-center min-h-11 px-3 text-sm text-muted-foreground hover:text-foreground"
+            >
+              {copy.back}
+            </Link>
+          </div>
         </div>
       </header>
     );
@@ -60,7 +64,7 @@ export default function MemberHeader() {
           <div className="flex items-center gap-8 min-w-0">
             <div className="flex items-center gap-3">
               <span className="text-xl font-semibold tracking-tight">{copy.brand}</span>
-              <span className="hidden sm:inline-block px-2 py-0.5 text-xs rounded bg-canvas text-muted border border-border">
+              <span className="hidden sm:inline-block px-2 py-0.5 text-xs rounded bg-background text-muted-foreground border border-border">
                 {copy.coordBadge}
               </span>
             </div>
@@ -68,11 +72,12 @@ export default function MemberHeader() {
               <Link href="/coord/approvals" className="border-b-2 border-cta pb-4 text-sm font-medium">
                 {copy.coord}
               </Link>
-              <Link href="/directory" className="text-muted hover:text-text text-sm font-medium pb-4">
+              <Link href="/directory" className="text-muted-foreground hover:text-foreground text-sm font-medium pb-4">
                 {copy.directory}
               </Link>
             </nav>
           </div>
+          <ThemeToggle />
         </div>
       </header>
     );
@@ -86,23 +91,26 @@ export default function MemberHeader() {
             {copy.brand}
           </Link>
           <nav className="hidden md:flex items-center gap-6" aria-label="Navegação">
-            <Link href="/directory" className={pathname.startsWith('/directory') ? 'font-semibold border-b-2 border-cta pb-1' : 'text-muted'}>
+            <Link href="/directory" className={pathname.startsWith('/directory') ? 'font-semibold border-b-2 border-cta pb-1' : 'text-muted-foreground'}>
               {copy.directory}
             </Link>
-            <Link href="/showcase" className={pathname.startsWith('/showcase') ? 'font-semibold border-b-2 border-cta pb-1' : 'text-muted'}>
+            <Link href="/showcase" className={pathname.startsWith('/showcase') ? 'font-semibold border-b-2 border-cta pb-1' : 'text-muted-foreground'}>
               {copy.showcase}
             </Link>
-            <Link href="/profile/edit" className={pathname.startsWith('/profile') ? 'font-semibold border-b-2 border-cta pb-1' : 'text-muted'}>
+            <Link href="/profile/edit" className={pathname.startsWith('/profile') ? 'font-semibold border-b-2 border-cta pb-1' : 'text-muted-foreground'}>
               {copy.profile}
             </Link>
           </nav>
         </div>
-        <Link
-          href="/"
-          className="inline-flex items-center justify-center min-h-11 px-4 text-sm border border-border rounded-lg hover:bg-canvas"
-        >
-          {copy.signin}
-        </Link>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center min-h-11 px-4 text-sm border border-border rounded-lg hover:bg-background"
+          >
+            {copy.signin}
+          </Link>
+        </div>
       </div>
     </header>
   );

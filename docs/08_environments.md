@@ -16,7 +16,7 @@ blocks: []
 | `PORT` | Porta Next | Sim | `3014` | Local |
 | `DATABASE_URL` | Postgres | Sim | `postgresql://postgres:postgres@localhost:5432/alumni_db` | All |
 | `JWT_SECRET` | Assinatura JWT | Sim | sintético local | All |
-| `INITIAL_SUPER_ADMIN_EMAIL` | Seed ops (não promove via login da vitrine) | Sim | `ops@alumni.local` | Local / Staging |
+| `INITIAL_SUPER_ADMIN_EMAIL` | Seed ops (não promove via login da vitrine) | Sim | `admin@example.com` | Local / Staging |
 | `SMTP_HOST` | SMTP | Sim local | `localhost` | Local |
 | `SMTP_PORT` | SMTP | Sim local | `1025` | Local |
 | `EMAIL_FROM_ADDRESS` | From OTP | Sim | `auth@alumni.org` | All |
@@ -48,6 +48,8 @@ docker compose up -d
 - `apps/web` é o Next de membros (`apps/web/src`). Não há `src/` na raiz.
 - `apps/admin` é um Next mínimo na porta 3015, sem AppNavbar Stitch.
 
+`pnpm db:migrate` e `pnpm db:seed` leem o `.env` na raiz. Sem esse arquivo, `DATABASE_URL` não existe.
+
 ```bash
 cp .env.example .env
 pnpm install
@@ -59,7 +61,7 @@ pnpm dev:admin
 ```
 
 - Web (membros): `http://localhost:3014`
-- Admin stub: `http://localhost:3015` (`apps/admin`) — sem Stitch. Ops real nesta release: `http://localhost:3014/ops` com cookie de `super_admin` (seed: `INITIAL_SUPER_ADMIN_EMAIL`, default `ops@community.local`).
+- Admin stub: `http://localhost:3015` (`apps/admin`) — sem Stitch. Ops real nesta release: `http://localhost:3014/ops` com cookie de `super_admin` (seed: `INITIAL_SUPER_ADMIN_EMAIL`, default `admin@example.com`).
 - **Não** usar reset de banco.
 
 ## Seed do super-admin

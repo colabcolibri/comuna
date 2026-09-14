@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { AppCardTemplate } from '@/components/templates/AppCardTemplate';
 import { AppDialogTemplate } from '@/components/templates/AppDialogTemplate';
 import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
-import { Button } from '@/components/ui/button';
+import { Button } from '@community/ui';
 import { pickContent } from '@community/identity';
 
 const CONTENT = {

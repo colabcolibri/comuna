@@ -15,9 +15,11 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './apps/web/src'),
+      cn: path.resolve(__dirname, './packages/ui/primitives/src/lib/utils.ts'),
       '@community/db': path.resolve(__dirname, './packages/core/db/src/pool.ts'),
       '@community/auth': path.resolve(__dirname, './packages/core/auth/src/index.ts'),
       '@community/identity': path.resolve(__dirname, './packages/core/identity/src/pick-content.ts'),
+      '@community/ui': path.resolve(__dirname, './packages/ui/primitives/src/index.ts'),
     },
   },
 });

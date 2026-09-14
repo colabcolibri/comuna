@@ -31,16 +31,18 @@ blocks: [05_architecture.md]
 | UI strings | `CONTENT` no próprio arquivo | `src/lib/i18n/translations.ts` como dump |
 | Member UI | `packages/ui/member` | Tokens da vitrine no admin |
 | Admin UI | `packages/ui/admin` | Stitch obrigatório |
+| shadcn primitives | `packages/ui/primitives` | Copiar `components/ui` nas apps |
 
 ## Single responsibility — layers
 
 | Layer | Responsibility | May import | Must not |
 | ----- | -------------- | ---------- | -------- |
-| `apps/web` | Rotas membro, montar plugins enabled | core + modules + ui/member | SQL direto |
-| `apps/admin` | Ops e toggles | core + ui/admin | Stitch directory |
+| `apps/web` | Rotas membro, montar plugins enabled | core + modules + ui + ui/member | SQL direto |
+| `apps/admin` | Ops e toggles | core + ui + ui/admin | Stitch directory |
 | `packages/core/*` | Regras estáveis | `db` | React de tela (runtime pode exportar tipos) |
 | `packages/modules/*` | Manifest + schema extra + UI opcional | core | Ligar outro módulo por slug mágico |
-| `packages/ui/*` | Compostos | primitives | Postgres |
+| `packages/ui/primitives` | shadcn | React | Postgres, rotas Next |
+| `packages/ui/member` / `admin` | Compostos | `@community/ui` | Postgres |
 
 ## SOLID
 

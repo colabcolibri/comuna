@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Sheet } from '@/components/ui/sheet';
+import { Sheet } from '@community/ui';
 
 export interface AppSheetTemplateProps {
   isOpen: boolean;

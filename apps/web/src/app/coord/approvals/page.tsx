@@ -59,12 +59,12 @@ export default function CoordApprovalsPage() {
     <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-10 overflow-x-hidden">
       <section className="mb-8 border-b border-border pb-6">
         <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">{copy.title}</h1>
-        <p className="mt-1.5 text-muted max-w-2xl">{copy.subtitle}</p>
+        <p className="mt-1.5 text-muted-foreground max-w-2xl">{copy.subtitle}</p>
       </section>
-      <aside className="mb-6 rounded-lg bg-canvas border border-border p-4 text-sm text-muted">{copy.notice}</aside>
+      <aside className="mb-6 rounded-lg bg-background border border-border p-4 text-sm text-muted-foreground">{copy.notice}</aside>
       {forbidden && <p>{copy.forbidden}</p>}
       <div className="bg-surface border border-border rounded-lg overflow-hidden">
-        {!forbidden && rows.length === 0 && <p className="p-6 text-muted">{copy.empty}</p>}
+        {!forbidden && rows.length === 0 && <p className="p-6 text-muted-foreground">{copy.empty}</p>}
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <tbody>
@@ -74,7 +74,7 @@ export default function CoordApprovalsPage() {
                   <td className="px-4 py-4">
                     <div className="flex flex-wrap gap-2 justify-end">
                       <button
-                        className="min-h-11 px-4 bg-cta text-white rounded-lg text-sm font-semibold"
+                        className="min-h-11 px-4 bg-primary text-primary-foreground rounded-lg text-sm font-semibold"
                         onClick={() => act(row.id, 'approve')}
                       >
                         {copy.approve}

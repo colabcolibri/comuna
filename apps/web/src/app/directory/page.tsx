@@ -57,7 +57,7 @@ export default function DirectoryPage() {
     <main className="flex-1 w-full max-w-[1120px] mx-auto px-4 sm:px-6 py-10 overflow-x-hidden">
       <section className="mb-10">
         <h1 className="text-[32px] leading-10 font-semibold tracking-tight">{copy.title}</h1>
-        <p className="mt-2 text-lg text-muted max-w-3xl">{copy.subtitle}</p>
+        <p className="mt-2 text-lg text-muted-foreground max-w-3xl">{copy.subtitle}</p>
         <div className="mt-8 pb-6 border-b border-border">
           <label className="sr-only" htmlFor="global-search">
             {copy.search}
@@ -73,19 +73,19 @@ export default function DirectoryPage() {
       </section>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <aside className="lg:col-span-3">
-          <div className="bg-surface-container-low border border-border rounded-lg p-4 text-sm text-muted">
+          <div className="bg-surface-container-low border border-border rounded-lg p-4 text-sm text-muted-foreground">
             {copy.privacy}
           </div>
         </aside>
         <section className="lg:col-span-9 space-y-4">
           {off && <p>{copy.off}</p>}
-          {!off && filtered.length === 0 && <p className="text-muted">{copy.empty}</p>}
+          {!off && filtered.length === 0 && <p className="text-muted-foreground">{copy.empty}</p>}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {filtered.map((profile) => (
               <article key={profile.id} className="bg-surface border border-border rounded-lg p-5 flex flex-col gap-3">
                 <h2 className="font-semibold">{profile.full_name}</h2>
                 <p className="text-sm">{profile.headline}</p>
-                <p className="text-sm text-muted">{profile.bio}</p>
+                <p className="text-sm text-muted-foreground">{profile.bio}</p>
                 {profile.availability_status && (
                   <span className="inline-flex w-fit text-xs px-2 py-0.5 rounded border border-border">
                     {profile.availability_status}

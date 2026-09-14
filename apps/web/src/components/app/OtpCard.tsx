@@ -1,7 +1,24 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
 import { pickContent } from '@community/identity';
+import {
+  Alert,
+  AlertDescription,
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Input,
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+  Label,
+} from '@community/ui/';
+import { Mail } from 'lucide-react';
+import { useState } from 'react';
 
 const CONTENT = {
   'pt-BR': {
@@ -18,7 +35,7 @@ const CONTENT = {
     spam: 'Não recebeu? Verifique o spam ou solicite um novo envio.',
     privacy: 'Acesso restrito. Seus dados não vão para a vitrine pública.',
     invalid: 'Código inválido ou expirado. Solicite outro.',
-    digit: (n: number) => `Dígito ${n} do código`,
+    signedIn: 'Sessão iniciada',
   },
   en: {
     title: 'Sign in',
@@ -34,7 +51,7 @@ const CONTENT = {
     spam: 'Did not get it? Check spam or request a new code.',
     privacy: 'Restricted access. Your data is not listed publicly.',
     invalid: 'Invalid or expired code. Request another.',
-    digit: (n: number) => `Digit ${n} of the code`,
+    signedIn: 'Signed in',
   },
 } as const;
 
@@ -42,11 +59,10 @@ export default function OtpCard() {
   const copy = pickContent(CONTENT, 'pt-BR');
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [email, setEmail] = useState('');
-  const [digits, setDigits] = useState(['', '', '', '', '', '']);
+  const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState<{ email: string; role: string } | null>(null);
-  const inputs = useRef<Array<HTMLInputElement | null>>([]);
 
   const requestCode = async () => {
     setLoading(true);
@@ -62,7 +78,7 @@ export default function OtpCard() {
         throw new Error(data.error?.message || copy.invalid);
       }
       setStep('code');
-      setDigits(['', '', '', '', '', '']);
+      setCode('');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : copy.invalid);
     } finally {
@@ -70,14 +86,15 @@ export default function OtpCard() {
     }
   };
 
-  const verify = async (code: string) => {
+  const verify = async (value: string) => {
+    if (value.length !== 6 || loading) return;
     setLoading(true);
     setError('');
     try {
       const res = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code }),
+        body: JSON.stringify({ email, code: value }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -91,139 +108,116 @@ export default function OtpCard() {
     }
   };
 
-  const onDigit = (index: number, value: string) => {
-    const next = value.replace(/\D/g, '').slice(-1);
-    const copyDigits = [...digits];
-    copyDigits[index] = next;
-    setDigits(copyDigits);
-    if (next && index < 5) {
-      inputs.current[index + 1]?.focus();
-    }
-    if (copyDigits.every((d) => d.length === 1)) {
-      void verify(copyDigits.join(''));
-    }
-  };
-
-  const onPaste = (event: React.ClipboardEvent) => {
-    const paste = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
-    if (!paste) return;
-    event.preventDefault();
-    const next = paste.split('');
-    while (next.length < 6) next.push('');
-    setDigits(next);
-    if (paste.length === 6) {
-      void verify(paste);
-    }
-  };
-
   if (done) {
     return (
-      <section className="bg-surface-container-lowest border border-outline-variant/70 rounded-xl p-8 sm:p-10">
-        <h1 className="text-[22px] font-semibold mb-2">{copy.title}</h1>
-        <p className="text-muted text-sm">{done.email}</p>
-      </section>
+      <Card className="w-full min-w-0">
+        <CardHeader>
+          <CardTitle>{copy.signedIn}</CardTitle>
+          <CardDescription>{done.email}</CardDescription>
+        </CardHeader>
+      </Card>
     );
   }
 
   return (
-    <section className="bg-surface-container-lowest border border-outline-variant/70 rounded-xl p-8 sm:p-10 shadow-sm">
-      <div className="mb-6 text-center">
-        <div className="w-12 h-12 rounded-xl bg-surface-container-low border border-outline-variant/50 mx-auto mb-4 flex items-center justify-center text-cta">
-          @
+    <Card className="w-full min-w-0 overflow-hidden">
+      <CardHeader className="text-center">
+        <div className="mx-auto mb-1 flex size-12 items-center justify-center rounded-xl border bg-secondary text-primary">
+          <Mail className="size-5" aria-hidden />
         </div>
-        <h1 className="text-[22px] font-semibold tracking-tight mb-2">{copy.title}</h1>
-        <p className="text-sm text-on-surface-variant leading-relaxed">{copy.subtitle}</p>
-      </div>
-
-      {step === 'email' ? (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            void requestCode();
-          }}
-          className="space-y-4"
-        >
-          {error && (
-            <p className="flex items-center gap-2 p-2.5 bg-destructive-tint border border-destructive/20 rounded-lg text-destructive text-sm" role="alert">
-              {error}
-            </p>
-          )}
-          <label className="block text-sm font-medium">
-            {copy.emailLabel}
-            <input
-              className="mt-2 w-full min-h-12 box-border px-3 rounded-lg border-2 border-outline-variant"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </label>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full min-h-12 bg-cta text-white font-semibold rounded-lg"
+        <CardTitle className="text-xl">{copy.title}</CardTitle>
+        <CardDescription className="text-pretty">{copy.subtitle}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {step === 'email' ? (
+          <form
+            className="grid gap-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void requestCode();
+            }}
           >
-            {loading ? copy.sending : copy.send}
-          </button>
-        </form>
-      ) : (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            void verify(digits.join(''));
-          }}
-        >
-          <div className="mb-6 p-3.5 bg-surface-container-low/80 border border-outline-variant/60 rounded-lg flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <span className="block text-xs text-on-surface-variant">{copy.emailLabel}</span>
-              <span className="block truncate font-medium">{email}</span>
+            {error ? (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : null}
+            <div className="grid gap-2">
+              <Label htmlFor="otp-email">{copy.emailLabel}</Label>
+              <Input
+                id="otp-email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-11"
+              />
             </div>
-            <button type="button" className="text-sm font-semibold underline" onClick={() => setStep('email')}>
-              {copy.change}
-            </button>
-          </div>
-          <fieldset className="mb-4">
-            <legend className="block text-sm font-medium mb-3 text-center">{copy.codeLegend}</legend>
-            <div className="flex items-center justify-between gap-2" role="group" onPaste={onPaste}>
-              {digits.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={(el) => {
-                    inputs.current[index] = el;
-                  }}
-                  aria-label={copy.digit(index + 1)}
-                  inputMode="numeric"
-                  maxLength={1}
-                  className="flex-1 min-w-0 min-h-[52px] text-center text-lg font-semibold border-2 border-outline-variant rounded-lg"
-                  value={digit}
-                  onChange={(e) => onDigit(index, e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Backspace' && !digits[index] && index > 0) {
-                      inputs.current[index - 1]?.focus();
-                    }
-                  }}
-                />
-              ))}
+            <Button type="submit" className="h-11 w-full" disabled={loading}>
+              {loading ? copy.sending : copy.send}
+            </Button>
+          </form>
+        ) : (
+          <form
+            className="grid gap-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void verify(code);
+            }}
+          >
+            <div className="flex min-w-0 items-center justify-between gap-3 rounded-lg border bg-secondary px-3 py-2.5">
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">{copy.emailLabel}</p>
+                <p className="truncate text-sm font-medium">{email}</p>
+              </div>
+              <Button type="button" variant="link" className="h-auto shrink-0 px-0" onClick={() => setStep('email')}>
+                {copy.change}
+              </Button>
             </div>
-          </fieldset>
-          {error && (
-            <div className="mb-5 flex items-center gap-2 p-2.5 bg-destructive-tint border border-destructive/20 rounded-lg text-destructive text-sm" role="alert">
-              {error}
+            <div className="grid min-w-0 gap-3">
+              <Label htmlFor="otp-code" className="justify-center text-center">
+                {copy.codeLegend}
+              </Label>
+              <InputOTP
+                id="otp-code"
+                maxLength={6}
+                value={code}
+                onChange={setCode}
+                onComplete={(value) => void verify(value)}
+                disabled={loading}
+                containerClassName="w-full min-w-0 justify-center"
+              >
+                <InputOTPGroup className="w-full min-w-0">
+                  <InputOTPSlot index={0} className="h-12 flex-1" />
+                  <InputOTPSlot index={1} className="h-12 flex-1" />
+                  <InputOTPSlot index={2} className="h-12 flex-1" />
+                  <InputOTPSlot index={3} className="h-12 flex-1" />
+                  <InputOTPSlot index={4} className="h-12 flex-1" />
+                  <InputOTPSlot index={5} className="h-12 flex-1" />
+                </InputOTPGroup>
+              </InputOTP>
             </div>
-          )}
-          <button type="submit" disabled={loading} className="w-full min-h-12 bg-cta text-white font-semibold rounded-lg">
-            {loading ? copy.verifying : copy.verify}
-          </button>
-          <div className="mt-6 pt-5 border-t border-outline-variant/40 text-center space-y-2">
-            <button type="button" className="text-sm font-semibold" onClick={() => void requestCode()}>
-              {copy.resend}
-            </button>
-            <p className="text-xs text-on-surface-variant">{copy.spam}</p>
-          </div>
-        </form>
-      )}
-      <div className="mt-6 pt-4 border-t border-outline-variant/30 text-xs text-on-surface-variant">{copy.privacy}</div>
-    </section>
+            {error ? (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            ) : null}
+            <Button type="submit" className="h-11 w-full" disabled={loading || code.length !== 6}>
+              {loading ? copy.verifying : copy.verify}
+            </Button>
+            <div className="grid gap-2 border-t pt-4 text-center">
+              <Button type="button" variant="link" className="h-auto" onClick={() => void requestCode()}>
+                {copy.resend}
+              </Button>
+              <p className="text-xs text-muted-foreground">{copy.spam}</p>
+            </div>
+          </form>
+        )}
+      </CardContent>
+      <CardFooter className="border-t">
+        <p className="text-xs text-muted-foreground">{copy.privacy}</p>
+      </CardFooter>
+    </Card>
   );
 }

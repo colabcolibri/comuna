@@ -1,46 +1,21 @@
 @import "tailwindcss";
+@import "../../../../packages/ui/primitives/src/styles.css";
+@source "../../../../packages/ui/primitives/src";
 
 @theme {
-  --color-canvas: #f8fafc;
-  --color-surface: #ffffff;
-  --color-text: #0f172a;
-  --color-muted: #475569;
-  --color-border: #e2e8f0;
-  --color-cta: #0f172a;
-  --color-destructive: #b91c1c;
-  --color-destructive-tint: #fef2f2;
-  --color-outline-variant: #c6c6cd;
-  --color-on-surface-variant: #45464c;
-  --color-surface-container-low: #f6f3f4;
-  --color-surface-container-lowest: #ffffff;
   --font-headline: Inter, sans-serif;
   --font-body: "Atkinson Hyperlegible Next", sans-serif;
 }
 
 @layer base {
-  :root {
-    --background: #f8fafc;
-    --foreground: #0f172a;
-    --canvas: #f8fafc;
-    --surface: #ffffff;
-    --cta: #0f172a;
-    --destructive-solid: #b91c1c;
-    --border: #e2e8f0;
-    --radius: 0.5rem;
-  }
-
-  * {
-    border-color: var(--color-border);
-  }
-
   html,
   body {
     min-height: 100%;
   }
 
   body {
-    background-color: var(--color-canvas);
-    color: var(--color-text);
+    background-color: var(--background);
+    color: var(--foreground);
     font-family: var(--font-body), sans-serif;
     font-size: 16px;
     line-height: 1.5;
@@ -52,8 +27,12 @@
     font-family: var(--font-headline), sans-serif;
   }
 
+  * {
+    border-color: var(--border);
+  }
+
   *:focus-visible {
-    outline: 2px solid #0f172a;
+    outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
 }

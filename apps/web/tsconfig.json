@@ -26,6 +26,9 @@
       "@/*": [
         "./src/*"
       ],
+      "cn": [
+        "../../packages/ui/primitives/src/lib/utils.ts"
+      ],
       "@community/db": [
         "../../packages/core/db/src/pool.ts"
       ],
