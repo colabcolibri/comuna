@@ -6,6 +6,8 @@ import { AppDialogTemplate } from '@/components/templates/AppDialogTemplate';
 import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
 import { Button } from '@community/ui';
 import { pickContent } from '@community/identity';
+import { AppPageTemplate } from '@community/ui-member';
+import { useLocale } from '@/components/app/LocaleProvider';
 
 const CONTENT = {
   'pt-BR': {
@@ -35,7 +37,7 @@ const CONTENT = {
 type Row = { id: string; full_name: string; headline: string | null };
 
 export default function ShowcasePage() {
-  const copy = pickContent(CONTENT, 'pt-BR');
+  const copy = pickContent(CONTENT, useLocale());
   const [rows, setRows] = useState<Row[]>([]);
   const [selected, setSelected] = useState<Row | null>(null);
   const [senderEmail, setSenderEmail] = useState('');
@@ -85,11 +87,7 @@ export default function ShowcasePage() {
   };
 
   return (
-    <main className="max-w-[1000px] mx-auto my-8 px-4 overflow-x-hidden">
-      <header className="mb-8 text-center">
-        <h1 className="text-3xl font-semibold">{copy.title}</h1>
-        <p style={{ color: '#475569' }}>{copy.subtitle}</p>
-      </header>
+    <AppPageTemplate title={copy.title} subtitle={copy.subtitle} className="max-w-[1000px] my-8">
       {off && <p>{copy.off}</p>}
       <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))' }}>
         {rows.map((profile) => (
@@ -152,6 +150,6 @@ export default function ShowcasePage() {
           )
         }
       />
-    </main>
+    </AppPageTemplate>
   );
 }

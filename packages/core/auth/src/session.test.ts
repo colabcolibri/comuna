@@ -1,3 +1,4 @@
+import { memberFromCookieValue } from './from-request';
 import { signMemberToken, verifyMemberToken } from './session';
 
 describe('member jwt', () => {
@@ -20,5 +21,17 @@ describe('member jwt', () => {
     const claims = await verifyMemberToken(token);
     expect(claims.global_role).toBe('user');
     expect(claims.email).toBe('admin@alumni.org');
+  });
+
+  it('returns claims from a cookie value without touching postgres', async () => {
+    const token = await signMemberToken({
+      sub: '11111111-1111-1111-1111-111111111111',
+      email: 'admin@example.com',
+      global_role: 'user',
+    });
+    const claims = await memberFromCookieValue(token);
+    expect(claims?.email).toBe('admin@example.com');
+    expect(await memberFromCookieValue(undefined)).toBeNull();
+    expect(await memberFromCookieValue('not-a-jwt')).toBeNull();
   });
 });

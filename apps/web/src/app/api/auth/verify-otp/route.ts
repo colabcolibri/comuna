@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { consumeOtp, InvalidOtpError, AUTH_COOKIE, signMemberToken } from '@community/auth';
+import { consumeOtp, InvalidOtpError, AUTH_COOKIE, signMemberToken, memberAuthCookieOptions } from '@community/auth';
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,13 +24,7 @@ export async function POST(req: NextRequest) {
       success: true,
       user: { email: user.email, global_role: user.global_role },
     });
-    response.cookies.set(AUTH_COOKIE, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 30 * 24 * 60 * 60,
-    });
+    response.cookies.set(AUTH_COOKIE, token, memberAuthCookieOptions());
     return response;
   } catch (err: unknown) {
     if (err instanceof InvalidOtpError) {

@@ -11,6 +11,7 @@
     "lint": "pnpm --filter @community/web exec next lint",
     "test": "vitest run",
     "db:migrate": "node scripts/db-migrate.cjs",
+    "db:migrate:status": "node scripts/db-migrate.cjs --status",
     "db:seed": "node scripts/db-seed.cjs"
   },
   "dependencies": {

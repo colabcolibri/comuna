@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { pickContent } from '@community/identity';
+import { useLocale } from '@/components/app/LocaleProvider';
 
 const CONTENT = {
   'pt-BR': {
@@ -27,7 +28,7 @@ const CONTENT = {
 } as const;
 
 export default function AppOtpForm() {
-  const copy = pickContent(CONTENT, 'pt-BR');
+  const copy = pickContent(CONTENT, useLocale());
   const [step, setStep] = useState<'request' | 'verify'>('request');
   const [email, setEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');

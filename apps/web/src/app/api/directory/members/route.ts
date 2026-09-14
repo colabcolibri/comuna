@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { memberFromRequest } from '@community/auth';
-import { query } from '@community/db';
+import { queryAsMember } from '@community/db';
 import { activeMembership, moduleRuntime } from '@/lib/server/membership';
 
 export async function GET(req: NextRequest) {
@@ -16,7 +16,8 @@ export async function GET(req: NextRequest) {
   if (!on) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
   }
-  const result = await query(
+  const result = await queryAsMember(
+    { userId: member.sub, communityId: membership.community_id },
     `SELECT m.id, p.full_name, c.headline, c.bio, c.availability_status
      FROM network_core.memberships m
      JOIN person_core.profiles p ON p.user_id = m.user_id

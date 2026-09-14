@@ -40,6 +40,7 @@ const nextConfig: NextConfig = {
     '@community/identity',
     '@community/module-runtime',
     '@community/ui',
+    '@community/ui-member',
   ],
 };
 

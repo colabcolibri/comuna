@@ -14,7 +14,7 @@ blocks: []
 | Variable | Description | Required? | Example (synthetic) | Environment |
 | -------- | ----------- | --------- | ------------------- | ----------- |
 | `PORT` | Porta Next | Sim | `3014` | Local |
-| `DATABASE_URL` | Postgres | Sim | `postgresql://postgres:postgres@localhost:5432/alumni_db` | All |
+| `DATABASE_URL` | Postgres | Sim | `postgresql://postgres:postgres@localhost:5433/alumni_db` | All |
 | `JWT_SECRET` | Assinatura JWT | Sim | sintético local | All |
 | `INITIAL_SUPER_ADMIN_EMAIL` | Seed ops (não promove via login da vitrine) | Sim | `admin@example.com` | Local / Staging |
 | `SMTP_HOST` | SMTP | Sim local | `localhost` | Local |
@@ -48,17 +48,28 @@ docker compose up -d
 - `apps/web` é o Next de membros (`apps/web/src`). Não há `src/` na raiz.
 - `apps/admin` é um Next mínimo na porta 3015, sem AppNavbar Stitch.
 
-`pnpm db:migrate` e `pnpm db:seed` leem o `.env` na raiz. Sem esse arquivo, `DATABASE_URL` não existe.
+`pnpm db:migrate` aplica SQL datado em `db/migrations/`. `pnpm db:migrate:status` lista arquivos applied versus pending. Sem Prisma, Drizzle ou Supabase.
 
 ```bash
 cp .env.example .env
 pnpm install
 pnpm db:migrate
+pnpm db:migrate:status
 pnpm db:seed
 pnpm dev
 # outra aba:
 pnpm dev:admin
 ```
+
+Conferir o Postgres (porta publicada 5433):
+
+```bash
+psql "$DATABASE_URL"
+# ou:
+psql postgresql://postgres:postgres@localhost:5433/alumni_db
+```
+
+Cookie de sessão membro: `Secure` só quando `NODE_ENV=production`. Local HTTP usa `Secure=false` de propósito.
 
 - Web (membros): `http://localhost:3014`
 - Admin stub: `http://localhost:3015` (`apps/admin`) — sem Stitch. Ops real nesta release: `http://localhost:3014/ops` com cookie de `super_admin` (seed: `INITIAL_SUPER_ADMIN_EMAIL`, default `admin@example.com`).

@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { pickContent } from '@community/identity';
+import { AppPageTemplate } from '@community/ui-member';
+import { useLocale } from '@/components/app/LocaleProvider';
 
 const CONTENT = {
   'pt-BR': {
@@ -27,7 +29,7 @@ const CONTENT = {
 type Row = { id: string; full_name: string; network_status: string };
 
 export default function CoordApprovalsPage() {
-  const copy = pickContent(CONTENT, 'pt-BR');
+  const copy = pickContent(CONTENT, useLocale());
   const [rows, setRows] = useState<Row[]>([]);
   const [forbidden, setForbidden] = useState(false);
 
@@ -56,11 +58,7 @@ export default function CoordApprovalsPage() {
   };
 
   return (
-    <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 md:py-10 overflow-x-hidden">
-      <section className="mb-8 border-b border-border pb-6">
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">{copy.title}</h1>
-        <p className="mt-1.5 text-muted-foreground max-w-2xl">{copy.subtitle}</p>
-      </section>
+    <AppPageTemplate title={copy.title} subtitle={copy.subtitle} className="max-w-5xl py-8 md:py-10">
       <aside className="mb-6 rounded-lg bg-background border border-border p-4 text-sm text-muted-foreground">{copy.notice}</aside>
       {forbidden && <p>{copy.forbidden}</p>}
       <div className="bg-surface border border-border rounded-lg overflow-hidden">
@@ -93,6 +91,6 @@ export default function CoordApprovalsPage() {
           </table>
         </div>
       </div>
-    </main>
+    </AppPageTemplate>
   );
 }

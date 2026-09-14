@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ThemeToggle } from '@community/ui';
 import { pickContent } from '@community/identity';
+import { LocaleSwitcher } from '@/components/app/LocaleSwitcher';
+import { useLocale } from '@/components/app/LocaleProvider';
 
 const CONTENT = {
   'pt-BR': {
@@ -14,6 +16,7 @@ const CONTENT = {
     profile: 'Perfil',
     coord: 'Pedidos',
     signin: 'Entrar',
+    signout: 'Sair',
     coordBadge: 'Coordenação',
   },
   en: {
@@ -24,13 +27,55 @@ const CONTENT = {
     profile: 'Profile',
     coord: 'Requests',
     signin: 'Sign in',
+    signout: 'Sign out',
     coordBadge: 'Coordination',
   },
 } as const;
 
-export default function MemberHeader() {
+function SessionChrome({
+  email,
+  signin,
+  signout,
+}: {
+  email: string | null;
+  signin: string;
+  signout: string;
+}) {
+  async function onSignOut() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = '/';
+  }
+
+  if (email) {
+    return (
+      <div className="flex items-center gap-2 min-w-0">
+        <span className="truncate max-w-[10rem] sm:max-w-xs text-sm text-muted-foreground" title={email}>
+          {email}
+        </span>
+        <button
+          type="button"
+          onClick={() => void onSignOut()}
+          className="inline-flex items-center justify-center min-h-11 px-4 text-sm border border-border rounded-lg hover:bg-background"
+        >
+          {signout}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href="/"
+      className="inline-flex items-center justify-center min-h-11 px-4 text-sm border border-border rounded-lg hover:bg-background"
+    >
+      {signin}
+    </Link>
+  );
+}
+
+export default function MemberHeader({ sessionEmail }: { sessionEmail: string | null }) {
   const pathname = usePathname();
-  const copy = pickContent(CONTENT, 'pt-BR');
+  const copy = pickContent(CONTENT, useLocale());
   if (pathname.startsWith('/ops')) {
     return null;
   }
@@ -45,6 +90,8 @@ export default function MemberHeader() {
           </Link>
           <div className="flex items-center gap-1 sm:gap-2 min-w-0">
             <ThemeToggle />
+            <LocaleSwitcher />
+            <SessionChrome email={sessionEmail} signin={copy.signin} signout={copy.signout} />
             <Link
               href="/showcase"
               className="inline-flex items-center min-h-11 px-3 text-sm text-muted-foreground hover:text-foreground"
@@ -77,7 +124,11 @@ export default function MemberHeader() {
               </Link>
             </nav>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2 min-w-0">
+            <ThemeToggle />
+            <LocaleSwitcher />
+            <SessionChrome email={sessionEmail} signin={copy.signin} signout={copy.signout} />
+          </div>
         </div>
       </header>
     );
@@ -102,14 +153,10 @@ export default function MemberHeader() {
             </Link>
           </nav>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <ThemeToggle />
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center min-h-11 px-4 text-sm border border-border rounded-lg hover:bg-background"
-          >
-            {copy.signin}
-          </Link>
+          <LocaleSwitcher />
+          <SessionChrome email={sessionEmail} signin={copy.signin} signout={copy.signout} />
         </div>
       </div>
     </header>

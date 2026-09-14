@@ -15,10 +15,11 @@
     "target": "ES2017",
     "paths": {
       "@/*": ["./apps/web/src/*"],
-      "@community/db": ["./packages/core/db/src/pool.ts"],
+      "@community/db": ["./packages/core/db/src/index.ts"],
       "@community/module-runtime": ["./packages/core/module-runtime/src/is-enabled.ts"],
       "@community/auth": ["./packages/core/auth/src/index.ts"],
-      "@community/identity": ["./packages/core/identity/src/pick-content.ts"]
+      "@community/identity": ["./packages/core/identity/src/pick-content.ts"],
+      "vitest": ["./node_modules/vitest"]
     }
   },
   "include": [
@@ -27,7 +28,8 @@
     "apps/web/src/**/*.tsx",
     "apps/admin/**/*.ts",
     "apps/admin/**/*.tsx",
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
   ],
   "exclude": ["node_modules", "**/.next"]
 }

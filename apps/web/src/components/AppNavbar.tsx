@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { pickContent } from '@community/identity';
+import { useLocale } from '@/components/app/LocaleProvider';
 
 const CONTENT = {
   'pt-BR': {
@@ -26,7 +27,7 @@ const CONTENT = {
 
 export default function AppNavbar() {
   const pathname = usePathname();
-  const copy = pickContent(CONTENT, 'pt-BR');
+  const copy = pickContent(CONTENT, useLocale());
   if (pathname.startsWith('/ops') || pathname.startsWith('/admin')) {
     return null;
   }

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { pickContent } from '@community/identity';
+import { useLocale } from '@/components/app/LocaleProvider';
 
 const CONTENT = {
   'pt-BR': {
@@ -25,7 +26,7 @@ const CONTENT = {
 type Community = { id: string; slug: string; name: string; type: string };
 
 export default function OpsPage() {
-  const copy = pickContent(CONTENT, 'pt-BR');
+  const copy = pickContent(CONTENT, useLocale());
   const [rows, setRows] = useState<Community[]>([]);
   const [forbidden, setForbidden] = useState(false);
   const [slug, setSlug] = useState('');

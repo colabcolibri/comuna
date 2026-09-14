@@ -53,13 +53,15 @@ _N/A até expansão europeia._
 | Surface | Mechanism | Session / token | Expiry | Notes |
 | ------- | --------- | --------------- | ------ | ----- |
 | Vitrine | Nenhum | N/A | N/A | Só dados públicos |
-| Member web | OTP e-mail | Cookie HttpOnly JWT | 30 dias se “manter conectado”; senão sessão curta | Sem senha |
+| Member web | OTP e-mail | Cookie HttpOnly JWT (`SameSite=Lax`; `Secure` só em produção) | 30 dias | Sem senha; flags em `memberAuthCookieOptions` |
 | Coordination (same app) | Mesmo OTP + `network_role` | Mesmo cookie | 30 dias | `coordinator` na membership |
 | Ops | OTP para conta `super_admin` **ou** mesmo IdP, cookie distinto | Cookie HttpOnly JWT `ops` | 7 dias | Nunca promover papel por string de e-mail |
 
 **Password policy:** N/A.
 
 **MFA:** Fora da v2.0.0.
+
+**CSRF / same-site:** na v2.0.0 as mutações autenticadas do membro (`POST`/`PUT` em `/api/*`) são same-site a partir de `apps/web`. O cookie de sessão é HttpOnly e `SameSite=Lax`; não há token CSRF separado nesta versão. Cookie de locale (`ui_locale`) não é sessão.
 
 **Account recovery:** Novo OTP.
 

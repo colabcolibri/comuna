@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { memberFromRequest } from '@community/auth';
-import { query } from '@community/db';
+import { queryAsMember } from '@community/db';
 import { activeMembership, moduleRuntime } from '@/lib/server/membership';
 
 export async function GET(req: NextRequest) {
@@ -14,7 +14,8 @@ export async function GET(req: NextRequest) {
   }
   const on = await moduleRuntime.isEnabled(membership.community_id, 'directory');
   const card = on
-    ? await query(
+    ? await queryAsMember(
+        { userId: member.sub, communityId: membership.community_id },
         `SELECT headline, bio, availability_status, public_showcase, custom_attributes
          FROM plugin_directory.cards WHERE membership_id = $1`,
         [membership.id]
@@ -43,7 +44,8 @@ export async function PUT(req: NextRequest) {
       { status: 403 }
     );
   }
-  await query(
+  await queryAsMember(
+    { userId: member.sub, communityId: membership.community_id },
     `INSERT INTO plugin_directory.cards (
        membership_id, headline, bio, availability_status, public_showcase, custom_attributes
      ) VALUES ($1, $2, $3, $4, $5, $6)

@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { pickContent } from '@community/identity';
+import { AppPageTemplate } from '@community/ui-member';
+import { useLocale } from '@/components/app/LocaleProvider';
 
 const CONTENT = {
   'pt-BR': {
@@ -33,7 +35,7 @@ type MemberRow = {
 };
 
 export default function DirectoryPage() {
-  const copy = pickContent(CONTENT, 'pt-BR');
+  const copy = pickContent(CONTENT, useLocale());
   const [rows, setRows] = useState<MemberRow[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [off, setOff] = useState(false);
@@ -54,10 +56,8 @@ export default function DirectoryPage() {
   );
 
   return (
-    <main className="flex-1 w-full max-w-[1120px] mx-auto px-4 sm:px-6 py-10 overflow-x-hidden">
+    <AppPageTemplate title={copy.title} subtitle={copy.subtitle}>
       <section className="mb-10">
-        <h1 className="text-[32px] leading-10 font-semibold tracking-tight">{copy.title}</h1>
-        <p className="mt-2 text-lg text-muted-foreground max-w-3xl">{copy.subtitle}</p>
         <div className="mt-8 pb-6 border-b border-border">
           <label className="sr-only" htmlFor="global-search">
             {copy.search}
@@ -96,6 +96,6 @@ export default function DirectoryPage() {
           </div>
         </section>
       </div>
-    </main>
+    </AppPageTemplate>
   );
 }

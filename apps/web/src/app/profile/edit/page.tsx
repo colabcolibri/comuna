@@ -3,8 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { AppCardTemplate } from '@/components/templates/AppCardTemplate';
 import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
-import { Button, Input, Textarea } from '@community/ui';
+import { AppPageTemplate } from '@community/ui-member';
+import { Button, Input, Label, Textarea } from '@community/ui';
 import { pickContent } from '@community/identity';
+import { useLocale } from '@/components/app/LocaleProvider';
 
 const CONTENT = {
   'pt-BR': {
@@ -14,6 +16,8 @@ const CONTENT = {
     saved: 'Perfil atualizado',
     error: 'Não foi possível salvar',
     name: 'Nome completo',
+    avatar: 'URL do avatar',
+    locale: 'Idioma preferido',
     headline: 'Headline',
     bio: 'Bio',
     availability: 'Disponibilidade',
@@ -25,6 +29,8 @@ const CONTENT = {
     saved: 'Profile updated',
     error: 'Could not save',
     name: 'Full name',
+    avatar: 'Avatar URL',
+    locale: 'Preferred language',
     headline: 'Headline',
     bio: 'Bio',
     availability: 'Availability',
@@ -32,8 +38,10 @@ const CONTENT = {
 } as const;
 
 export default function ProfileEditPage() {
-  const copy = pickContent(CONTENT, 'pt-BR');
+  const copy = pickContent(CONTENT, useLocale());
   const [fullName, setFullName] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [preferredLocale, setPreferredLocale] = useState('pt-BR');
   const [headline, setHeadline] = useState('');
   const [bio, setBio] = useState('');
   const [availability, setAvailability] = useState('');
@@ -47,6 +55,8 @@ export default function ProfileEditPage() {
         const membershipJson = await membershipRes.json();
         if (profileJson.profile) {
           setFullName(profileJson.profile.full_name || '');
+          setAvatarUrl(profileJson.profile.avatar_url || '');
+          setPreferredLocale(profileJson.profile.preferred_locale || 'pt-BR');
         }
         if (membershipJson.card) {
           setHeadline(membershipJson.card.headline || '');
@@ -63,7 +73,11 @@ export default function ProfileEditPage() {
     const profileRes = await fetch('/api/profiles/me', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ full_name: fullName, preferred_locale: 'pt-BR' }),
+      body: JSON.stringify({
+        full_name: fullName,
+        avatar_url: avatarUrl || null,
+        preferred_locale: preferredLocale,
+      }),
     });
     if (!profileRes.ok) {
       const data = await profileRes.json();
@@ -80,11 +94,7 @@ export default function ProfileEditPage() {
   };
 
   return (
-    <main className="max-w-4xl mx-auto py-8 px-4 space-y-6">
-      <header>
-        <h1 className="text-3xl font-semibold m-0">{copy.title}</h1>
-        <p style={{ color: '#475569' }}>{copy.subtitle}</p>
-      </header>
+    <AppPageTemplate title={copy.title} subtitle={copy.subtitle} className="max-w-4xl py-8">
       {saved && <AppAlertTemplate variant="success" title={copy.saved} message={copy.saved} />}
       {error && <AppAlertTemplate variant="destructive" title={copy.error} message={error} />}
       <form onSubmit={handleSave} className="space-y-6">
@@ -92,22 +102,38 @@ export default function ProfileEditPage() {
           title={copy.title}
           content={
             <div className="space-y-4">
-              <label className="block text-sm">
-                {copy.name}
-                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} />
-              </label>
-              <label className="block text-sm">
-                {copy.headline}
-                <Input value={headline} onChange={(e) => setHeadline(e.target.value)} />
-              </label>
-              <label className="block text-sm">
-                {copy.bio}
-                <Textarea rows={4} value={bio} onChange={(e) => setBio(e.target.value)} />
-              </label>
-              <label className="block text-sm">
-                {copy.availability}
-                <Input value={availability} onChange={(e) => setAvailability(e.target.value)} />
-              </label>
+              <div className="space-y-2">
+                <Label htmlFor="full_name">{copy.name}</Label>
+                <Input id="full_name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="avatar_url">{copy.avatar}</Label>
+                <Input id="avatar_url" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="preferred_locale">{copy.locale}</Label>
+                <select
+                  id="preferred_locale"
+                  className="w-full min-h-11 px-3 bg-surface border border-border rounded-lg"
+                  value={preferredLocale}
+                  onChange={(e) => setPreferredLocale(e.target.value)}
+                >
+                  <option value="pt-BR">pt-BR</option>
+                  <option value="en">en</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="headline">{copy.headline}</Label>
+                <Input id="headline" value={headline} onChange={(e) => setHeadline(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="bio">{copy.bio}</Label>
+                <Textarea id="bio" rows={4} value={bio} onChange={(e) => setBio(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="availability">{copy.availability}</Label>
+                <Input id="availability" value={availability} onChange={(e) => setAvailability(e.target.value)} />
+              </div>
             </div>
           }
           footer={
@@ -117,6 +143,6 @@ export default function ProfileEditPage() {
           }
         />
       </form>
-    </main>
+    </AppPageTemplate>
   );
 }

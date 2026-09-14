@@ -1,4 +1,7 @@
+'use client';
+
 import { pickContent } from '@community/identity';
+import { useLocale } from '@/components/app/LocaleProvider';
 
 const CONTENT = {
   'pt-BR': {
@@ -14,7 +17,7 @@ const CONTENT = {
 } as const;
 
 export default function MemberFooter() {
-  const copy = pickContent(CONTENT, 'pt-BR');
+  const copy = pickContent(CONTENT, useLocale());
   return (
     <footer className="w-full border-t border-outline-variant/50 bg-surface py-6 px-6 mt-auto">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">

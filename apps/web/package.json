@@ -8,6 +8,10 @@
     "start": "next start -p 3014"
   },
   "dependencies": {
-    "@community/ui": "workspace:*"
+    "@community/ui": "workspace:*",
+    "@community/ui-member": "workspace:*",
+    "next": "^16.3.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }

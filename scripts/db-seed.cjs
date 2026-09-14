@@ -5,6 +5,11 @@ const { Client } = require('pg');
 const { loadRootEnv } = require('./load-root-env.cjs');
 
 const MODULES = ['directory', 'showcase', 'contact-mediated'];
+const DEMO_MEMBER_COUNT = 40;
+
+function demoMemberEmails(count = DEMO_MEMBER_COUNT) {
+  return Array.from({ length: count }, (_, i) => `member${String(i + 1).padStart(2, '0')}@demo.example`);
+}
 
 async function seed(url, email) {
   const client = new Client({ connectionString: url });
@@ -44,7 +49,38 @@ async function seed(url, email) {
        ON CONFLICT (community_id, module_id) DO UPDATE SET enabled = true`,
       [communityId]
     );
-    console.log(`seed ok user=${userId} community=${communityId}`);
+
+    for (const memberEmail of demoMemberEmails()) {
+      const member = await client.query(
+        `INSERT INTO auth_core.users (email, global_role, status)
+         VALUES ($1, 'user', 'active')
+         ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+         RETURNING id`,
+        [memberEmail]
+      );
+      const memberId = member.rows[0].id;
+      const n = memberEmail.match(/member(\d+)/)[1];
+      await client.query(
+        `INSERT INTO person_core.profiles (user_id, full_name, preferred_locale)
+         VALUES ($1, $2, 'pt-BR')
+         ON CONFLICT (user_id) DO NOTHING`,
+        [memberId, `Demo Member ${n}`]
+      );
+      const membership = await client.query(
+        `INSERT INTO network_core.memberships (community_id, user_id, network_role, network_status)
+         VALUES ($1, $2, 'member', 'active')
+         ON CONFLICT (community_id, user_id) DO UPDATE SET network_status = 'active'
+         RETURNING id`,
+        [communityId, memberId]
+      );
+      await client.query(
+        `INSERT INTO plugin_directory.cards (membership_id, headline, bio, availability_status, public_showcase)
+         VALUES ($1, $2, $3, 'available_for_hire', true)
+         ON CONFLICT (membership_id) DO NOTHING`,
+        [membership.rows[0].id, `Headline ${n}`, `Bio sintética ${n}`]
+      );
+    }
+    console.log(`seed ok user=${userId} community=${communityId} demo_members=${DEMO_MEMBER_COUNT}`);
   } finally {
     await client.end();
   }
@@ -61,7 +97,11 @@ async function main() {
   await seed(url, email);
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
+
+module.exports = { demoMemberEmails, DEMO_MEMBER_COUNT };

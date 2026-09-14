@@ -102,8 +102,24 @@ importers:
       '@community/ui':
         specifier: workspace:*
         version: link:../../packages/ui/primitives
+      '@community/ui-member':
+        specifier: workspace:*
+        version: link:../../packages/ui/member
+      next:
+        specifier: ^16.3.5
+        version: 16.3.5(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+      react:
+        specifier: ^19.0.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.3.0(react@19.3.0)
 
-  packages/core/auth: {}
+  packages/core/auth:
+    devDependencies:
+      vitest:
+        specifier: ^2.0.2
+        version: 2.1.9(@types/node@20.19.43)(happy-dom@20.14.5)(lightningcss@1.32.0)
 
   packages/core/communities: {}
 
@@ -132,6 +148,12 @@ importers:
       '@community/ui':
         specifier: workspace:*
         version: link:../primitives
+      react:
+        specifier: ^19.0.0
+        version: 19.3.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.3.0(react@19.3.0)
 
   packages/ui/primitives:
     dependencies:

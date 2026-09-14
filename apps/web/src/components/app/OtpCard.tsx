@@ -1,6 +1,7 @@
 'use client';
 
 import { pickContent } from '@community/identity';
+import { useLocale } from '@/components/app/LocaleProvider';
 import {
   Alert,
   AlertDescription,
@@ -56,7 +57,7 @@ const CONTENT = {
 } as const;
 
 export default function OtpCard() {
-  const copy = pickContent(CONTENT, 'pt-BR');
+  const copy = pickContent(CONTENT, useLocale());
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
