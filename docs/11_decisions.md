@@ -63,6 +63,9 @@ python3 .agent/scripts/meridian_delivery.py prepend-decision \
 
 | Date | Title | Affected |
 | ---- | ----- | -------- |
+| 2026-09-14 | Comunidades genéricas, plugins e monorepo | `00_scope.md` |
+| 2026-09-14 | Waiver: planejar v2.0.0 com 03 draft e 05 em review | `05_architecture.md` |
+| 2026-09-14 | Super-admin fora da UI Stitch; replanejamento v2.0.0 | `00_scope.md` |
 | 2026-09-14 | Projeto Alumni iniciado com Meridian | `00_scope.md` |
 
 ## Gate

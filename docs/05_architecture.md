@@ -1,7 +1,7 @@
 ---
 title: System Architecture
-status: approved
-version: 1.3
+status: review
+version: 1.5
 updated: 2026-09-14
 depends_on: [00_scope.md, 01_tech_stack.md, 02_security.md, 03_user_types.md, 04_principles.md]
 blocks: [06_database.md, 07_api_contracts.md, 08_environments.md]
@@ -11,81 +11,103 @@ blocks: [06_database.md, 07_api_contracts.md, 08_environments.md]
 
 ## Overview
 
-O **Alumni Platform** adota uma arquitetura Server-First baseada em Next.js App Router (React Server Components + Server Actions / API Routes). O sistema centraliza a lógica de negócios, controle de acesso RBAC e proteções de privacidade no servidor antes de renderizar ou responder com dados.
+**Community Platform** é server-first, multi-tenant, **plugin-first**. O núcleo não é “alumni”. É identidade + comunidades + membership + perfil-base. Features de diretório rico, vitrine e contato são módulos com manifest, schema próprio e flag por `community_id` (BuddyBoss/Moodle: componente instalado, enabled no contexto).
+
+Duas apps Next no monorepo (`apps/web`, `apps/admin`), um Postgres. Código atual na raiz é legado até a US de scaffold.
 
 ```mermaid
 flowchart TD
-    subgraph Clients ["Clientes / Acesso Web"]
-        Guest["Visitante / Recrutador"]
-        Alumni["Membro Alumni"]
-        Coord["Coordenador / Admin"]
+    subgraph Apps
+        Web["apps/web membros"]
+        Admin["apps/admin"]
     end
 
-    subgraph Edge ["Camada Edge / Middleware"]
-        Middleware["Next.js Middleware (RBAC & Auth Check)"]
-        RateLimiter["In-Memory / Postgres Rate Limiter"]
+    subgraph Core["packages/core"]
+        Auth[auth]
+        Ident[identity perfil-base]
+        Comm[communities]
+        Mem[memberships]
+        Runtime[module-runtime]
+        Db[db]
     end
 
-    subgraph AppServer ["Aplicação Next.js (Server Side)"]
-        PublicShowcase["Public Showcase Module (Vitrine Filtros/SSG)"]
-        ProfileDirectory["Profile & Directory Module (Busca & Projetos)"]
-        CoordModule["Coordination & Moderation Module (Validação)"]
-        AuthService["Passwordless Auth Engine (OTP Generator)"]
+    subgraph Mods["packages/modules"]
+        Dir[directory]
+        Show[showcase]
+        Contact[contact-mediated]
     end
 
-    subgraph DataServices ["Serviços de Dados & Integrações"]
-        Postgres[(PostgreSQL - Dados Relacionais & Tabela OTP)]
-        EmailSvc["Transactional Email Service (Resend/SES)"]
-    end
-
-    Guest -->|Acesso Público| Middleware
-    Alumni -->|Cookie de Sessão JWT| Middleware
-    Coord -->|Cookie de Sessão JWT + RBAC| Middleware
-
-    Middleware --> RateLimiter
-    RateLimiter --> PublicShowcase
-    RateLimiter --> ProfileDirectory
-    RateLimiter --> CoordModule
-    RateLimiter --> AuthService
-
-    PublicShowcase --> Postgres
-    ProfileDirectory --> Postgres
-    CoordModule --> Postgres
-
-    AuthService --> Postgres
-    AuthService --> EmailSvc
+    Web --> Runtime
+    Admin --> Runtime
+    Runtime --> Dir
+    Runtime --> Show
+    Runtime --> Contact
+    Runtime --> Auth
+    Runtime --> Ident
+    Runtime --> Comm
+    Runtime --> Mem
+    Auth --> Db
+    Ident --> Db
+    Comm --> Db
+    Mem --> Db
+    Dir --> Db
+    Show --> Db
+    Contact --> Db
 ```
 
 ## Architecture diagrams (Visual Set)
 
 | File | Kind | Scope |
 | ---- | ---- | ----- |
-| `docs/architecture/diagrams/alumni-database.md` | database | Diagrama ER detalhado do banco de dados (Identity, PersonProfile, AlumniProfile e JSONB) |
+| `docs/architecture/diagrams/alumni-database.md` | database | ER núcleo (renomear quando o ficheiro for atualizado) |
+| `docs/architecture/diagrams/alumni-runtime.md` | runtime | web vs admin |
+| `docs/architecture/diagrams/module-runtime.md` | flow | enable/disable módulo |
 
-## Simplificação de Infraestrutura (Decisão Simplificadora)
+## Architecture detail files
 
-> **Decisão sobre o Redis:** Removido a dependência do Redis para a v1. Os códigos de verificação OTP e tentativas de login passam a ser armazenados na tabela dedicada `verification_tokens` no próprio **PostgreSQL** com expiração automática (`expires_at`). Isso simplifica o deploy local e em produção (único banco de dados para gerenciar).
+| File | Scope |
+| ---- | ----- |
+| `docs/architecture/surfaces.md` | web vs admin |
+| `docs/architecture/monorepo.md` | Árvore de pastas |
+| `docs/architecture/modules.md` | Contrato de plugin, perfil-base vs extra |
+| `docs/architecture/i18n-content.md` | Convenção `CONTENT` |
 
-## System Modules
+## System modules (core)
 
-### 1. Passwordless Auth Engine (`AuthService`)
-- **Responsabilidade:** Geração de códigos numéricos de 6 dígitos (OTP) com expiração de 10 minutos gravados na tabela `verification_tokens` no PostgreSQL.
-- **Validação:** Checagem de código com máximo de 5 tentativas. Ao validar, emite um JWT gravado em cookie HTTP-Only (`SameSite=Lax`, `Secure`).
-- **Persistência:** Sessão mantida por 30 dias para usuários que marcarem a opção de manter conectado.
+### Auth
 
-### 2. Profile & Directory Module (`ProfileDirectory`)
-- **Responsabilidade:** Gestão do perfil do ex-aluno (habilidades, portfólio, projetos e disponibilidade).
-- **Filtro de Privacidade:** Antes de entregar a resposta JSON ou HTML, filtra dados privados conforme o cargo do usuário solicitante (Alumni/Coord vêm dados completos; Guest só vê dados marcados como públicos).
+OTP + JWT. Sem papel por e-mail.
 
-### 3. Public Showcase Module (`PublicShowcase`)
-- **Responsabilidade:** Exibição da vitrine para visitantes externos e contratantes.
-- **Contato Mediado:** Formulário mediado onde a mensagem é disparada via e-mail transacional sem expor o e-mail real do ex-aluno ao público.
+### Identity (perfil-base)
 
-### 4. Coordination & Moderation Module (`CoordModule`)
-- **Responsabilidade:** Painel exclusivo para os cargos `coordinator` e `admin`.
-- **Funcionalidades:** Fila de aprovação de novos membros cadastrados, moderação/ocultação de perfis inapropriados e associação de ex-alunos a turmas/regiões.
+Só o que toda comunidade precisa para *existir uma pessoa*: `full_name`, `avatar_url`, `preferred_locale`. Sem skills, headline, bio, disponibilidade, gênero, cidade — isso é plugin (proposta no `00`; manager pode puxar campos para o base).
 
-## Component Boundary & Security Enforcements
+### Communities e memberships
 
-1. **Server Components por padrão:** Dados sensíveis nunca chegam ao bundle JS do cliente. Apenas dados sanitizados são passados aos componentes de UI.
-2. **Strict Server-Side Authorization:** Toda alteração de perfil ou ação administrativa valida o token e o papel (`role`) diretamente na instrução SQL / ORM, evitando autorização apenas na interface.
+Tenant, papéis `member` / `coordinator`, `pending_approval`. Coordenação de entrada é **núcleo**.
+
+### Module runtime
+
+Catálogo `plugin_core.modules`. Por comunidade: `network_core.community_modules (community_id, module_id, enabled)`. Resolve manifest, recusa rotas de plugin off.
+
+### Operations (admin app)
+
+Criar comunidade, atribuir coordenador, **ligar/desligar módulos**.
+
+## First-party plugins (v2)
+
+| Slug | O que adiciona | Off significa |
+| ---- | -------------- | -------------- |
+| `directory` | Campos extras + busca/listagem rica | Membros só veem perfil-base (ou lista mínima do núcleo) |
+| `showcase` | Projeção pública | Sem vitrine |
+| `contact-mediated` | Formulário sem expor e-mail | Sem hiring mail |
+
+## Component boundary
+
+1. App web pergunta ao runtime o que montar.
+2. Autorização no core; módulo não grava se `enabled = false`.
+3. Isolamento `community_id` em toda query de rede.
+
+## Gate
+
+`review` até o manager aprovar o modelo plugin + monorepo.

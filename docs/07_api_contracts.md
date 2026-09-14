@@ -1,7 +1,7 @@
 ---
 title: API Contracts
 status: draft
-version: 1.1
+version: 1.2
 updated: 2026-09-14
 depends_on: [05_architecture.md, 06_database.md]
 blocks: []
@@ -13,20 +13,19 @@ blocks: []
 
 | Attribute | Value |
 | --------- | ----- |
-| **Style** | REST (JSON Endpoints / Server Actions) |
+| **Style** | REST JSON via Route Handlers |
 | **Base URL** | `/api` |
-| **Versioning** | Inline Next.js App Router (ex: `/api/v1` ou rotas sem sufixo na v1) |
-| **Documentation** | Inline em `docs/07_api_contracts.md` |
+| **Versioning** | Sem `/v1` na v2.0.0 |
+| **Documentation** | Este arquivo |
 
 ## Authentication
 
 | Mechanism | Header / Cookie | Consistent with `02_security` |
 | --------- | --------------- | ----------------------------- |
-| Cookie JWT (`auth_token`) | `Cookie: auth_token=...` (HttpOnly, Secure, SameSite=Lax) | Sim (conforme `02_security` § Authentication) |
+| Membro / coord | Cookie `auth_token` HttpOnly | Sim |
+| Admin app | Cookie `ops_token` (alvo) | App `apps/admin`, não `/ops` eterno na web |
 
 ## Error envelope
-
-Todas as respostas de erro HTTP retornam a estrutura padronizada abaixo:
 
 ```json
 {
@@ -38,39 +37,48 @@ Todas as respostas de erro HTTP retornam a estrutura padronizada abaixo:
 }
 ```
 
-### Códigos de erro padrão
+### Códigos
 
-- `RATE_LIMIT_EXCEEDED` (429): Muitas solicitações enviadas.
-- `UNAUTHORIZED` (401): Cookie de sessão ausente ou JWT inválido.
-- `FORBIDDEN` (403): O perfil não possui privilégio necessário (`coordinator` ou `admin`).
-- `NOT_FOUND` (404): Perfil ou recurso não encontrado.
-- `VALIDATION_ERROR` (400): Campos da requisição inválidos (Zod).
+- `RATE_LIMIT_EXCEEDED` 429
+- `UNAUTHORIZED` 401
+- `FORBIDDEN` 403
+- `NOT_FOUND` 404
+- `VALIDATION_ERROR` 400
+
+`FORBIDDEN` para coord usa `network_role`; ops usa `global_role`. Não misturar os dois códigos de produto.
 
 ## Endpoints
 
-| Method | Path | Purpose | Auth | Request Body | Response (Success) |
-| ------ | ---- | ------- | ---- | ------------ | ------------------ |
-| `POST` | `/api/auth/request-otp` | Envia código OTP por e-mail | Public | `{ "email": "alumni@org.com" }` | `200 OK` `{ "message": "Código enviado" }` |
-| `POST` | `/api/auth/verify-otp` | Valida OTP e estabelece cookie JWT | Public | `{ "email": "alumni@org.com", "code": "123456" }` | `200 OK` + `Set-Cookie` |
-| `POST` | `/api/auth/logout` | Encerra a sessão atual | Authenticated | `{}` | `200 OK` + zera Cookie |
-| `GET` | `/api/profiles` | Busca diretório de perfis com filtros | Authenticated | `?search=tech&skill=react&page=1` | `200 OK` `{ "data": [...], "meta": {...} }` |
-| `GET` | `/api/profiles/public` | Vitrine de perfis públicos (para visitantes) | Public | `?skill=react` | `200 OK` `{ "data": [...] }` |
-| `GET` | `/api/profiles/:id` | Detalhes de um perfil específico | Public / Auth | N/A | `200 OK` `{ "profile": {...} }` (sanitizado conforme cargo) |
-| `PUT` | `/api/profiles/me` | Atualiza o próprio perfil | Alumni | `{ "headline": "...", "skills": [...] }` | `200 OK` `{ "profile": {...} }` |
-| `POST` | `/api/profiles/:id/contact` | Envia mensagem mediada para o alumni | Public | `{ "sender_name": "...", "sender_email": "...", "message": "..." }` | `200 OK` `{ "message": "Mensagem enviada com sucesso" }` |
-| `GET` | `/api/admin/approvals` | Lista membros aguardando aprovação | Coordinator / Admin | `?status=pending_approval` | `200 OK` `{ "pending": [...] }` |
-| `POST` | `/api/admin/approvals/:userId` | Aprova ou rejeita cadastro de um membro | Coordinator / Admin | `{ "action": "approve", "reason": "Turma 2024 verificada" }` | `200 OK` `{ "status": "active" }` |
+| Method | Path | Purpose | Auth | Request | Success |
+| ------ | ---- | ------- | ---- | ------- | ------- |
+| `POST` | `/api/auth/request-otp` | Envia OTP | Public | `{ "email" }` | `200` `{ "message" }` — **sem** `dev_otp` em prod |
+| `POST` | `/api/auth/verify-otp` | Sessão membro | Public | `{ "email", "code" }` | `200` + `Set-Cookie` `auth_token` |
+| `POST` | `/api/auth/logout` | Encerra sessão membro | Authenticated | `{}` | `200` + cookie vazio |
+| `GET` | `/api/profiles/me` | Perfil-base | Member / coordinator | — | `{ "profile" }` base |
+| `PUT` | `/api/profiles/me` | Atualiza perfil-base | Member / coordinator | `{ "full_name", "avatar_url", "preferred_locale" }` | `{ "profile" }` |
+| `GET` | `/api/directory/members` | Diretório rico | Member; **404 se plugin off** | query | `{ "data", "meta" }` |
+| `GET` | `/api/showcase/profiles` | Vitrine | Public; **404 se plugin off** | query | dados públicos |
+| `POST` | `/api/contact/:membershipId` | Contato mediado | Public; **404 se plugin off** | nome, e-mail, mensagem | `200` sem e-mail |
+| `GET` | `/api/coord/approvals` | Fila | Coordinator | `?status=` | `{ "pending" }` |
+| `POST` | `/api/coord/approvals/:membershipId` | Aprova / rejeita | Coordinator | `{ "action", "reason" }` | `{ "status" }` |
+| `POST` | `/api/admin/auth/verify-otp` | Sessão admin | Public, `super_admin` | OTP | cookie `ops_token` |
+| `GET` | `/api/admin/communities` | Lista comunidades | Super-admin | — | lista |
+| `POST` | `/api/admin/communities` | Cria comunidade | Super-admin | `{ "slug", "name" }` | `201` |
+| `PUT` | `/api/admin/communities/:id/modules/:slug` | Liga/desliga plugin | Super-admin | `{ "enabled": true }` | `200` |
+| `POST` | `/api/admin/memberships/:id/role` | Atribui `coordinator` | Super-admin | `{ "network_role" }` | `200` |
+
+`GET /api/profiles` e `/api/ops/*` e `/api/admin/approvals` no código atual são **legado**.
 
 ## Pagination / filtering
 
 | Param | Type | Default | Max | Description |
 | ----- | ---- | ------- | --- | ----------- |
-| `page` | Integer | `1` | N/A | Número da página |
-| `limit` | Integer | `20` | `100` | Quantidade de itens por página |
-| `search` | String | `""` | `100` | Busca por nome, headline ou bio |
-| `skill` | String | `""` | `50` | Filtro por nome de habilidade/talento |
+| `page` | Integer | `1` | — | Página |
+| `limit` | Integer | `20` | `100` | Page size |
+| `search` | String | `""` | `100` | Nome, headline, bio |
+| `skill` | String | `""` | `50` | Skill da comunidade |
 
 ## Rate limits
 
-- `/api/auth/request-otp`: Máximo de 3 requisições por minuto por IP/E-mail.
-- Contato mediado (`/contact`): Máximo de 5 envios por hora por IP (evita spam).
+- `/api/auth/request-otp`: 3 / min / IP+e-mail
+- `/api/profiles/:id/contact`: 5 / hora / IP

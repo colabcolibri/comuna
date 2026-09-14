@@ -1,7 +1,7 @@
 ---
 title: Environments and Setup
 status: draft
-version: 1.2
+version: 1.3
 updated: 2026-09-14
 depends_on: [01_tech_stack.md, 05_architecture.md]
 blocks: []
@@ -9,52 +9,55 @@ blocks: []
 
 # 08 — Environments and setup
 
-## Environment Variables Matrix
+## Environment variables matrix
 
-| Variable | Description | Required? | Example (Synthetic) | Environment |
+| Variable | Description | Required? | Example (synthetic) | Environment |
 | -------- | ----------- | --------- | ------------------- | ----------- |
-| `PORT` | Porta local de execução da aplicação web | Sim | `3014` | Local |
-| `DATABASE_URL` | String de conexão com o PostgreSQL | Sim | `postgresql://postgres:postgres@localhost:5432/alumni_db` | Local / Staging / Prod |
-| `JWT_SECRET` | Chave secreta para assinatura dos tokens JWT | Sim | `alumni-super-secret-jwt-key-local-development-2026` | Local / Staging / Prod |
-| `INITIAL_ADMIN_EMAIL` | E-mail do Administrador Inicial (SuperAdmin) | Sim | `admin@alumni.org` | Local / Staging / Prod |
-| `SMTP_HOST` | Host SMTP para envio de e-mails de teste (Mailpit) | Sim | `localhost` | Local / Staging |
-| `SMTP_PORT` | Porta SMTP do Mailpit | Sim | `1025` | Local / Staging |
-| `EMAIL_FROM_ADDRESS` | Endereço remetente dos e-mails de OTP | Sim | `auth@alumni.org` | Local / Staging / Prod |
-| `NEXT_PUBLIC_APP_URL` | URL base da aplicação web | Sim | `http://localhost:3014` | Local / Staging / Prod |
+| `PORT` | Porta Next | Sim | `3014` | Local |
+| `DATABASE_URL` | Postgres | Sim | `postgresql://postgres:postgres@localhost:5432/alumni_db` | All |
+| `JWT_SECRET` | Assinatura JWT | Sim | sintético local | All |
+| `INITIAL_SUPER_ADMIN_EMAIL` | Seed ops (não promove via login da vitrine) | Sim | `ops@alumni.local` | Local / Staging |
+| `SMTP_HOST` | SMTP | Sim local | `localhost` | Local |
+| `SMTP_PORT` | SMTP | Sim local | `1025` | Local |
+| `EMAIL_FROM_ADDRESS` | From OTP | Sim | `auth@alumni.org` | All |
+| `NEXT_PUBLIC_APP_URL` | URL membro | Sim | `http://localhost:3014` | All |
+| `OPS_BASE_PATH` | Path ops se mesmo origin | Não | `/ops` | Local |
+| `ALLOW_DEV_OTP` | Se `true`, loga OTP no server **nunca** no JSON de prod | Não | `true` só local | Local |
 
-## Local Development Setup
+`INITIAL_ADMIN_EMAIL` legado: tratar como alias depreado de `INITIAL_SUPER_ADMIN_EMAIL`.
 
-### 1. Pré-requisitos
-- Node.js `^20.0.0`
-- pnpm ou npm
-- Docker Desktop (para PostgreSQL e Mailpit)
+## Local development setup
 
-### 2. Infraestrutura Local (PostgreSQL & Mailpit)
-Suba o banco de dados e a caixa de entrada de testes (Mailpit) usando Docker Compose:
+### Pré-requisitos
+
+- Node.js ^20
+- Docker Desktop (Postgres + Mailpit)
+
+### Infra
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-- **PostgreSQL:** Rodando em `localhost:5432`
-- **Mailpit Web UI (Caixa de Entrada de E-mails):** Acesse em `http://localhost:8025`
+- Postgres: `localhost:5432`
+- Mailpit UI: conferir `docker-compose.yml` (não misturar 8025 vs 8026 no código)
 
-### 3. Instalação e Execução
+### App
+
 ```bash
-# 1. Copiar variáveis de ambiente
 cp .env.example .env
-
-# 2. Instalar dependências
-pnpm install
-
-# 3. Rodar aplicação na porta 3014
-pnpm dev
+npm install
+# aplicar migrações quando a US de db existir
+npm run dev
 ```
 
-- **Aplicação Web:** `http://localhost:3014`
-- **Mailpit (Caixa de Entrada de Testes):** `http://localhost:8025`
+- App: `http://localhost:3014`
+- **Não** usar reset de banco.
 
-## Bootstrapping do E-mail do Admin Inicial (`INITIAL_ADMIN_EMAIL`)
+## Seed do super-admin
 
-- Quando o sistema é inicializado ou roda o script de seed (`INITIAL_ADMIN_EMAIL`), o usuário cujo e-mail corresponde a esta variável recebe automaticamente a role `admin` (SuperAdmin) no `auth_core.users`.
-- Ao digitar esse e-mail na tela de login, o código OTP é enviado normalmente para o Mailpit e o acesso concedido possui privilégios de Administrador Geral.
+Script de seed (US EPIC-11) insere `global_role = super_admin` para `INITIAL_SUPER_ADMIN_EMAIL`. Login ops **não** é “digitar o e-mail na tela Stitch e virar admin”.
+
+## CI
+
+GitHub Actions alvo: `lint` + `npm test`. E2E Playwright quando a US de pipeline existir. Deploy prod é **HAR** (humano).

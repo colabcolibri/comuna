@@ -1,7 +1,7 @@
 ---
 title: Scope
 status: draft
-version: 1.1
+version: 1.3
 updated: 2026-09-14
 depends_on: []
 blocks: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
@@ -11,63 +11,73 @@ blocks: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 
 ## Name and description
 
-**Product name:** Alumni Platform
+**Product name:** Community Platform
 
-A plataforma **Alumni Platform** é um espaço web de conexão, colaboração e oportunidade profissional para redes de ex-alunos. Ela funciona no navegador e permite que membros da rede compartilhem talentos, encontrem parceiros de projetos e disponibilizem seu perfil para contratação por terceiros ou contratantes externos.
+Plataforma web **genérica de comunidades** (não um produto “só alumni”). Uma comunidade é um tenant com membros, papéis e um diretório de pessoas. Alumni, turma, prática, incubadora ou mentoria são **tipos** de comunidade e/ou **plugins** de campos — não o núcleo. O núcleo é: identidade, comunidade, membership, perfil-base. Tudo que alimenta diretório especial, vitrine, contato mediado ou campos extras é **módulo ligável** por comunidade (padrão BuddyBoss / Moodle: componente instalado, ligado ou desligado no tenant).
+
+Duas apps no monorepo: **web** (membros, visitantes, coordenadores) e **admin** (super-admin). Mesmo Postgres.
 
 ## Problem it solves
 
-**Before:** Ex-alunos não possuem um canal centralizado e confiável para descobrir quais projetos outros membros da rede estão desenvolvendo, quais competências/talentos possuem ou se estão disponíveis para contratação/parcerias. A contratação ou colaboração ocorre de forma fragmentada e informal.
+**Before:** Cada rede improvisa planilha + WhatsApp. Softwares de comunidade puxam feed, chat e um perfil inchado. Não há um núcleo estável de “pessoas + comunidades” com extensões desligáveis.
 
-**After:** Um diretório centralizado, transparente e seguro onde membros expõem seus talentos e disponibilidade, permitindo conexões de projetos entre membros e contratação de ex-alunos por partes interessadas.
+**After:** Operador cria comunidades. Membro tem perfil-base. Coordenador aprova entrada. Diretório e extras só existem se o módulo estiver ligado naquela comunidade.
 
-**Why now:** Hipótese de produto greenfield para engajar a comunidade alumni e fomentar oportunidades econômicas e colaborativas para seus membros.
+**Why now:** O repo ainda está nomeado alumni e o código assume “ex-aluno”. O modelo 06 já era multi-tenant; o produto e as pastas precisam acompanhar.
 
 ## Who it is for
 
 | Audience | Role / context | Technical level | Primary need |
 | -------- | -------------- | --------------- | ------------ |
-| Alumni (Membro) | Ex-aluno da instituição | Variado | Expor talentos/disponibilidade, encontrar projetos e parceiros, receber propostas de trabalho |
-| Coordenador | Gestor de comunidade/turma | Médio | Validar membros da sua turma/região e moderar a rede sem acesso a configurações globais |
-| Recrutador / Contratante | Visitante externo ou empresa parceira | Baixo / Médio | Buscar talentos na rede alumni e entrar em contato para contratação |
-| Administrador Geral | Gestor global da rede Alumni | Médio / Alto | Gerenciar permissões globais, administradores e manter integridade do sistema |
+| Membro | Pessoa autenticada com membership `member` | Variado | Perfil-base; participar da comunidade; usar módulos ligados |
+| Coordenador | `network_role` na membership | Médio | Aprovar entrada **dessa** comunidade |
+| Visitante | Externo | Baixo | Ver o que o módulo de vitrine permitir (se ligado) |
+| Super-admin | `global_role` ops | Alto | Criar comunidades, ligar/desligar módulos, atribuir coordenadores — app **admin** |
 
-## In initial scope (v1)
+## Current product state
 
-1. Autenticação simples sem senha (Passwordless via código enviado por e-mail com persistência de sessão).
-2. Perfil de Alumni com talentos, portfólio/projetos atuais e status de disponibilidade (ex: para contratação, mentoria ou novos projetos).
-3. Busca e filtro de membros da rede por talentos, áreas de atuação e disponibilidade.
-4. Vitrine/Diretório público para visualização e solicitação de contato/contratação por parte de externos/recrutadores.
-5. Controles de privacidade onde o membro alumni escolhe quais informações de perfil são públicas vs. restritas aos membros da rede.
-6. Painel de Moderação/Coordenação para aprovação de membros e gestão de perfis pela coordenação.
+`src/` é um Next único com copy e rotas de alumni. OTP simulado. Sem migrações. Sem runtime de plugins. Inventário: `docs/inventory/as-is.md`. Árvore-alvo: `docs/architecture/monorepo.md`.
+
+## In initial scope (v2.0.0)
+
+1. Núcleo: OTP, Postgres, pessoa (perfil-base), comunidades, memberships, coordenação de entrada.
+2. Runtime de módulos: catálogo + `community_modules.enabled`; app web **não** monta UI de plugin desligado.
+3. Plugins de primeira: `directory` (campos e busca além do base), `showcase`, `contact-mediated`.
+4. App **admin** no monorepo (não navbar Stitch): comunidades, papéis, toggle de módulos.
+5. i18n: locales `pt-BR` (default) e `en`; **zero** string de UI hardcoded; `CONTENT` no topo de cada arquivo de UI (ver `09`).
+6. Migrações `YYYYMMDDHHMMSS` incluindo `plugin_core`.
 
 ## Out of initial scope
 
-- Aplicativos móveis nativos (iOS / Android) — v1 focada exclusivamente em Web responsivo.
-- Sistema de mensagens em tempo real interno (chat privado v1 usará redirecionamento/código de e-mail ou links externos como LinkedIn/E-mail).
-- Processamento de pagamentos ou contratos dentro da plataforma.
-- Autenticação via redes sociais (OAuth / Google / LinkedIn) na v1.
+- Marketplace de plugins de terceiros (só first-party na v2).
+- Chat, fórum, feed (estilo Circle/BuddyBoss activity).
+- Pagamentos, OAuth, apps nativos, MFA.
+- Tradução profissional de e-mails legais.
 
 ## Known constraints
 
 | Type | Constraint | Impact |
 | ---- | ---------- | ------ |
-| Autenticação | Sem senha (código por e-mail com persistência) | Exige provedor de e-mail confiável e gerenciamento seguro de sessões |
-| Privacidade | Dados sensíveis e controles de visibilidade | Exige política rigorosa de exibição (público vs membros) alinhada com LGPD |
+| Núcleo vs plugin | Diretório rico não é core | Schema e UI de skills/headline não entram em `person_core` |
+| Monorepo | Duas apps | Dois deploys ou dois processes; pacotes compartilhados |
+| Copy | `CONTENT` no arquivo | Sem `t.nav.admin` espalhado; sem JSX com português cru |
 
 ## Assumptions
 
 | # | Assumption | Confidence | Validate by |
 | - | ---------- | ---------- | ----------- |
-| 1 | Usuários preferem autenticação via código por e-mail a senhas tradicionais | High | Teste de usabilidade no MVP |
-| 2 | Visitantes externos/recrutadores acessarão a vitrine sem necessidade de login prévio para buscar talentos | Medium | Feedback do manager |
+| 1 | Primeira comunidade de demo pode ser tipo `alumni` | High | Seed |
+| 2 | Coordenação de entrada é núcleo (como enrol Moodle), não plugin | Medium | Manager — se discordar, vira plugin na EPIC-19 |
+| 3 | OTP por e-mail serve qualquer comunidade | High | Uso |
 
 ## Open questions
 
-| # | Question | Owner | Target date |
-| - | -------- | ----- | ----------- |
-| 1 | Qual provedor de e-mail transacional será utilizado para o envio dos códigos (ex: Resend, SendGrid, SES)? | manager | Phase 01 |
+| # | Question | Owner | Target |
+| - | -------- | ----- | ------ |
+| 1 | Provedor de e-mail em produção? | manager | S2 |
+| 2 | Gênero e cidade atual: base ou plugin `person-demographics` / `person-location`? Proposta: **plugin** (perfil-base só nome, avatar, locale). | manager | S1 |
+| 3 | Admin em subdomínio vs porta local distinta? | manager | S1 monorepo |
 
 ## Gate
 
-Human sets `status: approved` before deepening `01_tech_stack` and security work.
+Human `approved` neste charter. `05` permanece `review`.

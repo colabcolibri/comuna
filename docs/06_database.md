@@ -1,13 +1,24 @@
 ---
 title: Database Design
 status: draft
-version: 2.0
+version: 2.2
 updated: 2026-09-14
 depends_on: [05_architecture.md]
 blocks: [07_api_contracts.md]
 ---
 
 # 06 — Database design
+
+## Storage model
+
+- **Engine:** PostgreSQL (Docker local; `DATABASE_URL`).
+- **Access:** driver `pg` em `packages/core/db` (alvo). Sem ORM nesta versão.
+- **Migrations:** `db/migrations/YYYYMMDDHHMMSS_*.sql` — uma alteração por arquivo. Aplicar com runner documentado na US de persistência. **Proibido** reset/drop de banco como rotina.
+- **Tenancy:** toda query de rede filtra `memberships.community_id`. `super_admin` não usa `community_id` para “ver tudo na vitrine”; ops lista comunidades, não o diretório de talentos.
+- **Who writes:** app role único no v2.0.0; RLS Postgres é desejável depois, não bloqueia a primeira migração.
+- **Backup:** dump Postgres no host de prod (procedimento no `08` quando houver prod). Sem `db reset`.
+
+O ER abaixo é o contrato. **Não está aplicado** no repositório (inventário as-is).
 
 ## Modelagem Multi-Tenant / Multi-Comunidade (Cohorts & Networks)
 
@@ -18,6 +29,8 @@ erDiagram
     "auth_core.users" ||--O| "person_core.profiles" : "identifica (1:1)"
     "auth_core.users" ||--O{ "network_core.memberships" : "participa em N redes"
     "network_core.communities" ||--O{ "network_core.memberships" : "possui membros"
+    "network_core.communities" ||--O{ "network_core.community_modules" : "liga plugins"
+    "plugin_core.modules" ||--O{ "network_core.community_modules" : "catalogo"
     "network_core.communities" ||--O{ "network_core.cohorts" : "possui turmas/grupos"
     "network_core.cohorts" ||--O{ "network_core.memberships" : "associa membro a cohort"
     "network_core.memberships" ||--O{ "network_core.member_skills" : "possesses"
@@ -35,16 +48,22 @@ erDiagram
         uuid id PK
         uuid user_id FK, UK
         string full_name
-        string gender "female | male | non_binary | prefer_not_to_say | custom"
         string avatar_url
-        string birth_city
-        string birth_country
-        string current_city
-        string current_country
-        jsonb contacts "linkedin, github, whatsapp, portfolio"
-        jsonb languages "lista de idiomas com proficiencia"
-        jsonb metadata "timezone, preferencias"
+        string preferred_locale "pt-BR | en"
         timestamp updated_at
+    }
+
+    "plugin_core.modules" {
+        uuid id PK
+        string slug UK
+        string version
+    }
+
+    "network_core.community_modules" {
+        uuid community_id FK
+        uuid module_id FK
+        boolean enabled
+        primary_key(community_id, module_id)
     }
 
     "network_core.communities" {
@@ -106,9 +125,10 @@ erDiagram
 
 ## Como Funciona o Isolamento Multi-Tenant & Cohorts
 
-### 1. Uma Pessoa (`person_profiles`), Múltiplas Comunidades (`memberships`)
-- O usuário possui **uma única conta** (`users`) e **um único perfil pessoal** (`person_profiles` com nome, foto, cidade onde mora, idiomas).
-- O mesmo usuário pode ser membro de **múltiplas comunidades** ao mesmo tempo (ex: na comunidade *Alumni* ele é `member`, e na comunidade *Prática de IA* ele é `coordinator`).
+### 1. Uma Pessoa (perfil-base), Múltiplas Comunidades (`memberships`)
+- Uma conta `users` + perfil-base (`full_name`, `avatar_url`, `preferred_locale`).
+- A mesma pessoa pode ser `member` numa comunidade e `coordinator` noutra.
+- Skills, headline, bio, vitrine: tabelas do plugin `directory` / `showcase`, não `person_core`.
 
 ### 2. Isolamento por `community_id` (Tenant ID)
 - Todas as consultas, buscas no diretório e ações administrativas filtram obrigatoriamente pelo `community_id`.
@@ -120,8 +140,26 @@ erDiagram
 
 ---
 
-## Padrão de Schemas PostgreSQL V2
+## Padrão de schemas PostgreSQL
 
-1. **`auth_core`**: Identidade global e tokens.
-2. **`person_core`**: Dados da pessoa (nome, foto, localização de origem/atual, idiomas).
-3. **`network_core`**: Tabela unificada multi-tenant para qualquer tipo de comunidade/rede (`communities`, `cohorts`, `memberships`, `skills`, `member_skills`).
+1. **`auth_core`**: `users.global_role` (`user | super_admin`) e `verification_tokens`.
+2. **`person_core`**: perfil-base apenas.
+3. **`network_core`**: `communities`, `memberships` (`network_role`: `member | coordinator`), `community_modules`, `cohorts` (núcleo de agrupamento; UI extra pode ser plugin depois).
+4. **`plugin_core`**: catálogo `modules`.
+5. **`plugin_directory`** (SQL do pacote directory): skills, headline, bio, availability — **só se o módulo estiver no catálogo**. O ER acima ainda mostra `network_core.skills` como dívida visual; a migração da US de directory **move** isso para schema do plugin.
+
+`community_admin` fora da v2.0.0.
+
+Índice extra: `community_modules (community_id)` unique pair já é PK.
+
+## Hot paths / indexes (alvo da primeira migração)
+
+- `auth_core.users (email)` unique.
+- `verification_tokens (email, expires_at)`.
+- `memberships (community_id, network_status)`.
+- `memberships (community_id, user_id)` unique.
+
+## Retention
+
+- OTP rows: apagar ou ignorar após `expires_at` (job simples ou delete on read).
+- Perfis: enquanto a conta existir; exclusão é US de LGPD se não entrar no perfil v2.0.0.

@@ -1,7 +1,7 @@
 ---
 title: Design System
 status: draft
-version: 1.0
+version: 1.1
 updated: 2026-09-14
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
@@ -11,61 +11,94 @@ blocks: []
 
 ## Overview
 
-- **Surfaces:** Web app responsivo (Desktop, Tablet e Mobile).
-- **Primary UI stack:** `ts-shadcn` / Tailwind CSS / Radix UI / Lucide Icons.
-- **Mood:** Ferramenta profissional, limpa e confiável para conexões e oportunidades.
+- **Surfaces:** `apps/web` (Stitch + plugins). Admin **não** usa este contrato.
+- **Primary UI stack:** `ts-shadcn` — primitives em `src/components/ui/` (read-only em US de tela). Composição em `src/components/templates/` hoje e `src/components/app/` no alvo v2.0.0.
+- **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, sidebars de comunidade.
+- **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
 ## Colors
 
+Alinhado a `docs/stitch/DESIGN.md`.
+
 | Token | Role | Theme key / CSS var |
 | ----- | ---- | ------------------- |
-| `primary` | Ações principais / botões CTA | `--primary` (#0f172a / Slate 900) |
-| `background` | Canvas da página | `--background` (#f8fafc / Slate 50) |
-| `foreground` | Texto principal | `--foreground` (#0f172a / Slate 900) |
-| `muted` | Textos secundários e bordas sutis | `--muted-foreground` (#64748b / Slate 500) |
-| `destructive` | Ações perigosas / rejeições | `--destructive` (#ef4444 / Red 500) |
-| `border` | Divisores de cards e tabelas | `--border` (#e2e8f0 / Slate 200) |
+| `background` | Canvas | `--background` `#f8fafc` |
+| `surface` | Cards | `#ffffff` |
+| `foreground` | Texto | `--foreground` `#0f172a` |
+| `muted` | Texto secundário | `#475569` |
+| `border` | Bordas | `--border` `#e2e8f0` |
+| `primary` | CTA único por vista | `#0f172a` texto branco |
+| `destructive` | Rejeitar | `#b91c1c` em `#fef2f2` |
 
 ## Theme modes
 
 | Mode | When it applies | Token set / file |
 | ---- | --------------- | ---------------- |
-| Light | Padrão | `globals.css` |
-| Dark | Seleção do usuário | `globals.css` (.dark class) |
+| Light | Padrão Stitch | `globals.css` |
+| Dark | Não é requisito da v2.0.0 membro | Não inventar tokens escuros para “completar shadcn” |
 
 ## Typography
 
-| Role | Use | Size / weight | Stack key |
-| ---- | --- | ------------- | --------- |
-| `h1` | Título da tela / Vitrine | 2.25rem (36px) / Bold | Sans (`Inter`) |
-| `h2` | Seções do perfil e painéis | 1.5rem (24px) / SemiBold | Sans (`Inter`) |
-| `body` | Conteúdo do perfil, bios e descrições | 1rem (16px) / Normal | Sans (`Inter`) |
-| `caption` | Tags de habilidades e disponibilidade | 0.875rem (14px) / Medium | Sans (`Inter`) |
+| Role | Use | Size / weight | Stack |
+| ---- | --- | ------------- | ----- |
+| `h1` | Título de tela | Inter semibold, ~36px desktop | Inter |
+| `h2` | Seções | Inter semibold | Inter |
+| `body` | Leitura | Atkinson Hyperlegible Next 16–18px, line-height ≥ 1.5, ~65ch | Atkinson |
+| `caption` | Chips | Inter 14px medium | Inter |
 
-## Components (Composed Templates)
+O `09` antigo listava Inter no body — **errado** frente ao Stitch. Body = Atkinson.
 
-| Template | Purpose | Composed Path |
-| -------- | ------- | ------------- |
-| `AppProfileCard` | Exibição resumida do ex-aluno na vitrine/diretório | `components/app/AppProfileCard.tsx` |
-| `AppContactModal` | Modal de envio de mensagem mediada ao alumni | `components/app/AppContactModal.tsx` |
-| `AppOtpForm` | Formulário de solicitação e digitação do código OTP | `components/app/AppOtpForm.tsx` |
-| `AppApprovalTable` | Tabela de moderação e aprovação da coordenação | `components/app/AppApprovalTable.tsx` |
+## Components (composed)
+
+| Template | Purpose | Path today / alvo |
+| -------- | ------- | ----------------- |
+| `AppCardTemplate` | Card genérico | `src/components/templates/AppCardTemplate.tsx` |
+| `AppDialogTemplate` | Modal | `templates/AppDialogTemplate.tsx` |
+| `AppOtpForm` | OTP | `src/components/AppOtpForm.tsx` — deve virar fiel ao HTML `autenticacao-otp.html` |
+| Directory grid | Diretório | página `src/app/directory` vs `diretorio-talentos.html` |
+| Coord table | Pedidos de entrada | hoje `src/app/admin/approvals` — mover para `/coord` |
+
+Não existe `components/app/AppProfileCard.tsx` ainda — inventário. US de design cria os compostos a partir do Stitch, sem editar primitives.
 
 ## Screen flows
 
+Jobs: buscar pessoas, ler perfil, pedir contato, entrar com código, coordenar entrada. Estados: vazio, erro de OTP, fila vazia, perfil privado.
+
 ```mermaid
 flowchart LR
-    A[Vitrine Pública] -->|Clique em Perfil| B[Detalhes do Perfil Sanitizado]
-    B -->|Entrar em Contato| C[Modal de Contato Mediado]
-    A -->|Fazer Login| D[Formulário OTP]
-    D -->|Código Validado| E[Diretório Interno Alumni]
-    E -->|Cargo Coordinator/Admin| F[Painel de Moderação]
+    A[Vitrine] -->|perfil público| B[Detalhe sanitizado]
+    B -->|contato| C[Modal mediado]
+    A -->|entrar| D[OTP]
+    D -->|sessão membro| E[Diretório]
+    E -->|coordinator| F[Pedidos de entrada]
+    G[Ops] -.->|fora deste fluxo| H[Comunidades]
 ```
 
 ## Responsive behavior
 
 | Breakpoint | Width | Behavior |
 | ---------- | ----- | -------- |
-| Mobile | `< 640px` | Menu hambúrguer; cards de perfil empilhados em coluna única |
-| Tablet | `640px - 1024px` | Grid de 2 colunas para busca de perfis |
-| Desktop | `> 1024px` | Grid de 3 colunas com filtros laterais fixos |
+| Mobile | `< 640px` | Uma coluna; sem overflow-x; hit 44px |
+| Tablet | `640–1024px` | Grid 2 |
+| Desktop | `> 1024px` | Grid 3; filtros sem quebrar o canvas |
+
+## Accessibility baseline
+
+WCAG 2.2 AA (AAA em body se possível). Foco 2px. Labels visíveis. Status não só por cor. `prefers-reduced-motion`. Erro ao lado do campo. Privacidade anunciável por leitor de tela. Detalhe: `docs/stitch/DESIGN.md`.
+
+## Internationalization
+
+| Item | Contract |
+| ----- | -------- |
+| Locales | `pt-BR` default e fallback; `en` segundo |
+| RTL | _n/a_ nesta versão |
+| Fonte das strings | Objeto `CONTENT` no **topo** de cada arquivo de UI — `docs/architecture/i18n-content.md` |
+| Dump central | `translations.ts` é legado; não é o modelo |
+| Switcher | Persistido em `preferred_locale` no perfil-base; cookie/header na sessão |
+| Datas/números | `Intl` com o locale resolvido |
+| E-mail | `CONTENT` no arquivo do template |
+| SEO hreflang | Fora até `12` existir |
+
+## Showcase catalog
+
+Rotas atuais (`/`, `/directory`, `/showcase`, `/profile/edit`, `/admin/approvals`) são **rascunho**. Catálogo Stitch: `docs/stitch/html/*.html`. US EPIC-17 fecha o gap.

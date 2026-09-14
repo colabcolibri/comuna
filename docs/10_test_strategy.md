@@ -1,7 +1,7 @@
 ---
 title: Test strategy
 status: draft
-version: 1.0
+version: 1.1
 updated: 2026-09-14
 depends_on: [01_tech_stack.md, 04_principles.md, 08_environments.md]
 blocks: []
@@ -11,34 +11,37 @@ blocks: []
 
 ## Overview
 
-- **Test stack id:** `ts-vitest` (Vitest para Testes Unitários/Integração + Playwright para E2E).
-- **CI:** Integrado via GitHub Actions conforme definido em [08_environments.md](08_environments.md).
+- **Test stack id:** `ts-vitest`. Playwright entra quando a auth persistir (não fechar US de auth só com unit de hash).
+- **CI:** lint + `npm test` no `08` (Actions ainda a documentar/criar).
 
 ## Pyramid
 
-| Level | Scope | Target % of tests | Focus Areas |
-| ----- | ----- | ----------------- | ----------- |
-| Unit | Pure logic, utilitários, geradores OTP e sanitização | ~60% | Hashing de código OTP, sanitização de campos de perfil, checagens de RBAC |
-| Integration | Módulos de API (Auth, Perfis, Busca) & Banco de Dados | ~30% | Geração/Validação de OTP com PostgreSQL, endpoints `/api/profiles` e RBAC de coordenação |
-| E2E | Fluxos críticos de usuário na Web | ~10% | Fluxo completo de Login Passwordless e envio de contato mediado ao Alumni |
+| Level | Scope | Target % of tests | Focus |
+| ----- | ----- | ----------------- | ----- |
+| Unit | OTP hash, RBAC, sanitização, SQL builders | ~60% | `src/lib/**` |
+| Integration | Rotas + Postgres de teste | ~30% | OTP persistido, isolamento `community_id` |
+| E2E | Login real, contato, fila coord | ~10% | Playwright quando Mailpit + DB existirem |
 
 ## Runners
 
-| Layer | Tool | Config path | Command |
-| ----- | ---- | ----------- | ------- |
-| Unit / Integration | Vitest | `vitest.config.ts` | `pnpm test` |
-| E2E | Playwright | `playwright.config.ts` | `pnpm test:e2e` |
+| Layer | Tool | Config | Command |
+| ----- | ---- | ------ | ------- |
+| Unit / Integration | Vitest | `vitest.config.ts` | `npm test` |
+| E2E | Playwright | `playwright.config.ts` (alvo) | `npm run test:e2e` |
 
-## Layout & Conventions
+Hoje só existem testes ao lado de `src/lib/**/*.test.ts` e `templates.test.tsx`. Não há E2E.
 
-- Testes Unitários/Integração colocados ao lado do código ou em `__tests__/` (ex: `src/lib/auth.test.ts`).
-- Testes E2E armazenados na pasta raiz `tests/e2e/`.
+## Layout & conventions
+
+- Unit ao lado do módulo.
+- Integração de API: testar handlers com DB de teste **sem** reset destrutivo da base de dev do manager.
+- E2E em `tests/e2e/`.
 
 ## Coverage
 
-- **Tool:** Vitest built-in v8 coverage.
-- **Threshold:** 70% de cobertura em código de regras de negócio (Auth & Proteção de Privacidade).
+- Vitest v8. Alvo 70% em `src/lib/auth` e projeção de privacidade.
 
 ## US conventions
 
-- Nenhuma User Story com critério de segurança ou auth pode ser fechada sem testes automatizados correspondentes.
+- US de auth, privacidade e isolamento: `tests: required`.
+- UI Stitch: teste de regressão visual não é obrigatório na v2.0.0; aceite é inspeção contra HTML/screenshot + checklist `09`.
