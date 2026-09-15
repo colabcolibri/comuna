@@ -11,7 +11,7 @@ import { useEnabledModules } from '@/components/app/EnabledModulesProvider';
 import MemberFooter from '@/components/app/MemberFooter';
 import { uiCatalog } from '@/lang/catalog';
 import { copyFrom, visibleChrome } from '@/modules/registry';
-import { communityPath } from '@/lib/people/community-path';
+import { communityPath, slugFromPathname } from '@/lib/people/community-path';
 import type { MyCommunity } from '@community/memberships';
 import Link from 'next/link';
 
@@ -23,37 +23,34 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   toLight: 'theme.to_light',
 });
 
-export type WorkspaceChrome = {
-  current: MyCommunity;
-  seats: MyCommunity[];
-} | null;
-
 export function MemberShell({
   sessionEmail,
-  workspace,
+  seats,
   children,
 }: {
   sessionEmail: string | null;
-  workspace: WorkspaceChrome;
+  seats: MyCommunity[];
   children: ReactNode;
 }) {
   const pathname = usePathname();
   const copy = pickContent(CONTENT, useLocale());
   const enabled = useEnabledModules();
   const headerNav = visibleChrome(enabled, 'header', Boolean(sessionEmail));
-  const brand = workspace?.current.name ?? copy.brand;
-  const initial = (workspace?.current.name || copy.brand).trim().charAt(0).toUpperCase() || 'C';
-  const showcaseHref = workspace ? communityPath(workspace.current.slug, '/showcase') : '/showcase';
+  const slug = slugFromPathname(pathname);
+  const current = seats.find((seat) => seat.slug === slug);
+  const brand = current?.name ?? copy.brand;
+  const initial = brand.trim().charAt(0).toUpperCase() || 'C';
+  const showcaseHref = slug ? communityPath(slug, '/showcase') : '/showcase';
 
   return (
     <SidebarProvider className="h-svh max-h-svh overflow-hidden">
-      <AppSidebar email={sessionEmail} workspace={workspace} />
+      <AppSidebar email={sessionEmail} seats={seats} />
       <SidebarInset className="h-svh max-h-svh min-h-0 overflow-hidden">
         <header className="sticky top-0 z-20 shrink-0 border-b border-border bg-card">
           <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:px-6">
           <SidebarTrigger className="size-11 shrink-0 md:hidden" aria-label={copy.toggle} />
           <Link
-            href={workspace ? communityPath(workspace.current.slug, '/directory') : '/'}
+            href={slug ? communityPath(slug, '/directory') : '/'}
             className="flex min-h-11 min-w-0 items-center gap-2 px-1 text-foreground hover:text-foreground"
           >
             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground">

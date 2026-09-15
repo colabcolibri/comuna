@@ -36,7 +36,7 @@ Duas apps no monorepo: **web** (membros, visitantes, coordenadores) e **admin** 
 
 ## Current product state
 
-`src/` é um Next único com copy e rotas de alumni. OTP simulado. Sem migrações. Sem runtime de plugins. Inventário: `docs/inventory/as-is.md`. Árvore-alvo: `docs/architecture/monorepo.md`.
+Duas apps Next (`apps/web`, `apps/admin`), Postgres com migrações datadas, OTP real (Mailpit no local), runtime de plugins, workspace `/c/{slug}`, ops na porta 3015. Membro pede entrada; coordenador delibera. Inventário histórico: `docs/inventory/as-is.md`. Árvore: `docs/architecture/monorepo.md`.
 
 ## In initial scope (v2.0.0)
 

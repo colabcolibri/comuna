@@ -28,7 +28,8 @@ Papel de produto `alumni` **não existe**. Código legado `alumni` / `admin@alum
 | Editar perfil-base próprio | ❌ | ✅ | ✅ | ❌ na web |
 | Campos de diretório (skills, etc.) | — | só se módulo `directory` on | ✅ | liga/desliga módulo |
 | Vitrine / contato | só se módulos on | — | — | toggle |
-| Aprovar membership | ❌ | ❌ | ✅ | ❌ na fila Stitch |
+| Aprovar membership | ❌ | ❌ | ✅ | ❌ na fila da web (ops muda status no roster) |
+| Pedir entrada | ❌ (precisa sessão) | ✅ se ainda não tem assento | — | ❌ na web |
 | Toggle de módulos / criar comunidade | ❌ | ❌ | ❌ | ✅ admin |
 
 ## Jobs to be done

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@community/db', () => ({
+  query: vi.fn(),
   queryAsOps: vi.fn(),
 }));
 

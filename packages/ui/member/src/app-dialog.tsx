@@ -1,13 +1,20 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { cn, ScrollArea } from '@community/ui';
+import {
+  cn,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  ScrollArea,
+} from '@community/ui';
 
 const SIZE = {
-  sm: 'max-w-sm',
-  md: 'max-w-lg',
-  lg: 'max-w-2xl',
-  xl: 'max-w-4xl',
+  sm: 'sm:max-w-sm',
+  md: 'sm:max-w-lg',
+  lg: 'sm:max-w-2xl',
+  xl: 'sm:max-w-4xl',
 } as const;
 
 export type AppDialogSize = keyof typeof SIZE;
@@ -23,29 +30,19 @@ export function AppDialog({
   size?: AppDialogSize;
   children: ReactNode;
 }) {
-  if (!open) {
-    return null;
-  }
-
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
-      <button
-        type="button"
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        aria-label="Close"
-        onClick={onClose}
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
+    <Dialog open={open} onOpenChange={(next) => { if (!next) onClose(); }}>
+      <DialogContent
+        showCloseButton={false}
         className={cn(
-          'relative z-10 flex max-h-[min(90svh,40rem)] w-full flex-col overflow-hidden rounded-t-xl border border-border bg-card text-card-foreground sm:rounded-xl',
+          'flex max-h-[min(90svh,40rem)] w-full flex-col gap-0 overflow-hidden p-0',
+          'top-auto bottom-0 translate-y-0 rounded-t-xl sm:top-[50%] sm:bottom-auto sm:translate-y-[-50%] sm:rounded-xl',
           SIZE[size]
         )}
       >
         {children}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -59,11 +56,13 @@ export function AppDialogHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="shrink-0 border-b border-border px-5 py-4 sm:px-6">
+    <header className="shrink-0 border-b border-border px-5 py-4 text-left sm:px-6">
       {children ?? (
         <>
-          {title ? <h2 className="text-lg font-semibold tracking-tight text-foreground">{title}</h2> : null}
-          {description ? <p className="mt-1 text-base text-muted-foreground">{description}</p> : null}
+          {title ? <DialogTitle className="tracking-tight text-foreground">{title}</DialogTitle> : null}
+          {description ? (
+            <DialogDescription className="mt-1 text-base">{description}</DialogDescription>
+          ) : null}
         </>
       )}
     </header>

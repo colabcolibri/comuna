@@ -1,7 +1,7 @@
 ---
 title: API Contracts
 status: approved
-version: 1.12
+version: 1.13
 updated: 2026-09-15
 depends_on: [05_architecture.md, 06_database.md]
 blocks: []
@@ -64,16 +64,18 @@ blocks: []
 | `GET` | `/api/community/modules` | Slugs enabled da comunidade do contexto (cookie `community_slug` ou vitrine pública) | Public / member | — | `{ "enabled": ["directory", "showcase"] }` |
 | `GET` | `/api/directory/catalog` | Grupos e campos; API **omite** campos cujo `module_id` não está enabled (núcleo sempre). 404 só se o plugin **directory** está off | Member | — | `{ "groups": [ { fields } ] }` |
 | `GET` | `/api/directory/members` | Diretório rico | Member; **404 se plugin off** | query + facets | `{ "data", "meta" }` |
-| `GET` | `/api/profiles/public` | Vitrine (lista + detalhe no diálogo) | Public; **404 se plugin off** | — | `{ "data": PublicProfile[] }` — campos em `docs/architecture/showcase-public.md` |
+| `GET` | `/api/profiles/public` | Vitrine desta comunidade | Public; **404 se plugin off** | `?slug=` ou cookie `community_slug` | `{ "data": PublicProfile[] }` |
 | `POST` | `/api/contact/:membershipId` | Contato mediado | Public; **404 se plugin off** | nome, e-mail, mensagem | `200` sem e-mail |
-| `GET` | `/api/coord/approvals` | Fila | Coordinator | `?status=` | `{ "pending" }` |
-| `POST` | `/api/coord/approvals/:membershipId` | Aprova / rejeita | Coordinator | `{ "action", "reason" }` | `{ "status" }` |
+| `GET` | `/api/communities/public` | Comunidades com vitrine pública | Public | — | `{ "data": [{ id, slug, name }] }` |
+| `POST` | `/api/communities/:slug/join` | Pedido `pending_approval` (membro autenticado, sem assento) | Member | `{}` | `201` `{ "data": JoinSeat }` |
+| `GET` | `/api/coord/approvals` | Fila `pending_approval` deste tenant | Coordinator | — | `{ "pending" }` |
+| `POST` | `/api/coord/approvals` | Aprova / recusa | Coordinator | `{ "membershipId", "action": "approve" \| "reject" }` | `{ "status" }` |
 | `POST` | `/api/admin/auth/verify-otp` | Sessão admin | Public, `super_admin` | OTP | cookie `ops_token` |
 | `GET` | `/api/admin/people` | Pessoas da rede + assentos. Página de 50. `q` com ≥2 filtra. | Super-admin | `?q=&offset=` | `{ "data", "meta.hasMore" }` |
 | `GET` | `/api/admin/communities` | Lista comunidades | Super-admin | — | lista |
 | `POST` | `/api/admin/communities` | Cria comunidade | Super-admin | `{ "slug", "name" }` | `201` |
-| `GET` | `/api/admin/communities/:id` | Lê comunidade | Super-admin | — | `{ id, slug, name, type }` |
-| `PUT` | `/api/admin/communities/:id` | Atualiza nome/tipo | Super-admin | `{ "name", "type?" }` | comunidade |
+| `GET` | `/api/admin/communities/:id` | Lê comunidade | Super-admin | — | `{ id, slug, name, type, is_public_showcase }` |
+| `PUT` | `/api/admin/communities/:id` | Atualiza nome/tipo/vitrine pública | Super-admin | `{ "name", "type?", "is_public_showcase?" }` | comunidade |
 | `GET` | `/api/admin/communities/:id/modules` | Estado dos plugins | Super-admin | — | `{ "data": [{ slug, enabled }] }` |
 | `PUT` | `/api/admin/communities/:id/modules/:slug` | Liga/desliga plugin | Super-admin | `{ "enabled": true }` | `200` |
 | `GET` | `/api/admin/communities/:id/memberships` | Roster paginado (50); `?email=` busca uma; `?q=` filtra se ≥2 | Super-admin | `?q=&offset=` | `{ "data", "meta.hasMore" }` ou membership |
@@ -88,7 +90,7 @@ blocks: []
 | `DELETE` | `/api/admin/memberships/:id` | Remove a membership | Super-admin | — | `{ ok }` |
 | `GET` | `/api/admin/communities/:id/fields` | Catálogo ops (grupos na ordem do perfil; `locked` no grupo seed e no campo se `storage` ≠ `attributes`) | Super-admin | — | `{ "data": OpsCatalogGroup[] }` |
 | `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` (tipos do catálogo; `span` 1–3) | Super-admin | `{ groupId, name, type, labelPt, labelEn, optionsText?, filterable?, span? }` | `201` |
-| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | `span` em qualquer campo; label/opções/filtro só se `storage=attributes` | Super-admin | `{ labelPt?, labelEn?, optionsText?, filterable?, span }` | `{ ok }` |
+| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | Sem `labelPt`: só `span` (qualquer campo). Com `labelPt`: label/opções/filtro se `storage=attributes` | Super-admin | `{ "span": 1 \| 2 \| 3 }` ou `{ labelPt, labelEn?, optionsText?, filterable? }` | `{ ok }` |
 | `DELETE` | `/api/admin/communities/:id/fields/:fieldId` | Apaga só `storage=attributes` | Super-admin | — | `{ ok }` |
 | `POST` | `/api/admin/communities/:id/fields/:fieldId/move` | Sobe/desce o campo no grupo | Super-admin | `{ "direction": "up" }` ou `"down"` | `{ ok }` |
 | `POST` | `/api/admin/communities/:id/groups` | Cria grupo (não seed) | Super-admin | `{ labelPt, labelEn, columns?, slug? }` | `201` |
@@ -98,7 +100,7 @@ blocks: []
 
 APIs de membro de rede (`/api/directory/*`, `/api/memberships/me`, `/api/coord/*`) usam o cookie `community_slug` (e membership `active` nesse tenant). Sem contexto e com mais de uma membership: `400 VALIDATION_ERROR`. Uma membership só: default permitido. `docs/architecture/community-context.md`.
 
-`GET /api/profiles` e `/api/admin/approvals` no código atual são **legado**. `/api/ops/*` foi removido: mutações de tenant só na origem admin.
+`GET /api/profiles` (lista legado) e `/admin/approvals` foram removidos. `/api/ops/*` não existe: mutações de tenant só na origem admin.
 
 Rotas UI admin do tenant: `/communities/:id/settings|modules|members|cohorts|fields` (índice redireciona para `settings`). Comunidade nova faz seed do catálogo (núcleo + directory + grupo `custom`).
 
@@ -109,7 +111,7 @@ Rotas UI admin do tenant: `/communities/:id/settings|modules|members|cohorts|fie
 | `page` | Integer | `1` | — | Página |
 | `limit` | Integer | `20` | `100` | Page size |
 | `search` | String | `""` | `100` | Nome, headline, bio |
-| `skill` | String | `""` | `50` | Skill da comunidade (ainda sem tabela SQL) |
+| `cohort` | UUID | — | — | Filtra diretório por turma |
 | `attr.<name>` | Scalar | — | — | Facet: só campos `filterable`; traduz para `custom_attributes @>` |
 
 ## Rate limits

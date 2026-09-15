@@ -4,7 +4,10 @@ export const coreIdentityPack = definePack({
   'pt-BR': {
     'profile.kicker': 'Conta',
     'profile.title': 'Seu perfil',
-    'profile.subtitle': 'Nome e foto na pessoa. Headline e bio desta comunidade em pt-BR e en.',
+    'profile.subtitle': 'Nome, foto, cidade e links. Não muda de uma comunidade para outra.',
+    'community.kicker': 'Nesta comunidade',
+    'community.title': 'Seu lugar aqui',
+    'community.subtitle': 'Headline, bio e o que esta comunidade pede. Cada rede tem o seu.',
     'profile.save': 'Salvar',
     'profile.saved': 'Perfil atualizado',
     'profile.error': 'Não foi possível salvar',
@@ -36,7 +39,10 @@ export const coreIdentityPack = definePack({
   en: {
     'profile.kicker': 'Account',
     'profile.title': 'Your profile',
-    'profile.subtitle': 'Name and photo on the person. Headline and bio for this community in pt-BR and en.',
+    'profile.subtitle': 'Name, photo, city and links. This does not change between communities.',
+    'community.kicker': 'This community',
+    'community.title': 'Your place here',
+    'community.subtitle': 'Headline, bio and what this community asks. Each network has its own.',
     'profile.save': 'Save',
     'profile.saved': 'Profile updated',
     'profile.error': 'Could not save',

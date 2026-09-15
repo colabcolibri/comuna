@@ -1,4 +1,4 @@
-export function directoryQueryString(search: string, facets: Record<string, string>) {
+export function directoryQueryString(search: string, facets: Record<string, string>, cohort = '') {
   const params = new URLSearchParams();
   const term = search.trim();
   if (term) {
@@ -9,6 +9,9 @@ export function directoryQueryString(search: string, facets: Record<string, stri
       params.set(`attr.${name}`, value);
     }
   });
+  if (cohort) {
+    params.set('cohort', cohort);
+  }
   return params.toString();
 }
 

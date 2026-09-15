@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { LOCALE_COOKIE, contentFromCatalog, pickContent, resolveUiLocale } from '@community/identity';
+import { listPublicCommunities } from '@community/communities';
 import { listMyCommunities } from '@community/memberships';
 import { AppPageTemplate } from '@community/ui-member';
 import { getMemberSession } from '@/lib/server/member-session';
-import { moduleRuntime, viewerEnabledSlugs } from '@/lib/server/membership';
+import { moduleRuntime } from '@/lib/server/membership';
 import { uiCatalog } from '@/lang/catalog';
-import { copyFrom, visibleChrome } from '@/modules/registry';
 import { communityPath } from '@/lib/people/community-path';
+import { CommunityJoinBar } from '@/components/app/CommunityJoinBar';
 
 const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   kicker: 'home.kicker',
@@ -17,6 +18,10 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   directory: 'home.directory',
   showcase: 'home.showcase',
   profile: 'chrome.profile',
+  communityProfile: 'chrome.community_profile',
+  seats: 'home.seats',
+  discover: 'home.discover',
+  none: 'home.none',
 });
 
 const ctaClass =
@@ -29,44 +34,77 @@ export default async function HomePage() {
   const locale = resolveUiLocale((await cookies()).get(LOCALE_COOKIE)?.value);
   const copy = pickContent(CONTENT, locale);
   const seats = session ? await listMyCommunities(session.sub) : [];
-  const slug = seats[0]?.slug;
-  const enabled = slug
-    ? await moduleRuntime.listEnabled(seats[0].id)
-    : await viewerEnabledSlugs(null);
+  const publics = await listPublicCommunities();
+  const enabledBySeat = await Promise.all(seats.map((seat) => moduleRuntime.listEnabled(seat.id)));
   const signedIn = Boolean(session);
-  const memberHome = visibleChrome(enabled, 'home', signedIn).filter((item) => item.memberOnly);
-  const publicHome = visibleChrome(enabled, 'home', signedIn).filter((item) => !item.memberOnly);
 
   return (
     <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
-      <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-        {signedIn ? (
-          memberHome.length > 0 && slug ? (
-            memberHome.map((item) => (
-              <Link key={item.href} href={communityPath(slug, item.href)} className={ctaClass}>
-                {copyFrom(copy, item.copyKey)}
-              </Link>
-            ))
-          ) : slug ? (
-            <Link href={communityPath(slug, '/profile/edit')} className={ctaClass}>
-              {copy.profile}
-            </Link>
-          ) : (
-            <Link href="/login" className={ctaClass}>
-              {copy.signin}
-            </Link>
-          )
-        ) : (
+      {!signedIn ? (
+        <div className="mb-10 flex flex-col sm:flex-row flex-wrap gap-3">
           <Link href="/login" className={ctaClass}>
             {copy.signin}
           </Link>
-        )}
-        {publicHome.map((item) => (
-          <Link key={item.href} href={item.href} className={outlineClass}>
-            {copyFrom(copy, item.copyKey)}
+          <Link href="/showcase" className={outlineClass}>
+            {copy.showcase}
           </Link>
-        ))}
-      </div>
+        </div>
+      ) : null}
+
+      {signedIn && seats.length === 0 ? <p className="mb-6 text-muted-foreground">{copy.none}</p> : null}
+
+      {seats.length > 0 ? (
+        <section className="mb-10 space-y-3">
+          <h2 className="text-lg font-semibold tracking-tight">{copy.seats}</h2>
+          <ul className="grid gap-3">
+            {seats.map((seat, index) => {
+              const enabled = new Set(enabledBySeat[index] || []);
+              return (
+                <li
+                  key={seat.id}
+                  className="flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <span className="font-medium">{seat.name}</span>
+                  <div className="flex flex-wrap gap-2">
+                    {enabled.has('directory') ? (
+                      <Link href={communityPath(seat.slug, '/directory')} className={ctaClass}>
+                        {copy.directory}
+                      </Link>
+                    ) : null}
+                    {enabled.has('showcase') ? (
+                      <Link href={communityPath(seat.slug, '/showcase')} className={outlineClass}>
+                        {copy.showcase}
+                      </Link>
+                    ) : null}
+                    <Link href={communityPath(seat.slug, '/profile')} className={outlineClass}>
+                      {copy.communityProfile}
+                    </Link>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ) : null}
+
+      {publics.length > 0 ? (
+        <section className="space-y-3">
+          <h2 className="text-lg font-semibold tracking-tight">{copy.discover}</h2>
+          <ul className="grid gap-4">
+            {publics.map((community) => (
+              <li key={community.id} className="min-w-0 rounded-lg border border-border bg-card p-4">
+                <div className="mb-3 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <span className="font-medium">{community.name}</span>
+                  <Link href={communityPath(community.slug, '/showcase')} className={outlineClass}>
+                    {copy.showcase}
+                  </Link>
+                </div>
+                <CommunityJoinBar communityId={community.id} slug={community.slug} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </AppPageTemplate>
   );
 }

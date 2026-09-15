@@ -38,4 +38,17 @@ describe('demo member seed list', () => {
     expect(people.some((person) => person.public_showcase === false)).toBe(true);
     expect(people.some((person) => person.availability === 'mentor')).toBe(true);
   });
+
+  it('keeps hospitality off the platform catalog', () => {
+    const catalog = fs.readFileSync(path.join(import.meta.dirname, 'seed-directory-catalog.cjs'), 'utf8');
+    const seed = fs.readFileSync(path.join(import.meta.dirname, 'db-seed.cjs'), 'utf8');
+    expect(seed).toContain('seedDemoCatalogExtras');
+    const platform = catalog.slice(
+      catalog.indexOf('function seedDirectoryCatalog'),
+      catalog.indexOf('function seedDemoCatalogExtras')
+    );
+    expect(platform).not.toContain('hospitality');
+    expect(platform).not.toContain('host_at_home');
+    expect(catalog).toContain('function seedDemoCatalogExtras');
+  });
 });

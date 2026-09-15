@@ -16,7 +16,7 @@ A pessoa pode ter **várias** memberships `active`. O produto mostra **uma comun
 
 1. **Slug na URL** em rotas `/c/{slug}/…` (fonte de verdade para páginas).
 2. **Cookie** `community_slug` nas Route Handlers (mesmo tenant que a página que disparou o fetch).
-3. **Visitante** sem sessão: vitrine em `/showcase` usa a primeira comunidade com `is_public_showcase` (sem picker).
+3. **Visitante** sem sessão: `/showcase` lista comunidades `is_public_showcase`. Uma só: mostra as pessoas daquela. Várias: picker para `/c/{slug}/showcase`. Sem misturar tenants.
 
 Se o slug não existe → 404. Se a sessão não tem membership `active` naquele `community_id` → 403 (página) ou `FORBIDDEN` na API. Cookie sem membership válida é ignorado.
 
@@ -30,10 +30,11 @@ Chrome do plugin continua declarando paths canónicos (`/directory`, `/showcase`
 | --- | --- |
 | Diretório | `/c/{slug}/directory` |
 | Vitrine desta comunidade | `/c/{slug}/showcase` |
-| Perfil (catálogo deste tenant) | `/c/{slug}/profile/edit` |
+| Perfil (card deste tenant) | `/c/{slug}/profile` |
+| Identidade da pessoa | `/profile` |
 | Pedidos (se coordenador) | `/c/{slug}/coord/approvals` |
 
-Paths antigos `/directory`, `/profile/edit`, `/coord/approvals` **redirecionam** para o slug resolvido (cookie válido, senão primeira membership `active`). Sem membership → login ou 403.
+Paths antigos `/directory`, `/profile/edit`, `/coord/approvals` **redirecionam**. `/profile` é identidade global (não leva slug). `/c/{slug}/profile` é o card desta comunidade.
 
 `/login` e `/` não levam slug.
 
@@ -51,7 +52,7 @@ Três camadas, nesta ordem:
 
 1. **Onde estou** — topo da sidebar: nome da comunidade. Uma membership: rótulo, sem lista. Duas ou mais: lista só das `active` da pessoa. Mobile: nome no header.
 2. **O que faço aqui** — destinos prefixados; `listEnabled` **desta** comunidade. Pedidos só se `network_role = coordinator` **neste** tenant.
-3. **Quem eu sou** — Meu perfil + Sair no rodapé (perfil-base global; card do directory deste slug).
+3. **Quem eu sou** — rodapé: Meu perfil (`/profile`, identidade global) + Sair. Card e campos da comunidade: **Perfil nesta comunidade** (`/c/{slug}/profile`) no grupo do tenant.
 
 Ao trocar: se o job atual existir no destino (mesmo path canónico e plugin on), permanece. Senão, primeiro destino enabled. Sem rail de ícones tipo Discord. Sem home de “infos da comunidade” neste epic.
 

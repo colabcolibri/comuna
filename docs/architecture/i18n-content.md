@@ -60,7 +60,7 @@ RTL: `_n/a_` nesta versão.
 
 ## Inventory (web membro)
 
-Coberto: sidebar, shell, footer, locale, tema (via props do shell), home, login, otp card, busca de cidade, perfil, diretório, vitrine, contato, coord, ops, metadata, e-mail OTP, `AppOtpForm` legado.
+Coberto: sidebar, shell, footer, locale, tema (via props do shell), home, login, otp card, busca de cidade, perfil, diretório, vitrine, contato, coord, ops, metadata, e-mail OTP.
 
 Ainda fora:
 

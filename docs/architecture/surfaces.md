@@ -23,7 +23,7 @@ Volta: `docs/05_architecture.md`.
 - **Jobs:** comunidades, pessoas da rede (assentos e papéis), coordenadores, **toggle de módulos**, catálogo de campos do tenant.
 - **Cookie:** `ops_token` (alvo).
 - **IA do chrome:** o rail é a rede. Itens globais: **comunidades** e **pessoas**. Ao abrir um tenant: dados, plugins, membros, turmas, campos.
-- **Adicionar membro:** combobox typeahead (`q` ≥ 2, teto 20). Roster e pessoas da rede paginam de 50; busca no roster/`q` com ≥ 2. Ops muda papel, status (`pending_approval`/`active`/`suspended`), turma e remove membership. Coordenação de entrada na web continua sendo do coordenador.
+- **Adicionar membro:** combobox typeahead (`q` ≥ 2, teto 20). Roster e pessoas da rede paginam de 50; busca no roster/`q` com ≥ 2. Ops muda papel, status (`pending_approval`/`active`/`suspended`), turma e remove membership. **Pedir entrada** é da web (`POST /api/communities/:slug/join`); coordenação delibera na fila do tenant.
 
 ## Same database
 

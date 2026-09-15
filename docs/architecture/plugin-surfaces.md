@@ -19,7 +19,7 @@ Plugin off **não aparece**. A regra é de **setup + filtro genérico**, não de
 | `module-runtime` | `listEnabled` + `visibleContributions(registry, enabled)` | Nomes de campo |
 | App web | Monta o que o runtime devolve | `if (slug === 'showcase')` |
 
-Identidade (`module_id` null) e `/profile/edit` núcleo **não** são plugin.
+Identidade (`module_id` null) e `/profile` núcleo **não** são plugin. Card da comunidade: `/c/{slug}/profile`.
 
 ## Manifest (compile-time registry)
 

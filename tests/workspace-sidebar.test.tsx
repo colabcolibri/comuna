@@ -7,7 +7,7 @@ import { EnabledModulesProvider } from '@/components/app/EnabledModulesProvider'
 import { SidebarProvider } from '@community/ui';
 
 vi.mock('next/navigation', () => ({
-  usePathname: () => '/c/alumni/directory',
+  usePathname: () => '/c/lab/directory',
 }));
 
 const alumni = {
@@ -38,15 +38,19 @@ function wrap(node: ReactNode) {
 
 describe('workspace sidebar', () => {
   it('shows the community name without extra seats when there is one membership', () => {
-    render(wrap(<AppSidebar email="a@b.c" workspace={{ current: alumni, seats: [alumni] }} />));
+    render(wrap(<AppSidebar email="a@b.c" seats={[alumni]} />));
     expect(screen.getAllByText('Alumni').length).toBeGreaterThan(0);
-    expect(screen.queryByRole('link', { name: 'Lab' })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Lab/ })).toBeNull();
   });
 
-  it('lists seats the person belongs to', () => {
-    render(
-      wrap(<AppSidebar email="a@b.c" workspace={{ current: alumni, seats: [alumni, lab] }} />)
+  it('marks the community from the URL, not a stale layout current', () => {
+    render(wrap(<AppSidebar email="a@b.c" seats={[alumni, lab]} />));
+    expect(screen.getByRole('link', { name: /Lab/ }).getAttribute('aria-current')).toBe('page');
+    expect(screen.getByRole('link', { name: /Alumni/ }).getAttribute('aria-current')).toBeNull();
+    expect(screen.getByRole('link', { name: /Alumni/ }).getAttribute('href')).toBe('/c/alumni/directory');
+    expect(screen.getByRole('link', { name: /Perfil nesta comunidade/ }).getAttribute('href')).toBe(
+      '/c/lab/profile'
     );
-    expect(screen.getByRole('link', { name: /Lab/ })).toBeTruthy();
+    expect(screen.getByRole('link', { name: /Meu perfil/ }).getAttribute('href')).toBe('/profile');
   });
 });

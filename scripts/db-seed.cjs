@@ -4,7 +4,7 @@
 const { Client } = require('pg');
 const { loadRootEnv } = require('./load-root-env.cjs');
 
-const { seedDirectoryCatalog } = require('./seed-directory-catalog.cjs');
+const { seedDirectoryCatalog, seedDemoCatalogExtras } = require('./seed-directory-catalog.cjs');
 const { DEMO_MEMBER_COUNT, demoMemberEmails, demoPeople, emailFor } = require('./seed-demo-people.cjs');
 const MODULES = ['directory', 'showcase', 'contact-mediated'];
 
@@ -56,6 +56,7 @@ async function seed(url, email) {
       [communityId, MODULES]
     );
     await seedDirectoryCatalog(client, communityId);
+    await seedDemoCatalogExtras(client, communityId);
 
     for (const person of demoPeople()) {
       const memberEmail = emailFor(person);

@@ -34,3 +34,12 @@ export {
   type CohortRow,
 } from './cohorts';
 export { listNetworkPeople, type NetworkPerson, type NetworkPersonSeat } from './network-people';
+export {
+  JoinNotAllowedError,
+  decideJoinRequest,
+  findMyMembership,
+  listPendingJoins,
+  requestJoin,
+  type JoinSeat,
+  type PendingJoinRow,
+} from './join-requests';

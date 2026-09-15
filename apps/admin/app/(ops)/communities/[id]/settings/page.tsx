@@ -16,6 +16,7 @@ export default async function CommunitySettingsPage({ params }: { params: Promis
       name={community.name}
       slug={community.slug}
       type={community.type}
+      isPublicShowcase={community.is_public_showcase}
     />
   );
 }

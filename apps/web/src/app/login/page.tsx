@@ -11,10 +11,15 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   hint: 'login.hint',
 });
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
   const session = await getMemberSession();
+  const next = (await searchParams).next;
   if (session) {
-    redirect('/');
+    redirect(next && next.startsWith('/c/') ? next : '/');
   }
   const locale = resolveUiLocale((await cookies()).get(LOCALE_COOKIE)?.value);
   const copy = pickContent(CONTENT, locale);

@@ -85,7 +85,8 @@ export default function OtpCard() {
         throw new Error(data.error?.message || copy.invalid);
       }
       setDone({ email: data.user.email, role: data.user.global_role });
-      window.location.href = '/';
+      const next = new URLSearchParams(window.location.search).get('next');
+      window.location.href = next && next.startsWith('/c/') ? next : '/';
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : copy.invalid);
     } finally {

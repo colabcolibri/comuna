@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Input, Label, toast } from '@community/ui';
+import { Button, Checkbox, Input, Label, toast } from '@community/ui';
 import { OpsSection } from '@community/ui-admin';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from './locale-provider';
@@ -17,6 +17,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   save: 'community.save',
   saved: 'community.saved',
   error: 'community.save_error',
+  publicShowcase: 'community.public_showcase',
 });
 
 export function CommunitySettings({
@@ -24,16 +25,19 @@ export function CommunitySettings({
   name,
   slug,
   type,
+  isPublicShowcase,
 }: {
   communityId: string;
   name: string;
   slug: string;
   type: string;
+  isPublicShowcase: boolean;
 }) {
   const copy = pickContent(CONTENT, useLocale());
   const router = useRouter();
   const [nameValue, setNameValue] = useState(name);
   const [typeValue, setTypeValue] = useState(type);
+  const [publicShowcase, setPublicShowcase] = useState(isPublicShowcase);
   const [busy, setBusy] = useState(false);
 
   const save = async (e: FormEvent) => {
@@ -42,7 +46,7 @@ export function CommunitySettings({
     const res = await fetch(`/api/admin/communities/${communityId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: nameValue, type: typeValue }),
+      body: JSON.stringify({ name: nameValue, type: typeValue, is_public_showcase: publicShowcase }),
     });
     setBusy(false);
     if (!res.ok) {
@@ -68,6 +72,10 @@ export function CommunitySettings({
           <Label htmlFor="ops-community-type">{copy.type}</Label>
           <Input id="ops-community-type" value={typeValue} onChange={(ev) => setTypeValue(ev.target.value)} required />
         </div>
+        <label className="flex min-h-11 items-center gap-2 text-sm">
+          <Checkbox checked={publicShowcase} onCheckedChange={(checked) => setPublicShowcase(checked === true)} />
+          {copy.publicShowcase}
+        </label>
         <Button type="submit" disabled={busy}>
           {copy.save}
         </Button>

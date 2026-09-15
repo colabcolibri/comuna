@@ -220,7 +220,10 @@ export function parseAttrFilters(
     if (!field) {
       return { ok: false, message: `Facet inválido: ${name}` };
     }
-    const coerced = coerceAttribute(field, field.type === 'boolean' ? raw === 'true' : raw);
+    const coerced = coerceAttribute(
+      field,
+      field.type === 'boolean' ? raw === 'true' : field.type === 'checkbox' ? raw.split(',').filter(Boolean) : raw
+    );
     if (!coerced.ok) {
       return { ok: false, message: coerced.message };
     }
@@ -230,6 +233,10 @@ export function parseAttrFilters(
     filters.push({ [name]: coerced.value });
   }
   return { ok: true, filters };
+}
+
+export function filterableAttributeNames(fields: CatalogField[]): string[] {
+  return fields.filter((field) => field.storage === 'attributes' && field.filterable).map((field) => field.name);
 }
 
 export const CORE_GROUP_SLUGS = ['identity', 'person'] as const;

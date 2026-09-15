@@ -6,7 +6,7 @@ vi.mock('@community/db', () => ({
 
 import { query } from '@community/db';
 import { CatalogWriteError, movedSequence, parseCatalogColumns } from './ops-catalog-shared';
-import { createAttributeField, deleteAttributeField, updateOpsField } from './ops-catalog-fields';
+import { createAttributeField, deleteAttributeField, updateCatalogFieldSpan } from './ops-catalog-fields';
 import { listOpsCatalog } from './ops-catalog';
 import { deleteCatalogGroup, updateCatalogGroupColumns } from './ops-catalog-groups';
 
@@ -107,9 +107,9 @@ describe('ops catalog', () => {
   });
 
   it('updates span on a locked field without touching label', async () => {
-    mockedQuery.mockResolvedValueOnce({ rows: [{ storage: 'person', type: 'text' }] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'f1' }] } as never);
     mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
-    await updateOpsField('c1', 'f1', { span: 2 });
+    await updateCatalogFieldSpan('c1', 'f1', 2);
     expect(String(mockedQuery.mock.calls[1]?.[0])).toContain('SET span');
   });
 });

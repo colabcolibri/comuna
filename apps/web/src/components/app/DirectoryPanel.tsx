@@ -13,7 +13,7 @@ import type { CatalogField } from '@community/directory';
 import { contentFromCatalog, mergeContent, pickContent, pickLocalizedText } from '@community/identity';
 import { displayPlaceLocality } from '@community/places';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
-import { Button, Checkbox, Input } from '@community/ui';
+import { Button, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@community/ui';
 import { AppIndexList, AppPageTemplate, AppPersonRow } from '@community/ui-member';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -29,6 +29,8 @@ const CONTENT = mergeContent(
       privacy: 'page.privacy',
       view: 'page.view',
       facets: 'page.facets',
+      cohort: 'page.cohort',
+      cohortAll: 'page.cohort_all',
       hire: 'card.hire',
       partner: 'card.partner',
       mentor: 'card.mentor',
@@ -61,11 +63,15 @@ export function DirectoryPanel({
   facets,
   search,
   facetValues,
+  cohorts,
+  cohort,
 }: {
   rows: PersonCard[];
   facets: CatalogField[];
   search: string;
   facetValues: Record<string, string>;
+  cohorts: { id: string; name: string }[];
+  cohort: string;
 }) {
   const locale = useLocale();
   const copy = pickContent(CONTENT, locale);
@@ -82,18 +88,18 @@ export function DirectoryPanel({
   }, [search]);
 
   useEffect(() => {
-    const query = directoryQueryString(debounced, facetValues);
+    const query = directoryQueryString(debounced, facetValues, cohort);
     const next = query ? `${pathname}?${query}` : pathname;
-    const committed = directoryQueryString(search, facetValues);
+    const committed = directoryQueryString(search, facetValues, cohort);
     const committedPath = committed ? `${pathname}?${committed}` : pathname;
     if (next === committedPath) {
       return;
     }
     router.replace(next, { scroll: false });
-  }, [debounced, facetValues, pathname, search, router]);
+  }, [debounced, facetValues, cohort, pathname, search, router]);
 
-  function go(nextSearch: string, nextFacets: Record<string, string>) {
-    const query = directoryQueryString(nextSearch, nextFacets);
+  function go(nextSearch: string, nextFacets: Record<string, string>, nextCohort = cohort) {
+    const query = directoryQueryString(nextSearch, nextFacets, nextCohort);
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
 
@@ -108,23 +114,99 @@ export function DirectoryPanel({
         value={term}
         onChange={(e) => setTerm(e.target.value)}
       />
+      {cohorts.length > 0 && (
+        <div className="mb-6 max-w-sm space-y-2">
+          <label className="text-sm font-medium" htmlFor="directory-cohort">
+            {copy.cohort}
+          </label>
+          <Select value={cohort || 'all'} onValueChange={(value) => go(search, facetValues, value === 'all' ? '' : value)}>
+            <SelectTrigger id="directory-cohort" className="min-h-11 w-full">
+              <SelectValue placeholder={copy.cohortAll} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{copy.cohortAll}</SelectItem>
+              {cohorts.map((item) => (
+                <SelectItem key={item.id} value={item.id}>
+                  {item.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       {facets.length > 0 && (
-        <fieldset className="mb-6 space-y-2">
+        <fieldset className="mb-6 space-y-4">
           <legend className="text-sm font-medium">{copy.facets}</legend>
-          {facets.map((field) => (
-            <label key={field.name} className="flex items-center gap-2 min-h-11 text-sm">
-              <Checkbox
-                checked={facetValues[field.name] === 'true'}
-                onCheckedChange={(checked) =>
-                  go(search, {
-                    ...facetValues,
-                    [field.name]: checked === true ? 'true' : '',
-                  })
-                }
-              />
-              {pickLocalizedText(field.label, locale) || field.name}
-            </label>
-          ))}
+          {facets.map((field) => {
+            const label = pickLocalizedText(field.label, locale) || field.name;
+            if (field.type === 'boolean') {
+              return (
+                <label key={field.name} className="flex items-center gap-2 min-h-11 text-sm">
+                  <Checkbox
+                    checked={facetValues[field.name] === 'true'}
+                    onCheckedChange={(checked) =>
+                      go(search, {
+                        ...facetValues,
+                        [field.name]: checked === true ? 'true' : '',
+                      })
+                    }
+                  />
+                  {label}
+                </label>
+              );
+            }
+            if (field.type === 'select' || field.type === 'radio') {
+              return (
+                <div key={field.name} className="max-w-sm space-y-2">
+                  <p className="text-sm font-medium">{label}</p>
+                  <Select
+                    value={facetValues[field.name] || 'all'}
+                    onValueChange={(value) =>
+                      go(search, { ...facetValues, [field.name]: value === 'all' ? '' : value })
+                    }
+                  >
+                    <SelectTrigger className="min-h-11 w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{copy.cohortAll}</SelectItem>
+                      {field.options.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {pickLocalizedText(option.label, locale) || option.value}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              );
+            }
+            if (field.type === 'checkbox') {
+              const selected = new Set((facetValues[field.name] || '').split(',').filter(Boolean));
+              return (
+                <fieldset key={field.name} className="space-y-2">
+                  <legend className="text-sm font-medium">{label}</legend>
+                  {field.options.map((option) => (
+                    <label key={option.value} className="flex min-h-11 items-center gap-2 text-sm">
+                      <Checkbox
+                        checked={selected.has(option.value)}
+                        onCheckedChange={(checked) => {
+                          const next = new Set(selected);
+                          if (checked === true) {
+                            next.add(option.value);
+                          } else {
+                            next.delete(option.value);
+                          }
+                          go(search, { ...facetValues, [field.name]: [...next].join(',') });
+                        }}
+                      />
+                      {pickLocalizedText(option.label, locale) || option.value}
+                    </label>
+                  ))}
+                </fieldset>
+              );
+            }
+            return null;
+          })}
         </fieldset>
       )}
       <p className="text-base text-muted-foreground mb-6 max-w-160">{copy.privacy}</p>

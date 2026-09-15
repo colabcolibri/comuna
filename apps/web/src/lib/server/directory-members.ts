@@ -1,5 +1,5 @@
 import { queryAsMember } from '@community/db';
-import { directoryContribution, parseAttrFilters, parseField } from '@community/directory';
+import { directoryContribution, filterableAttributeNames, parseAttrFilters, parseField } from '@community/directory';
 import type { AppQueryCtx } from '@/lib/server/app-ctx';
 import { toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
@@ -32,6 +32,11 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
     params.push(`%${search}%`);
     clauses.push(`(p.full_name ILIKE $${params.length} OR c.headline::text ILIKE $${params.length})`);
   }
+  const cohort = searchParams.get('cohort')?.trim() || '';
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cohort)) {
+    params.push(cohort);
+    clauses.push(`m.cohort_id = $${params.length}`);
+  }
   const sql =
     'SELECT m.id, p.full_name, p.avatar_url, p.current_city, p.languages, p.contacts, c.headline, c.bio, c.availability_status, c.custom_attributes ' +
     'FROM network_core.memberships m ' +
@@ -41,10 +46,11 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
     clauses.join(' AND ') +
     ' ORDER BY p.full_name';
   const result = await queryAsMember(ctx, sql, params);
+  const attributeKeys = filterableAttributeNames(fields);
   return {
     status: 200 as const,
     body: {
-      data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>)),
+      data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, attributeKeys)),
       meta: { page: 1 },
     },
   };

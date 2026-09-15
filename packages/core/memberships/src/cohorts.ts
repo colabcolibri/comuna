@@ -1,4 +1,4 @@
-import { queryAsOps } from '@community/db';
+import { query, queryAsOps } from '@community/db';
 import { MembershipNotFoundError } from './memberships';
 
 export type CohortRow = {
@@ -22,7 +22,7 @@ export class InvalidCohortError extends Error {
 }
 
 export async function listCohorts(communityId: string): Promise<CohortRow[]> {
-  const result = await queryAsOps<CohortRow>(
+  const result = await query<CohortRow>(
     `SELECT id, name, code
      FROM network_core.cohorts
      WHERE community_id = $1

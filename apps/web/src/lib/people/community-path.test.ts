@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { communityPath, jobFromPath, nextJobPath } from './community-path';
+import { communityPath, jobFromPath, nextJobPath, slugFromPathname } from './community-path';
 
 describe('communityPath', () => {
   it('prefixes the plugin href with the slug', () => {
     expect(communityPath('alumni', '/directory')).toBe('/c/alumni/directory');
+  });
+
+  it('reads the slug from the workspace path', () => {
+    expect(slugFromPathname('/c/lab/directory')).toBe('lab');
+    expect(slugFromPathname('/showcase')).toBeNull();
   });
 });
 
@@ -18,5 +23,14 @@ describe('nextJobPath', () => {
 
   it('reads the job out of a workspace path', () => {
     expect(jobFromPath('/c/alumni/profile/edit')).toBe('/profile/edit');
+    expect(jobFromPath('/c/alumni/profile')).toBe('/profile');
+  });
+
+  it('keeps community profile when switching tenants', () => {
+    expect(nextJobPath('/c/alumni/profile', 'lab', ['directory'], false)).toBe('/c/lab/profile');
+  });
+
+  it('leaves the global account page when switching community', () => {
+    expect(nextJobPath('/profile', 'lab', ['directory'], false)).toBe('/c/lab/directory');
   });
 });

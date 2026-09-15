@@ -5,6 +5,7 @@ export {
   getCommunity,
   getCommunityBySlug,
   listCommunities,
+  listPublicCommunities,
   updateCommunity,
   type CommunityRow,
 } from './communities';

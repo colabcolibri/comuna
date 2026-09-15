@@ -43,7 +43,7 @@ describe('directory panel', () => {
     render(
       <LocaleProvider initialLocale="pt-BR">
         <EnabledModulesProvider enabled={['directory', 'contact-mediated']}>
-          <DirectoryPanel rows={[marina]} facets={[]} search="" facetValues={{}} />
+          <DirectoryPanel rows={[marina]} facets={[]} search="" facetValues={{}} cohorts={[]} cohort="" />
         </EnabledModulesProvider>
       </LocaleProvider>
     );
@@ -55,7 +55,7 @@ describe('directory panel', () => {
     render(
       <LocaleProvider initialLocale="pt-BR">
         <EnabledModulesProvider enabled={['directory', 'contact-mediated']}>
-          <DirectoryPanel rows={[marina]} facets={[]} search="" facetValues={{}} />
+          <DirectoryPanel rows={[marina]} facets={[]} search="" facetValues={{}} cohorts={[]} cohort="" />
         </EnabledModulesProvider>
       </LocaleProvider>
     );

@@ -154,10 +154,29 @@ export async function createAttributeField(
   };
 }
 
+export async function updateCatalogFieldSpan(
+  communityId: string,
+  fieldId: string,
+  span: unknown
+): Promise<void> {
+  const next = parseCatalogSpan(span);
+  const found = await query<{ id: string }>(
+    `SELECT f.id
+     FROM plugin_directory.fields f
+     JOIN plugin_directory.field_groups g ON g.id = f.group_id
+     WHERE f.id = $1 AND g.community_id = $2`,
+    [fieldId, communityId]
+  );
+  if (!found.rows[0]) {
+    throw new CatalogWriteError('NOT_FOUND');
+  }
+  await query(`UPDATE plugin_directory.fields SET span = $2 WHERE id = $1`, [fieldId, next]);
+}
+
 export async function updateOpsField(
   communityId: string,
   fieldId: string,
-  input: { labelPt?: string; labelEn?: string; optionsText?: string; filterable?: boolean; span?: number }
+  input: { labelPt?: string; labelEn?: string; optionsText?: string; filterable?: boolean }
 ): Promise<void> {
   const found = await query<{ storage: string; type: string }>(
     `SELECT f.storage, f.type
@@ -170,10 +189,8 @@ export async function updateOpsField(
   if (!row) {
     throw new CatalogWriteError('NOT_FOUND');
   }
-  const span = parseCatalogSpan(input.span, 1);
   if (isFieldLocked(row.storage)) {
-    await query(`UPDATE plugin_directory.fields SET span = $2 WHERE id = $1`, [fieldId, span]);
-    return;
+    throw new CatalogWriteError('LOCKED');
   }
   const labelPt = (input.labelPt || '').trim();
   if (!labelPt) {
@@ -186,15 +203,9 @@ export async function updateOpsField(
   const filterable = fieldCanFilter(row.type) ? Boolean(input.filterable) : false;
   await query(
     `UPDATE plugin_directory.fields
-     SET label = $2::jsonb, options = $3::jsonb, filterable = $4, span = $5
+     SET label = $2::jsonb, options = $3::jsonb, filterable = $4
      WHERE id = $1`,
-    [
-      fieldId,
-      JSON.stringify(localizedPair(labelPt, (input.labelEn || '').trim() || labelPt)),
-      JSON.stringify(options),
-      filterable,
-      span,
-    ]
+    [fieldId, JSON.stringify(localizedPair(labelPt, (input.labelEn || '').trim() || labelPt)), JSON.stringify(options), filterable]
   );
 }
 

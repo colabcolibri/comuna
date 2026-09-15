@@ -198,10 +198,32 @@ async function seedDirectoryCatalog(client, communityId) {
         },
       ],
     },
+  ];
+
+  await upsertCatalogGroups(client, communityId, groups);
+
+  await client.query(
+    `UPDATE plugin_directory.fields f
+     SET group_id = links.id,
+         sort_order = CASE f.name WHEN 'linkedin' THEN 10 WHEN 'github' THEN 20 WHEN 'portfolio' THEN 30 ELSE f.sort_order END,
+         span = 1
+     FROM plugin_directory.field_groups person
+     JOIN plugin_directory.field_groups links
+       ON links.community_id = person.community_id AND links.slug = 'links'
+     WHERE person.community_id = $1
+       AND person.slug = 'person'
+       AND f.group_id = person.id
+       AND f.name IN ('linkedin', 'github', 'portfolio')`,
+    [communityId]
+  );
+}
+
+async function seedDemoCatalogExtras(client, communityId) {
+  await upsertCatalogGroups(client, communityId, [
     {
       slug: 'hospitality',
       label: loc('Hospitalidade', 'Hospitality'),
-      description: loc('Perguntas desta comunidade.', 'Questions for this community.'),
+      description: loc('Pergunta só desta comunidade de demo.', 'Question only for this demo community.'),
       sort: 50,
       columns: 1,
       fields: [
@@ -218,8 +240,10 @@ async function seedDirectoryCatalog(client, communityId) {
         },
       ],
     },
-  ];
+  ]);
+}
 
+async function upsertCatalogGroups(client, communityId, groups) {
   for (const group of groups) {
     const inserted = await client.query(
       `INSERT INTO plugin_directory.field_groups (
@@ -273,21 +297,7 @@ async function seedDirectoryCatalog(client, communityId) {
       );
     }
   }
-
-  await client.query(
-    `UPDATE plugin_directory.fields f
-     SET group_id = links.id,
-         sort_order = CASE f.name WHEN 'linkedin' THEN 10 WHEN 'github' THEN 20 WHEN 'portfolio' THEN 30 ELSE f.sort_order END,
-         span = 1
-     FROM plugin_directory.field_groups person
-     JOIN plugin_directory.field_groups links
-       ON links.community_id = person.community_id AND links.slug = 'links'
-     WHERE person.community_id = $1
-       AND person.slug = 'person'
-       AND f.group_id = person.id
-       AND f.name IN ('linkedin', 'github', 'portfolio')`,
-    [communityId]
-  );
 }
 
-module.exports = { seedDirectoryCatalog };
+module.exports = { seedDirectoryCatalog, seedDemoCatalogExtras };
+

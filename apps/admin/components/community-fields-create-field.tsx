@@ -26,7 +26,6 @@ export function CommunityFieldsCreateField({
   const [labelEn, setLabelEn] = useState('');
   const [optionsText, setOptionsText] = useState('');
   const [filterable, setFilterable] = useState(true);
-  const [span, setSpan] = useState('1');
   const [busy, setBusy] = useState(false);
 
   const selectedGroup = groupId || groups[0]?.id || '';
@@ -45,7 +44,6 @@ export function CommunityFieldsCreateField({
         labelEn,
         optionsText,
         filterable,
-        span: Number(span),
       }),
     });
     setBusy(false);
@@ -141,19 +139,6 @@ export function CommunityFieldsCreateField({
               {copy.filterable}
             </label>
           ) : null}
-          <div className="space-y-2">
-            <Label>{copy.span}</Label>
-            <Select value={span} onValueChange={setSpan}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1</SelectItem>
-                <SelectItem value="2">2</SelectItem>
-                <SelectItem value="3">3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
           <Button type="submit" disabled={busy}>
             {copy.create}
           </Button>

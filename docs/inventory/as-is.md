@@ -27,13 +27,13 @@ promoted_to: [docs/00_scope.md, docs/05_architecture.md]
 
 | Capability | Evidence | Confidence | Epic candidate | Gaps |
 | ---------- | -------- | ---------- | -------------- | ---- |
-| Tela de OTP (pedido + código) | `src/app/page.tsx`, `src/components/AppOtpForm.tsx` | high | EPIC-12 / EPIC-17 | Layout não segue Stitch; OTP volta no JSON (`dev_otp`) |
+| Tela de OTP (pedido + código) | `apps/web/src/components/app/OtpCard.tsx` | high | EPIC-12 / EPIC-17 | — |
 | Pedido de OTP sem persistência | `src/app/api/auth/request-otp/route.ts`, `src/lib/auth/otp.ts` | high | EPIC-12 | Só loga no terminal; não grava `verification_tokens`; não envia e-mail |
 | “Login” sem JWT real | `src/app/api/auth/verify-otp/route.ts` | high | EPIC-12 | Cookie `token_simulado_*`; papel `admin` se e-mail for `admin@alumni.org` |
 | Funções puras de perfil/busca/vitrine/aprovação | `src/lib/profiles/*`, `src/lib/showcase/*`, `src/lib/admin/approval.ts` + testes Vitest | high | EPIC-13–16 | Sem Postgres; dados em memória/fixture |
 | Páginas de perfil, diretório, vitrine, “admin” | `src/app/profile/edit`, `directory`, `showcase`, `admin/approvals` | high | EPIC-14–17 | Shell visual; navbar mistura Moderação com a app do membro |
-| Primitives shadcn + templates | `src/components/ui/*`, `src/components/templates/*` | high | EPIC-17 | Templates genéricos; `09` ainda aponta paths `components/app/` que não existem |
-| i18n PT/EN | `src/lib/i18n/*`, `AppNavbar` | medium | EPIC-17 | Não é contrato de produto; idioma do Stitch é PT-BR |
+| Primitives shadcn | `packages/ui/primitives` | high | EPIC-17 | Compostos em `packages/ui/member` |
+| i18n PT/EN | packs `core_web` / `core_admin` | high | EPIC-17 | — |
 | PostgreSQL no compose | `docker-compose.yml`, `pg` no `package.json` | high | EPIC-11 | Sem pasta de migrações de produto; kit Meridian tem SQL só em `.agent/migrations/` |
 | Design Stitch de referência | `docs/stitch/html`, `screenshots`, `DESIGN.md` | high | EPIC-17 | Contrato visual ainda é `09`; HTML não está aplicado nas rotas |
 

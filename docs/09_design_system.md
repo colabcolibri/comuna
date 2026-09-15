@@ -12,8 +12,8 @@ blocks: []
 ## Overview
 
 - **Surfaces:** `apps/web` (Stitch + plugins). Admin **não** usa o contrato Stitch; usa os mesmos primitives.
-- **Primary UI stack:** `ts-shadcn` — primitives em `packages/ui/primitives` (`@community/ui`). Compostos membro em `packages/ui/member` e, hoje, `apps/web/src/components/{templates,app}/`.
-- **Select / Checkbox:** shadcn em `@community/ui` (`SelectTrigger` + portal; `Checkbox` Radix). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito.
+- **Primary UI stack:** `ts-shadcn` — primitives em `packages/ui/primitives` (`@community/ui`). Compostos membro em `packages/ui/member` e `apps/web/src/components/app/`.
+- **Select / Checkbox:** shadcn em `@community/ui` (`SelectTrigger` + portal; `Checkbox` Radix). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`) é que fecham o produto.
 - **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, espaços aninhados. Workspace (trocar de comunidade) **não** é sidebar de espaços — ver `community-context.md`.
 - **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
@@ -25,6 +25,7 @@ Papel quente, não slate-50. Um acento só (`mark`) para Vitrine ativa e foco �
 | ----- | ---- | ----- | ---- |
 | `background` | Canvas | `#f3f0ea` | `#161412` |
 | `surface` / `card` | Painéis | `#fffcf7` | `#221f1c` |
+| `popover` | Overlay shadcn (Select, menus) | `#fffcf7` | `#221f1c` |
 | `foreground` | Texto | `#1c1915` | `#f4f0e8` |
 | `muted` | Texto secundário | `#5c564e` | `#c4b8a8` (não `#94a3b8`) |
 | `border` | Divisores | `#ddd6cc` | `#3a342c` |
@@ -72,18 +73,17 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `AppAuthFrame` | Login centrado com kicker | `packages/ui/member/src/app-auth-frame.tsx` |
 | `AppIndexList` / `AppPersonRow` | Índice de pessoas (não grid de cards) | `packages/ui/member/src/app-person-row.tsx` |
 | `AppAlertDialog` | Confirmação (cancelar / confirmar) | `packages/ui/member/src/app-alert-dialog.tsx` |
+| `AppDialog` | Perfil / detalhe: envolve o `Dialog` shadcn (tamanho, header, body com `ScrollArea`) | `packages/ui/member/src/app-dialog.tsx` |
 | `AppSheet` | Painel lateral / fundo; body com `ScrollArea` | `packages/ui/member/src/app-sheet.tsx` |
 | `AppShowcaseCard` | Cartão da vitrine (foto, headline, chips, Ver perfil) | `packages/ui/member/src/app-showcase-card.tsx` |
-| `Toaster` (Sonner) | Feedback **transitório** (salvar, envio) | `packages/ui/primitives` — `toast` de `@community/ui`. Um `Toaster` no layout. **Não** usa `AppAlertTemplate` no topo da página para “salvo”. |
-| `AppAlertTemplate` | Alerta **inline** (erro de campo, estado na tela) | `templates/AppAlertTemplate.tsx` |
+| `Toaster` (Sonner) | Feedback **transitório** (salvar, envio) | `packages/ui/primitives` — `toast` de `@community/ui`. Um `Toaster` no layout. Alerta **inline** = `Alert` de `@community/ui`, não toast. |
 | `MemberShell` | Sidebar + inset + header; páginas rolam com `ScrollArea`; rodapé no chrome (fora do scroll) | `apps/web/.../MemberShell.tsx` |
 | `AppSidebar` | Destinos; rodapé = perfil + Sair | `apps/web/.../AppSidebar.tsx` |
-| `AppCardTemplate` | Card genérico (legado; não usar em listas **nem** no formulário de perfil) | `templates/AppCardTemplate.tsx` |
 | `AppProfileSection` / `AppProfileStack` | Seções do formulário de perfil (h2 + lede + campos; sem Card) | `packages/ui/member/src/app-profile-section.tsx` |
 | `AppFormDock` | CTA Salvar grudado no fundo **só abaixo de sm** | mesmo ficheiro |
 | `OtpCard` | OTP | `OtpCard.tsx` |
 
-`AppNavbar.tsx` (barra ciano “Community”) é chrome morto / concorrente. Fora do contrato. Não redesenhar: remover na US de shell.
+Chrome: `MemberShell` + `AppSidebar`. Sem barra ciano “Community”.
 
 Não existe rota `/profile/:id`. O detalhe público é o `AppDialog` na vitrine.
 
@@ -95,12 +95,15 @@ Jobs: ver vitrine, pedir contato, entrar com código, escolher a comunidade, bus
 
 | Tela (rota hoje) | Job | Quem | Chrome | Problema atual | Alvo visual (Stitch) |
 | ----------------- | --- | ---- | ------ | -------------- | --------------------- |
-| `/showcase` | Ver pessoas públicas | Visitante / membro | Header: Vitrine ativa | — | Cartões com headline + bio breve; diálogo do perfil |
+| `/showcase` | Escolher tenant público ou ver pessoas | Visitante / membro | Header: Vitrine | — | Picker se 2+; cartões se 1 |
+| `/c/{slug}/showcase` | Vitrine **desta** comunidade + pedir entrada | Visitante / membro | Marca da comunidade se slug na URL | — | Cartões + CTA de pedido |
 | Perfil público | Ler perfil sanitizado | Visitante | `AppDialog` + `ScrollArea` | — | Headline no header; bio no body |
 | Contato | Pedir contato mediado | Visitante | `AppSheet` right / bottom | Form dentro do diálogo | Sheet depois de Enviar mensagem |
-| `/` | Entrar com OTP | Visitante | Mesmo header | OTP centrado | OTP centrado, um CTA |
+| `/` | Ver assentos e comunidades públicas | Visitante / membro | Header da plataforma | — | Lista de tenants; OTP fica em `/login` |
+| `/login` | Entrar com OTP | Visitante | Sem workspace | — | OTP centrado, um CTA |
 | `/c/{slug}/directory` | Buscar membros **desta** comunidade | Membro | Sidebar: comunidade + Diretório | Path legado `/directory` | Lista em linhas; `Ver perfil` abre o mesmo diálogo da vitrine |
-| `/c/{slug}/profile/edit` | Editar perfil-base + card deste tenant | Membro | Rodapé: Meu perfil | Path legado `/profile/edit` | Header sticky; identidade em superfície; grupos person / links |
+| `/c/{slug}/profile` | Card e campos desta comunidade | Membro | Nesta comunidade | Misturado com identidade | Formulário só `storage` ≠ `person` |
+| `/profile` | Editar identidade | Membro | Rodapé: Meu perfil | Path legado `/profile/edit` | Nome, foto, cidade, links |
 | `/c/{slug}/coord/approvals` | Aprovar entrada **deste** tenant | Coordenador neste slug | Pedidos só se coord aqui | Path legado `/coord` | Tabela com Aprovar/Recusar rotulados |
 | Switcher | Trocar de comunidade | Membro com 2+ assentos | Topo da sidebar; mobile = nome no header | LIMIT 1 invisível | Lista curta; sem ícones de servidor |
 | `/ops`, admin | Operar tenants | Super-admin | Rail `--primary`; lista = **Rede / comunidades + pessoas**; tenant = + **nesta comunidade** | Um item “comunidades” com capítulos em tabs | App admin |
@@ -109,10 +112,13 @@ Estados obrigatórios por tela: loading (skeleton no grid/tabela), vazio (copy +
 
 ```mermaid
 flowchart LR
-    V[Vitrine publica] -->|Ver perfil| P[Dialog perfil público]
+    V[Vitrine publica] -->|escolher tenant| S[Vitrine desta comunidade]
+    S -->|pedir entrada| J[Pedido pending]
+    J -->|coordenacao| W[Workspace /c/slug]
+    S -->|Ver perfil| P[Dialog perfil público]
     P -->|Enviar mensagem| C[Sheet right ou bottom]
-    V -->|Entrar| O[OTP]
-    O -->|sessão| W[Workspace /c/slug]
+    S -->|Entrar| O[OTP]
+    O -->|sessão| W
     W -->|Diretório| D[Lista]
     D -->|Ver perfil| P
     W -->|Meu perfil| E[Editar perfil]
@@ -157,4 +163,4 @@ WCAG 2.2 AA (AAA em body se possível). Foco 2px. Labels visíveis. Status não 
 
 ## Showcase catalog
 
-Rotas atuais (`/`, `/directory`, `/showcase`, `/profile/edit`, `/admin/approvals`) são **rascunho**. Catálogo Stitch: `docs/stitch/html/*.html` (exportação antiga, telas ocultas no canvas). Nova geração 2026-09-15: chrome slim + sheet. US de implementação só depois de `/review-us` em US de design.
+Rotas atuais: `/`, `/login`, `/showcase`, `/c/{slug}/directory|showcase|profile/edit|coord/approvals`. Paths sem slug redirecionam. Admin é `apps/admin`, não `/admin/approvals`. Catálogo Stitch: `docs/stitch/html/*.html`.

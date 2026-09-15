@@ -50,7 +50,7 @@ docker compose up -d
 ### Apps (web + admin)
 
 - `apps/web` é o Next de membros (`apps/web/src`). Não há `src/` na raiz.
-- `apps/admin` é o Next de ops na porta 3015, sem AppNavbar Stitch. Sessão: cookie `ops_token`.
+- `apps/admin` é o Next de ops na porta 3015. Sessão: cookie `ops_token`.
 
 `pnpm db:migrate` aplica SQL datado em `db/migrations/`. `pnpm db:migrate:status` lista arquivos applied versus pending. Sem Prisma, Drizzle ou Supabase.
 

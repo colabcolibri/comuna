@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from 'react';
 import { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader, AppSheet, personInitials } from '@community/ui-member';
-import { Button, Input, Label, Textarea, toast } from '@community/ui';
+import { Button, DialogTitle, Input, Label, Textarea, toast } from '@community/ui';
 import { pickLocalizedText } from '@community/identity';
 import { displayPlaceLocality } from '@community/places';
 import { profileChips } from '@/lib/people/chips';
@@ -91,7 +91,7 @@ export function PersonInspect({
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <h2 className="text-lg font-semibold tracking-tight text-foreground">{profile.full_name}</h2>
+                <DialogTitle className="tracking-tight text-foreground">{profile.full_name}</DialogTitle>
                 {city ? <p className="mt-1 text-base text-muted-foreground">{city}</p> : null}
               </div>
             </div>

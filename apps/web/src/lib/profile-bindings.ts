@@ -1,6 +1,6 @@
 import { parseContacts, parseLanguages, valueAt, type LocalizedText } from '@community/identity';
 import { parsePlace, type GeoPlace } from '@community/places';
-import type { CatalogField } from '@community/directory';
+import type { CatalogField, CatalogGroup } from '@community/directory';
 
 export type ProfileSources = {
   profile: Record<string, unknown> | null;
@@ -75,4 +75,15 @@ export function cardBodyFromFields(fields: CatalogField[], values: Record<string
     public_showcase: Boolean(values.public_showcase),
     custom_attributes: attributes,
   };
+}
+
+export function groupsForScope(groups: CatalogGroup[], scope: 'person' | 'community') {
+  return groups
+    .map((group) => ({
+      ...group,
+      fields: group.fields.filter((field) =>
+        scope === 'person' ? field.storage === 'person' : field.storage !== 'person'
+      ),
+    }))
+    .filter((group) => group.fields.length > 0);
 }

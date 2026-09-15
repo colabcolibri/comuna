@@ -5,7 +5,7 @@ vi.mock('@community/db', () => ({
 }));
 
 import { query } from '@community/db';
-import { CommunityNotFoundError, DuplicateCommunitySlugError, createCommunity, getCommunityBySlug, listCommunities, updateCommunity } from './communities';
+import { CommunityNotFoundError, DuplicateCommunitySlugError, createCommunity, getCommunityBySlug, listCommunities, listPublicCommunities, updateCommunity } from './communities';
 
 const mockedQuery = vi.mocked(query);
 
@@ -21,6 +21,14 @@ describe('communities', () => {
     await expect(listCommunities()).resolves.toEqual([
       { id: 'c1', slug: 'demo', name: 'Demo', type: 'alumni' },
     ]);
+  });
+
+  it('lists only communities marked public', async () => {
+    mockedQuery.mockResolvedValueOnce({
+      rows: [{ id: 'c1', slug: 'demo', name: 'Demo', type: 'alumni', is_public_showcase: true }],
+    } as never);
+    await expect(listPublicCommunities()).resolves.toHaveLength(1);
+    expect(String(mockedQuery.mock.calls[0]?.[0])).toContain('is_public_showcase = true');
   });
 
   it('maps unique slug conflicts to DuplicateCommunitySlugError', async () => {

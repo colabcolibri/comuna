@@ -74,4 +74,4 @@ Autorização no core; módulo não se auto-habilita.
 
 ## Gaps
 
-Árvore `apps/` ainda sem Next movido — EPIC-20.
+Overlay i18n em SQL ainda não. Playwright E2E pedido em `10` ainda não. SMTP de produção aberto no `00`.

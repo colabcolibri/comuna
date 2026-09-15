@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 import { AppPageTemplate, AppShowcaseCard, AppShowcaseGrid } from '@community/ui-member';
 import { Button } from '@community/ui';
@@ -46,7 +47,7 @@ const CONTENT = mergeContent(
   })
 );
 
-export function ShowcasePanel({ rows }: { rows: PersonCard[] }) {
+export function ShowcasePanel({ rows, lead }: { rows: PersonCard[]; lead?: ReactNode }) {
   const locale = useLocale();
   const copy = pickContent(CONTENT, locale);
   const enabled = useEnabledModules();
@@ -55,6 +56,7 @@ export function ShowcasePanel({ rows }: { rows: PersonCard[] }) {
 
   return (
     <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
+      {lead}
       {rows.length === 0 ? (
         <p className="text-muted-foreground">{copy.empty}</p>
       ) : (

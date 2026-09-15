@@ -1,5 +1,5 @@
-import { resolveLegacyMemberPath } from '@/lib/server/require-member';
+import { redirect } from 'next/navigation';
 
-export default async function LegacyProfilePage() {
-  await resolveLegacyMemberPath('/profile/edit');
+export default function LegacyAccountProfilePage() {
+  redirect('/profile');
 }

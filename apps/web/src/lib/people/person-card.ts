@@ -42,7 +42,7 @@ export function publicAttributes(raw: unknown, allowed: string[]): Record<string
   return out;
 }
 
-export function toPersonCard(row: Record<string, unknown>, attributeKeys: string[] = ['host_at_home']): PersonCard {
+export function toPersonCard(row: Record<string, unknown>, attributeKeys: string[] = []): PersonCard {
   return {
     id: String(row.id),
     full_name: String(row.full_name || ''),

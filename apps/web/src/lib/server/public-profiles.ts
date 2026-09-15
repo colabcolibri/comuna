@@ -13,24 +13,22 @@ const PUBLIC_SELECT = `
   ORDER BY p.full_name
 `;
 
-export async function listPublicProfiles(communityId?: string | null) {
-  let id = communityId ?? null;
-  if (!id) {
-    const community = await query<{ id: string }>(
-      `SELECT id FROM network_core.communities WHERE is_public_showcase = true ORDER BY created_at LIMIT 1`
-    );
-    id = community.rows[0]?.id ?? null;
-  }
-  if (!id) {
-    return { status: 200 as const, data: [] };
-  }
-  const on = await moduleRuntime.isEnabled(id, showcaseContribution.slug);
+export async function listPublicProfiles(communityId: string) {
+  const on = await moduleRuntime.isEnabled(communityId, showcaseContribution.slug);
   if (!on) {
     return { status: 404 as const, data: [] };
   }
-  const result = await query(PUBLIC_SELECT, [id]);
+  const catalog = await query<{ name: string }>(
+    `SELECT f.name
+     FROM plugin_directory.fields f
+     JOIN plugin_directory.field_groups g ON g.id = f.group_id
+     WHERE g.community_id = $1 AND f.storage = 'attributes' AND f.filterable = true`,
+    [communityId]
+  );
+  const attributeKeys = catalog.rows.map((row) => row.name);
+  const result = await query(PUBLIC_SELECT, [communityId]);
   return {
     status: 200 as const,
-    data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>)),
+    data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, attributeKeys)),
   };
 }
