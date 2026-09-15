@@ -241,7 +241,7 @@ export function CommunityFieldsGroup({
         </Select>
         <p className="text-xs text-muted-foreground">{copy.columnsHelp}</p>
       </div>
-      <ol className="mt-4 space-y-2">
+      <ol className="mt-4 divide-y divide-border border-t border-border">
         {group.fields.length === 0 ? (
           <li className="text-sm text-muted-foreground">{copy.empty}</li>
         ) : (

@@ -70,16 +70,16 @@ export function CommunityFieldsCreateField({
         {copy.add}
       </Button>
       {open ? (
-        <form onSubmit={create} className="mt-4 grid max-w-3xl gap-4">
-          <div className="space-y-2">
+        <form onSubmit={create} className="mt-4 grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="min-w-0 space-y-2">
             <Label htmlFor={`${idPrefix}-pt`}>{copy.labelPt}</Label>
             <Input id={`${idPrefix}-pt`} value={labelPt} onChange={(ev) => setLabelPt(ev.target.value)} required />
           </div>
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <Label htmlFor={`${idPrefix}-en`}>{copy.labelEn}</Label>
             <Input id={`${idPrefix}-en`} value={labelEn} onChange={(ev) => setLabelEn(ev.target.value)} />
           </div>
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <Label htmlFor={`${idPrefix}-type`}>{copy.type}</Label>
             <Select
               value={type}
@@ -106,7 +106,7 @@ export function CommunityFieldsCreateField({
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <Label htmlFor={`${idPrefix}-name`}>{copy.name}</Label>
             <Input
               id={`${idPrefix}-name`}
@@ -117,20 +117,35 @@ export function CommunityFieldsCreateField({
             />
             <p className="text-xs text-muted-foreground">{copy.nameHelp}</p>
           </div>
-          {fieldNeedsOptions(type) ? (
-            <CommunityFieldsOptionsEditor idPrefix={`${idPrefix}-opt`} rows={options} onChange={setOptions} copy={copy} />
-          ) : null}
           {fieldCanFilter(type) ? (
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox checked={filterable} onCheckedChange={(checked) => setFilterable(checked === true)} />
-              {copy.filterable}
-            </label>
+            <div className="min-w-0 space-y-2">
+              <Label htmlFor={`${idPrefix}-filter`}>{copy.filterable}</Label>
+              <label htmlFor={`${idPrefix}-filter`} className="flex h-11 items-center gap-2 text-sm">
+                <Checkbox
+                  id={`${idPrefix}-filter`}
+                  checked={filterable}
+                  onCheckedChange={(checked) => setFilterable(checked === true)}
+                />
+              </label>
+            </div>
           ) : null}
-          <label className="flex items-center gap-2 text-sm">
-            <Checkbox checked={required} onCheckedChange={(checked) => setRequired(checked === true)} />
-            {copy.required}
-          </label>
-          <div className="flex min-w-0 flex-wrap gap-2">
+          <div className="min-w-0 space-y-2">
+            <Label htmlFor={`${idPrefix}-required`}>{copy.requirement}</Label>
+            <label htmlFor={`${idPrefix}-required`} className="flex h-11 items-center gap-2 text-sm">
+              <Checkbox
+                id={`${idPrefix}-required`}
+                checked={required}
+                onCheckedChange={(checked) => setRequired(checked === true)}
+              />
+              {copy.required}
+            </label>
+          </div>
+          {fieldNeedsOptions(type) ? (
+            <div className="min-w-0 sm:col-span-2 lg:col-span-3">
+              <CommunityFieldsOptionsEditor idPrefix={`${idPrefix}-opt`} rows={options} onChange={setOptions} copy={copy} />
+            </div>
+          ) : null}
+          <div className="flex min-w-0 flex-wrap gap-2 sm:col-span-2 lg:col-span-3">
             <Button type="submit" disabled={busy}>
               {copy.create}
             </Button>

@@ -1,7 +1,7 @@
 ---
 title: Design System
 status: review
-version: 1.18
+version: 1.19
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
@@ -16,6 +16,7 @@ blocks: []
 - **Select / Checkbox / menu:** shadcn em `@community/ui` (`SelectTrigger` + portal; `DropdownMenu`; `Checkbox` Radix; `Tabs`; `Accordion`). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`, `OpsTabs`, `OpsAccordion`, `OpsHtmlPreview`) é que fecham o produto.
 - **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, espaços aninhados. Workspace (trocar de comunidade) **não** é sidebar de espaços — ver `community-context.md`.
 - **Copy de formulário:** grupo = título. Campo = rótulo + **Obrigatório** ou **Opcional** (os dois estados, sempre), no mesmo eixo do nome. Sem lede que ensina o schema. Sem “demografia”, “headline”, “intermediado”.
+- **Catálogo (ops):** o grupo é o único card (`OpsAccordion`). Campos e opções = linhas, não caixa dentro de caixa. Aberto: linha sob o cabeçalho.
 - **Prévia de campos (ops):** botão **Como fica** no grupo; a silhueta abre num `OpsDialog` (tela larga). Não fica inline no cartão. `localized_text` = dois controles com legenda de locale, não dois campos.
 - **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
@@ -68,11 +69,11 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `OpsShell` | Rail contextual: rede = comunidades + pessoas; tenant = capítulos; páginas rolam com `ScrollArea` (header fora do scroll) | `packages/ui/admin/src/ops-shell.tsx` |
 | `OpsSubnav` | Tabs horizontais de **rota** (legado / uso pontual; capítulos do tenant vão no rail) | `packages/ui/admin/src/ops-subnav.tsx` |
 | `OpsTabs` | Tabs shadcn de **estado** (ex.: kinds de e-mail). Horizontal por padrão: irmãos do mesmo formulário, sem segundo rail. Vertical só se a lista for longa e o conteúdo for um só painel. | `packages/ui/admin/src/ops-tabs.tsx` |
-| `OpsAccordion` | Item colapsável (shadcn `Accordion` `single` + `collapsible`). Fecha por padrão. Título no gatilho; ações (botões) **fora** do gatilho para não aninhar botão. | `packages/ui/admin/src/ops-accordion.tsx` |
+| `OpsAccordion` | Item colapsável (shadcn `Accordion` `single` + `collapsible`). Fecha por padrão. Título no gatilho; ações (botões) **fora** do gatilho para não aninhar botão. **Uma** caixa (`rounded-lg border`); aberto = linha sob o cabeçalho. Sem card dentro do card. | `packages/ui/admin/src/ops-accordion.tsx` |
 | `OpsHtmlPreview` | Iframe de HTML (e-mail). Atualiza `head`/`body` no documento já aberto; não troca `srcDoc` a cada tecla. | `packages/ui/admin/src/ops-html-preview.tsx` |
 | `OpsDialog` | Overlay de detalhe (mesmo contrato de `AppDialog`). Admin **não** importa `@community/ui-member`. Prévia de campos abre aqui. | `packages/ui/admin/src/ops-dialog.tsx` |
 | `OpsAlertDialog` | Confirmação destrutiva (mesmo contrato de `AppAlertDialog`). Admin **não** importa `@community/ui-member`. Excluir abre isto; desativar não. | `packages/ui/admin/src/ops-alert-dialog.tsx` |
-| `OpsSection` | Bloco h2 + lede no workspace (**sem Card**; igual `AppProfileSection`). Card fica na tabela, na lista ou no grupo de campos — não no capítulo inteiro | `packages/ui/admin/src/ops-section.tsx` |
+| `OpsSection` | Bloco h2 + lede no workspace (**sem Card**; igual `AppProfileSection`). Card = tabela, lista de pessoas, ou **acordeão do grupo**. Campos e opções dentro do grupo são **linhas** (`divide-y`), não caixas de 4 bordas | `packages/ui/admin/src/ops-section.tsx` |
 | `OpsBadge` | Rótulo curto (ex.: super-admin). Não cola no nome | `packages/ui/admin/src/ops-badge.tsx` |
 | `OpsMoveButtons` | Ordem: `Button` `icon-sm` + seta, `aria-label` i18n. Sem “subir/descer” em texto. Desabilitado no extremo (não some). | `packages/ui/admin/src/ops-move-buttons.tsx` |
 | `OpsCombobox` | Typeahead (listbox). Hits vêm do servidor; o componente não recebe 10k opções | `packages/ui/admin/src/ops-combobox.tsx` |

@@ -6,7 +6,7 @@ vi.mock('@community/db', () => ({
 
 import { query } from '@community/db';
 import { CatalogWriteError, movedSequence, parseCatalogColumns } from './ops-catalog-shared';
-import { createAttributeField, deleteAttributeField, updateCatalogFieldRequired, updateCatalogFieldSpan, normalizeOpsChoiceOptions } from './ops-catalog-fields';
+import { createAttributeField, deleteAttributeField, updateCatalogFieldFilterable, updateCatalogFieldRequired, updateCatalogFieldSpan, normalizeOpsChoiceOptions } from './ops-catalog-fields';
 import { listOpsCatalog } from './ops-catalog';
 import { deleteCatalogGroup, updateCatalogGroupColumns } from './ops-catalog-groups';
 import { moveCatalogFieldToGroup } from './ops-catalog-order';
@@ -172,6 +172,13 @@ describe('ops catalog', () => {
     mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
     await updateCatalogFieldRequired('c1', 'f1', true);
     expect(String(mockedQuery.mock.calls[1]?.[0])).toContain('SET required');
+  });
+
+  it('updates filterable on a locked field without touching label', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ type: 'boolean' }] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    await updateCatalogFieldFilterable('c1', 'f1', false);
+    expect(String(mockedQuery.mock.calls[1]?.[0])).toContain('SET filterable');
   });
 
   it('moves a field to another group in the same community', async () => {

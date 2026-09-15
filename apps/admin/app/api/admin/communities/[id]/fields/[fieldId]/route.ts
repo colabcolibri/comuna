@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { deleteAttributeField, updateCatalogFieldEnabled, updateCatalogFieldRequired, updateCatalogFieldSpan, updateOpsField } from '@community/directory/ops';
+import { deleteAttributeField, updateCatalogFieldEnabled, updateCatalogFieldFilterable, updateCatalogFieldRequired, updateCatalogFieldSpan, updateOpsField } from '@community/directory/ops';
 import { catalogWriteResponse } from '@/lib/catalog-http';
 import { isOpsClaims, requireOps } from '@/lib/require-ops';
 
@@ -19,6 +19,8 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
         optionsText: typeof body.optionsText === 'string' ? body.optionsText : undefined,
         filterable: Boolean(body.filterable),
       });
+    } else if (typeof body.filterable === 'boolean') {
+      await updateCatalogFieldFilterable(id, fieldId, body.filterable);
     } else if (typeof body.enabled === 'boolean') {
       await updateCatalogFieldEnabled(id, fieldId, body.enabled);
     } else if (typeof body.required === 'boolean') {

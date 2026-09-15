@@ -48,6 +48,8 @@ export function CommunityFieldsField({
   const [labelEn, setLabelEn] = useState(pickLocalizedText(field.label, 'en') || '');
   const [options, setOptions] = useState(field.options?.length ? field.options : [emptyOptionRow()]);
   const [filterable, setFilterable] = useState(field.filterable);
+  const [required, setRequired] = useState(field.required);
+  const [span, setSpan] = useState(clampFieldSpan(field.span, groupColumns));
   const [busy, setBusy] = useState(false);
   const [pendingGroupId, setPendingGroupId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState(false);
@@ -61,7 +63,9 @@ export function CommunityFieldsField({
     setLabelEn(pickLocalizedText(field.label, 'en') || '');
     setOptions(field.options?.length ? field.options : [emptyOptionRow()]);
     setFilterable(field.filterable);
-  }, [field]);
+    setRequired(field.required);
+    setSpan(clampFieldSpan(field.span, groupColumns));
+  }, [field, groupColumns]);
 
   const setGroup = async (groupId: string) => {
     const res = await fetch(`/api/admin/communities/${communityId}/fields/${field.id}/move`, {
@@ -79,31 +83,38 @@ export function CommunityFieldsField({
     onChanged();
   };
 
-  const setSpan = async (span: number) => {
+  const patchField = async (body: Record<string, unknown>) => {
     const res = await fetch(`/api/admin/communities/${communityId}/fields/${field.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ span: clampFieldSpan(span, groupColumns) }),
+      body: JSON.stringify(body),
     });
-    if (!res.ok) {
-      toast.error(copy.error);
-      return;
-    }
-    toast.success(copy.saved);
-    onChanged();
+    return res.ok;
   };
 
-  const setRequired = async (required: boolean) => {
-    const res = await fetch(`/api/admin/communities/${communityId}/fields/${field.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ required }),
-    });
-    if (!res.ok) {
+  const save = async () => {
+    setBusy(true);
+    const canFilter = fieldCanFilter(field.type);
+    const nextSpan = clampFieldSpan(span, groupColumns);
+    let ok = true;
+    if (!field.locked) {
+      ok = await patchField({ labelPt, labelEn, options, filterable: canFilter ? filterable : false });
+    } else if (canFilter) {
+      ok = await patchField({ filterable });
+    }
+    if (ok && required !== field.required) {
+      ok = await patchField({ required });
+    }
+    if (ok && showSpan && nextSpan !== clampFieldSpan(field.span, groupColumns)) {
+      ok = await patchField({ span: nextSpan });
+    }
+    setBusy(false);
+    if (!ok) {
       toast.error(copy.error);
       return;
     }
     toast.success(copy.saved);
+    setOpen(false);
     onChanged();
   };
 
@@ -121,30 +132,11 @@ export function CommunityFieldsField({
     onChanged();
   };
 
-  const save = async () => {
-    setBusy(true);
-    const res = await fetch(`/api/admin/communities/${communityId}/fields/${field.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        labelPt,
-        labelEn,
-        options,
-        filterable,
-      }),
-    });
-    setBusy(false);
-    if (!res.ok) {
-      toast.error(copy.error);
-      return;
-    }
-    toast.success(copy.saved);
-    setOpen(false);
-    onChanged();
-  };
+  const canFilter = fieldCanFilter(field.type);
+  const filterId = `ops-field-filter-${field.id}`;
 
   return (
-    <li className="rounded-md border border-border bg-background px-3 py-2">
+    <li className="min-w-0 py-3">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -185,11 +177,11 @@ export function CommunityFieldsField({
         </div>
       </div>
       {open ? (
-        <div className="mt-3 grid max-w-3xl gap-3 border-t border-border pt-3">
+        <div className="mt-3 min-w-0 space-y-4 border-t border-border pt-3">
           {field.locked ? <p className="text-sm text-muted-foreground">{copy.lockedHint}</p> : null}
           {field.locked ? null : (
-            <>
-              <div className="space-y-2">
+            <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+              <div className="min-w-0 space-y-2">
                 <Label htmlFor={`ops-field-pt-${field.id}`}>{copy.labelPt}</Label>
                 <Input
                   id={`ops-field-pt-${field.id}`}
@@ -197,7 +189,7 @@ export function CommunityFieldsField({
                   onChange={(ev) => setLabelPt(ev.target.value)}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="min-w-0 space-y-2">
                 <Label htmlFor={`ops-field-en-${field.id}`}>{copy.labelEn}</Label>
                 <Input
                   id={`ops-field-en-${field.id}`}
@@ -205,60 +197,62 @@ export function CommunityFieldsField({
                   onChange={(ev) => setLabelEn(ev.target.value)}
                 />
               </div>
-              <p className="text-xs text-muted-foreground">
-                {copy.name}: <span className="font-mono break-all">{field.name}</span>
-              </p>
-              {fieldNeedsOptions(field.type) ? (
-                <CommunityFieldsOptionsEditor
-                  idPrefix={`ops-field-opt-${field.id}`}
-                  rows={options}
-                  onChange={setOptions}
-                  copy={copy}
-                />
-              ) : null}
-              {fieldCanFilter(field.type) ? (
-                <label className="flex items-center gap-2 text-sm">
-                  <Checkbox checked={filterable} onCheckedChange={(checked) => setFilterable(checked === true)} />
-                  {copy.filterable}
-                </label>
-              ) : null}
-            </>
+            </div>
           )}
-          <div className="space-y-2">
-            <Label htmlFor={requiredId}>{copy.requirement}</Label>
-            <Select value={field.required ? 'required' : 'optional'} onValueChange={(next) => void setRequired(next === 'required')}>
-              <SelectTrigger id={requiredId} className="w-[min(100%,16rem)]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="optional">{copy.optional}</SelectItem>
-                <SelectItem value="required">{copy.required}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          {showSpan ? (
-            <div className="space-y-2">
-              <Label htmlFor={spanId}>{copy.span}</Label>
-              <Select
-                value={String(clampFieldSpan(field.span, groupColumns))}
-                onValueChange={(next) => void setSpan(Number(next))}
-              >
-                <SelectTrigger id={spanId} className="w-[min(100%,12rem)]">
+          <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="min-w-0 space-y-2">
+              <Label>{copy.type}</Label>
+              <p className="flex h-11 items-center text-sm text-foreground">{fieldTypeLabel(field.type, copy)}</p>
+            </div>
+            <div className="min-w-0 space-y-2">
+              <Label>{copy.name}</Label>
+              <p className="flex min-h-11 items-center font-mono text-sm break-all">{field.name}</p>
+            </div>
+            <div className="min-w-0 space-y-2">
+              <Label htmlFor={requiredId}>{copy.requirement}</Label>
+              <Select value={required ? 'required' : 'optional'} onValueChange={(next) => setRequired(next === 'required')}>
+                <SelectTrigger id={requiredId}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {spanChoices.map((span) => (
-                    <SelectItem key={span} value={String(span)}>
-                      {span}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="optional">{copy.optional}</SelectItem>
+                  <SelectItem value="required">{copy.required}</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">{copy.spanHelp}</p>
             </div>
-          ) : null}
+            {canFilter ? (
+              <div className="min-w-0 space-y-2">
+                <Label htmlFor={filterId}>{copy.filterable}</Label>
+                <label htmlFor={filterId} className="flex h-11 items-center gap-2 text-sm">
+                  <Checkbox
+                    id={filterId}
+                    checked={filterable}
+                    onCheckedChange={(checked) => setFilterable(checked === true)}
+                  />
+                </label>
+              </div>
+            ) : null}
+            {showSpan ? (
+              <div className="min-w-0 space-y-2">
+                <Label htmlFor={spanId}>{copy.span}</Label>
+                <Select value={String(span)} onValueChange={(next) => setSpan(clampFieldSpan(Number(next), groupColumns))}>
+                  <SelectTrigger id={spanId}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {spanChoices.map((choice) => (
+                      <SelectItem key={choice} value={String(choice)}>
+                        {choice}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
+          </div>
+          {showSpan ? <p className="text-xs text-muted-foreground">{copy.spanHelp}</p> : null}
           {groups.length > 1 ? (
-            <div className="space-y-2">
+            <div className="min-w-0 max-w-md space-y-2">
               <Label htmlFor={`ops-field-group-${field.id}`}>{copy.moveGroup}</Label>
               <Select
                 value={currentGroupId}
@@ -269,7 +263,7 @@ export function CommunityFieldsField({
                   setPendingGroupId(next);
                 }}
               >
-                <SelectTrigger id={`ops-field-group-${field.id}`} className="w-[min(100%,16rem)]">
+                <SelectTrigger id={`ops-field-group-${field.id}`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -283,11 +277,19 @@ export function CommunityFieldsField({
               <p className="text-xs text-muted-foreground">{copy.moveGroupHelp}</p>
             </div>
           ) : null}
-          {field.locked ? null : (
+          {field.locked || !fieldNeedsOptions(field.type) ? null : (
+            <CommunityFieldsOptionsEditor
+              idPrefix={`ops-field-opt-${field.id}`}
+              rows={options}
+              onChange={setOptions}
+              copy={copy}
+            />
+          )}
+          <div>
             <Button type="button" size="sm" disabled={busy} onClick={() => void save()}>
               {copy.save}
             </Button>
-          )}
+          </div>
         </div>
       ) : null}
       <OpsAlertDialog

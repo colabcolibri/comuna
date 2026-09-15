@@ -9,7 +9,8 @@ describe('OpsAccordion', () => {
       </OpsAccordion>
     );
     expect(screen.getByRole('button', { name: /Identidade/ })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Como fica' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Como fica' }).parentElement?.className).toMatch(/justify-end/);
+    expect(screen.getByText('Identidade').closest('[data-slot="accordion"]')?.className).toMatch(/border/);
     expect(screen.queryByText('Campos do grupo')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: /Identidade/ }));
     expect(screen.getByText('Campos do grupo')).toBeTruthy();

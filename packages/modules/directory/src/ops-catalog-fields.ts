@@ -281,6 +281,31 @@ export async function updateCatalogFieldRequired(
   await query(`UPDATE plugin_directory.fields SET required = $2 WHERE id = $1`, [fieldId, required]);
 }
 
+export async function updateCatalogFieldFilterable(
+  communityId: string,
+  fieldId: string,
+  filterable: unknown
+): Promise<void> {
+  if (typeof filterable !== 'boolean') {
+    throw new CatalogWriteError('VALIDATION_ERROR');
+  }
+  const found = await query<{ type: string }>(
+    `SELECT f.type
+     FROM plugin_directory.fields f
+     JOIN plugin_directory.field_groups g ON g.id = f.group_id
+     WHERE f.id = $1 AND g.community_id = $2`,
+    [fieldId, communityId]
+  );
+  const row = found.rows[0];
+  if (!row) {
+    throw new CatalogWriteError('NOT_FOUND');
+  }
+  if (!fieldCanFilter(row.type)) {
+    throw new CatalogWriteError('VALIDATION_ERROR');
+  }
+  await query(`UPDATE plugin_directory.fields SET filterable = $2 WHERE id = $1`, [fieldId, filterable]);
+}
+
 export async function updateCatalogFieldEnabled(
   communityId: string,
   fieldId: string,

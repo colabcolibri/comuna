@@ -48,20 +48,20 @@ export function OpsAccordion({
       className={cn('min-w-0 rounded-lg border border-border', className)}
     >
       <AccordionItem value={value} className="border-0">
-        <div className="flex min-w-0 flex-col sm:flex-row sm:items-start">
-          <AccordionTrigger className="min-w-0 flex-1 px-4 py-3 hover:no-underline">
+        <div className="flex w-full min-w-0 flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:gap-3 [&>*:first-child]:min-w-0 sm:[&>*:first-child]:flex-1">
+          <AccordionTrigger className="px-0 py-0 hover:no-underline">
             <span className="flex min-w-0 flex-wrap items-center gap-2 text-left">
               <span className="text-base font-semibold wrap-break-word">{title}</span>
               {badges}
             </span>
           </AccordionTrigger>
           {actions ? (
-            <div className="flex min-w-0 flex-wrap items-center gap-2 px-4 pb-3 sm:justify-end sm:py-3 sm:pl-0">
+            <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 sm:shrink-0">
               {actions}
             </div>
           ) : null}
         </div>
-        <AccordionContent className="px-4 pb-4">{children}</AccordionContent>
+        <AccordionContent className="border-t border-border px-4 pt-4 pb-4">{children}</AccordionContent>
       </AccordionItem>
     </Accordion>
   );

@@ -46,9 +46,9 @@ export function CommunityFieldsOptionsEditor({
     <div className="space-y-3 min-w-0">
       <p className="text-sm font-medium">{copy.options}</p>
       <p className="text-xs text-muted-foreground">{copy.optionsHelp}</p>
-      <ul className="space-y-3">
+      <ul className="divide-y divide-border border-t border-border">
         {list.map((row, index) => (
-          <li key={`${idPrefix}-${index}`} className="rounded-md border border-border p-3 min-w-0">
+          <li key={`${idPrefix}-${index}`} className="min-w-0 py-3">
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="space-y-2 min-w-0">
                 <Label htmlFor={`${idPrefix}-val-${index}`}>{copy.optionValue}</Label>
