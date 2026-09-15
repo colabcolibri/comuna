@@ -16,6 +16,8 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   slug: 'communities.slug',
   type: 'community.type',
   description: 'community.description',
+  showcaseTitle: 'community.showcase_title',
+  showcaseDescription: 'community.showcase_description',
   locale: 'community.default_locale',
   localePt: 'locale.pt',
   localeEn: 'locale.en',
@@ -51,6 +53,8 @@ export function CommunitySettings({
     COMMUNITY_TYPES.includes(type as (typeof COMMUNITY_TYPES)[number]) ? type : 'alumni'
   );
   const [description, setDescription] = useState(settings.description);
+  const [showcaseTitle, setShowcaseTitle] = useState(settings.showcase_title);
+  const [showcaseDescription, setShowcaseDescription] = useState(settings.showcase_description);
   const [defaultLocale, setDefaultLocale] = useState(settings.default_locale);
   const [publicShowcase, setPublicShowcase] = useState(isPublicShowcase);
   const [busy, setBusy] = useState(false);
@@ -71,7 +75,12 @@ export function CommunitySettings({
         name: nameValue,
         type: typeValue,
         is_public_showcase: publicShowcase,
-        settings: { description, default_locale: defaultLocale },
+        settings: {
+          description,
+          showcase_title: showcaseTitle,
+          showcase_description: showcaseDescription,
+          default_locale: defaultLocale,
+        },
       }),
     });
     setBusy(false);
@@ -116,6 +125,25 @@ export function CommunitySettings({
             value={description}
             onChange={(ev) => setDescription(ev.target.value)}
             rows={3}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="ops-showcase-title">{copy.showcaseTitle}</Label>
+          <Input
+            id="ops-showcase-title"
+            value={showcaseTitle}
+            onChange={(ev) => setShowcaseTitle(ev.target.value)}
+            maxLength={80}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="ops-showcase-description">{copy.showcaseDescription}</Label>
+          <Textarea
+            id="ops-showcase-description"
+            value={showcaseDescription}
+            onChange={(ev) => setShowcaseDescription(ev.target.value)}
+            rows={4}
+            maxLength={500}
           />
         </div>
         <div className="space-y-2">

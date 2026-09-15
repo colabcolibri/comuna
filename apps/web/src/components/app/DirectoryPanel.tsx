@@ -2,10 +2,11 @@
 
 import { useEnabledModules } from '@/components/app/EnabledModulesProvider';
 import { useLocale } from '@/components/app/LocaleProvider';
+import { PeopleCohortSelect, PeopleFilters } from '@/components/app/PeopleFilters';
 import { PersonInspect } from '@/components/app/PersonInspect';
 import { uiCatalog } from '@/lang/catalog';
 import { availabilityLabel } from '@/lib/people/availability';
-import { directoryQueryString } from '@/lib/people/directory-query';
+import { activeFilterCount, directoryQueryString } from '@/lib/people/directory-query';
 import type { PersonCard } from '@/lib/people/person-card';
 import { useDebouncedValue } from '@/lib/people/use-debounced-value';
 import { slotOn } from '@/modules/registry';
@@ -13,8 +14,9 @@ import type { CatalogField } from '@community/directory';
 import { contentFromCatalog, mergeContent, pickContent, pickLocalizedText } from '@community/identity';
 import { displayPlaceLocality } from '@community/places';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
-import { Button, Checkbox, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@community/ui';
-import { AppIndexList, AppPageTemplate, AppPersonRow } from '@community/ui-member';
+import { Button, Input } from '@community/ui';
+import { AppFilterSheet, AppIndexList, AppPageTemplate, AppPersonRow } from '@community/ui-member';
+import { ListFilter } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -28,9 +30,11 @@ const CONTENT = mergeContent(
       empty: 'page.empty',
       privacy: 'page.privacy',
       view: 'page.view',
-      facets: 'page.facets',
+      filters: 'page.filters',
+      filtersClear: 'page.filters_clear',
+      filtersHint: 'page.filters_hint',
+      all: 'page.all',
       cohort: 'page.cohort',
-      cohortAll: 'page.cohort_all',
       hire: 'card.hire',
       partner: 'card.partner',
       mentor: 'card.mentor',
@@ -82,6 +86,8 @@ export function DirectoryPanel({
   const [selected, setSelected] = useState<PersonCard | null>(null);
   const [term, setTerm] = useState(search);
   const debounced = useDebouncedValue(term, 300);
+  const count = activeFilterCount(facetValues);
+  const canFilter = facets.length > 0;
 
   useEffect(() => {
     setTerm(search);
@@ -105,111 +111,47 @@ export function DirectoryPanel({
 
   return (
     <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
-      <label className="block text-sm font-medium mb-2" htmlFor="global-search">
-        {copy.search}
-      </label>
-      <Input
-        id="global-search"
-        className="mb-6 min-h-11"
-        value={term}
-        onChange={(e) => setTerm(e.target.value)}
-      />
-      {cohorts.length > 0 && (
-        <div className="mb-6 max-w-sm space-y-2">
-          <label className="text-sm font-medium" htmlFor="directory-cohort">
-            {copy.cohort}
+      <div className="mb-6 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="min-w-0 flex-1">
+          <label className="mb-2 block text-sm font-medium" htmlFor="global-search">
+            {copy.search}
           </label>
-          <Select value={cohort || 'all'} onValueChange={(value) => go(search, facetValues, value === 'all' ? '' : value)}>
-            <SelectTrigger id="directory-cohort" className="min-h-11 w-full">
-              <SelectValue placeholder={copy.cohortAll} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{copy.cohortAll}</SelectItem>
-              {cohorts.map((item) => (
-                <SelectItem key={item.id} value={item.id}>
-                  {item.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Input id="global-search" className="min-h-11 w-full" value={term} onChange={(e) => setTerm(e.target.value)} />
         </div>
-      )}
-      {facets.length > 0 && (
-        <fieldset className="mb-6 space-y-4">
-          <legend className="text-sm font-medium">{copy.facets}</legend>
-          {facets.map((field) => {
-            const label = pickLocalizedText(field.label, locale) || field.name;
-            if (field.type === 'boolean') {
-              return (
-                <label key={field.name} className="flex items-center gap-2 min-h-11 text-sm">
-                  <Checkbox
-                    checked={facetValues[field.name] === 'true'}
-                    onCheckedChange={(checked) =>
-                      go(search, {
-                        ...facetValues,
-                        [field.name]: checked === true ? 'true' : '',
-                      })
-                    }
-                  />
-                  {label}
-                </label>
-              );
+        <PeopleCohortSelect
+          id="directory-cohort"
+          label={copy.cohort}
+          allLabel={copy.all}
+          cohorts={cohorts}
+          value={cohort}
+          onChange={(next) => go(search, facetValues, next)}
+        />
+        {canFilter ? (
+          <AppFilterSheet
+            trigger={
+              <Button type="button" variant="outline" className="min-h-11 w-full shrink-0 sm:w-auto">
+                <ListFilter className="size-4" />
+                {copy.filters}
+                {count ? ` (${count})` : ''}
+              </Button>
             }
-            if (field.type === 'select' || field.type === 'radio') {
-              return (
-                <div key={field.name} className="max-w-sm space-y-2">
-                  <p className="text-sm font-medium">{label}</p>
-                  <Select
-                    value={facetValues[field.name] || 'all'}
-                    onValueChange={(value) =>
-                      go(search, { ...facetValues, [field.name]: value === 'all' ? '' : value })
-                    }
-                  >
-                    <SelectTrigger className="min-h-11 w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">{copy.cohortAll}</SelectItem>
-                      {field.options.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {pickLocalizedText(option.label, locale) || option.value}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              );
-            }
-            if (field.type === 'checkbox') {
-              const selected = new Set((facetValues[field.name] || '').split(',').filter(Boolean));
-              return (
-                <fieldset key={field.name} className="space-y-2">
-                  <legend className="text-sm font-medium">{label}</legend>
-                  {field.options.map((option) => (
-                    <label key={option.value} className="flex min-h-11 items-center gap-2 text-sm">
-                      <Checkbox
-                        checked={selected.has(option.value)}
-                        onCheckedChange={(checked) => {
-                          const next = new Set(selected);
-                          if (checked === true) {
-                            next.add(option.value);
-                          } else {
-                            next.delete(option.value);
-                          }
-                          go(search, { ...facetValues, [field.name]: [...next].join(',') });
-                        }}
-                      />
-                      {pickLocalizedText(option.label, locale) || option.value}
-                    </label>
-                  ))}
-                </fieldset>
-              );
-            }
-            return null;
-          })}
-        </fieldset>
-      )}
-      <p className="text-base text-muted-foreground mb-6 max-w-160">{copy.privacy}</p>
+            title={copy.filters}
+            description={copy.filtersHint}
+            clearLabel={copy.filtersClear}
+            closeLabel={copy.close}
+            onClear={() => go(search, {}, cohort)}
+          >
+            <PeopleFilters
+              locale={locale}
+              allLabel={copy.all}
+              facets={facets}
+              facetValues={facetValues}
+              onFacets={(next) => go(search, next, cohort)}
+            />
+          </AppFilterSheet>
+        ) : null}
+      </div>
+      <p className="mb-6 max-w-160 text-base text-muted-foreground">{copy.privacy}</p>
       {rows.length === 0 && <p className="text-muted-foreground">{copy.empty}</p>}
       {rows.length > 0 && (
         <AppIndexList>

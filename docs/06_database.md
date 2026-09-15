@@ -1,6 +1,6 @@
 ---
 title: Database Design
-status: approved
+status: review
 version: 2.7
 updated: 2026-09-15
 depends_on: [05_architecture.md]
@@ -81,7 +81,7 @@ erDiagram
         string name "Nome da Comunidade/Rede"
         string type "alumni | practice_community | incubator | mentor_network"
         boolean is_public_showcase "Se a comunidade possui vitrine externa"
-        jsonb settings "description, default_locale — ver ops-settings.md"
+        jsonb settings "description, showcase_title, showcase_description, default_locale — ver ops-settings.md"
         timestamp created_at
     }
 

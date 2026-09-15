@@ -15,17 +15,17 @@ export function LocaleSwitcher() {
   const setLocale = useSetLocale();
   const copy = pickContent(CONTENT, locale);
   return (
-    <div className="flex items-center rounded-lg border border-border p-0.5" role="group" aria-label={copy.group}>
+    <div className="inline-flex items-center rounded-md bg-muted p-1" role="group" aria-label={copy.group}>
       <button
         type="button"
-        className={`min-h-11 px-3 text-sm rounded-md ${locale === 'pt-BR' ? 'bg-secondary font-medium text-foreground' : 'text-muted-foreground'}`}
+        className={`h-7 rounded-sm px-2.5 text-sm ${locale === 'pt-BR' ? 'bg-background font-medium text-foreground shadow-sm' : 'text-muted-foreground'}`}
         onClick={() => setLocale('pt-BR')}
       >
         {copy.pt}
       </button>
       <button
         type="button"
-        className={`min-h-11 px-3 text-sm rounded-md ${locale === 'en' ? 'bg-secondary font-medium text-foreground' : 'text-muted-foreground'}`}
+        className={`h-7 rounded-sm px-2.5 text-sm ${locale === 'en' ? 'bg-background font-medium text-foreground shadow-sm' : 'text-muted-foreground'}`}
         onClick={() => setLocale('en')}
       >
         {copy.en}

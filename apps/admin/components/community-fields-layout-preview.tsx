@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { pickLocalizedText } from '@community/identity';
-import { Button, cn } from '@community/ui';
-import { OpsDialog, OpsDialogBody, OpsDialogHeader } from '@community/ui-admin';
+import { cn } from '@community/ui';
+import { Columns2 } from 'lucide-react';
+import { OpsDialog, OpsDialogBody, OpsDialogHeader, OpsIconButton } from '@community/ui-admin';
 import { catalogColumns, clampFieldSpan, type OpsField } from './community-fields-types';
 
 export function CommunityFieldsLayoutPreview({
@@ -35,9 +36,9 @@ export function CommunityFieldsLayoutPreview({
 
   return (
     <>
-      <Button type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>
-        {label}
-      </Button>
+      <OpsIconButton label={label} onClick={() => setOpen(true)}>
+        <Columns2 />
+      </OpsIconButton>
       <OpsDialog open={open} onClose={() => setOpen(false)} size="xl">
         <OpsDialogHeader title={label} description={help} />
         <OpsDialogBody>

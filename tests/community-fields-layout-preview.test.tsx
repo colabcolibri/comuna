@@ -14,6 +14,7 @@ function field(partial: Partial<OpsField> & Pick<OpsField, 'id' | 'name' | 'type
     options: [],
     optionsText: '',
     label: [{ locale: 'pt-BR', value: partial.name }],
+    description: [],
     ...partial,
   };
 }

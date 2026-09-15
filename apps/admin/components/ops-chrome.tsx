@@ -82,7 +82,7 @@ export function OpsChrome({ children }: { children: ReactNode }) {
       signOutLabel={copy.signout}
       menuLabel={copy.menu}
       localeSlot={<LocaleSwitcher />}
-      themeSlot={<ThemeToggle className="size-9" toDark={copy.toDark} toLight={copy.toLight} />}
+      themeSlot={<ThemeToggle className="size-8" toDark={copy.toDark} toLight={copy.toLight} />}
       onSignOut={() => {
         void onSignOut();
       }}

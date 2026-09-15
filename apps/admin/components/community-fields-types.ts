@@ -13,6 +13,7 @@ export type OpsField = {
   options: { value: string; labelPt: string; labelEn: string }[];
   optionsText: string;
   label: LocalizedText;
+  description: LocalizedText;
 };
 
 export type OpsGroup = {
@@ -36,6 +37,9 @@ export type CatalogCopy = {
   group: string;
   labelPt: string;
   labelEn: string;
+  descriptionPt: string;
+  descriptionEn: string;
+  descriptionHelp: string;
   options: string;
   optionsHelp: string;
   optionValue: string;
@@ -90,6 +94,10 @@ export type CatalogCopy = {
   moveGroup: string;
   moveGroupHelp: string;
   moveGroupConfirm: string;
+  resetOrder: string;
+  resetOrderTitle: string;
+  resetOrderBody: string;
+  resetOrderOk: string;
 };
 
 export function fieldNeedsOptions(type: string): boolean {

@@ -63,11 +63,13 @@ Not a lonely h1. Structure:
 3. Lede (18px, muted, max ~40rem)
 4. 1px rule, then content
 
-## People index (vitrine + directory)
+## People index
 
-**Rows, not a card grid.** Each row: 44px initials disc, name, headline, availability text chip, one action. 1px dividers on a single surface. Search is a labeled field under the page header, not a floating hero.
+**Diretório (membros):** rows, not a card grid. Each row: 44px initials disc, name, headline, availability text chip, one action. 1px dividers on a single surface.
 
-Forbidden: bento, 3-column talent cards, decorative empty filters rail, Inter, Atkinson, cyan Community navbar.
+**Vitrine (portal público):** página própria, sem sidebar. Title and lede come from admin (`showcase_title`, `showcase_description`). Header: community mark, locale, theme, and **Entrar** or **Comunidade**. Search is a labeled field with icon. People in a 1 / 2 / 3 column card grid. Pagination under the grid (12 per page).
+
+Forbidden: bento, decorative empty filters rail, Inter, Atkinson, cyan Community navbar, copy that frames the page as “for non-members”.
 
 ## Typography
 
@@ -80,9 +82,9 @@ One family for UI. **IBM Plex Sans** for headlines, body, and labels.
 - Do not use Inter as the product face — overused and currently mixed incorrectly in code
 - No decorative serif. No all-caps paragraphs. Chips sentence case.
 
-## Chrome (global — every member/visitor screen)
+## Chrome (workspace)
 
-This is the product shell. Every screen except `/ops` uses it. Do **not** invent a second navbar.
+This is the member shell. Directory, profile, and coordination use it. **Showcase does not** — it uses `AppPublicChrome` (no sidebar, Entrar / Comunidade in the header). `/ops` is a third chrome.
 
 ### Top bar (always)
 

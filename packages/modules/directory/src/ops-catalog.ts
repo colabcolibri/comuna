@@ -30,10 +30,11 @@ export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGro
     enabled: boolean | null;
     options: unknown;
     label: unknown;
+    description: unknown;
   }>(
     `SELECT g.id AS group_id, g.slug AS group_slug, g.label AS group_label, g.columns AS group_columns,
             g.enabled AS group_enabled,
-            f.id AS field_id, f.name, f.type, f.storage, f.filterable, f.span, f.required, f.enabled, f.options, f.label
+            f.id AS field_id, f.name, f.type, f.storage, f.filterable, f.span, f.required, f.enabled, f.options, f.label, f.description
      FROM plugin_directory.field_groups g
      LEFT JOIN plugin_directory.fields f ON f.group_id = g.id
      WHERE g.community_id = $1
@@ -71,6 +72,7 @@ export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGro
       options: storedOptionsToOps(row.options),
       optionsText: optionsToText(row.options),
       label: parseLocalized(row.label),
+      description: parseLocalized(row.description),
     });
   }
   return order.map((id) => groups.get(id)!);

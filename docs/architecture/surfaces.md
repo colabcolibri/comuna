@@ -14,7 +14,7 @@ Volta: `docs/05_architecture.md`.
 - **Visual:** `09` + Stitch.
 - **Monta** só plugins `enabled` da comunidade **do contexto** (nav, home, campos, CTA). Sem link órfão.
 - **Cookie:** sessão membro (`auth_token`) + `community_slug` (workspace). Detalhe: `docs/architecture/community-context.md`.
-- **IA do chrome:** Slack-like. Topo = comunidade (picker só com 2+ memberships). Meio = destinos deste tenant. Rodapé = perfil + Sair. Sem rail Discord e sem lista de canais.
+- **IA do chrome:** duas peles. **Workspace** (`MemberShell` + sidebar): diretório, perfil, pedidos. **Vitrine** (`AppPublicChrome`, grupo `(public)`): página pública, sem sidebar; header com Entrar ou Comunidade.
 
 ## apps/admin
 

@@ -201,9 +201,11 @@ export default function OtpCard() {
           </form>
         )}
       </CardContent>
-      <CardFooter className="border-t">
-        <p className="text-xs text-muted-foreground">{copy.privacy}</p>
-      </CardFooter>
+      {copy.privacy ? (
+        <CardFooter className="border-t">
+          <p className="text-xs text-muted-foreground">{copy.privacy}</p>
+        </CardFooter>
+      ) : null}
     </Card>
   );
 }

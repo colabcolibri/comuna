@@ -65,7 +65,7 @@ blocks: []
 | `GET` | `/api/community/modules` | Slugs enabled da comunidade do contexto (cookie `community_slug` ou vitrine pública) | Public / member | — | `{ "enabled": ["directory", "showcase"] }` |
 | `GET` | `/api/directory/catalog` | Grupos e campos; API **omite** campos cujo `module_id` não está enabled (núcleo sempre). 404 só se o plugin **directory** está off | Member | — | `{ "groups": [ { fields } ] }` |
 | `GET` | `/api/directory/members` | Diretório rico | Member; **404 se plugin off** | query + facets | `{ "data", "meta" }` |
-| `GET` | `/api/profiles/public` | Vitrine desta comunidade | Public; **404 se plugin off** | `?slug=` ou cookie `community_slug` | `{ "data": PublicProfile[] }` |
+| `GET` | `/api/profiles/public` | Vitrine desta comunidade | Public; **404 se plugin off** | `?slug=` ou cookie `community_slug` + `search` / `status` / `attr.*` / `page` | `{ "data", "meta": { page, pageSize, total } }` |
 | `POST` | `/api/contact/:membershipId` | Contato mediado | Public; **404 se plugin off** | nome, e-mail, mensagem | `200` sem e-mail |
 | `GET` | `/api/communities/public` | Comunidades com vitrine pública | Public | — | `{ "data": [{ id, slug, name }] }` |
 | `POST` | `/api/communities/:slug/join` | Pedido `pending_approval` (membro autenticado, sem assento) | Member | `{}` | `201` `{ "data": JoinSeat }` |
@@ -96,10 +96,11 @@ blocks: []
 | `POST` | `/api/admin/memberships/:id/status` | `pending_approval` / `active` / `suspended` | Super-admin | `{ "network_status" }` | `200` |
 | `POST` | `/api/admin/memberships/:id/cohort` | Liga ou tira turma | Super-admin | `{ "cohortId": uuid \| null }` | `{ ok }` |
 | `DELETE` | `/api/admin/memberships/:id` | Remove a membership | Super-admin | — | `{ ok }` |
-| `GET` | `/api/admin/communities/:id/fields` | Catálogo ops (grupos na ordem do perfil; `locked` no grupo seed e no campo se `storage` ≠ `attributes`) | Super-admin | — | `{ "data": OpsCatalogGroup[] }` com `fields[].options: [{ value, labelPt, labelEn }]` |
-| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` (tipos do catálogo; `span` 1–3; `required` default false) | Super-admin | `{ groupId, name, type, labelPt, labelEn, options?, optionsText?, filterable?, span?, required? }` — `select`/`radio`/`checkbox` exigem `options[]` (ou `optionsText` legado) | `{ 201, OpsCatalogField }` |
-| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | Sem `labelPt`: `enabled`, `required` ou `span` (núcleo incluso). Com `labelPt`: label/opções/filtro se `storage=attributes` | Super-admin | `{ "enabled": true\|false }` ou `{ "required": true\|false }` ou `{ "span": 1\|2\|3 }` ou `{ labelPt, labelEn?, options?, optionsText?, filterable? }` | `{ ok }` |
+| `GET` | `/api/admin/communities/:id/fields` | Catálogo ops (grupos na ordem do perfil; `locked` no grupo seed e no campo se `storage` ≠ `attributes`) | Super-admin | — | `{ "data": OpsCatalogGroup[] }` com `fields[].description` LocalizedText e `fields[].options: [{ value, labelPt, labelEn }]` |
+| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` (tipos do catálogo; `span` 1–3; `required` default false) | Super-admin | `{ groupId, name, type, labelPt, labelEn, descriptionPt, descriptionEn?, options?, optionsText?, filterable?, span?, required? }` — `select`/`radio`/`checkbox` exigem `options[]` (ou `optionsText` legado); `descriptionPt` obrigatório | `{ 201, OpsCatalogField }` |
+| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | Sem `labelPt`: `descriptionPt`, `enabled`, `required` ou `span` (núcleo incluso). Com `labelPt`: label/descrição/opções/filtro se `storage=attributes` | Super-admin | `{ "enabled": true\|false }` ou `{ "required": true\|false }` ou `{ "span": 1\|2\|3 }` ou `{ descriptionPt, descriptionEn? }` ou `{ labelPt, labelEn?, descriptionPt, descriptionEn?, options?, optionsText?, filterable? }` | `{ ok }` |
 | `DELETE` | `/api/admin/communities/:id/fields/:fieldId` | Apaga `storage=attributes` **só se** `enabled=false` | Super-admin | — | `{ ok }`; ainda ligado = 409 |
+| `POST` | `/api/admin/communities/:id/fields/reset-order` | Restaura ordem seed de grupos e campos; extras ficam no fim da seção; não muda `group_id` | Super-admin | — | `{ ok }` |
 | `POST` | `/api/admin/communities/:id/fields/:fieldId/move` | Sobe/desce **ou** muda de grupo no mesmo tenant | Super-admin | `{ "direction": "up"\|"down" }` ou `{ "groupId" }` | `{ ok }` |
 | `POST` | `/api/admin/communities/:id/groups` | Cria grupo (não seed) | Super-admin | `{ labelPt, labelEn, columns?, slug? }` | `201` |
 | `PATCH` | `/api/admin/communities/:id/groups/:groupId` | `columns`, `enabled` e/ou rótulo LocalizedText (seed incluso; slug imutável) | Super-admin | `{ "columns"?: 1\|2\|3, "enabled"?: boolean, "labelPt"?: string, "labelEn"?: string }` | `{ ok }` |
@@ -110,17 +111,18 @@ APIs de membro de rede (`/api/directory/*`, `/api/memberships/me`, `/api/coord/*
 
 `GET /api/profiles` (lista legado) e `/admin/approvals` foram removidos. `/api/ops/*` não existe: mutações de tenant só na origem admin.
 
-Rotas UI admin do tenant: `/communities/:id/settings|modules|members|cohorts|fields` (índice redireciona para `settings`). Em `fields`, criar grupo é ação da página; criar campo é no grupo (`groupId` fixo no POST). Globais: `/communities`, `/people`, `/platform`, `/emails`. Comunidade nova faz seed do catálogo (núcleo + directory + grupo `custom`).
+Rotas UI admin do tenant: `/communities/:id/settings|modules|members|cohorts|fields` (índice redireciona para `settings`). Em `fields`, criar grupo é ação da página; criar campo é ação do cabeçalho do grupo (`groupId` fixo no POST, `OpsSheet`). Globais: `/communities`, `/people`, `/platform`, `/emails`. Comunidade nova faz seed do catálogo (núcleo + directory + grupo `custom`).
 
 ## Pagination / filtering
 
 | Param | Type | Default | Max | Description |
 | ----- | ---- | ------- | --- | ----------- |
 | `page` | Integer | `1` | — | Página |
-| `limit` | Integer | `20` | `100` | Page size |
-| `search` | String | `""` | `100` | Nome, headline, bio |
-| `cohort` | UUID | — | — | Filtra diretório por turma |
-| `attr.<name>` | Scalar | — | — | Facet: só campos `filterable`; traduz para `custom_attributes @>` |
+| `limit` | Integer | `20` (ops); vitrine fixa **12** | `100` | Page size |
+| `search` | String | `""` | `100` | Nome ou headline (`ILIKE`) |
+| `cohort` | UUID | — | — | Diretório: `memberships.cohort_id` |
+| `status` | Enum | — | — | Vitrine: `availability_status` allowlist |
+| `attr.<name>` | Scalar | — | — | Facet: só campos `filterable`; `custom_attributes @>` (GIN). AND entre facets, sem JOIN extra |
 
 ## Rate limits
 

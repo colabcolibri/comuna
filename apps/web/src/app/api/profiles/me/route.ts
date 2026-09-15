@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { memberFromRequest } from '@community/auth';
 import { queryAsMember } from '@community/db';
-import { PERSON_PROFILE_COLUMNS, personWriteFromBody, personWriteSqlParams } from '@community/identity';
+import { PERSON_PROFILE_COLUMNS, personWriteFromBody, personWriteSqlParams } from '@community/identity/write';
 import { COMMUNITY_COOKIE } from '@community/communities';
 import { missingRequiredFields, parseField } from '@community/directory';
 import { listMyCommunities, pickCommunitySeat } from '@community/memberships';

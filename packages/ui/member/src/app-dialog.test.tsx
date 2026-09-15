@@ -34,7 +34,8 @@ describe('AppShowcaseCard', () => {
         summary="Desenha produtos para redes profissionais."
         city="São Paulo, Brasil"
         chips={['Mentoria', 'Português']}
-        action={<button type="button">Ver perfil</button>}
+        actionLabel="Ver perfil"
+        onOpen={() => undefined}
       />
     );
     expect(screen.getByRole('heading', { name: 'Marina Silva' })).toBeTruthy();
@@ -44,6 +45,6 @@ describe('AppShowcaseCard', () => {
     expect(screen.getByText('Produto').compareDocumentPosition(screen.getByText('Desenha produtos para redes profissionais.'))).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     );
-    expect(screen.getByText('Ver perfil')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Ver perfil: Marina Silva' })).toBeTruthy();
   });
 });

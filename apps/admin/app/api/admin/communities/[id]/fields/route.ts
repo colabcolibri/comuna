@@ -27,6 +27,8 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       type: String(body.type || ''),
       labelPt: String(body.labelPt || ''),
       labelEn: String(body.labelEn || ''),
+      descriptionPt: String(body.descriptionPt || ''),
+      descriptionEn: String(body.descriptionEn || ''),
       optionsText: typeof body.optionsText === 'string' ? body.optionsText : undefined,
       options: Array.isArray(body.options) ? body.options : undefined,
       filterable: Boolean(body.filterable),

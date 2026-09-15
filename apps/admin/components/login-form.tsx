@@ -89,7 +89,7 @@ export function LoginForm() {
     <main className="min-h-dvh bg-background">
       <div className="flex h-14 items-center justify-end gap-2 border-b border-border bg-card px-4">
         <LocaleSwitcher />
-        <ThemeToggle className="size-9" toDark={copy.toDark} toLight={copy.toLight} />
+        <ThemeToggle className="size-8" toDark={copy.toDark} toLight={copy.toLight} />
       </div>
       <div className="flex min-h-[calc(100dvh-4rem)] items-center justify-center p-4">
         <Card className="w-full max-w-sm">

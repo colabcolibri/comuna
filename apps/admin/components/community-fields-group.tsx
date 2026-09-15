@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
-import { OpsAccordion, OpsAlertDialog, OpsBadge, OpsMoveButtons } from '@community/ui-admin';
+import { OpsAccordion, OpsAlertDialog, OpsBadge, OpsIconButton, OpsMoveButtons } from '@community/ui-admin';
 import { pickLocalizedText } from '@community/identity';
+import { Eye, EyeOff, Pencil, Trash2 } from 'lucide-react';
 import { CommunityFieldsCreateField } from './community-fields-create-field';
 import { CommunityFieldsField } from './community-fields-field';
 import { CommunityFieldsLayoutPreview } from './community-fields-layout-preview';
@@ -156,17 +157,24 @@ export function CommunityFieldsGroup({
             requiredLabel={copy.required}
             optionalLabel={copy.optional}
           />
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
+          <CommunityFieldsCreateField
+            communityId={communityId}
+            groupId={group.id}
+            copy={copy}
+            onCreated={() => {
+              setOpen(true);
+              onChanged();
+            }}
+          />
+          <OpsIconButton
+            label={copy.rename}
             onClick={() => {
               setOpen(true);
               setRenaming((value) => !value);
             }}
           >
-            {copy.rename}
-          </Button>
+            <Pencil />
+          </OpsIconButton>
           <OpsMoveButtons
             moveUp={copy.moveUp}
             moveDown={copy.moveDown}
@@ -174,18 +182,16 @@ export function CommunityFieldsGroup({
             canDown={index < total - 1}
             onMove={(direction) => void moveGroup(direction)}
           />
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
+          <OpsIconButton
+            label={group.enabled ? copy.deactivate : copy.activate}
             onClick={() => void setEnabled(!group.enabled)}
           >
-            {group.enabled ? copy.deactivate : copy.activate}
-          </Button>
+            {group.enabled ? <EyeOff /> : <Eye />}
+          </OpsIconButton>
           {group.locked || group.enabled ? null : (
-            <Button type="button" size="sm" variant="outline" onClick={() => setPendingDelete(true)}>
-              {copy.delete}
-            </Button>
+            <OpsIconButton label={copy.delete} onClick={() => setPendingDelete(true)}>
+              <Trash2 />
+            </OpsIconButton>
           )}
         </>
       }
@@ -264,14 +270,6 @@ export function CommunityFieldsGroup({
           ))
         )}
       </ol>
-      <div className="mt-4">
-        <CommunityFieldsCreateField
-          communityId={communityId}
-          groupId={group.id}
-          copy={copy}
-          onCreated={onChanged}
-        />
-      </div>
     </OpsAccordion>
     <OpsAlertDialog
         isOpen={pendingDelete}

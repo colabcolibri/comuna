@@ -1,8 +1,9 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
-import { OpsCheckboxFrame } from '@community/ui-admin';
+import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast } from '@community/ui';
+import { OpsCheckboxFrame, OpsIconButton, OpsSheet } from '@community/ui-admin';
+import { Plus } from 'lucide-react';
 import { fieldCanFilter, fieldNeedsOptions, type CatalogCopy } from './community-fields-types';
 import { CommunityFieldsOptionsEditor, emptyOptionRow, type OptionRow } from './community-fields-options';
 
@@ -22,11 +23,25 @@ export function CommunityFieldsCreateField({
   const [type, setType] = useState('boolean');
   const [labelPt, setLabelPt] = useState('');
   const [labelEn, setLabelEn] = useState('');
+  const [descriptionPt, setDescriptionPt] = useState('');
+  const [descriptionEn, setDescriptionEn] = useState('');
   const [options, setOptions] = useState<OptionRow[]>([emptyOptionRow()]);
   const [filterable, setFilterable] = useState(true);
   const [required, setRequired] = useState(false);
   const [busy, setBusy] = useState(false);
   const idPrefix = `ops-new-field-${groupId}`;
+  const formId = `${idPrefix}-form`;
+
+  const reset = () => {
+    setName('');
+    setLabelPt('');
+    setLabelEn('');
+    setDescriptionPt('');
+    setDescriptionEn('');
+    setOptions([emptyOptionRow()]);
+    setFilterable(true);
+    setRequired(false);
+  };
 
   const create = async (e: FormEvent) => {
     e.preventDefault();
@@ -40,6 +55,8 @@ export function CommunityFieldsCreateField({
         type,
         labelPt,
         labelEn,
+        descriptionPt,
+        descriptionEn,
         options,
         filterable,
         required,
@@ -54,24 +71,32 @@ export function CommunityFieldsCreateField({
       toast.error(copy.error);
       return;
     }
-    setName('');
-    setLabelPt('');
-    setLabelEn('');
-    setOptions([emptyOptionRow()]);
-    setFilterable(true);
-    setRequired(false);
+    reset();
     setOpen(false);
     toast.success(copy.saved);
     onCreated();
   };
 
   return (
-    <div className="min-w-0">
-      <Button type="button" size="sm" variant="outline" onClick={() => setOpen((value) => !value)}>
-        {copy.add}
-      </Button>
-      {open ? (
-        <form onSubmit={create} className="mt-4 grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <OpsSheet
+      open={open}
+      onOpenChange={setOpen}
+      className="sm:max-w-lg"
+      trigger={
+        <OpsIconButton label={copy.add}>
+          <Plus />
+        </OpsIconButton>
+      }
+      title={copy.add}
+      closeLabel={copy.cancel}
+      footer={
+        <Button type="submit" form={formId} disabled={busy}>
+          {copy.create}
+        </Button>
+      }
+    >
+      <form id={formId} onSubmit={create} className="grid min-w-0 gap-6">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2">
           <div className="min-w-0 space-y-2">
             <Label htmlFor={`${idPrefix}-pt`}>{copy.labelPt}</Label>
             <Input id={`${idPrefix}-pt`} value={labelPt} onChange={(ev) => setLabelPt(ev.target.value)} required />
@@ -80,6 +105,24 @@ export function CommunityFieldsCreateField({
             <Label htmlFor={`${idPrefix}-en`}>{copy.labelEn}</Label>
             <Input id={`${idPrefix}-en`} value={labelEn} onChange={(ev) => setLabelEn(ev.target.value)} />
           </div>
+        </div>
+        <div className="grid min-w-0 gap-4">
+          <div className="min-w-0 space-y-2">
+            <Label htmlFor={`${idPrefix}-desc-pt`}>{copy.descriptionPt}</Label>
+            <Textarea
+              id={`${idPrefix}-desc-pt`}
+              value={descriptionPt}
+              onChange={(ev) => setDescriptionPt(ev.target.value)}
+              required
+            />
+            <p className="text-xs text-muted-foreground">{copy.descriptionHelp}</p>
+          </div>
+          <div className="min-w-0 space-y-2">
+            <Label htmlFor={`${idPrefix}-desc-en`}>{copy.descriptionEn}</Label>
+            <Textarea id={`${idPrefix}-desc-en`} value={descriptionEn} onChange={(ev) => setDescriptionEn(ev.target.value)} />
+          </div>
+        </div>
+        <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="min-w-0 space-y-2">
             <Label htmlFor={`${idPrefix}-type`}>{copy.type}</Label>
             <Select
@@ -140,21 +183,11 @@ export function CommunityFieldsCreateField({
               />
             </OpsCheckboxFrame>
           </div>
-          {fieldNeedsOptions(type) ? (
-            <div className="min-w-0 sm:col-span-2 lg:col-span-3">
-              <CommunityFieldsOptionsEditor idPrefix={`${idPrefix}-opt`} rows={options} onChange={setOptions} copy={copy} />
-            </div>
-          ) : null}
-          <div className="flex min-w-0 flex-wrap gap-2 sm:col-span-2 lg:col-span-3">
-            <Button type="submit" disabled={busy}>
-              {copy.create}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              {copy.cancel}
-            </Button>
-          </div>
-        </form>
-      ) : null}
-    </div>
+        </div>
+        {fieldNeedsOptions(type) ? (
+          <CommunityFieldsOptionsEditor idPrefix={`${idPrefix}-opt`} rows={options} onChange={setOptions} copy={copy} />
+        ) : null}
+      </form>
+    </OpsSheet>
   );
 }

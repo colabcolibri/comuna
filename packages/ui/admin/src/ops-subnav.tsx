@@ -9,19 +9,20 @@ export function OpsSubnav({
   linkComponent?: OpsLinkComponent;
 }) {
   return (
-    <nav className="mb-8 flex flex-wrap gap-1 border-b border-border">
+    <nav className="mb-8 flex flex-wrap items-center gap-1 border-b border-border">
       {items.map((item) => (
         <Link
           key={item.href}
           href={item.href}
           className={cn(
             'inline-flex min-h-9 items-center px-3 text-sm',
-            item.active
-              ? 'border-b-2 border-mark font-medium text-foreground'
-              : 'text-muted-foreground hover:text-foreground'
+            item.active ? 'font-medium text-foreground' : 'text-muted-foreground hover:text-foreground'
           )}
         >
-          {item.label}
+          <span className="relative">
+            {item.label}
+            {item.active ? <span aria-hidden className="absolute inset-x-0 top-full mt-0.5 h-0.5 bg-mark" /> : null}
+          </span>
         </Link>
       ))}
     </nav>

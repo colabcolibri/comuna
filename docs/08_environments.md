@@ -1,7 +1,7 @@
 ---
 title: Environments and Setup
 status: review
-version: 1.5
+version: 1.6
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 05_architecture.md]
 blocks: []
@@ -54,6 +54,7 @@ docker compose up -d
 
 - `apps/web` é o Next de membros (`apps/web/src`). Não há `src/` na raiz.
 - `apps/admin` é o Next de ops na porta 3015. Sessão: cookie `ops_token`.
+- `pnpm install` **sempre na raiz**, workspace inteiro. `pnpm install --filter …` sozinho deixa as outras apps sem links. `pnpm dev` / `pnpm dev:admin` já filtram a app. Não rode `next` na raiz (isso cria `.next/` órfão).
 
 `pnpm db:migrate` aplica SQL datado em `db/migrations/`. `pnpm db:migrate:status` lista arquivos applied versus pending. Sem Prisma, Drizzle ou Supabase.
 
@@ -84,7 +85,7 @@ Cookie de sessão membro: `Secure` só quando `NODE_ENV=production`. Local HTTP 
 
 ## Seed do super-admin
 
-Script de seed (US EPIC-11) insere `global_role = super_admin` para `INITIAL_SUPER_ADMIN_EMAIL`. O mesmo utilizador entra na comunidade `demo` como `coordinator` ativo — senão a web (`/directory`) responde vazio: a listagem exige membership, a vitrine não. Login ops **não** é “digitar o e-mail na tela Stitch e virar admin”. Membros sintéticos: `member01@demo.example` … `member40@demo.example`.
+Script de seed (US EPIC-11) insere `global_role = super_admin` para `INITIAL_SUPER_ADMIN_EMAIL`. O mesmo utilizador entra na comunidade `demo` como `coordinator` ativo — senão a web (`/directory`) responde vazio: a listagem exige membership, a vitrine não. Login ops **não** é “digitar o e-mail na tela Stitch e virar admin”. Comunidade `demo` chama-se Alumni Instituto Atlântico. Quarenta pessoas com nomes e bios reais; e-mails estáveis `member01@demo.example` … `member40@demo.example`.
 
 ## CI
 

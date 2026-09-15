@@ -21,10 +21,12 @@ export function JoinCta({
   slug,
   signedIn,
   status,
+  tone = 'inline',
 }: {
   slug: string;
   signedIn: boolean;
   status: NetworkStatus | null;
+  tone?: 'hero' | 'inline';
 }) {
   const copy = pickContent(CONTENT, useLocale());
   const [busy, setBusy] = useState(false);
@@ -34,8 +36,11 @@ export function JoinCta({
     return null;
   }
   if (!signedIn) {
+    if (tone === 'hero') {
+      return null;
+    }
     return (
-      <p className="mb-6 text-sm text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         <Link className="underline" href={`/login?next=/c/${slug}/showcase`}>
           {copy.signin}
         </Link>
@@ -43,10 +48,10 @@ export function JoinCta({
     );
   }
   if (localStatus === 'pending_approval') {
-    return <p className="mb-6 text-sm text-muted-foreground">{copy.pending}</p>;
+    return <p className="max-w-xs text-sm text-muted-foreground">{copy.pending}</p>;
   }
   if (localStatus === 'suspended') {
-    return <p className="mb-6 text-sm text-muted-foreground">{copy.suspended}</p>;
+    return <p className="max-w-xs text-sm text-muted-foreground">{copy.suspended}</p>;
   }
 
   const send = async () => {
@@ -62,10 +67,8 @@ export function JoinCta({
   };
 
   return (
-    <div className="mb-6">
-      <Button type="button" disabled={busy} onClick={() => void send()}>
-        {copy.request}
-      </Button>
-    </div>
+    <Button type="button" className="min-h-11 w-full px-6 sm:w-auto" disabled={busy} onClick={() => void send()}>
+      {copy.request}
+    </Button>
   );
 }

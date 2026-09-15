@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./write": "./src/person-write.ts"
   },
   "dependencies": {
     "@community/places": "workspace:*"

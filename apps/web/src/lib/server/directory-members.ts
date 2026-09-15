@@ -1,5 +1,5 @@
 import { queryAsMember } from '@community/db';
-import { directoryContribution, filterableAttributeNames, parseAttrFilters, parseField } from '@community/directory';
+import { directoryContribution, filterableAttributeNames, parseField, peopleListQuery } from '@community/directory';
 import type { AppQueryCtx } from '@/lib/server/app-ctx';
 import { toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
@@ -17,35 +17,16 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
   const fields = catalog.rows
     .map((row) => parseField(row as Record<string, unknown>))
     .filter((field): field is NonNullable<typeof field> => Boolean(field));
-  const parsed = parseAttrFilters(searchParams, fields);
-  if (parsed.ok === false) {
-    return { status: 400 as const, body: { error: { code: 'VALIDATION_ERROR', message: parsed.message } } };
-  }
-  const clauses = ['m.community_id = $1', "m.network_status = 'active'"];
-  const params: unknown[] = [ctx.communityId];
-  parsed.filters.forEach((filter) => {
-    params.push(JSON.stringify(filter));
-    clauses.push(`c.custom_attributes @> $${params.length}::jsonb`);
+  const built = peopleListQuery({
+    communityId: ctx.communityId,
+    searchParams,
+    fields,
+    scope: 'directory',
   });
-  const search = searchParams.get('search')?.trim() || '';
-  if (search) {
-    params.push(`%${search}%`);
-    clauses.push(`(p.full_name ILIKE $${params.length} OR c.headline::text ILIKE $${params.length})`);
+  if (built.ok === false) {
+    return { status: 400 as const, body: { error: { code: 'VALIDATION_ERROR', message: built.message } } };
   }
-  const cohort = searchParams.get('cohort')?.trim() || '';
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cohort)) {
-    params.push(cohort);
-    clauses.push(`m.cohort_id = $${params.length}`);
-  }
-  const sql =
-    'SELECT m.id, p.full_name, p.avatar_url, p.current_city, p.languages, p.contacts, c.headline, c.bio, c.availability_status, c.custom_attributes ' +
-    'FROM network_core.memberships m ' +
-    'JOIN person_core.profiles p ON p.user_id = m.user_id ' +
-    'JOIN plugin_directory.cards c ON c.membership_id = m.id ' +
-    'WHERE ' +
-    clauses.join(' AND ') +
-    ' ORDER BY p.full_name';
-  const result = await queryAsMember(ctx, sql, params);
+  const result = await queryAsMember(ctx, built.text, built.params);
   const attributeKeys = filterableAttributeNames(fields);
   return {
     status: 200 as const,

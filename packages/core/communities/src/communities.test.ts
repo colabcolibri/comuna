@@ -5,6 +5,7 @@ vi.mock('@community/db', () => ({
 }));
 
 import { query } from '@community/db';
+import { parseCommunitySettings, publicShowcaseHero } from './types';
 import { CommunityNotFoundError, DuplicateCommunitySlugError, createCommunity, getCommunityBySlug, listCommunities, listPublicCommunities, updateCommunity } from './communities';
 
 const mockedQuery = vi.mocked(query);
@@ -19,7 +20,13 @@ describe('communities', () => {
       rows: [{ id: 'c1', slug: 'demo', name: 'Demo', type: 'alumni', settings: {} }],
     } as never);
     await expect(listCommunities()).resolves.toEqual([
-      { id: 'c1', slug: 'demo', name: 'Demo', type: 'alumni', settings: { description: '', default_locale: 'pt-BR' } },
+      {
+        id: 'c1',
+        slug: 'demo',
+        name: 'Demo',
+        type: 'alumni',
+        settings: { description: '', showcase_title: '', showcase_description: '', default_locale: 'pt-BR' },
+      },
     ]);
   });
 
@@ -66,5 +73,23 @@ describe('communities', () => {
     } as never);
     await expect(getCommunityBySlug('Demo')).resolves.toMatchObject({ slug: 'demo' });
     expect(mockedQuery.mock.calls[0]?.[1]).toEqual(['demo']);
+  });
+
+  it('uses admin showcase title and description on the public hero', () => {
+    expect(
+      publicShowcaseHero({
+        name: 'Alumni Instituto Atlântico',
+        settings: parseCommunitySettings({
+          showcase_title: 'Pessoas da rede',
+          showcase_description: 'Quem optou por aparecer.',
+        }),
+      })
+    ).toEqual({ title: 'Pessoas da rede', lede: 'Quem optou por aparecer.' });
+    expect(
+      publicShowcaseHero({
+        name: 'Alumni Instituto Atlântico',
+        settings: parseCommunitySettings({}),
+      })
+    ).toEqual({ title: 'Alumni Instituto Atlântico', lede: '' });
   });
 });

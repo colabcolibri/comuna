@@ -15,7 +15,7 @@ Três problemas diferentes. Misturá-los gera `useEffect` no sítio errado e `pg
 | Camada | O que vive aqui | O que não vive |
 | --- | --- | --- |
 | SQL | `db/migrations/`, `query` / `queryAsMember` | React, cache de UI |
-| Função de domínio | `listDirectoryMembers`, `toPersonCard`, `parseAttrFilters` | `useEffect`, `fetch` |
+| Função de domínio | `peopleListQuery`, `listDirectoryMembers`, `listPublicProfiles`, `toPersonCard` | `useEffect`, `fetch` |
 | HTTP | Route Handler em `app/api` — envelope `07_api_contracts.md` | JSX |
 | UI | Server Component lê searchParams **ou** cliente chama `/api` | SQL, `pg` |
 
@@ -46,10 +46,10 @@ TanStack em cima de SQL é o anti-padrão. ORM + `useEffect` sem Route Handler t
 
 1. Escrever a query e a projeção numa função Node.
 2. O Route Handler só autentica e devolve JSON.
-3. Filtro/busca: **URL** (`?search=`, `attr.*`). A página pode ser Server Component que chama a função de domínio **ou** um cliente que faz `fetch` da mesma query string. Um sítio de verdade (a função), dois adaptadores no máximo.
+3. Filtro/busca: **URL** (`?search=`, `attr.*`, `cohort`, `status`). Um construtor SQL (`peopleListQuery`): dois JOINs fixos e predicados AND. Facets em `custom_attributes` usam `@>` (GIN), não JOIN por facet. Sem filtro de lista no cliente.
 4. Cliente só para o que o servidor não faz: teclado, upload, diálogo, sheet.
 
-O diretório e a vitrine **não** carregam a lista num `useEffect`. A página (Server Component) chama a função de domínio; o painel cliente só muda a URL e abre o diálogo.
+O diretório e a vitrine **não** carregam a lista num `useEffect`. A página (Server Component) chama a função de domínio; o painel cliente só muda a URL e abre o diálogo. A vitrine pagina no SQL (`LIMIT` 12 + `count(*)`).
 
 ## Pastas (`apps/web`)
 

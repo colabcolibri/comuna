@@ -50,7 +50,9 @@ export default function CoordApprovalsPage() {
 
   return (
     <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
-      <aside className="mb-6 rounded-lg bg-background border border-border p-4 text-sm text-muted-foreground">{copy.notice}</aside>
+      {copy.notice ? (
+        <aside className="mb-6 rounded-lg bg-background border border-border p-4 text-sm text-muted-foreground">{copy.notice}</aside>
+      ) : null}
       {forbidden && <p>{copy.forbidden}</p>}
       <div className="bg-surface border border-border rounded-lg overflow-hidden">
         {!forbidden && rows.length === 0 && <p className="p-6 text-muted-foreground">{copy.empty}</p>}

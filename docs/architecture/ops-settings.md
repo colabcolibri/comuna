@@ -31,7 +31,9 @@ Colunas já existentes (`name`, `slug` read-only, `type`, `is_public_showcase`) 
 
 | `settings` key | Tipo | Uso |
 | -------------- | ---- | --- |
-| `description` | string curta | Ajuda no admin; não vira vitrine sozinha |
+| `description` | string curta | Nota interna no admin |
+| `showcase_title` | string ≤80 | h1 da vitrine pública; vazio = nome da comunidade |
+| `showcase_description` | string ≤500 | Lede da vitrine; vazio = `description` |
 | `default_locale` | `pt-BR` \| `en` | Preferência do tenant para e-mails de membership/contato quando a pessoa ainda não tem locale |
 
 Slug não muda nesta versão. Apagar comunidade fora.

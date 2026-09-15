@@ -17,6 +17,11 @@ const marina = {
   custom_attributes: { host_at_home: true },
 };
 
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/c/alumni/showcase',
+  useRouter: () => ({ replace: vi.fn() }),
+}));
+
 describe('showcase panel', () => {
   beforeEach(() => {
     Object.defineProperty(window, 'matchMedia', {
@@ -46,13 +51,13 @@ describe('showcase panel', () => {
     render(
       <LocaleProvider initialLocale="pt-BR">
         <EnabledModulesProvider enabled={['showcase', 'contact-mediated']}>
-          <ShowcasePanel rows={[marina]} />
+          <ShowcasePanel communityName="Alumni Instituto Atlântico" rows={[marina]} total={1} />
         </EnabledModulesProvider>
       </LocaleProvider>
     );
     expect(screen.getByRole('heading', { name: 'Marina Silva' })).toBeTruthy();
     expect(screen.getByText('Mentora.')).toBeTruthy();
-    screen.getByRole('button', { name: 'Ver perfil' }).click();
+    screen.getByRole('button', { name: 'Ver perfil: Marina Silva' }).click();
     await waitFor(() => {
       expect(screen.getByRole('dialog')).toBeTruthy();
     });

@@ -5,6 +5,7 @@ export {
   COMMUNITY_TYPES,
   isCommunityType,
   parseCommunitySettings,
+  publicShowcaseHero,
   type CommunityRow,
   type CommunitySettings,
   type CommunityType,

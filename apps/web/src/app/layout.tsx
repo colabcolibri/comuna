@@ -6,7 +6,6 @@ import { ThemeProvider, Toaster } from '@community/ui';
 import { LOCALE_COOKIE, contentFromCatalog, pickContent, resolveUiLocale } from '@community/identity';
 import { listPublicCommunities } from '@community/communities';
 import { listMyCommunities } from '@community/memberships';
-import { MemberShell } from '@/components/app/MemberShell';
 import { WorkspaceModules } from '@/components/app/EnabledModulesProvider';
 import { LocaleProvider } from '@/components/app/LocaleProvider';
 import { getMemberSession } from '@/lib/server/member-session';
@@ -54,9 +53,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <ThemeProvider>
           <LocaleProvider initialLocale={locale}>
             <WorkspaceModules enabledBySlug={enabledBySlug} publicEnabled={publicEnabled}>
-              <MemberShell sessionEmail={session?.email ?? null} seats={seats}>
-                {children}
-              </MemberShell>
+              {children}
               <Toaster />
             </WorkspaceModules>
           </LocaleProvider>

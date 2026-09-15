@@ -1,51 +1,60 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { cn, ScrollArea, Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@community/ui';
+import {
+  Button,
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@community/ui';
 
 export type AppSheetSide = 'right' | 'bottom' | 'left';
 
 export function AppSheet({
-  open,
-  onClose,
-  side = 'right',
+  trigger,
   title,
   description,
-  footer,
   children,
+  footer,
+  closeLabel,
+  side = 'right',
+  open,
+  onOpenChange,
 }: {
-  open: boolean;
-  onClose: () => void;
-  side?: AppSheetSide;
+  trigger: ReactNode;
   title: ReactNode;
   description?: ReactNode;
-  footer?: ReactNode;
   children: ReactNode;
+  footer?: ReactNode;
+  closeLabel?: string;
+  side?: AppSheetSide;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   return (
-    <Sheet
-      open={open}
-      onOpenChange={(next) => {
-        if (!next) onClose();
-      }}
-    >
-      <SheetContent
-        side={side}
-        className={cn(
-          'z-[60] flex flex-col gap-0 p-0',
-          side === 'right' && 'w-full sm:max-w-md',
-          side === 'left' && 'w-full sm:max-w-md',
-          side === 'bottom' && 'max-h-[85svh]'
-        )}
-      >
-        <SheetHeader className="shrink-0 border-b border-border">
+    <Sheet {...(typeof open === 'boolean' ? { open, onOpenChange } : {})}>
+      <SheetTrigger asChild>{trigger}</SheetTrigger>
+      <SheetContent side={side}>
+        <SheetHeader>
           <SheetTitle>{title}</SheetTitle>
           {description ? <SheetDescription>{description}</SheetDescription> : null}
         </SheetHeader>
-        <ScrollArea type="always" className="app-scroll min-h-0 flex-1">
-          <div className="px-4 py-4">{children}</div>
-        </ScrollArea>
-        {footer ? <SheetFooter className="shrink-0 border-t border-border">{footer}</SheetFooter> : null}
+        <div className="grid flex-1 auto-rows-min gap-6 px-4">{children}</div>
+        <SheetFooter>
+          {footer}
+          {closeLabel ? (
+            <SheetClose asChild>
+              <Button type="button" variant="outline">
+                {closeLabel}
+              </Button>
+            </SheetClose>
+          ) : null}
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );

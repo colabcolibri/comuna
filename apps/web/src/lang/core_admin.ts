@@ -4,17 +4,17 @@ export const coreAdminPack = definePack({
   'pt-BR': {
     'ops.title': 'Ops',
     'ops.create': 'Criar comunidade',
-    'ops.slug': 'Slug',
+    'ops.slug': 'Identificador na URL',
     'ops.name': 'Nome',
     'ops.modules': 'Módulos',
-    'ops.forbidden': 'Somente super_admin.',
+    'ops.forbidden': 'Só operação da plataforma.',
   },
   en: {
     'ops.title': 'Ops',
     'ops.create': 'Create community',
-    'ops.slug': 'Slug',
+    'ops.slug': 'URL identifier',
     'ops.name': 'Name',
     'ops.modules': 'Modules',
-    'ops.forbidden': 'super_admin only.',
+    'ops.forbidden': 'Platform operators only.',
   },
 });

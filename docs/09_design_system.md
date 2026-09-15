@@ -1,7 +1,7 @@
 ---
 title: Design System
 status: review
-version: 1.20
+version: 1.24
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
@@ -13,10 +13,12 @@ blocks: []
 
 - **Surfaces:** `apps/web` (Stitch + plugins). Admin **não** usa o contrato Stitch; usa os mesmos primitives.
 - **Primary UI stack:** `ts-shadcn` — primitives em `packages/ui/primitives` (`@community/ui`). Compostos membro em `packages/ui/member` e `apps/web/src/components/app/`.
-- **Select / Checkbox / menu:** shadcn em `@community/ui` (`SelectTrigger` + portal; `DropdownMenu`; `Checkbox` Radix; `Tabs`; `Accordion`). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`, `OpsTabs`, `OpsAccordion`, `OpsHtmlPreview`) é que fecham o produto.
+- **Select / Checkbox / menu:** shadcn em `@community/ui` (`SelectTrigger` + portal; `DropdownMenu`; `Checkbox` Radix; `Tabs`; `Accordion`). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`, `AppSheet`, `OpsSheet`, `OpsTabs`, `OpsAccordion`, `OpsHtmlPreview`) é que fecham o produto.
 - **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, espaços aninhados. Workspace (trocar de comunidade) **não** é sidebar de espaços — ver `community-context.md`.
-- **Copy de formulário:** grupo = título. Campo = rótulo + **Obrigatório** ou **Opcional** (os dois estados, sempre), no mesmo eixo do nome. Sem lede que ensina o schema. Sem “demografia”, “headline”, “intermediado”.
-- **Catálogo (ops):** o grupo é o único card (`OpsAccordion`). Campos e opções = linhas, não caixa dentro de caixa. Aberto: linha sob o cabeçalho. Checkbox avulso (`OpsCheckboxFrame`) usa o mesmo recorte do select.
+- **Copy:** ver secção Copy. Formulário: grupo = título. Campo = rótulo + **Obrigatório** ou **Opcional** (os dois estados, sempre), no mesmo eixo do nome.
+- **Catálogo (ops):** o grupo é o único card (`OpsAccordion`). Campos e opções = linhas, não caixa dentro de caixa. **Adicionar campo** e **editar campo** abrem `OpsSheet` à direita (mesmo contrato de `AppSheet`); adicionar fica no cabeçalho do grupo. Ações do grupo e da linha são `OpsIconButton` (`icon-sm` + tooltip no hover + `aria-label`). Não expande a linha. Checkbox avulso (`OpsCheckboxFrame`) usa o mesmo recorte do select.
+- **Motion:** sidebar desktop = `transition-[width]`. Overlay shadcn (`Sheet`, dialog, select) via `@import "tw-animate-css"` no `globals.css` das apps.
+- **Filtros (diretório e vitrine):** busca na página; turma do diretório ao lado da busca; afinadores (`attr.*`, disponibilidade na vitrine) num `AppFilterSheet` à **direita**. Sem filtro de lista no cliente. Vitrine pagina no servidor (12).
 - **Prévia de campos (ops):** botão **Como fica** no grupo; a silhueta abre num `OpsDialog` (tela larga). Não fica inline no cartão. `localized_text` = dois controles com legenda de locale, não dois campos.
 - **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
@@ -73,18 +75,23 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `OpsCheckboxFrame` | Checkbox sozinho (ex.: filtrar no diretório) no mesmo recorte de `SelectTrigger`: borda, `h-9`, controle no centro | `packages/ui/admin/src/ops-checkbox-frame.tsx` |
 | `OpsHtmlPreview` | Iframe de HTML (e-mail). Atualiza `head`/`body` no documento já aberto; não troca `srcDoc` a cada tecla. | `packages/ui/admin/src/ops-html-preview.tsx` |
 | `OpsDialog` | Overlay de detalhe (mesmo contrato de `AppDialog`). Admin **não** importa `@community/ui-member`. Prévia de campos abre aqui. | `packages/ui/admin/src/ops-dialog.tsx` |
+| `OpsSheet` | Mesmo contrato de `AppSheet` (`SheetTrigger` + `SheetContent` + `SheetClose`). Corpo com scroll. Editar campo do catálogo abre à direita. Admin **não** importa `@community/ui-member`. | `packages/ui/admin/src/ops-sheet.tsx` |
 | `OpsAlertDialog` | Confirmação destrutiva (mesmo contrato de `AppAlertDialog`). Admin **não** importa `@community/ui-member`. Excluir abre isto; desativar não. | `packages/ui/admin/src/ops-alert-dialog.tsx` |
 | `OpsSection` | Bloco h2 + lede no workspace (**sem Card**; igual `AppProfileSection`). Card = tabela, lista de pessoas, ou **acordeão do grupo**. Campos e opções dentro do grupo são **linhas** (`divide-y`), não caixas de 4 bordas | `packages/ui/admin/src/ops-section.tsx` |
 | `OpsBadge` | Rótulo curto (ex.: super-admin). Não cola no nome | `packages/ui/admin/src/ops-badge.tsx` |
-| `OpsMoveButtons` | Ordem: `Button` `icon-sm` + seta, `aria-label` i18n. Sem “subir/descer” em texto. Desabilitado no extremo (não some). | `packages/ui/admin/src/ops-move-buttons.tsx` |
+| `OpsMoveButtons` | Ordem: `OpsIconButton` + seta. Sem “subir/descer” em texto. Desabilitado no extremo (não some). | `packages/ui/admin/src/ops-move-buttons.tsx` |
+| `OpsIconButton` | Ação densa: `Button` `icon-sm` + tooltip (label no hover) + `aria-label`. | `packages/ui/admin/src/ops-icon-button.tsx` |
 | `OpsCombobox` | Typeahead (listbox). Hits vêm do servidor; o componente não recebe 10k opções | `packages/ui/admin/src/ops-combobox.tsx` |
 | `OpsTable` | Tabela densa ops | `packages/ui/admin/src/ops-table.tsx` |
 | `AppAuthFrame` | Login centrado com kicker | `packages/ui/member/src/app-auth-frame.tsx` |
 | `AppIndexList` / `AppPersonRow` | Índice de pessoas (não grid de cards) | `packages/ui/member/src/app-person-row.tsx` |
 | `AppAlertDialog` | Confirmação (cancelar / confirmar) | `packages/ui/member/src/app-alert-dialog.tsx` |
 | `AppDialog` | Perfil / detalhe: envolve o `Dialog` shadcn (tamanho, header, body com `ScrollArea`) | `packages/ui/member/src/app-dialog.tsx` |
-| `AppSheet` | Painel lateral / fundo; body com `ScrollArea` | `packages/ui/member/src/app-sheet.tsx` |
-| `AppShowcaseCard` | Cartão da vitrine (foto, headline, chips, Ver perfil) | `packages/ui/member/src/app-showcase-card.tsx` |
+| `AppSheet` | Sheet shadcn: `SheetTrigger` + `SheetContent` + `SheetClose`. Corpo `grid flex-1 auto-rows-min gap-6 px-4`. Filtros e enviar mensagem usam este template. | `packages/ui/member/src/app-sheet.tsx` |
+| `AppFilterSheet` | `AppSheet` com trigger na página, limpar e fechar no rodapé | `packages/ui/member/src/app-filter-sheet.tsx` |
+| `AppPublicChrome` | Página pública da vitrine: header sem sidebar, documento rola | `packages/ui/member/src/app-public-chrome.tsx` |
+| `AppShowcasePortal` / `AppShowcasePager` | Herói do portal público + paginação | `packages/ui/member/src/app-showcase-portal.tsx` |
+| `AppShowcaseCard` | Cartão da vitrine (foto 80px, cartão inteiro abre o perfil) | `packages/ui/member/src/app-showcase-card.tsx` |
 | `Toaster` (Sonner) | Feedback **transitório** (salvar, envio) | `packages/ui/primitives` — `toast` de `@community/ui`. Um `Toaster` no layout. Alerta **inline** = `Alert` de `@community/ui`, não toast. |
 | `MemberShell` | Sidebar + inset + header; páginas rolam com `ScrollArea`; rodapé no chrome (fora do scroll) | `apps/web/.../MemberShell.tsx` |
 | `AppSidebar` | Destinos desta comunidade; rodapé = perfil + Sair | `apps/web/.../AppSidebar.tsx` |
@@ -93,24 +100,22 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `AppFormDock` | CTA Salvar grudado no fundo **só abaixo de sm** | mesmo ficheiro |
 | `OtpCard` | OTP | `OtpCard.tsx` |
 
-Chrome: `MemberShell` + `AppSidebar`. Sem barra ciano “Community”.
+Chrome: **Workspace** = `MemberShell` + `AppSidebar`. **Vitrine** = `AppPublicChrome` (sem sidebar). Sem barra ciano “Community”.
 
 Não existe rota `/profile/:id`. O detalhe público é o `AppDialog` na vitrine.
 
 ## Screen flows
 
-Navegação nomeada: **sidebar shadcn** no desktop (`collapsible=icon`; fechada = rail de ícones). **Sheet** só abaixo de 768px. Header da página: `SidebarTrigger` (abrir/fechar) + marca da **comunidade ativa** (membro no workspace) ou marca da plataforma (visitante) + Vitrine + locale + tema (`max-w-6xl`). **Sair** abre `AppAlertDialog`.
-
-Jobs: ver vitrine, pedir contato, entrar com código, escolher a comunidade, buscar pessoas, editar o próprio perfil, coordenar entrada. Super-admin (`/ops`, app admin) fica **fora** deste chrome.
+Navegação do **workspace**: sidebar shadcn no desktop. **Vitrine**: sem menu hamburger; header com marca + Entrar ou Comunidade + locale + tema.
 
 | Tela (rota hoje) | Job | Quem | Chrome | Problema atual | Alvo visual (Stitch) |
 | ----------------- | --- | ---- | ------ | -------------- | --------------------- |
-| `/showcase` | Escolher tenant público ou ver pessoas | Visitante / membro | Header: Vitrine | — | Picker se 2+; cartões se 1 |
-| `/c/{slug}/showcase` | Vitrine **desta** comunidade + pedir entrada | Visitante / membro | Marca da comunidade se slug na URL | — | Cartões + CTA de pedido |
+| `/showcase` | Portal público | Visitante / membro | `AppPublicChrome` | Sidebar no visitante | Herói admin + cartões; CTA Entrar |
+| `/c/{slug}/showcase` | Homepage pública desta comunidade | Visitante / membro | `AppPublicChrome` | Página interna | Título/texto do admin; sem sidebar |
 | Perfil público | Ler perfil sanitizado | Visitante | `AppDialog` + `ScrollArea` | — | Headline no header; bio no body |
-| Contato | Pedir contato mediado | Visitante | `AppSheet` right / bottom | Form dentro do diálogo | Sheet depois de Enviar mensagem |
+| Contato | Pedir contato mediado | Visitante | `AppSheet` (mesmo template dos filtros) | Form no `AppDialog` | Trigger **Enviar mensagem** no footer do diálogo |
 | `/` | Ver assentos e comunidades públicas | Visitante / membro | Header da plataforma | — | Lista de tenants; OTP fica em `/login` |
-| `/login` | Entrar com OTP | Visitante | Sem workspace | — | OTP centrado, um CTA |
+| `/login` | Entrar com OTP | Visitante | `AppPublicChrome` | Sidebar no OTP | OTP centrado, um CTA |
 | `/c/{slug}/directory` | Buscar membros **desta** comunidade | Membro | Sidebar: comunidade + Diretório | Path legado `/directory` | Lista em linhas; `Ver perfil` abre o mesmo diálogo da vitrine |
 | `/c/{slug}/profile` | Card e campos desta comunidade | Membro | Nesta comunidade | Misturado com identidade | Formulário só `storage` ≠ `person` |
 | `/profile` | Editar identidade | Membro | Rodapé: Meu perfil | Path legado `/profile/edit` | Nome, foto, cidade, links |
@@ -126,7 +131,7 @@ flowchart LR
     S -->|pedir entrada| J[Pedido pending]
     J -->|coordenacao| W[Workspace /c/slug]
     S -->|Ver perfil| P[Dialog perfil público]
-    P -->|Enviar mensagem| C[Sheet right ou bottom]
+    P -->|Enviar mensagem| C[AppSheet direita]
     S -->|Entrar| O[OTP]
     O -->|sessão| W
     W -->|Diretório| D[Lista]
@@ -149,8 +154,23 @@ flowchart TB
 | Breakpoint | Width | Behavior |
 | ---------- | ----- | -------- |
 | Mobile | `< 640px` | Uma coluna; header só Vitrine + locale + tema + menu; sheet 100% largura; hit 44px; sem overflow-x |
-| Tablet | `640–1024px` | Lista de pessoas em uma coluna; filtros em sheet próprio |
-| Desktop | `> 768px` | Sidebar; colapsada = rail de ícones + inicial da comunidade; páginas `max-w-6xl` |
+| Tablet | `640–1024px` | Lista de pessoas em uma coluna; filtros no `AppFilterSheet` à direita |
+| Desktop | `> 768px` | Sidebar; colapsada = rail de ícones + inicial da comunidade; páginas `max-w-6xl`; filtros continuam no sheet à direita (não rail esquerdo) |
+
+## Copy
+
+Voz institucional, curta, em sentence case. **Kicker, título e subtítulo são chrome da página: preenchem.** String vazia some da tela — não use vazio para “ficar limpo”.
+
+| Superfície | O que escreve | O que não escreve |
+| ---------- | ------------- | ----------------- |
+| Kicker | Onde a pessoa está (`Início`, `Membros`, `Coordenação`, `Rede`) | Slogan |
+| Título | Nome da tela; na vitrine = `settings.showcase_title` (ou o nome da comunidade) | Pitch (“encontre a rede”) |
+| Subtítulo | Uma frase de contexto; na vitrine = `settings.showcase_description` | Tutorial, schema, “para quem ainda não é membro” |
+| Campo | Rótulo + obrigatório/opcional | Lede que ensina schema |
+| Ajuda | Uma frase se o controlo for ambíguo | Env vars, papéis internos |
+| Privacidade | No login, no diretório e no envio de mensagem — curta | Ensaio em todo header |
+
+Proibido na UI (docs e logs podem): intermediado, tenant, membership, schema, demografia, headline, `super_admin`, `SMTP_HOST`, Mailpit, “no banco”, slug como aula. Ops pode ver **identificador na URL**. Membro e visitante: o produto. Ops: a operação, ainda humano.
 
 ## Email
 

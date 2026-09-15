@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 @import "../../../../packages/ui/primitives/src/styles.css";
 @source "../../../../packages/ui/primitives/src";
 @source "../../../../packages/ui/member/src";

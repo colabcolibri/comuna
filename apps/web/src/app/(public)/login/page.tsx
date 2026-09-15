@@ -19,15 +19,16 @@ export default async function LoginPage({
   const session = await getMemberSession();
   const next = (await searchParams).next;
   if (session) {
-    redirect(next && next.startsWith('/c/') ? next : '/');
+    const target = next && next.startsWith('/') && !next.startsWith('//') ? next : '/';
+    redirect(target);
   }
   const locale = resolveUiLocale((await cookies()).get(LOCALE_COOKIE)?.value);
   const copy = pickContent(CONTENT, locale);
 
   return (
-    <AppAuthFrame kicker={copy.kicker}>
+    <AppAuthFrame kicker={copy.kicker || undefined}>
       <OtpCard />
-      <p className="mt-6 text-center text-base text-muted-foreground">{copy.hint}</p>
+      {copy.hint ? <p className="mt-6 text-center text-base text-muted-foreground">{copy.hint}</p> : null}
     </AppAuthFrame>
   );
 }

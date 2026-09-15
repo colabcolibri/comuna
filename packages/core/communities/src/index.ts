@@ -9,6 +9,7 @@ export {
   listCommunities,
   listPublicCommunities,
   parseCommunitySettings,
+  publicShowcaseHero,
   updateCommunity,
   type CommunityRow,
   type CommunitySettings,

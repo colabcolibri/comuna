@@ -3,4 +3,3 @@ export * from './ui-catalog';
 export * from './localized-text';
 export * from './person-profile';
 export * from './spoken-languages';
-export * from './person-write';

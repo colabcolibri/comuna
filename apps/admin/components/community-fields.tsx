@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { OpsSection } from '@community/ui-admin';
+import { toast } from '@community/ui';
+import { OpsAlertDialog, OpsIconButton, OpsSection } from '@community/ui-admin';
 import { contentFromCatalog, pickContent } from '@community/identity';
+import { RotateCcw } from 'lucide-react';
 import { useLocale } from './locale-provider';
 import { uiCatalog } from '@/lang/catalog';
 import { CommunityFieldsCreateGroup } from './community-fields-create-group';
@@ -22,6 +24,9 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   group: 'community.fields_group',
   labelPt: 'community.fields_label_pt',
   labelEn: 'community.fields_label_en',
+  descriptionPt: 'community.fields_description_pt',
+  descriptionEn: 'community.fields_description_en',
+  descriptionHelp: 'community.fields_description_help',
   options: 'community.fields_options',
   optionsHelp: 'community.fields_options_help',
   optionValue: 'community.fields_option_value',
@@ -76,12 +81,18 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   moveGroup: 'community.fields_move_group',
   moveGroupHelp: 'community.fields_move_group_help',
   moveGroupConfirm: 'community.fields_move_group_confirm',
+  resetOrder: 'community.fields_reset_order',
+  resetOrderTitle: 'community.fields_reset_order_title',
+  resetOrderBody: 'community.fields_reset_order_body',
+  resetOrderOk: 'community.fields_reset_order_ok',
 });
 
 export function CommunityFields({ communityId }: { communityId: string }) {
   const locale = useLocale();
   const copy = pickContent(CONTENT, locale);
   const [groups, setGroups] = useState<OpsGroup[]>([]);
+  const [pendingReset, setPendingReset] = useState(false);
+  const [resetBusy, setResetBusy] = useState(false);
 
   const load = () => {
     fetch(`/api/admin/communities/${communityId}/fields`).then(async (res) => {
@@ -97,10 +108,28 @@ export function CommunityFields({ communityId }: { communityId: string }) {
     load();
   }, [communityId]);
 
+  const resetOrder = async () => {
+    setResetBusy(true);
+    const res = await fetch(`/api/admin/communities/${communityId}/fields/reset-order`, { method: 'POST' });
+    setResetBusy(false);
+    setPendingReset(false);
+    if (!res.ok) {
+      toast.error(copy.error);
+      return;
+    }
+    toast.success(copy.resetOrderOk);
+    load();
+  };
+
   return (
     <OpsSection title={copy.title} description={copy.help}>
-      <div className="mb-8">
+      <div className="mb-8 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <CommunityFieldsCreateGroup communityId={communityId} copy={copy} onCreated={load} />
+        {groups.length > 0 ? (
+          <OpsIconButton label={copy.resetOrder} onClick={() => setPendingReset(true)}>
+            <RotateCcw />
+          </OpsIconButton>
+        ) : null}
       </div>
       {groups.length === 0 ? (
         <p className="text-sm text-muted-foreground">{copy.pageEmpty}</p>
@@ -121,6 +150,19 @@ export function CommunityFields({ communityId }: { communityId: string }) {
           ))}
         </div>
       )}
+      <OpsAlertDialog
+        isOpen={pendingReset}
+        onClose={() => setPendingReset(false)}
+        title={copy.resetOrderTitle}
+        description={copy.resetOrderBody}
+        cancelLabel={copy.cancel}
+        confirmLabel={copy.resetOrder}
+        onConfirm={() => {
+          if (!resetBusy) {
+            void resetOrder();
+          }
+        }}
+      />
     </OpsSection>
   );
 }

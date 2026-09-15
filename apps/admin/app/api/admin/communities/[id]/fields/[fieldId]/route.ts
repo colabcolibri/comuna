@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { deleteAttributeField, updateCatalogFieldEnabled, updateCatalogFieldFilterable, updateCatalogFieldRequired, updateCatalogFieldSpan, updateOpsField } from '@community/directory/ops';
+import { deleteAttributeField, updateCatalogFieldDescription, updateCatalogFieldEnabled, updateCatalogFieldFilterable, updateCatalogFieldRequired, updateCatalogFieldSpan, updateOpsField } from '@community/directory/ops';
 import { catalogWriteResponse } from '@/lib/catalog-http';
 import { isOpsClaims, requireOps } from '@/lib/require-ops';
 
@@ -15,9 +15,16 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       await updateOpsField(id, fieldId, {
         labelPt: typeof body.labelPt === 'string' ? body.labelPt : undefined,
         labelEn: typeof body.labelEn === 'string' ? body.labelEn : undefined,
+        descriptionPt: typeof body.descriptionPt === 'string' ? body.descriptionPt : undefined,
+        descriptionEn: typeof body.descriptionEn === 'string' ? body.descriptionEn : undefined,
         options: Array.isArray(body.options) ? body.options : undefined,
         optionsText: typeof body.optionsText === 'string' ? body.optionsText : undefined,
         filterable: Boolean(body.filterable),
+      });
+    } else if (body.descriptionPt !== undefined) {
+      await updateCatalogFieldDescription(id, fieldId, {
+        descriptionPt: body.descriptionPt,
+        descriptionEn: body.descriptionEn,
       });
     } else if (typeof body.filterable === 'boolean') {
       await updateCatalogFieldFilterable(id, fieldId, body.filterable);

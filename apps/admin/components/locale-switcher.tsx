@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@community/ui';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale, useSetLocale } from './locale-provider';
 import { uiCatalog } from '@/lang/catalog';
@@ -16,25 +15,21 @@ export function LocaleSwitcher() {
   const setLocale = useSetLocale();
   const copy = pickContent(CONTENT, locale);
   return (
-    <div className="inline-flex h-9 items-center rounded-md border border-border p-0.5" role="group" aria-label={copy.group}>
-      <Button
+    <div className="inline-flex items-center rounded-md bg-muted p-1" role="group" aria-label={copy.group}>
+      <button
         type="button"
-        variant={locale === 'pt-BR' ? 'secondary' : 'ghost'}
-        size="sm"
-        className="h-8 px-2.5"
+        className={`h-7 rounded-sm px-2.5 text-sm ${locale === 'pt-BR' ? 'bg-background font-medium text-foreground shadow-sm' : 'text-muted-foreground'}`}
         onClick={() => setLocale('pt-BR')}
       >
         {copy.pt}
-      </Button>
-      <Button
+      </button>
+      <button
         type="button"
-        variant={locale === 'en' ? 'secondary' : 'ghost'}
-        size="sm"
-        className="h-8 px-2.5"
+        className={`h-7 rounded-sm px-2.5 text-sm ${locale === 'en' ? 'bg-background font-medium text-foreground shadow-sm' : 'text-muted-foreground'}`}
         onClick={() => setLocale('en')}
       >
         {copy.en}
-      </Button>
+      </button>
     </div>
   );
 }

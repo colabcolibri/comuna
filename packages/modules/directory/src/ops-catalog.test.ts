@@ -6,10 +6,10 @@ vi.mock('@community/db', () => ({
 
 import { query } from '@community/db';
 import { CatalogWriteError, movedSequence, parseCatalogColumns } from './ops-catalog-shared';
-import { createAttributeField, deleteAttributeField, updateCatalogFieldFilterable, updateCatalogFieldRequired, updateCatalogFieldSpan, normalizeOpsChoiceOptions } from './ops-catalog-fields';
+import { createAttributeField, deleteAttributeField, updateCatalogFieldDescription, updateCatalogFieldFilterable, updateCatalogFieldRequired, updateCatalogFieldSpan, normalizeOpsChoiceOptions } from './ops-catalog-fields';
 import { listOpsCatalog } from './ops-catalog';
 import { deleteCatalogGroup, updateCatalogGroupColumns } from './ops-catalog-groups';
-import { moveCatalogFieldToGroup } from './ops-catalog-order';
+import { moveCatalogFieldToGroup, resetCatalogOrder } from './ops-catalog-order';
 
 const mockedQuery = vi.mocked(query);
 
@@ -59,6 +59,8 @@ describe('ops catalog', () => {
         type: 'checkbox',
         labelPt: 'Edições',
         labelEn: 'Editions',
+        descriptionPt: 'Anos da turma',
+        descriptionEn: 'Cohort years',
         optionsText: '2014|2014|2014\n2014|outra|other',
       })
     ).rejects.toBeInstanceOf(CatalogWriteError);
@@ -73,6 +75,8 @@ describe('ops catalog', () => {
         type: 'select',
         labelPt: 'Edições',
         labelEn: 'Editions',
+        descriptionPt: 'Anos da turma',
+        descriptionEn: 'Cohort years',
         optionsText: '',
       })
     ).rejects.toBeInstanceOf(CatalogWriteError);
@@ -81,7 +85,30 @@ describe('ops catalog', () => {
 
   it('rejects a name that does not slugify', async () => {
     await expect(
-      createAttributeField('c1', { groupId: 'g1', name: '!!!', type: 'text', labelPt: 'X', labelEn: 'X' })
+      createAttributeField('c1', {
+        groupId: 'g1',
+        name: '!!!',
+        type: 'text',
+        labelPt: 'X',
+        labelEn: 'X',
+        descriptionPt: 'Ajuda',
+        descriptionEn: 'Help',
+      })
+    ).rejects.toBeInstanceOf(CatalogWriteError);
+    expect(mockedQuery).not.toHaveBeenCalled();
+  });
+
+  it('rejects a field without description', async () => {
+    await expect(
+      createAttributeField('c1', {
+        groupId: 'g1',
+        name: 'host',
+        type: 'boolean',
+        labelPt: 'Casa',
+        labelEn: 'Home',
+        descriptionPt: '',
+        descriptionEn: '',
+      })
     ).rejects.toBeInstanceOf(CatalogWriteError);
     expect(mockedQuery).not.toHaveBeenCalled();
   });
@@ -193,6 +220,43 @@ describe('ops catalog', () => {
     mockedQuery.mockResolvedValueOnce({ rows: [{ group_id: 'g1' }] } as never);
     mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
     await expect(moveCatalogFieldToGroup('c1', 'f1', 'other')).rejects.toMatchObject({ message: 'NOT_FOUND' });
+  });
+
+  it('updates description on a locked field', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'f1' }] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    await updateCatalogFieldDescription('c1', 'f1', {
+      descriptionPt: 'Nome e sobrenome',
+      descriptionEn: 'First and last name',
+    });
+    expect(String(mockedQuery.mock.calls[1]?.[0])).toContain('SET description');
+  });
+
+  it('resets seed group order without moving fields across groups', async () => {
+    mockedQuery
+      .mockResolvedValueOnce({
+        rows: [
+          { id: 'g-custom', slug: 'custom' },
+          { id: 'g-identity', slug: 'identity' },
+        ],
+      } as never)
+      .mockResolvedValueOnce({ rows: [] } as never)
+      .mockResolvedValueOnce({ rows: [] } as never)
+      .mockResolvedValueOnce({ rows: [{ id: 'f-extra', name: 'cohort' }] } as never)
+      .mockResolvedValueOnce({ rows: [] } as never)
+      .mockResolvedValueOnce({
+        rows: [
+          { id: 'f-avatar', name: 'avatar_url' },
+          { id: 'f-name', name: 'full_name' },
+        ],
+      } as never)
+      .mockResolvedValueOnce({ rows: [] } as never)
+      .mockResolvedValueOnce({ rows: [] } as never);
+    await resetCatalogOrder('c1');
+    expect(mockedQuery.mock.calls[1]?.[1]).toEqual(['g-identity', 10]);
+    expect(mockedQuery.mock.calls[2]?.[1]).toEqual(['g-custom', 20]);
+    expect(mockedQuery.mock.calls[6]?.[1]).toEqual(['f-name', 10]);
+    expect(mockedQuery.mock.calls[7]?.[1]).toEqual(['f-avatar', 20]);
   });
 });
 

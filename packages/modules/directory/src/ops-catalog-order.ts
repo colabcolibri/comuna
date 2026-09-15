@@ -97,3 +97,59 @@ export async function moveCatalogFieldToGroup(
     [fieldId, groupId]
   );
 }
+
+const SEED_GROUP_ORDER = [
+  'identity',
+  'community_copy',
+  'person',
+  'links',
+  'availability',
+  'hospitality',
+  'custom',
+] as const;
+
+const SEED_FIELD_ORDER: Record<string, number> = {
+  full_name: 10,
+  avatar_url: 20,
+  headline: 10,
+  bio: 20,
+  gender: 10,
+  birth_city: 20,
+  current_city: 30,
+  languages: 40,
+  linkedin: 10,
+  github: 20,
+  portfolio: 30,
+  availability_status: 10,
+  public_showcase: 20,
+  host_at_home: 10,
+};
+
+function seedGroupRank(slug: string): number {
+  const index = SEED_GROUP_ORDER.indexOf(slug as (typeof SEED_GROUP_ORDER)[number]);
+  return index < 0 ? Number.MAX_SAFE_INTEGER : index;
+}
+
+function seedFieldRank(name: string): number {
+  return SEED_FIELD_ORDER[name] ?? Number.MAX_SAFE_INTEGER;
+}
+
+export async function resetCatalogOrder(communityId: string): Promise<void> {
+  const groups = await query<{ id: string; slug: string }>(
+    `SELECT id, slug FROM plugin_directory.field_groups WHERE community_id = $1 ORDER BY sort_order, id`,
+    [communityId]
+  );
+  if (!groups.rows.length) {
+    throw new CatalogWriteError('NOT_FOUND');
+  }
+  const rankedGroups = [...groups.rows].sort((left, right) => seedGroupRank(left.slug) - seedGroupRank(right.slug));
+  await persistGroupOrder(rankedGroups.map((row) => row.id));
+  for (const group of groups.rows) {
+    const fields = await query<{ id: string; name: string }>(
+      `SELECT id, name FROM plugin_directory.fields WHERE group_id = $1 ORDER BY sort_order, id`,
+      [group.id]
+    );
+    const rankedFields = [...fields.rows].sort((left, right) => seedFieldRank(left.name) - seedFieldRank(right.name));
+    await persistFieldOrder(rankedFields.map((row) => row.id));
+  }
+}

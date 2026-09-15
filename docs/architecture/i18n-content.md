@@ -6,9 +6,11 @@ source: docs/09_design_system.md
 
 # i18n — packs + CONTENT no arquivo
 
-Volta: `docs/09_design_system.md` § Internationalization.
+Volta: `docs/09_design_system.md` § Internationalization e § Copy.
 
 Não usamos next-intl. O contrato cobre o mesmo que importa: namespace por componente, fallback `pt-BR`, interpolação `{name}`, e gancho de overlay. ICU/plural e editor de overlay ainda não.
+
+A voz da string (o que a pessoa lê) está em `09` § Copy. Packs obedecem isso; docs internos podem falar tenant.
 
 ## Rule
 

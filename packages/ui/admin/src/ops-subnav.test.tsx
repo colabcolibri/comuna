@@ -11,7 +11,8 @@ describe('OpsSubnav', () => {
         ]}
       />
     );
-    expect(screen.getByRole('link', { name: 'Dados' }).className).toContain('border-mark');
-    expect(screen.getByRole('link', { name: 'Campos' }).className).not.toContain('border-mark');
+    const dados = screen.getByRole('link', { name: 'Dados' });
+    expect(dados.querySelector('.bg-mark')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Campos' }).querySelector('.bg-mark')).toBeNull();
   });
 });

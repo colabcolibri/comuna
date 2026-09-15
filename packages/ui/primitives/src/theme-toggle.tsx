@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { cn } from 'cn';
 import { Button } from './components/ui/button';
 
 export function ThemeToggle({
@@ -29,7 +28,7 @@ export function ThemeToggle({
       type="button"
       variant="ghost"
       size="icon"
-      className={cn('size-11', className)}
+      className={className}
       aria-label={isDark ? toLight : toDark}
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
     >

@@ -20,17 +20,25 @@ async function seed(url, email) {
       [email]
     );
     const community = await client.query(
-      `INSERT INTO network_core.communities (slug, name, type, is_public_showcase)
-       VALUES ('demo', 'Demo community', 'alumni', true)
-       ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+      `INSERT INTO network_core.communities (slug, name, type, is_public_showcase, settings)
+       VALUES (
+         'demo',
+         'Alumni Instituto Atlântico',
+         'alumni',
+         true,
+         '{"description":"","showcase_title":"Pessoas da rede","showcase_description":"Quem estudou, ensinou ou construiu com o Instituto Atlântico e escolheu aparecer aqui.","default_locale":"pt-BR"}'::jsonb
+       )
+       ON CONFLICT (slug) DO UPDATE SET
+         name = EXCLUDED.name,
+         settings = network_core.communities.settings || EXCLUDED.settings
        RETURNING id`
     );
     const userId = user.rows[0].id;
     const communityId = community.rows[0].id;
     await client.query(
       `INSERT INTO person_core.profiles (user_id, full_name, preferred_locale)
-       VALUES ($1, 'Ops', 'pt-BR')
-       ON CONFLICT (user_id) DO NOTHING`,
+       VALUES ($1, 'Rita Magalhães', 'pt-BR')
+       ON CONFLICT (user_id) DO UPDATE SET full_name = EXCLUDED.full_name`,
       [userId]
     );
     await client.query(

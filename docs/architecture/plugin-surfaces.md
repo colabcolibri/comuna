@@ -74,3 +74,5 @@ Sem `if` de slug em `catalog.ts`, `AppSidebar` ou home — só iteração.
 ## Barrel do directory
 
 `@community/directory` (e `./lang`) é o que o browser pode importar: pack, contribution, catálogo puro, `coreCatalog`. Writes e seed (`listOpsCatalog`, `createAttributeField`, `seedCommunityCatalog`) saem de `@community/directory/ops` — só Route Handler. O barrel público **não** reexporta `@community/db`: um import no `MemberShell` puxaria `pg` e o bundle do cliente quebra (`Can't resolve 'dns'`).
+
+O barrel de `@community/identity` é locale, catálogo e perfil-base puro. `person-write` (Nominatim / `@community/places`) sai de `@community/identity/write` — só Route Handler. Se o barrel público reexportar write, o `LocaleProvider` no admin puxa `places` no browser.

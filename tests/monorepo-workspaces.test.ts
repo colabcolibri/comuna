@@ -20,6 +20,8 @@ const EXPECTED_PACKAGES: { dir: string; name: string }[] = [
   { dir: 'packages/core/places', name: '@community/places' },
   { dir: 'packages/core/files', name: '@community/files' },
   { dir: 'packages/core/communities', name: '@community/communities' },
+  { dir: 'packages/core/mail', name: '@community/mail' },
+  { dir: 'packages/core/platform', name: '@community/platform' },
   { dir: 'packages/core/memberships', name: '@community/memberships' },
   { dir: 'packages/core/module-runtime', name: '@community/module-runtime' },
   { dir: 'packages/modules/directory', name: '@community/directory' },
@@ -39,6 +41,7 @@ describe('monorepo workspaces', () => {
     const root = readJson('package.json');
     expect(root.packageManager).toMatch(/^pnpm@/);
     expect(root.workspaces).toBeUndefined();
+    expect(root.dependencies.next).toBeUndefined();
     const yaml = fs.readFileSync(path.join(ROOT, 'pnpm-workspace.yaml'), 'utf8');
     for (const glob of EXPECTED_WORKSPACES) {
       expect(yaml).toContain(glob);

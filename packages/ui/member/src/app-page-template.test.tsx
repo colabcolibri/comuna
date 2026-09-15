@@ -2,19 +2,33 @@ import { render, screen } from '@testing-library/react';
 import { AppPageTemplate } from './app-page-template';
 import { AppIndexList, AppPersonRow } from './app-person-row';
 import { AppProfileSection, AppProfileStack } from './app-profile-section';
+import { AppShowcasePortal } from './app-showcase-portal';
 
 describe('AppPageTemplate', () => {
   it('renders kicker, title, lede and actions', () => {
     render(
-      <AppPageTemplate kicker="Rede" title="Diretório" subtitle="Rede intermediada" actions={<button type="button">Filtrar</button>}>
+      <AppPageTemplate kicker="Rede" title="Diretório" subtitle="Pessoas desta comunidade" actions={<button type="button">Filtrar</button>}>
         <p>corpo</p>
       </AppPageTemplate>
     );
     expect(screen.getByText('Rede')).toBeTruthy();
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Diretório');
-    expect(screen.getByText('Rede intermediada')).toBeTruthy();
+    expect(screen.getByText('Pessoas desta comunidade')).toBeTruthy();
     expect(screen.getByText('Filtrar')).toBeTruthy();
     expect(screen.getByText('corpo')).toBeTruthy();
+  });
+});
+
+describe('AppShowcasePortal', () => {
+  it('uses the community name as the page heading', () => {
+    render(
+      <AppShowcasePortal title="Pessoas da rede" lede="Quem optou por aparecer.">
+        <p>grelha</p>
+      </AppShowcasePortal>
+    );
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Pessoas da rede');
+    expect(screen.getByText('Quem optou por aparecer.')).toBeTruthy();
+    expect(screen.getByText('grelha')).toBeTruthy();
   });
 });
 

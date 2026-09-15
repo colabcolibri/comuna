@@ -60,32 +60,40 @@ export function MemberShell({
     <SidebarProvider className="h-svh max-h-svh overflow-hidden">
       <AppSidebar email={sessionEmail} seats={seats} />
       <SidebarInset className="h-svh max-h-svh min-h-0 overflow-hidden">
-        <header className="sticky top-0 z-20 shrink-0 border-b border-border bg-card">
+        <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center border-b border-border bg-card">
           <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:px-6">
           <ShellMenuTrigger openLabel={copy.openMenu} closeLabel={copy.closeMenu} />
           <Link
             href={slug ? communityPath(slug, '/directory') : '/'}
-            className="flex min-h-11 min-w-0 items-center gap-2 px-1 text-foreground hover:text-foreground"
+            className="flex min-w-0 items-center gap-2 px-1 text-foreground hover:text-foreground"
           >
             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground">
               {initial}
             </span>
             <span className="truncate font-semibold tracking-tight">{brand}</span>
           </Link>
-          {headerNav.map((item) => (
+          {headerNav.map((item) => {
+            const active = item.href === '/showcase' && pathname.includes('/showcase');
+            return (
           <Link
             key={item.href}
             href={item.href === '/showcase' ? showcaseHref : item.href}
-            className={`inline-flex items-center min-h-11 px-2 text-base ${
-              pathname.includes('/showcase') ? 'text-foreground border-b-2 border-mark' : 'text-muted-foreground hover:text-foreground'
+            className={`flex items-center px-2 text-base ${
+              active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            {copyFrom(copy, item.copyKey)}
+            <span className="relative">
+              {copyFrom(copy, item.copyKey)}
+              {active ? (
+                <span aria-hidden className="absolute inset-x-0 top-full mt-0.5 h-0.5 bg-mark" />
+              ) : null}
+            </span>
           </Link>
-          ))}
+            );
+          })}
           <div className="ml-auto flex items-center gap-1">
             <LocaleSwitcher />
-            <ThemeToggle toDark={copy.toDark} toLight={copy.toLight} />
+            <ThemeToggle className="size-8" toDark={copy.toDark} toLight={copy.toLight} />
           </div>
           </div>
         </header>
