@@ -32,8 +32,8 @@ async function seedDirectoryCatalog(client, communityId) {
         },
         {
           name: 'avatar_url',
-          type: 'url',
-          label: loc('URL do avatar', 'Avatar URL'),
+          type: 'image',
+          label: loc('Foto', 'Photo'),
           span: 1,
           storage: 'person',
           column_key: 'avatar_url',

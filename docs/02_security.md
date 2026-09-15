@@ -23,7 +23,7 @@ blocks: [03_user_types.md, 04_principles.md, 05_architecture.md]
 
 | Class | Examples in this product | Storage | Retention | Encryption |
 | ----- | ------------------------ | ------- | --------- | ---------- |
-| Public | Nome, headline, skills e disponibilidade marcados públicos | PostgreSQL | Enquanto conta ativa | TLS |
+| Public | Nome, headline, **foto de avatar**, skills e disponibilidade marcados públicos | PostgreSQL + ObjectStore | Enquanto conta ativa | TLS |
 | Internal | E-mail, cohort, notas de coordenação | PostgreSQL | Enquanto conta ativa | TLS; at-rest conforme host |
 | Confidential | Hash de OTP, JWT secret, SMTP key | Postgres / env | OTP: 10 min; JWT: 30 dias membro / 7 dias ops | TLS; secret só em env |
 
@@ -85,6 +85,7 @@ _N/A até expansão europeia._
 | Vitrine | Scraper | Disclosure de contato | Contato mediado; e-mail nunca no HTML público | Low |
 | Ops | Session hijack | Elevation | Cookie separado; sem link na navbar do membro | Medium até MFA |
 | Código atual | Qualquer um | Auth bypass | Cookie simulado e `dev_otp` — **dívida**; US de auth real | High hoje |
+| `POST` avatar | Anónimo / membro | Upload malicioso / XSS SVG | Sessão; magic bytes; sem SVG; teto de tamanho | Low |
 
 ## Secrets and configuration
 

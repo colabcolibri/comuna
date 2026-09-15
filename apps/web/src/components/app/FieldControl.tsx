@@ -1,11 +1,19 @@
 'use client';
 
-import React from 'react';
-import { Checkbox, Input, Label, Select, Textarea } from '@community/ui';
-import { interpolate, pickLocalizedText, type LocalizedText } from '@community/identity';
+import React, { useState } from 'react';
+import { Checkbox, Input, Label, Select, Textarea, toast } from '@community/ui';
+import { contentFromCatalog, interpolate, pickContent, pickLocalizedText, type LocalizedText } from '@community/identity';
 import type { CatalogField } from '@community/directory';
 import type { GeoPlace } from '@community/places';
 import { CitySearchField } from '@/components/app/CitySearchField';
+import { useLocale } from '@/components/app/LocaleProvider';
+import { uiCatalog } from '@/lang/catalog';
+
+const CONTENT = contentFromCatalog(uiCatalog, 'core_identity', {
+  pick: 'profile.avatar_pick',
+  uploading: 'profile.avatar_uploading',
+  invalid: 'profile.avatar_invalid',
+});
 
 export function FieldControl({
   field,
@@ -25,6 +33,12 @@ export function FieldControl({
   const label = pickLocalizedText(field.label, locale) || field.name;
   const description = pickLocalizedText(field.description, locale);
   const id = `field-${field.name}`;
+
+  if (field.type === 'image') {
+    return (
+      <ImageControl id={id} label={label} description={description} value={value} onChange={onChange} />
+    );
+  }
 
   if (field.type === 'city') {
     return (
@@ -136,6 +150,62 @@ export function FieldControl({
         onChange={(e) => onChange(e.target.value)}
         {...(field.type === 'textarea' ? { rows: 4 } : {})}
       />
+    </div>
+  );
+}
+
+function ImageControl({
+  id,
+  label,
+  description,
+  value,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  description: string;
+  value: unknown;
+  onChange: (value: unknown) => void;
+}) {
+  const copy = pickContent(CONTENT, useLocale());
+  const [busy, setBusy] = useState(false);
+  const src = typeof value === 'string' ? value : '';
+
+  async function onFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    setBusy(true);
+    const body = new FormData();
+    body.append('file', file);
+    const res = await fetch('/api/profiles/me/avatar', { method: 'POST', body });
+    const data = await res.json().catch(() => ({}));
+    setBusy(false);
+    event.target.value = '';
+    if (!res.ok) {
+      toast.error(data.error?.message || copy.invalid);
+      return;
+    }
+    onChange(data.avatar_url);
+  }
+
+  return (
+    <div className="space-y-2 min-w-0">
+      <Label htmlFor={id}>{label}</Label>
+      {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
+      {src ? (
+        <img src={src} alt="" className="size-24 rounded-lg object-cover border border-border" />
+      ) : null}
+      <Input
+        id={id}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="min-h-11"
+        disabled={busy}
+        onChange={(event) => void onFile(event)}
+      />
+      <p className="text-sm text-muted-foreground">{busy ? copy.uploading : copy.pick}</p>
     </div>
   );
 }

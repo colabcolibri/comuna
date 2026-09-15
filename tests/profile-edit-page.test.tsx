@@ -139,7 +139,7 @@ describe('profile edit fields', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('Nome completo')).toBeTruthy();
     });
-    expect(screen.getByLabelText('URL do avatar')).toBeTruthy();
+    expect(screen.getByLabelText('Foto')).toBeTruthy();
     expect(screen.getByLabelText('Gênero')).toBeTruthy();
     expect(screen.getByLabelText('Cidade de nascimento')).toBeTruthy();
     expect(screen.getByLabelText('Cidade onde mora')).toBeTruthy();

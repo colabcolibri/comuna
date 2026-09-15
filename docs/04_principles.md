@@ -25,6 +25,7 @@ blocks: [05_architecture.md]
 | Pool / SQL | `packages/core/db` | `pg` nas páginas |
 | Perfil-base + chrome i18n | `packages/core/identity` | HTTP de geocoder, skills |
 | Lugar | `packages/core/places` | React, SQL. Adapters atrás de `CityDirectory`. Não é plugin. |
+| Ficheiros (avatar) | `packages/core/files` | `public/`, bytea, páginas com `fs` |
 | Comunidades / membership | `packages/core/communities`, `memberships` | |
 | Module runtime | `packages/core/module-runtime` | `if (community.slug === 'alumni')` |
 | Directory plugin | `packages/modules/directory` | Tabelas no person_core; catálogo de campos no core |

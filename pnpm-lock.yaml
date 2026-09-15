@@ -141,6 +141,9 @@ importers:
       '@community/directory':
         specifier: workspace:*
         version: link:../../packages/modules/directory
+      '@community/files':
+        specifier: workspace:*
+        version: link:../../packages/core/files
       '@community/identity':
         specifier: workspace:*
         version: link:../../packages/core/identity

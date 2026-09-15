@@ -39,6 +39,7 @@ const nextConfig: NextConfig = {
     '@community/db',
     '@community/identity',
     '@community/directory',
+    '@community/files',
     '@community/showcase',
     '@community/contact-mediated',
     '@community/module-runtime',

@@ -50,7 +50,7 @@ erDiagram
         uuid id PK
         uuid user_id FK, UK
         string full_name
-        string avatar_url
+        string avatar_url "URL pública estável; ficheiro no ObjectStore"
         string preferred_locale "pt-BR | en"
         string gender "woman | man | non_binary | prefer_not"
         string birth_country "ISO 3166-1 alpha-2"

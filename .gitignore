@@ -26,6 +26,7 @@ __pycache__/
 .meridian/meridian.db
 .meridian/meridian.db-wal
 .meridian/meridian.db-shm
+storage/
 
 # Logs & Temporary files
 *.log

@@ -1,7 +1,7 @@
 ---
 title: System Architecture
 status: approved
-version: 1.9
+version: 1.10
 updated: 2026-09-15
 depends_on: [00_scope.md, 01_tech_stack.md, 02_security.md, 03_user_types.md, 04_principles.md]
 blocks: [06_database.md, 07_api_contracts.md, 08_environments.md]
@@ -29,6 +29,7 @@ flowchart TD
         Comm[communities]
         Mem[memberships]
         Runtime[module-runtime]
+        Files[files ObjectStore]
         Db[db]
     end
 
@@ -49,6 +50,8 @@ flowchart TD
     Runtime --> Mem
     Web --> Places
     Ident --> Places
+    Ident --> Files
+    Files --> Db
     Auth --> Db
     Ident --> Db
     Comm --> Db
@@ -76,7 +79,7 @@ flowchart TD
 | `docs/architecture/modules.md` | Contrato de plugin, perfil-base vs extra |
 | `docs/architecture/profile-fields.md` | Catálogo de grupos/campos, templates, jsonb + GIN |
 | `docs/architecture/plugin-surfaces.md` | Contribuições (registry + `module_id`); off = filtro genérico |
-| `docs/architecture/i18n-content.md` | Packs + `CONTENT` no arquivo |
+| `docs/architecture/media.md` | Avatar: store + chave; Postgres só URL |
 
 ## System modules (core)
 
@@ -86,7 +89,7 @@ OTP + JWT. Sem papel por e-mail.
 
 ### Identity (perfil-base)
 
-Pessoa (`person_core`) e helpers de chrome (`pickContent`, cookie). Cidade é `GeoPlace` via `packages/core/places` (infraestrutura, **não** plugin). Headline e bio no plugin `directory` são os únicos textos que o membro preenche em pt-BR e en. O formulário de perfil é dirigido pelo **catálogo de campos** (`docs/architecture/profile-fields.md`): grupos, tipos com template, span 1–3. Availability é grupo do directory, não identidade.
+Pessoa (`person_core`) e helpers de chrome (`pickContent`, cookie). Cidade é `GeoPlace` via `packages/core/places` (infraestrutura, **não** plugin). Foto: `docs/architecture/media.md` — ficheiro no ObjectStore, `avatar_url` só ponteiro. Headline e bio no plugin `directory` são os únicos textos que o membro preenche em pt-BR e en. O formulário de perfil é dirigido pelo **catálogo de campos** (`docs/architecture/profile-fields.md`): grupos, tipos com template, span 1–3. Availability é grupo do directory, não identidade.
 
 ### Communities e memberships
 

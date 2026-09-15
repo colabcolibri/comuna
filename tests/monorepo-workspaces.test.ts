@@ -18,6 +18,7 @@ const EXPECTED_PACKAGES: { dir: string; name: string }[] = [
   { dir: 'packages/core/db', name: '@community/db' },
   { dir: 'packages/core/identity', name: '@community/identity' },
   { dir: 'packages/core/places', name: '@community/places' },
+  { dir: 'packages/core/files', name: '@community/files' },
   { dir: 'packages/core/communities', name: '@community/communities' },
   { dir: 'packages/core/memberships', name: '@community/memberships' },
   { dir: 'packages/core/module-runtime', name: '@community/module-runtime' },

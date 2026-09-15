@@ -20,6 +20,7 @@ packages/
     db/
     identity/          # perfil-base + pickContent
     places/            # GeoPlace + CityDirectory (não é plugin)
+    files/             # ObjectStore (avatar)
     communities/
     memberships/
     module-runtime/
@@ -33,6 +34,7 @@ packages/
     admin/             # compostos ops
 db/
   migrations/          # SQL datado — ainda na raiz até a US mover
+storage/               # ObjectStore local (gitignored)
 docs/
 ```
 

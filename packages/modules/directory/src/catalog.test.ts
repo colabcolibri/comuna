@@ -3,6 +3,9 @@ import { nestCatalog, parseAttrFilters, parseField, validateCustomAttributes, vi
 describe('directory catalog', () => {
   it('rejects unknown field types', () => {
     expect(parseField({ name: 'x', type: 'php', storage: 'attributes' })).toBeNull();
+    expect(parseField({ name: 'avatar_url', type: 'image', storage: 'person', column_key: 'avatar_url' })?.type).toBe(
+      'image'
+    );
   });
 
   it('nests groups and keeps unique names', () => {

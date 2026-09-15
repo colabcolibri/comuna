@@ -26,7 +26,7 @@ Plugin off **não** mostra campos daquele plugin. O dono é `fields.module_id` (
 
 Cada campo tem `storage`:
 
-- `person` — coluna/json conhecido em `person_core.profiles` (`column_key`: `full_name`, `gender`, `birth_city`, …).
+- `person` — coluna/json conhecido em `person_core.profiles` (`column_key`: `full_name`, `gender`, `birth_city`, `avatar_url`, …). Avatar: o valor é URL estável da app; o ficheiro está no store (`docs/architecture/media.md`).
 - `card_column` — `headline`, `bio`, `availability_status`, `public_showcase`.
 - `attributes` — chave em `custom_attributes`. Valor **escalar** (`true`, `"yes"`, texto curto). Sem LocalizedText aninhado no blob.
 
@@ -38,7 +38,7 @@ Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejei
 
 | slug | Origem | Campos | Storage |
 | --- | --- | --- | --- |
-| `identity` | core (não some) | nome, avatar | `person` |
+| `identity` | core (não some) | nome, avatar (`image`, não URL crua) | `person` |
 | `person` | core | gênero, cidades, idiomas, links | `person` |
 | `community_copy` | directory | headline, bio | `card_column` |
 | `availability` | directory + showcase | availability (`directory`); `public_showcase` (`showcase`) | `card_column` |

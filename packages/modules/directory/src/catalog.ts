@@ -10,6 +10,7 @@ export const FIELD_TYPES = [
   'boolean',
   'city',
   'url',
+  'image',
 ] as const;
 
 export type FieldType = (typeof FIELD_TYPES)[number];
