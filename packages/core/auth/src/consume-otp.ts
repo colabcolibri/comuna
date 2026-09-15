@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { query } from '@community/db';
 import { verifyOtpHash } from './otp';
 import { signMemberToken } from './session';

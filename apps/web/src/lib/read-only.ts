@@ -8,12 +8,16 @@ export function isDatabaseReadOnly(): boolean {
 }
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+const DEMO_LOGIN_PATH = '/api/auth/demo-login';
 
 export function readOnlyBlockedResponse(req: NextRequest): NextResponse | null {
   if (!isDatabaseReadOnly()) {
     return null;
   }
   if (!req.nextUrl.pathname.startsWith('/api/')) {
+    return null;
+  }
+  if (req.nextUrl.pathname === DEMO_LOGIN_PATH) {
     return null;
   }
   if (SAFE_METHODS.has(req.method)) {

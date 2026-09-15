@@ -122,6 +122,8 @@ pnpm dev:demo
 
 Abre `http://localhost:3014/showcase`. A faixa no topo e o diálogo nos writes só aparecem com `DATABASE_READ_ONLY=1`. `pnpm dev` normal continua a gravar.
 
+**Login na demo:** `/login` mostra `member01@demo.example` e um botão **Entrar** (sem OTP). A rota `POST /api/auth/demo-login` responde **404** sem `DATABASE_READ_ONLY=1`. Com read-only: `SELECT` + JWT; só esse e-mail no allowlist. **Nunca** ligar `DATABASE_READ_ONLY` numa base com contas reais.
+
 ### Peças
 
 1. Postgres gerido (Neon, Railway Postgres, ou equivalente). SSL na `DATABASE_URL` como o fornecedor indicar.
@@ -164,7 +166,7 @@ Generate a strong `JWT_SECRET`. Não publiques o e-mail do super-admin no README
 
 ### O que o visitante vê
 
-Abrir `https://{domínio}/showcase`. Com uma só comunidade pública no seed, a vitrine dessa casa; com várias, a lista para escolher. Sem login. Mensagem mediada só funciona se houver SMTP; senão o gesto falha como no produto sem mail.
+Abrir `https://{domínio}/showcase`. Com uma só comunidade pública no seed, a vitrine dessa casa; com várias, a lista para escolher. Sem login obrigatório. Em `/login`, **Entrar** com `member01@demo.example` para ver diretório e workspace — writes continuam bloqueados. Mensagem mediada só funciona se houver SMTP; senão o gesto falha como no produto sem mail.
 
 ### Fora deste caminho
 

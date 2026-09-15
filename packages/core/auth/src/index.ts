@@ -1,6 +1,15 @@
+import 'server-only';
+
 export { generateOtp, hashOtp, verifyOtpHash } from './otp';
 export { issueOtp, RateLimitError } from './issue-otp';
 export { consumeOtp, InvalidOtpError } from './consume-otp';
+export {
+  DemoLoginForbiddenError,
+  DEMO_MEMBER_LOGIN_EMAIL,
+  isDemoMemberLoginEmail,
+  isDemoMemberLoginEnabled,
+  resolveDemoMemberLogin,
+} from './demo-login';
 export {
   ensureBareProfile,
   ensureUserByEmail,

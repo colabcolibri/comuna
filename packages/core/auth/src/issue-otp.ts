@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { query } from '@community/db';
 import { generateOtp, hashOtp } from './otp';
 

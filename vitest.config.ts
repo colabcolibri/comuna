@@ -17,6 +17,7 @@ export default defineConfig({
   },
   resolve: {
     alias: [
+      { find: 'server-only', replacement: path.resolve(__dirname, './tests/mocks/server-only.ts') },
       { find: '@', replacement: path.resolve(__dirname, './apps/web/src') },
       { find: 'cn', replacement: path.resolve(__dirname, './packages/ui/primitives/src/lib/utils.ts') },
       { find: '@community/db', replacement: path.resolve(__dirname, './packages/core/db/src/index.ts') },

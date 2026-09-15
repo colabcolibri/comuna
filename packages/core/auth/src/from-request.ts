@@ -1,3 +1,5 @@
+import 'server-only';
+
 import { NextRequest } from 'next/server';
 import { AUTH_COOKIE, OPS_COOKIE, verifyMemberToken, verifyOpsToken, MemberClaims } from './session';
 

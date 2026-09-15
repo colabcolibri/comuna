@@ -24,6 +24,7 @@ describe('readOnlyBlockedResponse', () => {
   it('blocks mutating api calls and leaves reads alone', async () => {
     process.env.DATABASE_READ_ONLY = '1';
     expect(readOnlyBlockedResponse(req('GET', '/api/profiles/public'))).toBeNull();
+    expect(readOnlyBlockedResponse(req('POST', '/api/auth/demo-login'))).toBeNull();
     const blocked = readOnlyBlockedResponse(req('POST', '/api/profiles/x/contact'));
     expect(blocked?.status).toBe(403);
     expect(await blocked?.json()).toMatchObject({ error: { code: 'READ_ONLY' } });
