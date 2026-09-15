@@ -63,7 +63,7 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `AppAuthFrame` | Login centrado com kicker | `packages/ui/member/src/app-auth-frame.tsx` |
 | `AppIndexList` / `AppPersonRow` | Índice de pessoas (não grid de cards) | `packages/ui/member/src/app-person-row.tsx` |
 | `AppAlertDialog` | Confirmação (cancelar / confirmar) | `packages/ui/member/src/app-alert-dialog.tsx` — primitive `alert-dialog` via CLI |
-| `MemberShell` | Sidebar + inset + header; páginas rolam com `ScrollArea` (não overflow-y nativo) | `apps/web/.../MemberShell.tsx` |
+| `MemberShell` | Sidebar + inset + header; páginas rolam com `ScrollArea`; rodapé no chrome (fora do scroll) | `apps/web/.../MemberShell.tsx` |
 | `AppSidebar` | Destinos; rodapé = perfil + Sair | `apps/web/.../AppSidebar.tsx` |
 | `AppCardTemplate` | Card genérico (legado; não usar em listas) | `templates/AppCardTemplate.tsx` |
 | `OtpCard` | OTP | `OtpCard.tsx` |

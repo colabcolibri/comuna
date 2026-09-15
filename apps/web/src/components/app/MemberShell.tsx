@@ -3,29 +3,21 @@
 import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { ScrollArea, SidebarInset, SidebarProvider, SidebarTrigger, ThemeToggle } from '@community/ui';
-import { pickContent } from '@community/identity';
+import { contentFromCatalog, pickContent } from '@community/identity';
 import { AppSidebar } from '@/components/app/AppSidebar';
 import { LocaleSwitcher } from '@/components/app/LocaleSwitcher';
 import { useLocale } from '@/components/app/LocaleProvider';
 import MemberFooter from '@/components/app/MemberFooter';
+import { uiCatalog } from '@/lang/catalog';
 import Link from 'next/link';
 
-const CONTENT = {
-  'pt-BR': {
-    brand: 'Alumni',
-    showcase: 'Vitrine',
-    toggle: 'Abrir menu',
-    toDark: 'Ativar tema escuro',
-    toLight: 'Ativar tema claro',
-  },
-  en: {
-    brand: 'Alumni',
-    showcase: 'Showcase',
-    toggle: 'Open menu',
-    toDark: 'Switch to dark theme',
-    toLight: 'Switch to light theme',
-  },
-} as const;
+const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
+  brand: 'chrome.brand',
+  showcase: 'chrome.showcase',
+  toggle: 'chrome.open_menu',
+  toDark: 'theme.to_dark',
+  toLight: 'theme.to_light',
+});
 
 export function MemberShell({
   sessionEmail,
@@ -73,10 +65,10 @@ export function MemberShell({
           </div>
           </div>
         </header>
-        <ScrollArea className="member-page-scroll min-h-0 flex-1">
+        <ScrollArea type="always" className="member-page-scroll min-h-0 flex-1">
           {children}
-          <MemberFooter />
         </ScrollArea>
+        <MemberFooter />
       </SidebarInset>
     </SidebarProvider>
   );

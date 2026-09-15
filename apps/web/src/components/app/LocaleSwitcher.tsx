@@ -1,20 +1,14 @@
 'use client';
 
-import { pickContent } from '@community/identity';
+import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale, useSetLocale } from '@/components/app/LocaleProvider';
+import { uiCatalog } from '@/lang/catalog';
 
-const CONTENT = {
-  'pt-BR': {
-    group: 'Idioma',
-    pt: 'PT',
-    en: 'EN',
-  },
-  en: {
-    group: 'Language',
-    pt: 'PT',
-    en: 'EN',
-  },
-} as const;
+const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
+  group: 'locale.group',
+  pt: 'locale.pt',
+  en: 'locale.en',
+});
 
 export function LocaleSwitcher() {
   const locale = useLocale();

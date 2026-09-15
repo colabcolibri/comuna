@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createUiCatalog, definePack, interpolate } from './ui-catalog';
+import { contentFromCatalog, createUiCatalog, definePack, interpolate } from './ui-catalog';
 
 const pack = definePack({
   'pt-BR': { hello: 'Olá {name}', onlyPt: 'Só pt' },
@@ -25,5 +25,12 @@ describe('ui catalog', () => {
 
   it('interpolates placeholders', () => {
     expect(interpolate('Hi {name}', { name: 'Ada' })).toBe('Hi Ada');
+  });
+
+  it('builds a local CONTENT map with the same keys the file uses', () => {
+    const catalog = createUiCatalog({ core_web: pack });
+    const CONTENT = contentFromCatalog(catalog, 'core_web', { hello: 'hello' });
+    expect(CONTENT.en.hello).toBe('Hello {name}');
+    expect(CONTENT['pt-BR'].hello).toBe('Olá {name}');
   });
 });

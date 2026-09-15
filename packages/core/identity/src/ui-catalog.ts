@@ -58,3 +58,28 @@ export function createUiCatalog(packs: Record<string, UiPack>, overlay?: UiStrin
 }
 
 export type UiCatalog = ReturnType<typeof createUiCatalog>;
+
+export function contentFromCatalog<K extends string>(
+  catalog: Pick<UiCatalog, 't'>,
+  component: string,
+  fields: Record<K, string>
+): { 'pt-BR': Record<K, string>; en: Record<K, string> } {
+  const fill = (locale: Locale) => {
+    const row = {} as Record<K, string>;
+    for (const key of Object.keys(fields) as K[]) {
+      row[key] = catalog.t(component, fields[key], locale);
+    }
+    return row;
+  };
+  return { 'pt-BR': fill('pt-BR'), en: fill('en') };
+}
+
+export function mergeContent<A extends Record<string, string>, B extends Record<string, string>>(
+  left: { 'pt-BR': A; en: A },
+  right: { 'pt-BR': B; en: B }
+) {
+  return {
+    'pt-BR': { ...left['pt-BR'], ...right['pt-BR'] },
+    en: { ...left.en, ...right.en },
+  };
+}

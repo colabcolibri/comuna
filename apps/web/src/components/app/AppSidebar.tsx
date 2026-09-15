@@ -17,38 +17,24 @@ import {
   SidebarRail,
   useSidebar,
 } from '@community/ui';
-import { pickContent } from '@community/identity';
+import { contentFromCatalog, pickContent } from '@community/identity';
 import { AppAlertDialog } from '@community/ui-member';
 import { useLocale } from '@/components/app/LocaleProvider';
+import { uiCatalog } from '@/lang/catalog';
 
-const CONTENT = {
-  'pt-BR': {
-    showcase: 'Vitrine',
-    closeMenu: 'Fechar menu',
-    openMenu: 'Abrir menu',
-    signin: 'Entrar',
-    directory: 'Diretório',
-    profile: 'Meu perfil',
-    coord: 'Pedidos',
-    signout: 'Sair',
-    signoutTitle: 'Sair da sessão?',
-    signoutBody: 'Você vai precisar de um código no e-mail para entrar de novo.',
-    cancel: 'Cancelar',
-  },
-  en: {
-    showcase: 'Showcase',
-    closeMenu: 'Close menu',
-    openMenu: 'Open menu',
-    signin: 'Sign in',
-    directory: 'Directory',
-    profile: 'My profile',
-    coord: 'Requests',
-    signout: 'Sign out',
-    signoutTitle: 'Leave this session?',
-    signoutBody: 'You will need an email code to sign in again.',
-    cancel: 'Cancel',
-  },
-} as const;
+const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
+  showcase: 'chrome.showcase',
+  closeMenu: 'chrome.close_menu',
+  openMenu: 'chrome.open_menu',
+  signin: 'chrome.signin',
+  directory: 'chrome.directory',
+  profile: 'chrome.profile',
+  coord: 'chrome.coord',
+  signout: 'chrome.signout',
+  signoutTitle: 'chrome.signout_title',
+  signoutBody: 'chrome.signout_body',
+  cancel: 'chrome.cancel',
+});
 
 export function AppSidebar({ email }: { email: string | null }) {
   const pathname = usePathname();
