@@ -11,3 +11,5 @@ export { OpsSubnav } from './ops-subnav';
 export { OpsTabs, type OpsTabItem } from './ops-tabs';
 export { OpsHtmlPreview } from './ops-html-preview';
 export { OpsAlertDialog } from './ops-alert-dialog';
+export { OpsDialog, OpsDialogBody, OpsDialogHeader, type OpsDialogSize } from './ops-dialog';
+export { OpsAccordion } from './ops-accordion';

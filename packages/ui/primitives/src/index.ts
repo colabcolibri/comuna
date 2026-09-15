@@ -1,6 +1,7 @@
 export { cn } from './lib/utils';
 export { ThemeProvider } from './theme-provider';
 export { ThemeToggle } from './theme-toggle';
+export * from './components/ui/accordion';
 export * from './components/ui/alert';
 export * from './components/ui/alert-dialog';
 export * from './components/ui/button';

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { CommunityFieldsLayoutPreview } from '../apps/admin/components/community-fields-layout-preview';
 import type { OpsField } from '../apps/admin/components/community-fields-types';
@@ -18,14 +18,19 @@ function field(partial: Partial<OpsField> & Pick<OpsField, 'id' | 'name' | 'type
   };
 }
 
+function openPreview() {
+  fireEvent.click(screen.getByRole('button', { name: 'Como fica' }));
+}
+
 describe('community fields layout preview', () => {
-  it('renders labels, requirement, and a wide mock of the identity row', () => {
+  it('keeps the silhouette in a dialog until ops asks for it', () => {
     render(
       <CommunityFieldsLayoutPreview
         slug="identity"
         columns={1}
         locale="pt-BR"
-        label="Como fica no perfil, em tela larga"
+        label="Como fica"
+        help="Silhueta do perfil em tela larga."
         requiredLabel="Obrigatório"
         optionalLabel="Opcional"
         fields={[
@@ -45,7 +50,11 @@ describe('community fields layout preview', () => {
         ]}
       />
     );
-    expect(screen.getByText('Como fica no perfil, em tela larga')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Como fica' })).toBeTruthy();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    openPreview();
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    expect(screen.getByText('Silhueta do perfil em tela larga.')).toBeTruthy();
     expect(screen.getByText('Foto')).toBeTruthy();
     expect(screen.getByText('Nome completo')).toBeTruthy();
     expect(screen.getByText('Obrigatório')).toBeTruthy();
@@ -53,12 +62,13 @@ describe('community fields layout preview', () => {
   });
 
   it('places a wide field across two columns', () => {
-    const { container } = render(
+    render(
       <CommunityFieldsLayoutPreview
         slug="person"
         columns={2}
         locale="pt-BR"
-        label="Prévia"
+        label="Como fica"
+        help="Prévia"
         requiredLabel="Obrigatório"
         optionalLabel="Opcional"
         fields={[
@@ -72,8 +82,9 @@ describe('community fields layout preview', () => {
         ]}
       />
     );
+    openPreview();
     expect(screen.getByText('Gênero')).toBeTruthy();
-    expect(container.querySelector('[style*="span 2"]')).toBeTruthy();
+    expect(document.querySelector('[style*="span 2"]')).toBeTruthy();
   });
 
   it('labels the two locale boxes of a localized_text field', () => {
@@ -82,7 +93,8 @@ describe('community fields layout preview', () => {
         slug="identity"
         columns={1}
         locale="pt-BR"
-        label="Prévia"
+        label="Como fica"
+        help="Prévia"
         requiredLabel="Obrigatório"
         optionalLabel="Opcional"
         fields={[
@@ -95,6 +107,7 @@ describe('community fields layout preview', () => {
         ]}
       />
     );
+    openPreview();
     expect(screen.getByText('Título')).toBeTruthy();
     expect(screen.getByText('Opcional')).toBeTruthy();
     expect(screen.getByText('pt-BR')).toBeTruthy();

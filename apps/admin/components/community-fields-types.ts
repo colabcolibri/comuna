@@ -75,6 +75,7 @@ export type CatalogCopy = {
   span: string;
   spanHelp: string;
   layoutPreview: string;
+  layoutPreviewHelp: string;
   requirement: string;
   required: string;
   optional: string;

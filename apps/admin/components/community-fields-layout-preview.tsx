@@ -1,5 +1,9 @@
+'use client';
+
+import { useState } from 'react';
 import { pickLocalizedText } from '@community/identity';
-import { cn } from '@community/ui';
+import { Button, cn } from '@community/ui';
+import { OpsDialog, OpsDialogBody, OpsDialogHeader } from '@community/ui-admin';
 import { catalogColumns, clampFieldSpan, type OpsField } from './community-fields-types';
 
 export function CommunityFieldsLayoutPreview({
@@ -8,6 +12,7 @@ export function CommunityFieldsLayoutPreview({
   fields,
   locale,
   label,
+  help,
   requiredLabel,
   optionalLabel,
 }: {
@@ -16,9 +21,11 @@ export function CommunityFieldsLayoutPreview({
   fields: OpsField[];
   locale: string | undefined;
   label: string;
+  help: string;
   requiredLabel: string;
   optionalLabel: string;
 }) {
+  const [open, setOpen] = useState(false);
   if (fields.length === 0) {
     return null;
   }
@@ -27,55 +34,62 @@ export function CommunityFieldsLayoutPreview({
   const rest = slug === 'identity' ? fields.filter((field) => field.type !== 'image') : fields;
 
   return (
-    <div className="min-w-0 space-y-2">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <div className="overflow-x-auto rounded-xl border border-border bg-card">
-        <div className="min-w-[36rem] p-4 sm:p-5">
-          {photos.length ? (
-            <div className="flex min-w-0 flex-row items-center gap-6">
-              {photos.map((field) => (
-                <PreviewCell
-                  key={field.id}
-                  field={field}
-                  locale={locale}
-                  requiredLabel={requiredLabel}
-                  optionalLabel={optionalLabel}
-                  className="w-28 shrink-0 sm:w-32"
-                />
-              ))}
-              <div className="min-w-0 flex-1 space-y-4">
-                {rest.map((field) => (
-                  <PreviewCell
-                    key={field.id}
-                    field={field}
-                    locale={locale}
-                    requiredLabel={requiredLabel}
-                    optionalLabel={optionalLabel}
-                  />
-                ))}
-              </div>
+    <>
+      <Button type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>
+        {label}
+      </Button>
+      <OpsDialog open={open} onClose={() => setOpen(false)} size="xl">
+        <OpsDialogHeader title={label} description={help} />
+        <OpsDialogBody>
+          <div className="overflow-x-auto">
+            <div className="min-w-[36rem]">
+              {photos.length ? (
+                <div className="flex min-w-0 flex-row items-center gap-6">
+                  {photos.map((field) => (
+                    <PreviewCell
+                      key={field.id}
+                      field={field}
+                      locale={locale}
+                      requiredLabel={requiredLabel}
+                      optionalLabel={optionalLabel}
+                      className="w-28 shrink-0 sm:w-32"
+                    />
+                  ))}
+                  <div className="min-w-0 flex-1 space-y-4">
+                    {rest.map((field) => (
+                      <PreviewCell
+                        key={field.id}
+                        field={field}
+                        locale={locale}
+                        requiredLabel={requiredLabel}
+                        optionalLabel={optionalLabel}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="grid gap-4"
+                  style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+                >
+                  {rest.map((field) => (
+                    <PreviewCell
+                      key={field.id}
+                      field={field}
+                      locale={locale}
+                      requiredLabel={requiredLabel}
+                      optionalLabel={optionalLabel}
+                      className="min-w-0"
+                      style={{ gridColumn: `span ${clampFieldSpan(field.span, cols)}` }}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-          ) : (
-            <div
-              className="grid gap-4"
-              style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-            >
-              {rest.map((field) => (
-                <PreviewCell
-                  key={field.id}
-                  field={field}
-                  locale={locale}
-                  requiredLabel={requiredLabel}
-                  optionalLabel={optionalLabel}
-                  className="min-w-0"
-                  style={{ gridColumn: `span ${clampFieldSpan(field.span, cols)}` }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+          </div>
+        </OpsDialogBody>
+      </OpsDialog>
+    </>
   );
 }
 

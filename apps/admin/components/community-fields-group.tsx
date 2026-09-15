@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
-import { OpsAlertDialog, OpsBadge, OpsMoveButtons } from '@community/ui-admin';
+import { OpsAccordion, OpsAlertDialog, OpsBadge, OpsMoveButtons } from '@community/ui-admin';
 import { pickLocalizedText } from '@community/identity';
 import { CommunityFieldsCreateField } from './community-fields-create-field';
 import { CommunityFieldsField } from './community-fields-field';
@@ -31,6 +31,7 @@ export function CommunityFieldsGroup({
   const title = pickLocalizedText(group.label, locale) || group.slug;
   const [renaming, setRenaming] = useState(false);
   const [pendingDelete, setPendingDelete] = useState(false);
+  const [open, setOpen] = useState(false);
   const [labelPt, setLabelPt] = useState(pickLocalizedText(group.label, 'pt-BR') || group.slug);
   const [labelEn, setLabelEn] = useState(pickLocalizedText(group.label, 'en') || '');
 
@@ -126,17 +127,44 @@ export function CommunityFieldsGroup({
   const columnsId = `ops-group-columns-${group.id}`;
 
   return (
-    <article className="min-w-0 rounded-lg border border-border p-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h3 className="text-base font-semibold wrap-break-word">{title}</h3>
-            {group.locked ? <OpsBadge>{copy.locked}</OpsBadge> : null}
-            {group.enabled ? null : <OpsBadge>{copy.inactive}</OpsBadge>}
-          </div>
-        </div>
-        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
-          <Button type="button" size="sm" variant="outline" onClick={() => setRenaming((value) => !value)}>
+    <>
+    <OpsAccordion
+      value={group.id}
+      title={title}
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next) {
+          setRenaming(false);
+        }
+      }}
+      badges={
+        <>
+          {group.locked ? <OpsBadge>{copy.locked}</OpsBadge> : null}
+          {group.enabled ? null : <OpsBadge>{copy.inactive}</OpsBadge>}
+        </>
+      }
+      actions={
+        <>
+          <CommunityFieldsLayoutPreview
+            slug={group.slug}
+            columns={group.columns}
+            fields={group.fields}
+            locale={locale}
+            label={copy.layoutPreview}
+            help={copy.layoutPreviewHelp}
+            requiredLabel={copy.required}
+            optionalLabel={copy.optional}
+          />
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setOpen(true);
+              setRenaming((value) => !value);
+            }}
+          >
             {copy.rename}
           </Button>
           <OpsMoveButtons
@@ -159,10 +187,11 @@ export function CommunityFieldsGroup({
               {copy.delete}
             </Button>
           )}
-        </div>
-      </div>
+        </>
+      }
+    >
       {renaming ? (
-        <div className="mt-3 grid max-w-md gap-3">
+        <div className="mb-4 grid max-w-md gap-3">
           <div className="space-y-2">
             <Label htmlFor={`ops-group-pt-${group.id}`}>{copy.groupLabel}</Label>
             <Input
@@ -212,17 +241,6 @@ export function CommunityFieldsGroup({
         </Select>
         <p className="text-xs text-muted-foreground">{copy.columnsHelp}</p>
       </div>
-      <div className="mt-4">
-        <CommunityFieldsLayoutPreview
-          slug={group.slug}
-          columns={group.columns}
-          fields={group.fields}
-          locale={locale}
-          label={copy.layoutPreview}
-          requiredLabel={copy.required}
-          optionalLabel={copy.optional}
-        />
-      </div>
       <ol className="mt-4 space-y-2">
         {group.fields.length === 0 ? (
           <li className="text-sm text-muted-foreground">{copy.empty}</li>
@@ -254,7 +272,8 @@ export function CommunityFieldsGroup({
           onCreated={onChanged}
         />
       </div>
-      <OpsAlertDialog
+    </OpsAccordion>
+    <OpsAlertDialog
         isOpen={pendingDelete}
         onClose={() => setPendingDelete(false)}
         title={copy.groupDeleteTitle}
@@ -267,6 +286,6 @@ export function CommunityFieldsGroup({
           void removeGroup();
         }}
       />
-    </article>
+    </>
   );
 }

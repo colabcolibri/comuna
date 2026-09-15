@@ -54,6 +54,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   span: 'community.fields_span',
   spanHelp: 'community.fields_span_help',
   layoutPreview: 'community.fields_layout_preview',
+  layoutPreviewHelp: 'community.fields_layout_preview_help',
   requirement: 'community.fields_requirement',
   required: 'community.fields_required',
   optional: 'community.fields_optional',
@@ -104,7 +105,7 @@ export function CommunityFields({ communityId }: { communityId: string }) {
       {groups.length === 0 ? (
         <p className="text-sm text-muted-foreground">{copy.pageEmpty}</p>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-2">
           {groups.map((group, index) => (
             <CommunityFieldsGroup
               key={group.id}
