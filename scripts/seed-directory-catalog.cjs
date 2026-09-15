@@ -44,15 +44,15 @@ async function seedDirectoryCatalog(client, communityId) {
     {
       slug: 'person',
       label: loc('Pessoa', 'Person'),
-      description: loc('Demografia e links.', 'Demographics and links.'),
-      sort: 20,
-      columns: 3,
+      description: loc('Demografia.', 'Demographics.'),
+      sort: 30,
+      columns: 2,
       fields: [
         {
           name: 'gender',
           type: 'select',
           label: loc('Gênero', 'Gender'),
-          span: 3,
+          span: 2,
           storage: 'person',
           column_key: 'gender',
           sort: 10,
@@ -85,17 +85,26 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'languages',
           type: 'checkbox',
           label: loc('Idiomas que fala', 'Languages spoken'),
-          span: 3,
+          span: 2,
           storage: 'person',
           column_key: 'languages',
           sort: 40,
           options: [
-            opt('pt', 'pt', 'pt'),
-            opt('en', 'en', 'en'),
-            opt('es', 'es', 'es'),
-            opt('fr', 'fr', 'fr'),
+            opt('pt', 'Português', 'Portuguese'),
+            opt('en', 'English', 'English'),
+            opt('es', 'Espanhol', 'Spanish'),
+            opt('fr', 'Francês', 'French'),
           ],
         },
+      ],
+    },
+    {
+      slug: 'links',
+      label: loc('Links', 'Links'),
+      description: loc('Onde te encontrar.', 'Where to find you.'),
+      sort: 35,
+      columns: 1,
+      fields: [
         {
           name: 'linkedin',
           type: 'url',
@@ -103,7 +112,7 @@ async function seedDirectoryCatalog(client, communityId) {
           span: 1,
           storage: 'person',
           column_key: 'contacts.linkedin',
-          sort: 50,
+          sort: 10,
         },
         {
           name: 'github',
@@ -112,7 +121,7 @@ async function seedDirectoryCatalog(client, communityId) {
           span: 1,
           storage: 'person',
           column_key: 'contacts.github',
-          sort: 60,
+          sort: 20,
         },
         {
           name: 'portfolio',
@@ -121,7 +130,7 @@ async function seedDirectoryCatalog(client, communityId) {
           span: 1,
           storage: 'person',
           column_key: 'contacts.portfolio',
-          sort: 70,
+          sort: 30,
         },
       ],
     },
@@ -129,7 +138,7 @@ async function seedDirectoryCatalog(client, communityId) {
       slug: 'community_copy',
       label: loc('Nesta comunidade', 'This community'),
       description: loc('Headline e bio desta rede.', 'Headline and bio for this network.'),
-      sort: 30,
+      sort: 20,
       columns: 1,
       fields: [
         {
@@ -264,6 +273,21 @@ async function seedDirectoryCatalog(client, communityId) {
       );
     }
   }
+
+  await client.query(
+    `UPDATE plugin_directory.fields f
+     SET group_id = links.id,
+         sort_order = CASE f.name WHEN 'linkedin' THEN 10 WHEN 'github' THEN 20 WHEN 'portfolio' THEN 30 ELSE f.sort_order END,
+         span = 1
+     FROM plugin_directory.field_groups person
+     JOIN plugin_directory.field_groups links
+       ON links.community_id = person.community_id AND links.slug = 'links'
+     WHERE person.community_id = $1
+       AND person.slug = 'person'
+       AND f.group_id = person.id
+       AND f.name IN ('linkedin', 'github', 'portfolio')`,
+    [communityId]
+  );
 }
 
 module.exports = { seedDirectoryCatalog };

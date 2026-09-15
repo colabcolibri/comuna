@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Checkbox, Input, Label, Select, Textarea, toast } from '@community/ui';
+import { Checkbox, Input, Label, Select, Textarea, toast, cn } from '@community/ui';
 import { contentFromCatalog, interpolate, pickContent, pickLocalizedText, type LocalizedText } from '@community/identity';
 import type { CatalogField } from '@community/directory';
 import type { GeoPlace } from '@community/places';
@@ -11,8 +11,10 @@ import { uiCatalog } from '@/lang/catalog';
 
 const CONTENT = contentFromCatalog(uiCatalog, 'core_identity', {
   pick: 'profile.avatar_pick',
+  change: 'profile.avatar_change',
   uploading: 'profile.avatar_uploading',
   invalid: 'profile.avatar_invalid',
+  empty: 'profile.select_empty',
 });
 
 export function FieldControl({
@@ -22,6 +24,7 @@ export function FieldControl({
   onChange,
   pairPt,
   pairEn,
+  initials,
 }: {
   field: CatalogField;
   locale: string;
@@ -29,6 +32,7 @@ export function FieldControl({
   onChange: (value: unknown) => void;
   pairPt: string;
   pairEn: string;
+  initials?: string;
 }) {
   const label = pickLocalizedText(field.label, locale) || field.name;
   const description = pickLocalizedText(field.description, locale);
@@ -36,7 +40,13 @@ export function FieldControl({
 
   if (field.type === 'image') {
     return (
-      <ImageControl id={id} label={label} description={description} value={value} onChange={onChange} />
+      <ImageControl
+        id={id}
+        label={label}
+        value={value}
+        onChange={onChange}
+        initials={initials}
+      />
     );
   }
 
@@ -64,6 +74,7 @@ export function FieldControl({
             <Label htmlFor={`${id}-pt`}>{interpolate(pairPt, { label })}</Label>
             <Field
               id={`${id}-pt`}
+              className={field.name === 'bio' ? 'min-h-32 w-full' : 'min-h-11 w-full'}
               value={pt}
               onChange={(e) => onChange(pairFrom(pt, en, 'pt-BR', e.target.value))}
               {...extra}
@@ -73,6 +84,7 @@ export function FieldControl({
             <Label htmlFor={`${id}-en`}>{interpolate(pairEn, { label })}</Label>
             <Field
               id={`${id}-en`}
+              className={field.name === 'bio' ? 'min-h-32 w-full' : 'min-h-11 w-full'}
               value={en}
               onChange={(e) => onChange(pairFrom(pt, en, 'en', e.target.value))}
               {...extra}
@@ -101,34 +113,40 @@ export function FieldControl({
       <fieldset className="space-y-2 min-w-0">
         <legend className="text-sm font-medium">{label}</legend>
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
-        <div className="flex flex-wrap gap-4">
-          {field.options.map((option) => (
-            <label key={option.value} className="flex items-center gap-2 min-h-11 text-sm">
-              <Checkbox
-                checked={selected.includes(option.value)}
-                onChange={(e) => {
-                  onChange(
-                    e.target.checked
-                      ? [...selected, option.value]
-                      : selected.filter((item) => item !== option.value)
-                  );
+        <div className="flex flex-wrap gap-2">
+          {field.options.map((option) => {
+            const on = selected.includes(option.value);
+            const name = pickLocalizedText(option.label, locale) || option.value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                aria-pressed={on}
+                className={cn(
+                  'inline-flex min-h-11 items-center rounded-lg border px-3 text-sm',
+                  on ? 'border-foreground bg-secondary text-foreground' : 'border-border text-muted-foreground'
+                )}
+                onClick={() => {
+                  onChange(on ? selected.filter((item) => item !== option.value) : [...selected, option.value]);
                 }}
-              />
-              {pickLocalizedText(option.label, locale) || option.value}
-            </label>
-          ))}
+              >
+                {name}
+              </button>
+            );
+          })}
         </div>
       </fieldset>
     );
   }
 
   if (field.type === 'select' || field.type === 'radio') {
+    const empty = pickContent(CONTENT, locale).empty;
     return (
       <div className="space-y-2 min-w-0">
         <Label htmlFor={id}>{label}</Label>
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
         <Select id={id} className="w-full min-h-11" value={String(value || '')} onChange={(e) => onChange(e.target.value)}>
-          <option value="" />
+          <option value="">{empty}</option>
           {field.options.map((option) => (
             <option key={option.value} value={option.value}>
               {pickLocalizedText(option.label, locale) || option.value}
@@ -146,6 +164,8 @@ export function FieldControl({
       {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
       <Field
         id={id}
+        type={field.type === 'url' ? 'url' : undefined}
+        className={field.type === 'textarea' ? 'min-h-32 w-full' : 'min-h-11 w-full'}
         value={String(value || '')}
         onChange={(e) => onChange(e.target.value)}
         {...(field.type === 'textarea' ? { rows: 4 } : {})}
@@ -157,19 +177,20 @@ export function FieldControl({
 function ImageControl({
   id,
   label,
-  description,
   value,
   onChange,
+  initials,
 }: {
   id: string;
   label: string;
-  description: string;
   value: unknown;
   onChange: (value: unknown) => void;
+  initials?: string;
 }) {
   const copy = pickContent(CONTENT, useLocale());
   const [busy, setBusy] = useState(false);
   const src = typeof value === 'string' ? value : '';
+  const mark = (initials || '?').slice(0, 2);
 
   async function onFile(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -191,21 +212,28 @@ function ImageControl({
   }
 
   return (
-    <div className="space-y-2 min-w-0">
-      <Label htmlFor={id}>{label}</Label>
-      {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
-      {src ? (
-        <img src={src} alt="" className="size-24 rounded-lg object-cover border border-border" />
-      ) : null}
-      <Input
-        id={id}
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        className="min-h-11"
-        disabled={busy}
-        onChange={(event) => void onFile(event)}
-      />
-      <p className="text-sm text-muted-foreground">{busy ? copy.uploading : copy.pick}</p>
+    <div className="flex w-28 shrink-0 flex-col items-center gap-2 sm:w-32">
+      <span className="relative block size-28 overflow-hidden rounded-full border border-border bg-primary text-primary-foreground focus-within:ring-[3px] focus-within:ring-ring/50 sm:size-32">
+        {src ? (
+          <img src={src} alt="" className="size-full object-cover" />
+        ) : (
+          <span className="flex size-full items-center justify-center text-2xl font-medium" aria-hidden>
+            {mark}
+          </span>
+        )}
+        <input
+          id={id}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          aria-label={label}
+          className="absolute inset-0 cursor-pointer opacity-0"
+          disabled={busy}
+          onChange={(event) => void onFile(event)}
+        />
+      </span>
+      <span className="text-center text-sm text-muted-foreground">
+        {busy ? copy.uploading : src ? copy.change : copy.pick}
+      </span>
     </div>
   );
 }

@@ -38,9 +38,10 @@ Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejei
 
 | slug | Origem | Campos | Storage |
 | --- | --- | --- | --- |
-| `identity` | core (não some) | nome, avatar (`image`, não URL crua) | `person` |
-| `person` | core | gênero, cidades, idiomas, links | `person` |
+| `identity` | core (não some) | nome, avatar (`image`) | `person` |
 | `community_copy` | directory | headline, bio | `card_column` |
+| `person` | core | gênero, cidades, idiomas | `person` |
+| `links` | core | linkedin, github, portfólio | `person` |
 | `availability` | directory + showcase | availability (`directory`); `public_showcase` (`showcase`) | `card_column` |
 | (custom) | directory | o que a comunidade pedir | `attributes` |
 

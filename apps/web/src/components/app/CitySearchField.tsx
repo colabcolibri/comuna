@@ -51,9 +51,9 @@ export function CitySearchField({
     <div className="space-y-2 min-w-0">
       <Label htmlFor={id}>{label}</Label>
       {value ? (
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm min-w-0 break-words">{selected}</p>
-          <button type="button" className="text-sm underline" onClick={() => onChange(null)}>
+        <div className="flex min-h-11 min-w-0 items-center gap-2 rounded-md border border-input bg-transparent px-3">
+          <p className="min-w-0 flex-1 truncate text-sm">{selected}</p>
+          <button type="button" className="shrink-0 text-sm text-muted-foreground hover:text-foreground" onClick={() => onChange(null)}>
             {copy.clear}
           </button>
         </div>
@@ -64,6 +64,7 @@ export function CitySearchField({
             value={query}
             autoComplete="off"
             placeholder={copy.search}
+            className="min-h-11 w-full"
             onChange={(e) => {
               setQuery(e.target.value);
               setOpen(true);

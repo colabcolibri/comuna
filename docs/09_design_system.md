@@ -1,7 +1,7 @@
 ---
 title: Design System
 status: review
-version: 1.6
+version: 1.8
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
@@ -67,7 +67,9 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `AppAlertTemplate` | Alerta **inline** (erro de campo, estado na tela) | `templates/AppAlertTemplate.tsx` |
 | `MemberShell` | Sidebar + inset + header; páginas rolam com `ScrollArea`; rodapé no chrome (fora do scroll) | `apps/web/.../MemberShell.tsx` |
 | `AppSidebar` | Destinos; rodapé = perfil + Sair | `apps/web/.../AppSidebar.tsx` |
-| `AppCardTemplate` | Card genérico (legado; não usar em listas) | `templates/AppCardTemplate.tsx` |
+| `AppCardTemplate` | Card genérico (legado; não usar em listas **nem** no formulário de perfil) | `templates/AppCardTemplate.tsx` |
+| `AppProfileSection` / `AppProfileStack` | Seções do formulário de perfil (h2 + lede + campos; sem Card) | `packages/ui/member/src/app-profile-section.tsx` |
+| `AppFormDock` | CTA Salvar grudado no fundo **só abaixo de sm** | mesmo ficheiro |
 | `OtpCard` | OTP | `OtpCard.tsx` |
 
 `AppNavbar.tsx` (barra ciano “Community”) é chrome morto / concorrente. Fora do contrato. Não redesenhar: remover na US de shell.
@@ -85,11 +87,11 @@ Jobs: ver vitrine, pedir contato, entrar com código, buscar pessoas, editar o p
 | `/showcase` | Ver pessoas públicas | Visitante / membro | Header slim; sheet com Entrar ou perfil | Cards crus, dialog genérico, header com “voltar” + e-mail | Vitrine com cards (foto, headline, chips, Ver perfil) |
 | `/` | Entrar com OTP | Visitante | Mesmo header; sheet = Entrar destacado | Header especial com “voltar”; parece outra marca | OTP centrado, um CTA |
 | `/directory` | Buscar membros | Membro | Sheet: Diretório ativo | Busca sem hierarquia; aside de privacidade sem filtro real; sem “Ver perfil” | Grid + rail de filtro; empty state |
-| `/profile/edit` | Editar perfil-base | Membro | Sheet: dock de perfil + Meu perfil | Form único sem seções; URL de avatar crua | Identidade / diretório / locale em blocos |
+| `/profile/edit` | Editar perfil-base | Membro | Sidebar: Meu perfil | Título/salvar somem no scroll; nome estreito; foto com texto em cima; cidade fora do campo; demografia misturada com links | Header sticky com Salvar; identidade em superfície (disco + nome full-width); grupos `person` / `links`; cidade no mesmo chrome do input |
 | Perfil público (rota ausente) | Ler perfil sanitizado | Visitante | Sheet visitante | **Não existe** — contato dispara da lista | Página de detalhe + CTA Solicitar contato |
 | Contato (dialog/sheet) | Pedir contato mediado | Visitante | Overlay; não empilhar sheet de nav | Inputs nativos, hex no erro | Sheet direita ou dialog; copy de mediação |
 | `/coord/approvals` | Aprovar entrada | Coordenador | Sheet: + Pedidos | Tabela mínima; header “Coordenação” paralelo | Tabela com Aprovar/Recusar rotulados |
-| `/ops`, admin | Operar tenants | Super-admin | **Não** usa Stitch | Fora desta pass | App admin |
+| `/ops`, admin | Operar tenants | Super-admin | Rail `--primary` (split WP); header `h-14`; PT/EN, tema e Sair `h-9` | Rail cream; controles 44px | App admin |
 
 Estados obrigatórios por tela: loading (skeleton no grid/tabela), vazio (copy + ação), erro recuperável, blocked (403 coord / módulo desligado).
 

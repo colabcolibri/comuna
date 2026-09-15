@@ -139,6 +139,8 @@ describe('profile edit fields', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('Nome completo')).toBeTruthy();
     });
+    expect(screen.getByRole('heading', { name: 'Identidade' })).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: 'Salvar' }).length).toBeGreaterThan(0);
     expect(screen.getByLabelText('Foto')).toBeTruthy();
     expect(screen.getByLabelText('Gênero')).toBeTruthy();
     expect(screen.getByLabelText('Cidade de nascimento')).toBeTruthy();

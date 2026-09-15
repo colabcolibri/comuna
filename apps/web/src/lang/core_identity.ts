@@ -2,9 +2,9 @@ import { definePack } from '@community/identity';
 
 export const coreIdentityPack = definePack({
   'pt-BR': {
-    'profile.kicker': 'Perfil',
+    'profile.kicker': 'Conta',
     'profile.title': 'Seu perfil',
-    'profile.subtitle': 'Identidade na pessoa. Headline e bio desta comunidade em pt-BR e en. Cidade vem da busca geográfica.',
+    'profile.subtitle': 'Nome e foto na pessoa. Headline e bio desta comunidade em pt-BR e en.',
     'profile.save': 'Salvar',
     'profile.saved': 'Perfil atualizado',
     'profile.error': 'Não foi possível salvar',
@@ -12,6 +12,8 @@ export const coreIdentityPack = definePack({
     'profile.name': 'Nome completo',
     'profile.avatar': 'URL do avatar',
     'profile.avatar_pick': 'Escolher foto',
+    'profile.avatar_change': 'Trocar foto',
+    'profile.select_empty': 'Não informado',
     'profile.avatar_uploading': 'A enviar…',
     'profile.avatar_invalid': 'Imagem inválida',
     'profile.person': 'Pessoa',
@@ -32,9 +34,9 @@ export const coreIdentityPack = definePack({
     'profile.pair_en': '{label} (en)',
   },
   en: {
-    'profile.kicker': 'Profile',
+    'profile.kicker': 'Account',
     'profile.title': 'Your profile',
-    'profile.subtitle': 'Identity on the person. Headline and bio for this community in pt-BR and en. City comes from geo search.',
+    'profile.subtitle': 'Name and photo on the person. Headline and bio for this community in pt-BR and en.',
     'profile.save': 'Save',
     'profile.saved': 'Profile updated',
     'profile.error': 'Could not save',
@@ -42,6 +44,8 @@ export const coreIdentityPack = definePack({
     'profile.name': 'Full name',
     'profile.avatar': 'Avatar URL',
     'profile.avatar_pick': 'Choose photo',
+    'profile.avatar_change': 'Change photo',
+    'profile.select_empty': 'Not set',
     'profile.avatar_uploading': 'Uploading…',
     'profile.avatar_invalid': 'Invalid image',
     'profile.person': 'Person',

@@ -7,6 +7,7 @@ export function AppPageTemplate({
   title,
   subtitle,
   actions,
+  stickyHeader,
   children,
   className,
 }: {
@@ -14,12 +15,19 @@ export function AppPageTemplate({
   title: string;
   subtitle?: string;
   actions?: ReactNode;
+  stickyHeader?: boolean;
   children?: ReactNode;
   className?: string;
 }) {
   return (
-    <main className={cn('flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 overflow-x-hidden', className)}>
-      <AppPageHeader kicker={kicker} title={title} lede={subtitle} actions={actions} />
+    <main
+      className={cn(
+        'flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 overflow-x-hidden',
+        stickyHeader ? 'pb-8 sm:pb-10' : 'py-8 sm:py-10',
+        className
+      )}
+    >
+      <AppPageHeader kicker={kicker} title={title} lede={subtitle} actions={actions} sticky={stickyHeader} />
       {children}
     </main>
   );

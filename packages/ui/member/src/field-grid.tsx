@@ -17,9 +17,11 @@ export function fieldGridClass(columns: 1 | 2 | 3) {
 export function FieldGrid({
   columns,
   children,
+  className,
 }: {
   columns: 1 | 2 | 3;
   children: ReactNode;
+  className?: string;
 }) {
-  return <div className={cn(fieldGridClass(columns), 'min-w-0')}>{children}</div>;
+  return <div className={cn(fieldGridClass(columns), 'min-w-0', className)}>{children}</div>;
 }
