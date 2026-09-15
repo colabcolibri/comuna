@@ -81,6 +81,7 @@ flowchart TD
 | `docs/architecture/plugin-surfaces.md` | Contribuições (registry + `module_id`); off = filtro genérico |
 | `docs/architecture/media.md` | Avatar: store + chave; Postgres só URL |
 | `docs/architecture/showcase-public.md` | O que a vitrine pode mostrar |
+| `docs/architecture/data-access.md` | SQL → domínio → HTTP → UI; sem ORM; Query só no último hop |
 
 ## System modules (core)
 
@@ -123,6 +124,7 @@ Detalhe: `docs/architecture/profile-fields.md`. Resumo: definições em tabela (
 1. App web registra contribuições e pergunta `listEnabled`; monta só o filtro.
 2. Autorização no core; módulo não grava se `enabled = false`.
 3. Isolamento `community_id` em toda query de rede.
+4. Acesso a dados: `docs/architecture/data-access.md` — SQL na função de domínio, não no `useEffect`.
 
 ## Gate
 

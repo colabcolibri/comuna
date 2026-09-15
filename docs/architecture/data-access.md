@@ -1,0 +1,70 @@
+---
+title: Data access pattern
+updated: 2026-09-15
+source: docs/05_architecture.md
+---
+
+# Acesso a dados
+
+Volta: `docs/05_architecture.md`. Postgres via `pg` (`packages/core/db`). **Sem ORM nesta release** (`01_tech_stack`: Prisma recusado). TanStack Query **não** é o acesso a dados.
+
+Três problemas diferentes. Misturá-los gera `useEffect` no sítio errado e `pg` no browser.
+
+## Camadas (SRP)
+
+| Camada | O que vive aqui | O que não vive |
+| --- | --- | --- |
+| SQL | `db/migrations/`, `query` / `queryAsMember` | React, cache de UI |
+| Função de domínio | `listDirectoryMembers`, `toPersonCard`, `parseAttrFilters` | `useEffect`, `fetch` |
+| HTTP | Route Handler em `app/api` — envelope `07_api_contracts.md` | JSX |
+| UI | Server Component lê searchParams **ou** cliente chama `/api` | SQL, `pg` |
+
+Barrel de plugin no Client Component **não** reexporta `@community/db` (`plugin-surfaces.md`).
+
+```txt
+Postgres
+  → função de domínio (Node)
+  → Route Handler (contrato)
+  → página
+```
+
+A vitrine e o diretório **projetam a mesma** `PersonCard`. A diferença é o predicado (opt-in público vs membership + card), não um segundo DTO.
+
+## O que cada ferramenta é
+
+| Ferramenta | Camada | Quando |
+| --- | --- | --- |
+| SQL + `pg` | persistência | Agora. Queries explícitas, RLS, tenant. |
+| ORM (Prisma/Drizzle) | ainda persistência | Só se o SQL virar um fardo. Não substitui o contrato HTTP nem o cache de UI. |
+| Server Component + `searchParams` | UI de lista/filtro | Lista, busca, facets. Estado na URL. Sem `useEffect` para o GET inicial. |
+| `fetch` no cliente | gesto | Formulário, OTP, upload, debounce de cidade. Uma função por endpoint (`lib/…`), não fetch solto na página. |
+| TanStack Query | cache do **último** hop | Quando o mesmo `GET /api/…` é lido em vários ecrãs ou o voltar-atrás fica caro. Não fala com Postgres. |
+
+TanStack em cima de SQL é o anti-padrão. ORM + `useEffect` sem Route Handler também.
+
+## Padrão de trabalho (listas)
+
+1. Escrever a query e a projeção numa função Node.
+2. O Route Handler só autentica e devolve JSON.
+3. Filtro/busca: **URL** (`?search=`, `attr.*`). A página pode ser Server Component que chama a função de domínio **ou** um cliente que faz `fetch` da mesma query string. Um sítio de verdade (a função), dois adaptadores no máximo.
+4. Cliente só para o que o servidor não faz: teclado, upload, diálogo, sheet.
+
+O diretório e a vitrine **não** carregam a lista num `useEffect`. A página (Server Component) chama a função de domínio; o painel cliente só muda a URL e abre o diálogo.
+
+## Pastas (`apps/web`)
+
+```txt
+lib/server/     query + RLS + projeção (Node)
+lib/people/     PersonCard, query string, chips (puro)
+lib/api/        fetch de gesto (contato, OTP, upload)
+app/api/**      Route Handler fino
+app/<rota>/     Server Component: auth + searchParams + domínio
+components/app  DirectoryPanel, ShowcasePanel, PersonInspect
+```
+
+## O que não fazer
+
+- `useEffect` + `fetch` em cada página como “arquitetura”.
+- Importar `pg` / seed / ops no barrel que o `MemberShell` usa.
+- Um mapper por ecrã (`toDirectoryMember` vs `toPublicShowcaseProfile`) para o mesmo cartão.
+- Meter Query para “organizar” SQL.

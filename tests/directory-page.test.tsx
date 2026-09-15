@@ -1,53 +1,69 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import DirectoryPage from '../apps/web/src/app/directory/page';
+import { DirectoryPanel } from '../apps/web/src/components/app/DirectoryPanel';
 import { LocaleProvider } from '@/components/app/LocaleProvider';
+import { EnabledModulesProvider } from '@/components/app/EnabledModulesProvider';
 
-describe('directory page', () => {
+const marina = {
+  id: 'm1',
+  full_name: 'Marina Silva',
+  avatar_url: null,
+  current_city: { label: { 'pt-BR': 'São Paulo', en: 'Sao Paulo' } },
+  headline: [{ locale: 'pt-BR', value: 'Produto e comunidades' }],
+  bio: [{ locale: 'pt-BR', value: 'Mentora.' }],
+  availability_status: 'mentor',
+  languages: [{ code: 'pt' }],
+  contacts: { linkedin: 'https://linkedin.com/in/demo-marina' },
+  custom_attributes: {},
+};
+
+vi.mock('next/navigation', () => ({
+  usePathname: () => '/directory',
+  useRouter: () => ({ replace: vi.fn() }),
+}));
+
+describe('directory panel', () => {
   beforeEach(() => {
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async (input: RequestInfo) => {
-        const url = String(input);
-        if (url.includes('/api/directory/catalog')) {
-          return { ok: true, status: 200, json: async () => ({ groups: [] }) };
-        }
-        if (url.includes('/api/directory/members')) {
-          return {
-            ok: true,
-            status: 200,
-            json: async () => ({
-              data: [
-                {
-                  id: 'm1',
-                  full_name: 'Marina Silva',
-                  avatar_url: null,
-                  current_city: { label: { 'pt-BR': 'São Paulo', en: 'Sao Paulo' } },
-                  headline: null,
-                  availability_status: 'mentor',
-                },
-              ],
-            }),
-          };
-        }
-        return { ok: true, status: 200, json: async () => ({}) };
-      })
-    );
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: (query: string) => ({
+        matches: query.includes('min-width: 640px'),
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }),
+    });
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it('lists active members from the directory API', async () => {
+  it('lists members passed in by the server', () => {
     render(
       <LocaleProvider initialLocale="pt-BR">
-        <DirectoryPage />
+        <EnabledModulesProvider enabled={['directory', 'contact-mediated']}>
+          <DirectoryPanel rows={[marina]} facets={[]} search="" facetValues={{}} />
+        </EnabledModulesProvider>
       </LocaleProvider>
     );
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Marina Silva' })).toBeTruthy();
-    });
+    expect(screen.getByRole('heading', { name: 'Marina Silva' })).toBeTruthy();
     expect(screen.queryByText('Nenhum membro ativo nesta comunidade.')).toBeNull();
+  });
+
+  it('opens the shared profile dialog from a directory row', async () => {
+    render(
+      <LocaleProvider initialLocale="pt-BR">
+        <EnabledModulesProvider enabled={['directory', 'contact-mediated']}>
+          <DirectoryPanel rows={[marina]} facets={[]} search="" facetValues={{}} />
+        </EnabledModulesProvider>
+      </LocaleProvider>
+    );
+    screen.getByRole('button', { name: 'Ver perfil' }).click();
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeTruthy();
+    });
+    expect(screen.getByText('Mentora.')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Enviar mensagem' })).toBeTruthy();
   });
 });

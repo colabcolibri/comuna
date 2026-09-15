@@ -1,13 +1,10 @@
 import { queryAsMember } from '@community/db';
 import { directoryContribution, parseAttrFilters, parseField } from '@community/directory';
+import type { AppQueryCtx } from '@/lib/server/app-ctx';
+import { toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
 
-type MemberCtx = { userId: string; communityId: string };
-
-export async function listDirectoryMembers(
-  ctx: MemberCtx,
-  searchParams: URLSearchParams
-) {
+export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSearchParams) {
   const on = await moduleRuntime.isEnabled(ctx.communityId, directoryContribution.slug);
   if (!on) {
     return { status: 404 as const, body: { error: { code: 'NOT_FOUND', message: 'Módulo desligado' } } };
@@ -36,10 +33,10 @@ export async function listDirectoryMembers(
     clauses.push(`(p.full_name ILIKE $${params.length} OR c.headline::text ILIKE $${params.length})`);
   }
   const sql =
-    'SELECT m.id, p.full_name, p.avatar_url, p.current_city, p.languages, c.headline, c.bio, c.availability_status, c.custom_attributes ' +
+    'SELECT m.id, p.full_name, p.avatar_url, p.current_city, p.languages, p.contacts, c.headline, c.bio, c.availability_status, c.custom_attributes ' +
     'FROM network_core.memberships m ' +
     'JOIN person_core.profiles p ON p.user_id = m.user_id ' +
-    'LEFT JOIN plugin_directory.cards c ON c.membership_id = m.id ' +
+    'JOIN plugin_directory.cards c ON c.membership_id = m.id ' +
     'WHERE ' +
     clauses.join(' AND ') +
     ' ORDER BY p.full_name';
@@ -47,21 +44,8 @@ export async function listDirectoryMembers(
   return {
     status: 200 as const,
     body: {
-      data: result.rows.map((row) => toDirectoryMember(row as Record<string, unknown>)),
+      data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>)),
       meta: { page: 1 },
     },
-  };
-}
-
-function toDirectoryMember(row: Record<string, unknown>) {
-  return {
-    id: String(row.id),
-    full_name: String(row.full_name || ''),
-    avatar_url: typeof row.avatar_url === 'string' && row.avatar_url ? row.avatar_url : null,
-    current_city: row.current_city ?? null,
-    languages: row.languages ?? [],
-    headline: row.headline ?? [],
-    bio: row.bio ?? [],
-    availability_status: typeof row.availability_status === 'string' ? row.availability_status : null,
   };
 }

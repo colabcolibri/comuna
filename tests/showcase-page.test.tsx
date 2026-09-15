@@ -1,10 +1,23 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import ShowcasePage from '../apps/web/src/app/showcase/page';
+import { ShowcasePanel } from '../apps/web/src/components/app/ShowcasePanel';
 import { LocaleProvider } from '@/components/app/LocaleProvider';
 import { EnabledModulesProvider } from '@/components/app/EnabledModulesProvider';
 
-describe('showcase page', () => {
+const marina = {
+  id: 'm1',
+  full_name: 'Marina Silva',
+  avatar_url: null,
+  headline: [{ locale: 'pt-BR', value: 'Produto e comunidades' }],
+  bio: [{ locale: 'pt-BR', value: 'Mentora.' }],
+  current_city: { label: { 'pt-BR': 'São Paulo', en: 'Sao Paulo' } },
+  languages: [{ code: 'pt' }, { code: 'en' }],
+  contacts: { linkedin: 'https://linkedin.com/in/demo-marina' },
+  availability_status: 'mentor',
+  custom_attributes: { host_at_home: true },
+};
+
+describe('showcase panel', () => {
   beforeEach(() => {
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
@@ -17,32 +30,11 @@ describe('showcase page', () => {
     });
     vi.stubGlobal(
       'fetch',
-      vi.fn(async (input: RequestInfo) => {
-        const url = String(input);
-        if (url.includes('/api/profiles/public')) {
-          return {
-            ok: true,
-            status: 200,
-            json: async () => ({
-              data: [
-                {
-                  id: 'm1',
-                  full_name: 'Marina Silva',
-                  avatar_url: null,
-                  headline: [{ locale: 'pt-BR', value: 'Produto e comunidades' }],
-                  bio: [{ locale: 'pt-BR', value: 'Mentora.' }],
-                  current_city: { label: { 'pt-BR': 'São Paulo', en: 'Sao Paulo' } },
-                  languages: [{ code: 'pt' }, { code: 'en' }],
-                  contacts: { linkedin: 'https://linkedin.com/in/demo-marina' },
-                  availability_status: 'mentor',
-                  custom_attributes: { host_at_home: true },
-                },
-              ],
-            }),
-          };
-        }
-        return { ok: true, status: 200, json: async () => ({}) };
-      })
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({}),
+      }))
     );
   });
 
@@ -54,13 +46,11 @@ describe('showcase page', () => {
     render(
       <LocaleProvider initialLocale="pt-BR">
         <EnabledModulesProvider enabled={['showcase', 'contact-mediated']}>
-          <ShowcasePage />
+          <ShowcasePanel rows={[marina]} />
         </EnabledModulesProvider>
       </LocaleProvider>
     );
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Marina Silva' })).toBeTruthy();
-    });
+    expect(screen.getByRole('heading', { name: 'Marina Silva' })).toBeTruthy();
     expect(screen.getByText('Mentora.')).toBeTruthy();
     screen.getByRole('button', { name: 'Ver perfil' }).click();
     await waitFor(() => {

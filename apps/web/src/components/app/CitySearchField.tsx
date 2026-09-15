@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Input, Label } from '@community/ui';
-import { contentFromCatalog, pickContent } from '@community/identity';
-import { MIN_CITY_QUERY, placeKey, placeLabel, toStoredPlace, type CitySearchHit, type GeoPlace } from '@community/places';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { uiCatalog } from '@/lang/catalog';
+import { contentFromCatalog, pickContent } from '@community/identity';
+import { MIN_CITY_QUERY, placeKey, placeLabel, toStoredPlace, type CitySearchHit, type GeoPlace } from '@community/places';
+import { Input, Label } from '@community/ui';
+import { useEffect, useState } from 'react';
 
 const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   search: 'city.search',
@@ -86,7 +86,7 @@ export function CitySearchField({
                     }}
                   >
                     <span className="block font-medium">{placeLabel(hit, locale)}</span>
-                    {hit.hint ? <span className="block text-muted-foreground break-words">{hit.hint}</span> : null}
+                    {hit.hint ? <span className="block text-muted-foreground wrap-break-word">{hit.hint}</span> : null}
                   </button>
                 </li>
               ))}
