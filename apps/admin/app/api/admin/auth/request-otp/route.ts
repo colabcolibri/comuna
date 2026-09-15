@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findUserByEmail, isSuperAdmin, issueOtp, RateLimitError } from '@community/auth';
+import { LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
 import { sendKindEmail } from '@community/mail';
 import { jsonError } from '@/lib/http';
 

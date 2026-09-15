@@ -14,6 +14,7 @@
     "@community/db": "workspace:*",
     "@community/directory": "workspace:*",
     "@community/identity": "workspace:*",
+    "@community/mail": "workspace:*",
     "@community/memberships": "workspace:*",
     "@community/platform": "workspace:*",
     "@community/showcase": "workspace:*",
