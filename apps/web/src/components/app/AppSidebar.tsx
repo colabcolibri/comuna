@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ClipboardList, LayoutGrid, LogIn, LogOut, PanelLeft, UserRound, Users } from 'lucide-react';
+import { ClipboardList, LayoutGrid, LogIn, LogOut, SquareChevronLeft, SquareChevronRight, UserRound, Users } from 'lucide-react';
 import { pickContent } from '@community/identity';
 import {
   Sidebar,
@@ -24,7 +24,8 @@ import { useLocale } from '@/components/app/LocaleProvider';
 const CONTENT = {
   'pt-BR': {
     showcase: 'Vitrine',
-    toggle: 'Abrir ou fechar menu',
+    closeMenu: 'Fechar menu',
+    openMenu: 'Abrir menu',
     signin: 'Entrar',
     directory: 'Diretório',
     profile: 'Meu perfil',
@@ -36,7 +37,8 @@ const CONTENT = {
   },
   en: {
     showcase: 'Showcase',
-    toggle: 'Toggle menu',
+    closeMenu: 'Close menu',
+    openMenu: 'Open menu',
     signin: 'Sign in',
     directory: 'Directory',
     profile: 'My profile',
@@ -51,7 +53,8 @@ const CONTENT = {
 export function AppSidebar({ email }: { email: string | null }) {
   const pathname = usePathname();
   const copy = pickContent(CONTENT, useLocale());
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, state, isMobile } = useSidebar();
+  const collapsed = state === 'collapsed' && !isMobile;
   const [signOutOpen, setSignOutOpen] = useState(false);
 
   async function onSignOut() {
@@ -61,12 +64,12 @@ export function AppSidebar({ email }: { email: string | null }) {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
+      <SidebarHeader className="pt-6">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip={copy.toggle} onClick={toggleSidebar}>
-              <PanelLeft />
-              <span>{copy.toggle}</span>
+            <SidebarMenuButton tooltip={copy.openMenu} onClick={toggleSidebar}>
+              {collapsed ? <SquareChevronRight /> : <SquareChevronLeft />}
+              <span>{copy.closeMenu}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

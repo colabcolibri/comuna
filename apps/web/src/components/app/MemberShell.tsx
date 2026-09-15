@@ -14,12 +14,12 @@ const CONTENT = {
   'pt-BR': {
     brand: 'Alumni',
     showcase: 'Vitrine',
-    toggle: 'Abrir ou fechar menu',
+    toggle: 'Abrir menu',
   },
   en: {
     brand: 'Alumni',
     showcase: 'Showcase',
-    toggle: 'Toggle menu',
+    toggle: 'Open menu',
   },
 } as const;
 
