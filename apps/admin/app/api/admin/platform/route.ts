@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { describeSmtpTransport } from '@community/auth';
+import { describeSmtpTransport } from '@community/auth/smtp';
 import { getPlatformSettings, PlatformValidationError, updatePlatformSettings } from '@community/platform';
 import { jsonError } from '@/lib/http';
 import { isOpsClaims, requireOps } from '@/lib/require-ops';

@@ -18,6 +18,9 @@
       "@community/db": ["./packages/core/db/src/index.ts"],
       "@community/module-runtime": ["./packages/core/module-runtime/src/index.ts"],
       "@community/auth": ["./packages/core/auth/src/index.ts"],
+      "@community/auth/otp-api-error": ["./packages/core/auth/src/otp-api-error.ts"],
+      "@community/auth/smtp": ["./packages/core/auth/src/smtp.ts"],
+      "@community/auth/session": ["./packages/core/auth/src/session.ts"],
       "@community/identity": ["./packages/core/identity/src/index.ts"],
       "@community/places": ["./packages/core/places/src/index.ts"],
       "vitest": ["./node_modules/vitest"]

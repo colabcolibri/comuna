@@ -1,6 +1,7 @@
 'use client';
 
 import { contentFromCatalog, pickContent } from '@community/identity';
+import { otpErrorCodeFromBody, otpUserMessage } from '@community/auth/otp-api-error';
 import {
   Alert,
   AlertDescription,
@@ -37,6 +38,12 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   privacy: 'otp.privacy',
   invalid: 'otp.invalid',
   signedIn: 'otp.signed_in',
+  rateLimit: 'otp.rate_limit',
+  emailInvalid: 'otp.email_invalid',
+  mail: 'otp.mail',
+  network: 'otp.network',
+  requestError: 'otp.request_error',
+  verifyError: 'otp.verify_error',
 });
 
 export default function OtpCard() {
@@ -57,14 +64,15 @@ export default function OtpCard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      const data = await res.json();
+      const data: unknown = await res.json().catch(() => null);
       if (!res.ok) {
-        throw new Error(data.error?.message || copy.invalid);
+        setError(otpUserMessage('request', otpErrorCodeFromBody(data), copy));
+        return;
       }
       setStep('code');
       setCode('');
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : copy.invalid);
+    } catch {
+      setError(copy.network);
     } finally {
       setLoading(false);
     }
@@ -80,15 +88,16 @@ export default function OtpCard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code: value }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
       if (!res.ok) {
-        throw new Error(data.error?.message || copy.invalid);
+        setError(otpUserMessage('verify', otpErrorCodeFromBody(data), copy));
+        return;
       }
       setDone({ email: data.user.email, role: data.user.global_role });
       const next = new URLSearchParams(window.location.search).get('next');
       window.location.href = next && next.startsWith('/c/') ? next : '/';
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : copy.invalid);
+    } catch {
+      setError(copy.network);
     } finally {
       setLoading(false);
     }

@@ -79,6 +79,19 @@ describe('monorepo workspaces', () => {
     expect(source).toMatch(/packages\/core\/auth\/src\/session/);
   });
 
+  it('keeps otp login forms off the Node-only auth barrel', () => {
+    const pkg = readJson('packages/core/auth/package.json');
+    expect(pkg.exports['./otp-api-error']).toBe('./src/otp-api-error.ts');
+    expect(pkg.exports['./smtp']).toBe('./src/smtp.ts');
+    const barrel = fs.readFileSync(path.join(ROOT, 'packages/core/auth/src/index.ts'), 'utf8');
+    expect(barrel).not.toMatch(/from ['"]\.\/smtp['"]/);
+    for (const rel of ['apps/admin/components/login-form.tsx', 'apps/web/src/components/app/OtpCard.tsx']) {
+      const source = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+      expect(source).toMatch(/from ['"]@community\/auth\/otp-api-error['"]/);
+      expect(source).not.toMatch(/from ['"]@community\/auth['"]/);
+    }
+  });
+
   it('keeps the email studio off the Node mail barrel', () => {
     const source = fs.readFileSync(path.join(ROOT, 'apps/admin/components/emails-panel.tsx'), 'utf8');
     expect(source).toMatch(/from ['"]@community\/mail\/compose['"]/);

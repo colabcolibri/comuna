@@ -17,6 +17,7 @@ import {
   ThemeToggle,
 } from '@community/ui';
 import { contentFromCatalog, pickContent } from '@community/identity';
+import { otpErrorCodeFromBody, otpUserMessage } from '@community/auth/otp-api-error';
 import { LocaleSwitcher } from './locale-switcher';
 import { useLocale } from './locale-provider';
 import { uiCatalog } from '@/lang/catalog';
@@ -34,7 +35,12 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   resend: 'otp.resend',
   spam: 'otp.spam',
   invalid: 'otp.invalid',
-  error: 'otp.error',
+  rateLimit: 'otp.rate_limit',
+  emailInvalid: 'otp.email_invalid',
+  mail: 'otp.mail',
+  network: 'otp.network',
+  requestError: 'otp.request_error',
+  verifyError: 'otp.verify_error',
   toDark: 'theme.to_dark',
   toLight: 'theme.to_light',
 });
@@ -51,18 +57,24 @@ export function LoginForm() {
   const requestCode = async () => {
     setBusy(true);
     setMessage('');
-    const res = await fetch('/api/admin/auth/request-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    setBusy(false);
-    if (!res.ok) {
-      setMessage(copy.error);
-      return;
+    try {
+      const res = await fetch('/api/admin/auth/request-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        setMessage(otpUserMessage('request', otpErrorCodeFromBody(data), copy));
+        return;
+      }
+      setStep('code');
+      setCode('');
+    } catch {
+      setMessage(copy.network);
+    } finally {
+      setBusy(false);
     }
-    setStep('code');
-    setCode('');
   };
 
   const verify = async (value: string) => {
@@ -71,18 +83,24 @@ export function LoginForm() {
     }
     setBusy(true);
     setMessage('');
-    const res = await fetch('/api/admin/auth/verify-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, code: value }),
-    });
-    setBusy(false);
-    if (!res.ok) {
-      setMessage(copy.invalid);
-      return;
+    try {
+      const res = await fetch('/api/admin/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code: value }),
+      });
+      const data: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        setMessage(otpUserMessage('verify', otpErrorCodeFromBody(data), copy));
+        return;
+      }
+      router.push('/communities');
+      router.refresh();
+    } catch {
+      setMessage(copy.network);
+    } finally {
+      setBusy(false);
     }
-    router.push('/communities');
-    router.refresh();
   };
 
   return (

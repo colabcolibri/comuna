@@ -4,7 +4,9 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./session": "./src/session.ts"
+    "./session": "./src/session.ts",
+    "./smtp": "./src/smtp.ts",
+    "./otp-api-error": "./src/otp-api-error.ts"
   },
   "dependencies": {
     "jose": "^5.6.3",

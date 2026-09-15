@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     try {
       await sendKindEmail({ kind: 'ops_otp', to: user.email, locale, vars: { code } });
     } catch {
-      return jsonError('SERVER_ERROR', 'Falha ao enviar e-mail', 500);
+      return jsonError('MAIL_FAILED', 'Falha ao enviar e-mail', 500);
     }
     return NextResponse.json({ message: 'Código enviado' });
   } catch (err: unknown) {

@@ -1,7 +1,7 @@
 import { query } from '@community/db';
 import { composeMail, defaultCopy, type MailCopy } from './compose';
 import { isEmailKind, isEmailLocale, KIND_SLOT, KIND_VARIABLES, previewVarsFor, type EmailKind, type EmailLocale, type EmailSlot, type EmailVariable } from './tokens';
-import { sendSmtpMail, formatReplyToHeader, isSmtpConfigured } from '@community/auth';
+import { sendSmtpMail, formatReplyToHeader, isSmtpConfigured } from '@community/auth/smtp';
 import { formatFromHeader, getPlatformSettings, type PlatformSettings } from '@community/platform';
 
 export class MailValidationError extends Error {

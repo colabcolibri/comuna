@@ -1,7 +1,7 @@
 ---
 title: API Contracts
 status: review
-version: 1.18
+version: 1.19
 updated: 2026-09-15
 depends_on: [05_architecture.md, 06_database.md]
 blocks: []
@@ -44,6 +44,9 @@ blocks: []
 - `FORBIDDEN` 403
 - `NOT_FOUND` 404
 - `VALIDATION_ERROR` 400
+- `INVALID_OTP` 400
+- `MAIL_FAILED` 500
+- `SERVER_ERROR` 500
 - `DUPLICATE_EMAIL` 409
 
 `FORBIDDEN` para coord usa `network_role`; ops usa `global_role`. Não misturar os dois códigos de produto.
@@ -65,7 +68,7 @@ blocks: []
 | `GET` | `/api/community/modules` | Slugs enabled da comunidade do contexto (cookie `community_slug` ou vitrine pública) | Public / member | — | `{ "enabled": ["directory", "showcase"] }` |
 | `GET` | `/api/directory/catalog` | Grupos e campos; API **omite** campos cujo `module_id` não está enabled (núcleo sempre). 404 só se o plugin **directory** está off | Member | — | `{ "groups": [ { fields } ] }` |
 | `GET` | `/api/directory/members` | Diretório rico | Member; **404 se plugin off** | query + facets | `{ "data", "meta" }` |
-| `GET` | `/api/profiles/public` | Vitrine desta comunidade | Public; **404 se plugin off** | `?slug=` ou cookie `community_slug` + `search` / `status` / `attr.*` / `page` | `{ "data", "meta": { page, pageSize, total } }` |
+| `GET` | `/api/profiles/public` | Vitrine desta comunidade | Public; **404 se plugin off** | `?slug=` ou cookie `community_slug` + `search` / `status` / `attr.*` / `page` / `size` (24, 48, 96; default 24) | `{ "data", "meta": { page, pageSize, total } }` |
 | `POST` | `/api/contact/:membershipId` | Contato mediado | Public; **404 se plugin off** | nome, e-mail, mensagem | `200` sem e-mail |
 | `GET` | `/api/communities/public` | Comunidades com vitrine pública | Public | — | `{ "data": [{ id, slug, name }] }` |
 | `POST` | `/api/communities/:slug/join` | Pedido `pending_approval` (membro autenticado, sem assento) | Member | `{}` | `201` `{ "data": JoinSeat }` |

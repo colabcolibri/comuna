@@ -58,7 +58,7 @@ RTL: `_n/a_` nesta versão.
 - `className`, tokens, slugs, IDs.
 - Logs de servidor.
 - Headline/bio (LocalizedText) e cidade (GeoPlace).
-- **API `error.code`:** o cliente mapeia o código; `message` em JSON é fallback pt-BR para curl, não é o catálogo da UI.
+- **API `error.code`:** o cliente mapeia o código para o pack (`otpUserMessage`); `message` em JSON é fallback pt-BR para curl, não é o catálogo da UI. OTP (web + admin) já mapeia `VALIDATION_ERROR`, `RATE_LIMIT_EXCEEDED`, `MAIL_FAILED`, `INVALID_OTP`, `SERVER_ERROR`.
 
 ## Inventory (web membro)
 
@@ -70,7 +70,7 @@ Ainda fora:
 | ---------- | ------ |
 | `apps/admin` | login OTP, comunidades, pessoas, plataforma, e-mails, módulos, catálogo (`CONTENT` + pack `core_admin`) |
 | Overlay por comunidade | porta pronta, sem SQL/UI |
-| Mensagens de API na UI | cliente ainda mostra `error.message` do servidor (pt-BR) |
+| Mensagens de API na UI | OTP mapeia `error.code`; outras telas ainda podem mostrar `error.message` pt-BR |
 | ICU / plural | interpolação `{name}` só |
 | `ThemeToggle` | labels vêm do `CONTENT` do shell (ok: primitivo sem pack) |
 

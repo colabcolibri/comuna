@@ -53,7 +53,7 @@ Preview no admin: o mesmo `composeMail` (`@community/mail/compose`) com o copy d
 
 ## Transporte
 
-Um cliente SMTP (`nodemailer` em `@community/auth`), não um handshake TCP feito à mão. SRP: `smtp-config.ts` lê env; `smtp-headers.ts` monta Reply-To; `smtp.ts` envia.
+Um cliente SMTP (`nodemailer` em `@community/auth/smtp`), não um handshake TCP feito à mão. SRP: `smtp-config.ts` lê env; `smtp-headers.ts` monta Reply-To; `smtp.ts` envia. O barrel `@community/auth` não reexporta SMTP — cliente de login não puxa nodemailer.
 
 Baseline local: Mailpit (`SMTP_HOST=localhost`, `SMTP_PORT=1026`, sem AUTH, `SMTP_SECURE=none` — default da porta 1026). UI: `http://localhost:8026`.
 

@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     } catch (mailErr) {
       console.error('[auth] smtp failed', mailErr instanceof Error ? mailErr.message : 'unknown');
       return NextResponse.json(
-        { error: { code: 'SERVER_ERROR', message: 'Falha ao enviar e-mail' } },
+        { error: { code: 'MAIL_FAILED', message: 'Falha ao enviar e-mail' } },
         { status: 500 }
       );
     }

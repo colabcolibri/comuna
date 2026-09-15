@@ -66,6 +66,9 @@ importers:
       '@community/identity':
         specifier: workspace:*
         version: link:../../packages/core/identity
+      '@community/mail':
+        specifier: workspace:*
+        version: link:../../packages/core/mail
       '@community/memberships':
         specifier: workspace:*
         version: link:../../packages/core/memberships

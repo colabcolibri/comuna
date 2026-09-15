@@ -14,14 +14,6 @@ export {
   type AuthUser,
 } from './users';
 export {
-  sendSmtpMail,
-  formatReplyToHeader,
-  describeSmtpTransport,
-  isSmtpConfigured,
-  loadSmtpTransportConfig,
-  type SmtpTransportView,
-} from './smtp';
-export {
   signMemberToken,
   verifyMemberToken,
   signOpsToken,
