@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
-import { OpsAlertDialog, OpsBadge, OpsMoveButtons } from '@community/ui-admin';
+import { OpsAlertDialog, OpsBadge, OpsCheckboxFrame, OpsMoveButtons } from '@community/ui-admin';
 import { pickLocalizedText } from '@community/identity';
 import {
   clampFieldSpan,
@@ -223,13 +223,13 @@ export function CommunityFieldsField({
             {canFilter ? (
               <div className="min-w-0 space-y-2">
                 <Label htmlFor={filterId}>{copy.filterable}</Label>
-                <label htmlFor={filterId} className="flex h-11 items-center gap-2 text-sm">
+                <OpsCheckboxFrame htmlFor={filterId}>
                   <Checkbox
                     id={filterId}
                     checked={filterable}
                     onCheckedChange={(checked) => setFilterable(checked === true)}
                   />
-                </label>
+                </OpsCheckboxFrame>
               </div>
             ) : null}
             {showSpan ? (

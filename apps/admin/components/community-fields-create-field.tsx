@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
+import { OpsCheckboxFrame } from '@community/ui-admin';
 import { fieldCanFilter, fieldNeedsOptions, type CatalogCopy } from './community-fields-types';
 import { CommunityFieldsOptionsEditor, emptyOptionRow, type OptionRow } from './community-fields-options';
 
@@ -120,25 +121,24 @@ export function CommunityFieldsCreateField({
           {fieldCanFilter(type) ? (
             <div className="min-w-0 space-y-2">
               <Label htmlFor={`${idPrefix}-filter`}>{copy.filterable}</Label>
-              <label htmlFor={`${idPrefix}-filter`} className="flex h-11 items-center gap-2 text-sm">
+              <OpsCheckboxFrame htmlFor={`${idPrefix}-filter`}>
                 <Checkbox
                   id={`${idPrefix}-filter`}
                   checked={filterable}
                   onCheckedChange={(checked) => setFilterable(checked === true)}
                 />
-              </label>
+              </OpsCheckboxFrame>
             </div>
           ) : null}
           <div className="min-w-0 space-y-2">
             <Label htmlFor={`${idPrefix}-required`}>{copy.requirement}</Label>
-            <label htmlFor={`${idPrefix}-required`} className="flex h-11 items-center gap-2 text-sm">
+            <OpsCheckboxFrame htmlFor={`${idPrefix}-required`}>
               <Checkbox
                 id={`${idPrefix}-required`}
                 checked={required}
                 onCheckedChange={(checked) => setRequired(checked === true)}
               />
-              {copy.required}
-            </label>
+            </OpsCheckboxFrame>
           </div>
           {fieldNeedsOptions(type) ? (
             <div className="min-w-0 sm:col-span-2 lg:col-span-3">

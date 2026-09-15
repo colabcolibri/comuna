@@ -13,3 +13,4 @@ export { OpsHtmlPreview } from './ops-html-preview';
 export { OpsAlertDialog } from './ops-alert-dialog';
 export { OpsDialog, OpsDialogBody, OpsDialogHeader, type OpsDialogSize } from './ops-dialog';
 export { OpsAccordion } from './ops-accordion';
+export { OpsCheckboxFrame } from './ops-checkbox-frame';
