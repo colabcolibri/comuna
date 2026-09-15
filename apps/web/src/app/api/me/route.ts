@@ -1,23 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { memberFromRequest } from '@community/auth';
-import { query } from '@community/db';
+import { COMMUNITY_COOKIE } from '@community/communities';
+import { listMyCommunities, pickCommunitySeat } from '@community/memberships';
 
 export async function GET(req: NextRequest) {
   const member = await memberFromRequest(req);
   if (!member) {
     return NextResponse.json({ user: null });
   }
-  const membership = await query<{ network_role: string; community_id: string }>(
-    `SELECT network_role, community_id FROM network_core.memberships
-     WHERE user_id = $1 AND network_status = 'active'
-     ORDER BY joined_at DESC LIMIT 1`,
-    [member.sub]
-  );
+  const seats = await listMyCommunities(member.sub);
+  const picked = pickCommunitySeat(seats, req.cookies.get(COMMUNITY_COOKIE)?.value);
   return NextResponse.json({
     user: {
       email: member.email,
       global_role: member.global_role,
-      network_role: membership.rows[0]?.network_role ?? null,
+      network_role: picked.ok ? picked.seat.network_role : null,
     },
   });
 }

@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { memberFromRequest } from '@community/auth';
 import { queryAsMember } from '@community/db';
 import { PERSON_PROFILE_COLUMNS, personWriteFromBody, personWriteSqlParams } from '@community/identity';
-import { activeMembership } from '@/lib/server/membership';
+import { COMMUNITY_COOKIE } from '@community/communities';
+import { listMyCommunities, pickCommunitySeat } from '@community/memberships';
 
-async function memberCtx(userId: string) {
-  const membership = await activeMembership(userId);
-  return { userId, communityId: membership?.community_id ?? null };
+async function memberCtx(req: NextRequest, userId: string) {
+  const seats = await listMyCommunities(userId);
+  const picked = pickCommunitySeat(seats, req.cookies.get(COMMUNITY_COOKIE)?.value);
+  return { userId, communityId: picked.ok ? picked.seat.id : seats[0]?.id ?? null };
 }
 
 export async function GET(req: NextRequest) {
@@ -15,7 +17,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: { code: 'UNAUTHORIZED', message: 'Sessão inválida' } }, { status: 401 });
   }
   const result = await queryAsMember(
-    await memberCtx(member.sub),
+    await memberCtx(req, member.sub),
     `SELECT ${PERSON_PROFILE_COLUMNS}
      FROM person_core.profiles p
      WHERE p.user_id = $1`,
@@ -33,7 +35,7 @@ export async function PUT(req: NextRequest) {
   if (parsed.ok === false) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: parsed.message } }, { status: 400 });
   }
-  const ctx = await memberCtx(member.sub);
+  const ctx = await memberCtx(req, member.sub);
   await queryAsMember(
     ctx,
     `INSERT INTO person_core.profiles (

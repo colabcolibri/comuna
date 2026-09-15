@@ -31,7 +31,7 @@ Cada módulo exporta `ModuleContribution`:
 | --- | --- |
 | `slug`, `version`, `requires` | Identidade e dependência (`showcase` pode exigir `directory`) |
 | `routes` | Paths que a app monta se enabled (`/directory`, `/showcase`) |
-| `chrome` | Itens de sidebar / header / home (`href` + chave de pack) |
+| `chrome` | Itens de sidebar / header / home (`href` canónico + chave de pack). A app prefixa `/c/{slug}` — o manifesto não leva tenant |
 | `slots` | Pontos de extensão (`showcase.rowAction`) |
 | `seed` | Grupos/campos que o plugin **insere** (com `module_id` dele) |
 | `writesCards` | Se o plugin lê/grava `plugin_directory.cards` |

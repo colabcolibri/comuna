@@ -38,6 +38,8 @@ const nextConfig: NextConfig = {
     '@community/auth',
     '@community/db',
     '@community/identity',
+    '@community/memberships',
+    '@community/communities',
     '@community/directory',
     '@community/files',
     '@community/showcase',

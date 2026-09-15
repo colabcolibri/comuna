@@ -13,7 +13,7 @@ import type { CatalogField } from '@community/directory';
 import { contentFromCatalog, mergeContent, pickContent, pickLocalizedText } from '@community/identity';
 import { displayPlaceLocality } from '@community/places';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
-import { Button, Checkbox } from '@community/ui';
+import { Button, Checkbox, Input } from '@community/ui';
 import { AppIndexList, AppPageTemplate, AppPersonRow } from '@community/ui-member';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -102,9 +102,9 @@ export function DirectoryPanel({
       <label className="block text-sm font-medium mb-2" htmlFor="global-search">
         {copy.search}
       </label>
-      <input
+      <Input
         id="global-search"
-        className="w-full min-h-11 px-4 py-2.5 bg-card border border-border rounded-lg mb-6"
+        className="mb-6 min-h-11"
         value={term}
         onChange={(e) => setTerm(e.target.value)}
       />
@@ -115,10 +115,10 @@ export function DirectoryPanel({
             <label key={field.name} className="flex items-center gap-2 min-h-11 text-sm">
               <Checkbox
                 checked={facetValues[field.name] === 'true'}
-                onChange={(e) =>
+                onCheckedChange={(checked) =>
                   go(search, {
                     ...facetValues,
-                    [field.name]: e.target.checked ? 'true' : '',
+                    [field.name]: checked === true ? 'true' : '',
                   })
                 }
               />

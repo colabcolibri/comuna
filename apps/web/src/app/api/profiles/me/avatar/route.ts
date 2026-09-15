@@ -8,7 +8,8 @@ import {
   createObjectStore,
   detectImage,
 } from '@community/files';
-import { activeMembership } from '@/lib/server/membership';
+import { COMMUNITY_COOKIE } from '@community/communities';
+import { listMyCommunities, pickCommunitySeat } from '@community/memberships';
 
 export async function POST(req: NextRequest) {
   const member = await memberFromRequest(req);
@@ -35,8 +36,9 @@ export async function POST(req: NextRequest) {
   }
   const store = createObjectStore();
   await store.put(key, bytes, kind.mime);
-  const membership = await activeMembership(member.sub);
-  const ctx = { userId: member.sub, communityId: membership?.community_id ?? null };
+  const seats = await listMyCommunities(member.sub);
+  const picked = pickCommunitySeat(seats, req.cookies.get(COMMUNITY_COOKIE)?.value);
+  const ctx = { userId: member.sub, communityId: picked.ok ? picked.seat.id : seats[0]?.id ?? null };
   const name = member.email.split('@')[0] || 'Member';
   await queryAsMember(
     ctx,

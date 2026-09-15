@@ -2,18 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { memberFromRequest } from '@community/auth';
 import { query } from '@community/db';
 import { directoryContribution } from '@community/directory';
-import { activeMembership, moduleRuntime } from '@/lib/server/membership';
+import { moduleRuntime } from '@/lib/server/membership';
+import { memberCommunityFromRequest } from '@/lib/server/member-community';
 
 export async function GET(req: NextRequest) {
   const member = await memberFromRequest(req);
   if (!member) {
     return NextResponse.json({ error: { code: 'UNAUTHORIZED', message: 'Sessão inválida' } }, { status: 401 });
   }
-  const membership = await activeMembership(member.sub);
-  if (!membership) {
-    return NextResponse.json({ data: [], meta: { page: 1 } });
+  const resolved = await memberCommunityFromRequest(req);
+  if (!resolved.ok) {
+    return resolved.response;
   }
-  const on = await moduleRuntime.isEnabled(membership.community_id, directoryContribution.slug);
+  const on = await moduleRuntime.isEnabled(resolved.seat.id, directoryContribution.slug);
   if (!on) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
   }
@@ -23,7 +24,7 @@ export async function GET(req: NextRequest) {
      JOIN person_core.profiles p ON p.user_id = m.user_id
      LEFT JOIN plugin_directory.cards c ON c.membership_id = m.id
      WHERE m.community_id = $1 AND m.network_status = 'active'`,
-    [membership.community_id]
+    [resolved.seat.id]
   );
   return NextResponse.json({ data: result.rows, meta: { page: 1 } });
 }

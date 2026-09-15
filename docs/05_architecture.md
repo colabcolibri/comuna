@@ -1,7 +1,7 @@
 ---
 title: System Architecture
 status: approved
-version: 1.10
+version: 1.11
 updated: 2026-09-15
 depends_on: [00_scope.md, 01_tech_stack.md, 02_security.md, 03_user_types.md, 04_principles.md]
 blocks: [06_database.md, 07_api_contracts.md, 08_environments.md]
@@ -82,6 +82,7 @@ flowchart TD
 | `docs/architecture/media.md` | Avatar: store + chave; Postgres só URL |
 | `docs/architecture/showcase-public.md` | O que a vitrine pode mostrar |
 | `docs/architecture/data-access.md` | SQL → domínio → HTTP → UI; sem ORM; Query só no último hop |
+| `docs/architecture/community-context.md` | Workspace: URL `/c/{slug}`, cookie, chrome; sem LIMIT 1 |
 
 ## System modules (core)
 
@@ -97,6 +98,8 @@ Pessoa (`person_core`) e helpers de chrome (`pickContent`, cookie). Cidade é `G
 
 Tenant, papéis `member` / `coordinator`, `pending_approval`. Coordenação de entrada é **núcleo**.
 
+Várias memberships `active` são o caso normal. A web resolve **uma** comunidade por request (`docs/architecture/community-context.md`): slug na URL, cookie nas APIs. `LIMIT 1` por `joined_at` não é contexto.
+
 ### Module runtime
 
 Catálogo `plugin_core.modules`. Por comunidade: `network_core.community_modules (community_id, module_id, enabled)`. Comunidade nova e seed: first-party **inseridos** `enabled = true` (a coluna continua `DEFAULT false` para módulo sem row).
@@ -105,7 +108,7 @@ Montagem: **registry de contribuições** (rotas, chrome, slots) filtrado por `l
 
 ### Operations (admin app)
 
-Criar comunidade, atribuir coordenador, **ligar/desligar módulos**.
+Criar comunidade, pessoas da rede, membership (papel, status, turma, remover), **ligar/desligar módulos**, catálogo de campos.
 
 ## First-party plugins (v2)
 
@@ -123,7 +126,7 @@ Detalhe: `docs/architecture/profile-fields.md`. Resumo: definições em tabela (
 
 1. App web registra contribuições e pergunta `listEnabled`; monta só o filtro.
 2. Autorização no core; módulo não grava se `enabled = false`.
-3. Isolamento `community_id` em toda query de rede.
+3. Isolamento `community_id` em toda query de rede — o id vem do contexto resolvido, não do último join.
 4. Acesso a dados: `docs/architecture/data-access.md` — SQL na função de domínio, não no `useEffect`.
 
 ## Gate

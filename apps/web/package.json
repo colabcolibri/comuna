@@ -14,6 +14,8 @@
     "@community/directory": "workspace:*",
     "@community/files": "workspace:*",
     "@community/identity": "workspace:*",
+    "@community/memberships": "workspace:*",
+    "@community/communities": "workspace:*",
     "@community/showcase": "workspace:*",
     "@community/module-runtime": "workspace:*",
     "@community/places": "workspace:*",

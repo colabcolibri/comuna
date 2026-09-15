@@ -1,7 +1,7 @@
 ---
 title: API Contracts
 status: approved
-version: 1.11
+version: 1.12
 updated: 2026-09-15
 depends_on: [05_architecture.md, 06_database.md]
 blocks: []
@@ -60,7 +60,8 @@ blocks: []
 | `GET` | `/api/media/person/:userId/avatar` | Bytes da foto | Public se o objecto existir | — | image/* |
 | `GET` | `/api/places/cities` | Busca cidade (Nominatim) | Member | `?q=` | `{ "data": GeoPlace[] }` |
 | `PUT` | `/api/memberships/me` | Card do directory | Member; 404 se plugin off | LocalizedText headline/bio, availability, vitrine, `custom_attributes` (só chaves do catálogo) | `{ ok }` |
-| `GET` | `/api/community/modules` | Slugs enabled da comunidade do viewer | Public (comunidade pública) / member | — | `{ "enabled": ["directory", "showcase"] }` |
+| `GET` | `/api/me/communities` | Comunidades com membership `active` da pessoa | Member | — | `{ "data": [{ id, slug, name, network_role }] }` |
+| `GET` | `/api/community/modules` | Slugs enabled da comunidade do contexto (cookie `community_slug` ou vitrine pública) | Public / member | — | `{ "enabled": ["directory", "showcase"] }` |
 | `GET` | `/api/directory/catalog` | Grupos e campos; API **omite** campos cujo `module_id` não está enabled (núcleo sempre). 404 só se o plugin **directory** está off | Member | — | `{ "groups": [ { fields } ] }` |
 | `GET` | `/api/directory/members` | Diretório rico | Member; **404 se plugin off** | query + facets | `{ "data", "meta" }` |
 | `GET` | `/api/profiles/public` | Vitrine (lista + detalhe no diálogo) | Public; **404 se plugin off** | — | `{ "data": PublicProfile[] }` — campos em `docs/architecture/showcase-public.md` |
@@ -68,28 +69,38 @@ blocks: []
 | `GET` | `/api/coord/approvals` | Fila | Coordinator | `?status=` | `{ "pending" }` |
 | `POST` | `/api/coord/approvals/:membershipId` | Aprova / rejeita | Coordinator | `{ "action", "reason" }` | `{ "status" }` |
 | `POST` | `/api/admin/auth/verify-otp` | Sessão admin | Public, `super_admin` | OTP | cookie `ops_token` |
-| `GET` | `/api/admin/people` | Pessoas da rede + assentos (comunidade, papel, status) | Super-admin | — | `{ "data": NetworkPerson[] }` |
+| `GET` | `/api/admin/people` | Pessoas da rede + assentos. Página de 50. `q` com ≥2 filtra. | Super-admin | `?q=&offset=` | `{ "data", "meta.hasMore" }` |
 | `GET` | `/api/admin/communities` | Lista comunidades | Super-admin | — | lista |
 | `POST` | `/api/admin/communities` | Cria comunidade | Super-admin | `{ "slug", "name" }` | `201` |
 | `GET` | `/api/admin/communities/:id` | Lê comunidade | Super-admin | — | `{ id, slug, name, type }` |
 | `PUT` | `/api/admin/communities/:id` | Atualiza nome/tipo | Super-admin | `{ "name", "type?" }` | comunidade |
 | `GET` | `/api/admin/communities/:id/modules` | Estado dos plugins | Super-admin | — | `{ "data": [{ slug, enabled }] }` |
 | `PUT` | `/api/admin/communities/:id/modules/:slug` | Liga/desliga plugin | Super-admin | `{ "enabled": true }` | `200` |
-| `GET` | `/api/admin/communities/:id/memberships` | Lista memberships; `?email=` busca uma | Super-admin | — | `{ "data" }` ou membership |
-| `GET` | `/api/admin/communities/:id/people` | Busca pessoas **fora** deste tenant. `q` min 2; máx 20 hits. Sem `q` (ou curto) = `[]`. Nunca dump da base. | Super-admin | `?q=` | `{ "data": [{ id, email, full_name }] }` |
+| `GET` | `/api/admin/communities/:id/memberships` | Roster paginado (50); `?email=` busca uma; `?q=` filtra se ≥2 | Super-admin | `?q=&offset=` | `{ "data", "meta.hasMore" }` ou membership |
+| `GET` | `/api/admin/communities/:id/people` | Busca pessoas **fora** deste tenant. `q` min 2; máx 20 hits. Sem `q` (ou curto) = `[]`. | Super-admin | `?q=` | `{ "data": [{ id, email, full_name }] }` |
 | `POST` | `/api/admin/communities/:id/memberships` | Liga user existente como membership `active` | Super-admin | `{ "userId", "network_role?" }` | `201` |
+| `GET` | `/api/admin/communities/:id/cohorts` | Turmas do tenant | Super-admin | — | `{ "data": CohortRow[] }` |
+| `POST` | `/api/admin/communities/:id/cohorts` | Cria turma | Super-admin | `{ "name", "code?" }` | `201` |
+| `DELETE` | `/api/admin/communities/:id/cohorts/:cohortId` | Apaga turma; memberships ficam sem turma | Super-admin | — | `{ ok }` |
 | `POST` | `/api/admin/memberships/:id/role` | Atribui `member` / `coordinator` | Super-admin | `{ "network_role" }` | `200` |
+| `POST` | `/api/admin/memberships/:id/status` | `pending_approval` / `active` / `suspended` | Super-admin | `{ "network_status" }` | `200` |
+| `POST` | `/api/admin/memberships/:id/cohort` | Liga ou tira turma | Super-admin | `{ "cohortId": uuid \| null }` | `{ ok }` |
+| `DELETE` | `/api/admin/memberships/:id` | Remove a membership | Super-admin | — | `{ ok }` |
 | `GET` | `/api/admin/communities/:id/fields` | Catálogo ops (grupos na ordem do perfil; `locked` no grupo seed e no campo se `storage` ≠ `attributes`) | Super-admin | — | `{ "data": OpsCatalogGroup[] }` |
-| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` num grupo existente | Super-admin | `{ groupId, name, type, labelPt, labelEn, optionsText?, filterable? }` | `201` |
+| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` (tipos do catálogo; `span` 1–3) | Super-admin | `{ groupId, name, type, labelPt, labelEn, optionsText?, filterable?, span? }` | `201` |
+| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | `span` em qualquer campo; label/opções/filtro só se `storage=attributes` | Super-admin | `{ labelPt?, labelEn?, optionsText?, filterable?, span }` | `{ ok }` |
 | `DELETE` | `/api/admin/communities/:id/fields/:fieldId` | Apaga só `storage=attributes` | Super-admin | — | `{ ok }` |
 | `POST` | `/api/admin/communities/:id/fields/:fieldId/move` | Sobe/desce o campo no grupo | Super-admin | `{ "direction": "up" }` ou `"down"` | `{ ok }` |
 | `POST` | `/api/admin/communities/:id/groups` | Cria grupo (não seed) | Super-admin | `{ labelPt, labelEn, columns?, slug? }` | `201` |
+| `PATCH` | `/api/admin/communities/:id/groups/:groupId` | Densidade do grupo (`columns` 1–3), inclusive seed | Super-admin | `{ "columns": 1 \| 2 \| 3 }` | `{ ok }` |
 | `DELETE` | `/api/admin/communities/:id/groups/:groupId` | Apaga grupo vazio e não-seed | Super-admin | — | `{ ok }` |
 | `POST` | `/api/admin/communities/:id/groups/:groupId/move` | Sobe/desce o grupo | Super-admin | `{ "direction": "up" }` ou `"down"` | `{ ok }` |
 
+APIs de membro de rede (`/api/directory/*`, `/api/memberships/me`, `/api/coord/*`) usam o cookie `community_slug` (e membership `active` nesse tenant). Sem contexto e com mais de uma membership: `400 VALIDATION_ERROR`. Uma membership só: default permitido. `docs/architecture/community-context.md`.
+
 `GET /api/profiles` e `/api/admin/approvals` no código atual são **legado**. `/api/ops/*` foi removido: mutações de tenant só na origem admin.
 
-Rotas UI admin do tenant: `/communities/:id/settings|modules|members|fields` (índice redireciona para `settings`). Comunidade nova faz seed do catálogo (núcleo + directory + grupo `custom`).
+Rotas UI admin do tenant: `/communities/:id/settings|modules|members|cohorts|fields` (índice redireciona para `settings`). Comunidade nova faz seed do catálogo (núcleo + directory + grupo `custom`).
 
 ## Pagination / filtering
 

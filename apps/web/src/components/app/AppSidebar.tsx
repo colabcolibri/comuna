@@ -21,9 +21,11 @@ import { contentFromCatalog, pickContent } from '@community/identity';
 import { AppAlertDialog } from '@community/ui-member';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { useEnabledModules } from '@/components/app/EnabledModulesProvider';
+import type { WorkspaceChrome } from '@/components/app/MemberShell';
 import { uiCatalog } from '@/lang/catalog';
 import { chromeIcon } from '@/modules/chrome-icons';
 import { copyFrom, visibleChrome } from '@/modules/registry';
+import { communityPath, nextJobPath } from '@/lib/people/community-path';
 
 const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   showcase: 'chrome.showcase',
@@ -37,9 +39,10 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   signoutTitle: 'chrome.signout_title',
   signoutBody: 'chrome.signout_body',
   cancel: 'chrome.cancel',
+  community: 'chrome.community',
 });
 
-export function AppSidebar({ email }: { email: string | null }) {
+export function AppSidebar({ email, workspace }: { email: string | null; workspace: WorkspaceChrome }) {
   const pathname = usePathname();
   const copy = pickContent(CONTENT, useLocale());
   const enabled = useEnabledModules();
@@ -47,6 +50,8 @@ export function AppSidebar({ email }: { email: string | null }) {
   const { toggleSidebar, state, isMobile } = useSidebar();
   const collapsed = state === 'collapsed' && !isMobile;
   const [signOutOpen, setSignOutOpen] = useState(false);
+  const slug = workspace?.current.slug;
+  const isCoordinator = workspace?.current.network_role === 'coordinator';
 
   async function onSignOut() {
     await fetch('/api/auth/logout', { method: 'POST' });
@@ -63,6 +68,42 @@ export function AppSidebar({ email }: { email: string | null }) {
               <span>{copy.closeMenu}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {workspace ? (
+            workspace.seats.length > 1 ? (
+              workspace.seats.map((seat) => (
+                <SidebarMenuItem key={seat.id}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={seat.slug === slug}
+                    tooltip={seat.name}
+                  >
+                    <Link
+                      href={nextJobPath(
+                        pathname,
+                        seat.slug,
+                        enabled,
+                        seat.network_role === 'coordinator'
+                      )}
+                    >
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-sidebar-accent text-xs font-semibold">
+                        {seat.name.trim().charAt(0).toUpperCase()}
+                      </span>
+                      <span className="truncate">{seat.name}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))
+            ) : (
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip={workspace.current.name}>
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-sidebar-accent text-xs font-semibold">
+                    {workspace.current.name.trim().charAt(0).toUpperCase()}
+                  </span>
+                  <span className="truncate">{workspace.current.name}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )
+          ) : null}
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
@@ -71,10 +112,11 @@ export function AppSidebar({ email }: { email: string | null }) {
             <SidebarMenu>
               {pluginNav.map((item) => {
                 const Icon = chromeIcon(item.icon);
+                const href = slug ? communityPath(slug, item.href) : item.href;
                 return (
               <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={copyFrom(copy, item.copyKey)}>
-                  <Link href={item.href}>
+                <SidebarMenuButton asChild isActive={pathname.startsWith(href)} tooltip={copyFrom(copy, item.copyKey)}>
+                  <Link href={href}>
                     {Icon ? <Icon /> : null}
                     <span>{copyFrom(copy, item.copyKey)}</span>
                   </Link>
@@ -82,10 +124,10 @@ export function AppSidebar({ email }: { email: string | null }) {
               </SidebarMenuItem>
                 );
               })}
-              {email ? (
+              {email && isCoordinator ? (
                 <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={pathname.startsWith('/coord')} tooltip={copy.coord}>
-                      <Link href="/coord/approvals">
+                    <SidebarMenuButton asChild isActive={pathname.includes('/coord')} tooltip={copy.coord}>
+                      <Link href={slug ? communityPath(slug, '/coord/approvals') : '/coord/approvals'}>
                         <ClipboardList />
                         <span>{copy.coord}</span>
                       </Link>
@@ -101,8 +143,8 @@ export function AppSidebar({ email }: { email: string | null }) {
           {email ? (
             <>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname.startsWith('/profile')} tooltip={copy.profile}>
-                  <Link href="/profile/edit">
+                <SidebarMenuButton asChild isActive={pathname.includes('/profile')} tooltip={copy.profile}>
+                  <Link href={slug ? communityPath(slug, '/profile/edit') : '/profile/edit'}>
                     <UserRound />
                     <span>{copy.profile}</span>
                   </Link>

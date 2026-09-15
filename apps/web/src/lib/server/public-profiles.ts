@@ -13,19 +13,22 @@ const PUBLIC_SELECT = `
   ORDER BY p.full_name
 `;
 
-export async function listPublicProfiles() {
-  const community = await query<{ id: string }>(
-    `SELECT id FROM network_core.communities WHERE is_public_showcase = true ORDER BY created_at LIMIT 1`
-  );
-  const communityId = community.rows[0]?.id;
-  if (!communityId) {
+export async function listPublicProfiles(communityId?: string | null) {
+  let id = communityId ?? null;
+  if (!id) {
+    const community = await query<{ id: string }>(
+      `SELECT id FROM network_core.communities WHERE is_public_showcase = true ORDER BY created_at LIMIT 1`
+    );
+    id = community.rows[0]?.id ?? null;
+  }
+  if (!id) {
     return { status: 200 as const, data: [] };
   }
-  const on = await moduleRuntime.isEnabled(communityId, showcaseContribution.slug);
+  const on = await moduleRuntime.isEnabled(id, showcaseContribution.slug);
   if (!on) {
     return { status: 404 as const, data: [] };
   }
-  const result = await query(PUBLIC_SELECT, [communityId]);
+  const result = await query(PUBLIC_SELECT, [id]);
   return {
     status: 200 as const,
     data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>)),

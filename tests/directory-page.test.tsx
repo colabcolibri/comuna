@@ -18,7 +18,7 @@ const marina = {
 };
 
 vi.mock('next/navigation', () => ({
-  usePathname: () => '/directory',
+  usePathname: () => '/c/alumni/directory',
   useRouter: () => ({ replace: vi.fn() }),
 }));
 

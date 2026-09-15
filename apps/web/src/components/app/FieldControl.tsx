@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Checkbox, Input, Label, Select, Textarea, toast, cn } from '@community/ui';
+import { Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast, cn } from '@community/ui';
 import { contentFromCatalog, interpolate, pickContent, pickLocalizedText, type LocalizedText } from '@community/identity';
 import type { CatalogField } from '@community/directory';
 import type { GeoPlace } from '@community/places';
@@ -98,7 +98,7 @@ export function FieldControl({
   if (field.type === 'boolean') {
     return (
       <label className="flex items-center gap-3 min-h-11 text-sm min-w-0">
-        <Checkbox id={id} checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} />
+        <Checkbox id={id} checked={Boolean(value)} onCheckedChange={(checked) => onChange(checked === true)} />
         <span>
           <span className="font-medium">{label}</span>
           {description ? <span className="block text-muted-foreground">{description}</span> : null}
@@ -145,13 +145,17 @@ export function FieldControl({
       <div className="space-y-2 min-w-0">
         <Label htmlFor={id}>{label}</Label>
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
-        <Select id={id} className="w-full min-h-11" value={String(value || '')} onChange={(e) => onChange(e.target.value)}>
-          <option value="">{empty}</option>
-          {field.options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {pickLocalizedText(option.label, locale) || option.value}
-            </option>
-          ))}
+        <Select value={String(value || '') || undefined} onValueChange={onChange}>
+          <SelectTrigger id={id} className="w-full min-h-11">
+            <SelectValue placeholder={empty} />
+          </SelectTrigger>
+          <SelectContent>
+            {field.options.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {pickLocalizedText(option.label, locale) || option.value}
+              </SelectItem>
+            ))}
+          </SelectContent>
         </Select>
       </div>
     );

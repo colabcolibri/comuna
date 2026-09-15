@@ -1,7 +1,7 @@
 ---
 title: Design System
 status: review
-version: 1.9
+version: 1.10
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
@@ -13,7 +13,8 @@ blocks: []
 
 - **Surfaces:** `apps/web` (Stitch + plugins). Admin **não** usa o contrato Stitch; usa os mesmos primitives.
 - **Primary UI stack:** `ts-shadcn` — primitives em `packages/ui/primitives` (`@community/ui`). Compostos membro em `packages/ui/member` e, hoje, `apps/web/src/components/{templates,app}/`.
-- **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, sidebars de comunidade.
+- **Select / Checkbox:** shadcn em `@community/ui` (`SelectTrigger` + portal; `Checkbox` Radix). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito.
+- **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, espaços aninhados. Workspace (trocar de comunidade) **não** é sidebar de espaços — ver `community-context.md`.
 - **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
 ## Colors
@@ -65,6 +66,7 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `OpsSubnav` | Tabs horizontais (legado / uso pontual; capítulos do tenant vão no rail) | `packages/ui/admin/src/ops-subnav.tsx` |
 | `OpsSection` | Bloco h2 + lede dentro do workspace | `packages/ui/admin/src/ops-section.tsx` |
 | `OpsBadge` | Rótulo curto (ex.: super-admin). Não cola no nome | `packages/ui/admin/src/ops-badge.tsx` |
+| `OpsMoveButtons` | Ordem: `Button` `icon-sm` + seta, `aria-label` i18n. Sem “subir/descer” em texto. Desabilitado no extremo (não some). | `packages/ui/admin/src/ops-move-buttons.tsx` |
 | `OpsCombobox` | Typeahead (listbox). Hits vêm do servidor; o componente não recebe 10k opções | `packages/ui/admin/src/ops-combobox.tsx` |
 | `OpsTable` | Tabela densa ops | `packages/ui/admin/src/ops-table.tsx` |
 | `AppAuthFrame` | Login centrado com kicker | `packages/ui/member/src/app-auth-frame.tsx` |
@@ -87,9 +89,9 @@ Não existe rota `/profile/:id`. O detalhe público é o `AppDialog` na vitrine.
 
 ## Screen flows
 
-Navegação nomeada: **sidebar shadcn** no desktop (`collapsible=icon`; fechada = rail de ícones). **Sheet** só abaixo de 768px. Header: logo + Vitrine + locale + tema (`max-w-6xl`). Trigger de menu: primeiro item da sidebar no desktop; no header só abaixo de 768px. **Sair** abre `AppAlertDialog`.
+Navegação nomeada: **sidebar shadcn** no desktop (`collapsible=icon`; fechada = rail de ícones). **Sheet** só abaixo de 768px. Header: marca da **comunidade ativa** (membro no workspace) ou marca da plataforma (visitante) + Vitrine + locale + tema (`max-w-6xl`). Trigger de menu: primeiro item da sidebar no desktop; no header só abaixo de 768px. **Sair** abre `AppAlertDialog`.
 
-Jobs: ver vitrine, pedir contato, entrar com código, buscar pessoas, editar o próprio perfil, coordenar entrada. Super-admin (`/ops`, app admin) fica **fora** deste chrome.
+Jobs: ver vitrine, pedir contato, entrar com código, escolher a comunidade, buscar pessoas, editar o próprio perfil, coordenar entrada. Super-admin (`/ops`, app admin) fica **fora** deste chrome.
 
 | Tela (rota hoje) | Job | Quem | Chrome | Problema atual | Alvo visual (Stitch) |
 | ----------------- | --- | ---- | ------ | -------------- | --------------------- |
@@ -97,29 +99,33 @@ Jobs: ver vitrine, pedir contato, entrar com código, buscar pessoas, editar o p
 | Perfil público | Ler perfil sanitizado | Visitante | `AppDialog` + `ScrollArea` | — | Headline no header; bio no body |
 | Contato | Pedir contato mediado | Visitante | `AppSheet` right / bottom | Form dentro do diálogo | Sheet depois de Enviar mensagem |
 | `/` | Entrar com OTP | Visitante | Mesmo header | OTP centrado | OTP centrado, um CTA |
-| `/directory` | Buscar membros | Membro | Sidebar: Diretório | — | Lista em linhas; `Ver perfil` abre o mesmo diálogo da vitrine |
-| `/profile/edit` | Editar perfil-base | Membro | Sidebar: Meu perfil | — | Header sticky; identidade em superfície; grupos person / links |
-| `/coord/approvals` | Aprovar entrada | Coordenador | Sheet: + Pedidos | Tabela mínima; header “Coordenação” paralelo | Tabela com Aprovar/Recusar rotulados |
+| `/c/{slug}/directory` | Buscar membros **desta** comunidade | Membro | Sidebar: comunidade + Diretório | Path legado `/directory` | Lista em linhas; `Ver perfil` abre o mesmo diálogo da vitrine |
+| `/c/{slug}/profile/edit` | Editar perfil-base + card deste tenant | Membro | Rodapé: Meu perfil | Path legado `/profile/edit` | Header sticky; identidade em superfície; grupos person / links |
+| `/c/{slug}/coord/approvals` | Aprovar entrada **deste** tenant | Coordenador neste slug | Pedidos só se coord aqui | Path legado `/coord` | Tabela com Aprovar/Recusar rotulados |
+| Switcher | Trocar de comunidade | Membro com 2+ assentos | Topo da sidebar; mobile = nome no header | LIMIT 1 invisível | Lista curta; sem ícones de servidor |
 | `/ops`, admin | Operar tenants | Super-admin | Rail `--primary`; lista = **Rede / comunidades + pessoas**; tenant = + **nesta comunidade** | Um item “comunidades” com capítulos em tabs | App admin |
 
 Estados obrigatórios por tela: loading (skeleton no grid/tabela), vazio (copy + ação), erro recuperável, blocked (403 coord / módulo desligado).
 
 ```mermaid
 flowchart LR
-    V[Vitrine] -->|Ver perfil| P[Dialog perfil público]
+    V[Vitrine publica] -->|Ver perfil| P[Dialog perfil público]
     P -->|Enviar mensagem| C[Sheet right ou bottom]
     V -->|Entrar| O[OTP]
-    O -->|sessão| D[Diretório]
+    O -->|sessão| W[Workspace /c/slug]
+    W -->|Diretório| D[Lista]
     D -->|Ver perfil| P
-    D -->|Meu perfil| E[Editar perfil]
+    W -->|Meu perfil| E[Editar perfil]
+    W -->|outra comunidade| W
 ```
 
 ```mermaid
 flowchart TB
-    H[Header: logo / Vitrine / locale / tema]
+    H[Header: comunidade ou marca / Vitrine / locale / tema]
     H -->|abre| SH[Sheet esquerda]
-    SH --> N[Nav: Entrar ou Diretório / Meu perfil / Pedidos]
-    SH --> PF[Dock perfil no rodapé do sheet]
+    SH --> SW[Onde estou]
+    SH --> N[Destinos deste tenant]
+    SH --> PF[Dock perfil no rodapé]
 ```
 
 ## Responsive behavior
@@ -128,7 +134,7 @@ flowchart TB
 | ---------- | ----- | -------- |
 | Mobile | `< 640px` | Uma coluna; header só Vitrine + locale + tema + menu; sheet 100% largura; hit 44px; sem overflow-x |
 | Tablet | `640–1024px` | Lista de pessoas em uma coluna; filtros em sheet próprio |
-| Desktop | `> 768px` | Sidebar; colapsada = rail de ícones; páginas `max-w-6xl` |
+| Desktop | `> 768px` | Sidebar; colapsada = rail de ícones + inicial da comunidade; páginas `max-w-6xl` |
 
 ## Accessibility baseline
 

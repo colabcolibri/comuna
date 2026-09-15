@@ -41,6 +41,12 @@
       "@community/identity": [
         "../../packages/core/identity/src/index.ts"
       ],
+      "@community/memberships": [
+        "../../packages/core/memberships/src/index.ts"
+      ],
+      "@community/communities": [
+        "../../packages/core/communities/src/index.ts"
+      ],
       "@community/places": [
         "../../packages/core/places/src/index.ts"
       ],

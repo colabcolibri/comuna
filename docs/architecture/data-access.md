@@ -58,8 +58,9 @@ lib/server/     query + RLS + projeção (Node)
 lib/people/     PersonCard, query string, chips (puro)
 lib/api/        fetch de gesto (contato, OTP, upload)
 app/api/**      Route Handler fino
-app/<rota>/     Server Component: auth + searchParams + domínio
-components/app  DirectoryPanel, ShowcasePanel, PersonInspect
+app/c/[slug]/   Server Component do workspace: auth + tenant + searchParams
+app/<rota>/     login, home, vitrine pública (sem slug)
+components/app  DirectoryPanel, ShowcasePanel, PersonInspect, switcher
 ```
 
 ## O que não fazer

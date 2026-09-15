@@ -31,7 +31,7 @@ Hoje o Next de membros vive em `apps/web`. Pacotes `@community/*` via pnpm works
 | Admin web | Next.js 16 | `apps/admin` (alvo) | Shell ops; toggle módulos |
 | Core libs | TS packages | `packages/core/*` | Sem React de página |
 | Modules | TS packages | `packages/modules/<slug>` | Manifest + optional UI |
-| UI primitives | React / shadcn | `packages/ui/primitives` | Button, Input, InputOTP. CLI neste pacote |
+| UI primitives | React / shadcn | `packages/ui/primitives` | Button, Input, InputOTP, Select, Checkbox. CLI neste pacote |
 | UI member | React | `packages/ui/member` | Compostos Stitch |
 | UI admin | React | `packages/ui/admin` | Tabelas densas |
 

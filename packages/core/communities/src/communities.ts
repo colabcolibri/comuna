@@ -36,6 +36,14 @@ export async function getCommunity(id: string): Promise<CommunityRow | null> {
   return result.rows[0] ?? null;
 }
 
+export async function getCommunityBySlug(slug: string): Promise<CommunityRow | null> {
+  const result = await query<CommunityRow>(
+    `SELECT id, slug, name, type FROM network_core.communities WHERE slug = $1`,
+    [slug.trim().toLowerCase()]
+  );
+  return result.rows[0] ?? null;
+}
+
 export async function createCommunity(input: { slug: string; name: string; type?: string }): Promise<CommunityRow> {
   const slug = input.slug.trim().toLowerCase();
   const name = input.name.trim();

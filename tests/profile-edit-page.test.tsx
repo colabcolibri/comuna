@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { coreCatalog } from '@community/directory';
-import ProfileEditPage from '../apps/web/src/app/profile/edit/page';
+import ProfileEditPage from '../apps/web/src/app/c/[slug]/profile/edit/page';
 import { LocaleProvider } from '@/components/app/LocaleProvider';
 
 const catalogGroups = [

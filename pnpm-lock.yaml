@@ -132,6 +132,9 @@ importers:
       '@community/auth':
         specifier: workspace:*
         version: link:../../packages/core/auth
+      '@community/communities':
+        specifier: workspace:*
+        version: link:../../packages/core/communities
       '@community/contact-mediated':
         specifier: workspace:*
         version: link:../../packages/modules/contact-mediated
@@ -147,6 +150,9 @@ importers:
       '@community/identity':
         specifier: workspace:*
         version: link:../../packages/core/identity
+      '@community/memberships':
+        specifier: workspace:*
+        version: link:../../packages/core/memberships
       '@community/module-runtime':
         specifier: workspace:*
         version: link:../../packages/core/module-runtime
@@ -218,6 +224,9 @@ importers:
 
   packages/modules/directory:
     dependencies:
+      '@community/db':
+        specifier: workspace:*
+        version: link:../../core/db
       '@community/identity':
         specifier: workspace:*
         version: link:../../core/identity
@@ -239,6 +248,9 @@ importers:
       '@community/ui':
         specifier: workspace:*
         version: link:../primitives
+      lucide-react:
+        specifier: ^1.45.0
+        version: 1.45.0(react@19.3.0)
       react:
         specifier: ^19.0.0
         version: 19.3.0
