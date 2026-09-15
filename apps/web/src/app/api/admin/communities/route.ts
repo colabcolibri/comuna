@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { memberFromRequest } from '@community/auth';
 import { query } from '@community/db';
+import { enableFirstPartyModules } from '@community/module-runtime';
 
 async function requireOps(req: NextRequest) {
   const member = await memberFromRequest(req);
@@ -31,5 +32,7 @@ export async function POST(req: NextRequest) {
      RETURNING id, slug, name`,
     [body.slug, body.name, body.type || 'alumni']
   );
-  return NextResponse.json(inserted.rows[0], { status: 201 });
+  const community = inserted.rows[0];
+  await enableFirstPartyModules(query, community.id);
+  return NextResponse.json(community, { status: 201 });
 }

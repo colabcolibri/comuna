@@ -1,7 +1,7 @@
 ---
 title: API Contracts
-status: review
-version: 1.3
+status: approved
+version: 1.4
 updated: 2026-09-15
 depends_on: [05_architecture.md, 06_database.md]
 blocks: []
@@ -57,8 +57,9 @@ blocks: []
 | `GET` | `/api/profiles/me` | Perfil-base | Member / coordinator | — | `{ "profile" }` base |
 | `PUT` | `/api/profiles/me` | Atualiza perfil-base | Member / coordinator | identidade + demografia + lugares Nominatim | `{ "profile" }` |
 | `GET` | `/api/places/cities` | Busca cidade (Nominatim) | Member | `?q=` | `{ "data": GeoPlace[] }` |
-| `PUT` | `/api/memberships/me` | Card do directory | Member; 404 se plugin off | `{ headline, bio }` LocalizedText, availability, vitrine | `{ ok }` |
-| `GET` | `/api/directory/members` | Diretório rico | Member; **404 se plugin off** | query | `{ "data", "meta" }` |
+| `PUT` | `/api/memberships/me` | Card do directory | Member; 404 se plugin off | LocalizedText headline/bio, availability, vitrine, `custom_attributes` (só chaves do catálogo) | `{ ok }` |
+| `GET` | `/api/directory/catalog` | Grupos e campos da comunidade | Member; **404 se plugin off** | — | `{ "groups": [ { fields } ] }` |
+| `GET` | `/api/directory/members` | Diretório rico | Member; **404 se plugin off** | query + facets | `{ "data", "meta" }` |
 | `GET` | `/api/showcase/profiles` | Vitrine | Public; **404 se plugin off** | query | dados públicos |
 | `POST` | `/api/contact/:membershipId` | Contato mediado | Public; **404 se plugin off** | nome, e-mail, mensagem | `200` sem e-mail |
 | `GET` | `/api/coord/approvals` | Fila | Coordinator | `?status=` | `{ "pending" }` |
@@ -78,7 +79,8 @@ blocks: []
 | `page` | Integer | `1` | — | Página |
 | `limit` | Integer | `20` | `100` | Page size |
 | `search` | String | `""` | `100` | Nome, headline, bio |
-| `skill` | String | `""` | `50` | Skill da comunidade |
+| `skill` | String | `""` | `50` | Skill da comunidade (ainda sem tabela SQL) |
+| `attr.<name>` | Scalar | — | — | Facet: só campos `filterable`; traduz para `custom_attributes @>` |
 
 ## Rate limits
 

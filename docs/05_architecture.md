@@ -1,7 +1,7 @@
 ---
 title: System Architecture
 status: approved
-version: 1.6
+version: 1.8
 updated: 2026-09-15
 depends_on: [00_scope.md, 01_tech_stack.md, 02_security.md, 03_user_types.md, 04_principles.md]
 blocks: [06_database.md, 07_api_contracts.md, 08_environments.md]
@@ -62,9 +62,9 @@ flowchart TD
 
 | File | Kind | Scope |
 | ---- | ---- | ----- |
-| `docs/architecture/diagrams/alumni-database.md` | database | ER núcleo (renomear quando o ficheiro for atualizado) |
-| `docs/architecture/diagrams/alumni-runtime.md` | runtime | web vs admin |
-| `docs/architecture/diagrams/module-runtime.md` | flow | enable/disable módulo |
+| `docs/architecture/diagrams/alumni-database.md` | database | ER SQL + catálogo `field_groups` / `fields` (skills ainda não existem em SQL) |
+| `docs/architecture/diagrams/alumni-runtime.md` | runtime | `apps/web` e `apps/admin`, places, plugins, Postgres |
+| `docs/architecture/diagrams/module-runtime.md` | flow | enable/disable por `community_id` → 404 se off |
 
 ## Architecture detail files
 
@@ -73,6 +73,7 @@ flowchart TD
 | `docs/architecture/surfaces.md` | web vs admin |
 | `docs/architecture/monorepo.md` | Árvore de pastas |
 | `docs/architecture/modules.md` | Contrato de plugin, perfil-base vs extra |
+| `docs/architecture/profile-fields.md` | Catálogo de grupos/campos, templates, jsonb + GIN |
 | `docs/architecture/i18n-content.md` | Packs + `CONTENT` no arquivo |
 
 ## System modules (core)
@@ -83,7 +84,7 @@ OTP + JWT. Sem papel por e-mail.
 
 ### Identity (perfil-base)
 
-Pessoa (`person_core`) e helpers de chrome (`pickContent`, cookie). Cidade é `GeoPlace` via `packages/core/places` (infraestrutura, **não** plugin). Headline e bio no plugin `directory` são os únicos textos que o membro preenche em pt-BR e en.
+Pessoa (`person_core`) e helpers de chrome (`pickContent`, cookie). Cidade é `GeoPlace` via `packages/core/places` (infraestrutura, **não** plugin). Headline e bio no plugin `directory` são os únicos textos que o membro preenche em pt-BR e en. O formulário de perfil é dirigido pelo **catálogo de campos** (`docs/architecture/profile-fields.md`): grupos, tipos com template, span 1–3. Availability é grupo do directory, não identidade.
 
 ### Communities e memberships
 
@@ -91,7 +92,7 @@ Tenant, papéis `member` / `coordinator`, `pending_approval`. Coordenação de e
 
 ### Module runtime
 
-Catálogo `plugin_core.modules`. Por comunidade: `network_core.community_modules (community_id, module_id, enabled)`. Resolve manifest, recusa rotas de plugin off.
+Catálogo `plugin_core.modules`. Por comunidade: `network_core.community_modules (community_id, module_id, enabled)`. Comunidade nova: plugins first-party nascem **enabled**. Resolve manifest, recusa rotas de plugin off.
 
 ### Operations (admin app)
 
@@ -101,9 +102,13 @@ Criar comunidade, atribuir coordenador, **ligar/desligar módulos**.
 
 | Slug | O que adiciona | Off significa |
 | ---- | -------------- | -------------- |
-| `directory` | Campos extras + busca/listagem rica | Membros só veem perfil-base (ou lista mínima do núcleo) |
+| `directory` | Catálogo de campos + card + busca/listagem | Membros só veem perfil-base (ou lista mínima do núcleo) |
 | `showcase` | Projeção pública | Sem vitrine |
 | `contact-mediated` | Formulário sem expor e-mail | Sem hiring mail |
+
+## Profile field catalog
+
+Detalhe: `docs/architecture/profile-fields.md`. Resumo: definições em tabela (`field_groups`, `fields`); valores custom em `cards.custom_attributes` (escalares, GIN); built-ins via `storage` `person` ou `card_column`; UI só orquestra grupos e `FieldControl` por tipo.
 
 ## Component boundary
 
@@ -113,4 +118,4 @@ Criar comunidade, atribuir coordenador, **ligar/desligar módulos**.
 
 ## Gate
 
-`approved` — manager aprovou o modelo plugin + monorepo (2026-09-15).
+`approved` — manager 2026-09-15. Inclui catálogo de campos do perfil e plugins first-party default on.

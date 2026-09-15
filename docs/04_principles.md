@@ -27,7 +27,8 @@ blocks: [05_architecture.md]
 | Lugar | `packages/core/places` | React, SQL. Adapters atrás de `CityDirectory`. Não é plugin. |
 | Comunidades / membership | `packages/core/communities`, `memberships` | |
 | Module runtime | `packages/core/module-runtime` | `if (community.slug === 'alumni')` |
-| Directory plugin | `packages/modules/directory` | Tabelas no person_core |
+| Directory plugin | `packages/modules/directory` | Tabelas no person_core; catálogo de campos no core |
+| Field templates | UI compartilhada + bindings do directory | Select de availability hardcoded na página |
 | Showcase / contact | `packages/modules/showcase`, `contact-mediated` | |
 | UI strings | Pack + `CONTENT` no arquivo de UI | Dump central `translations.ts` |
 | Member UI | `packages/ui/member` | Tokens da vitrine no admin |

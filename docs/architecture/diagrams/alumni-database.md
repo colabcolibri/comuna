@@ -1,63 +1,93 @@
 ---
-title: "Alumni Platform — Multi-Tenant Architecture Diagram"
-subtitle: "Estrutura Multi-Tenant Lógica (communities, cohorts e memberships) para suporte a múltiplas redes"
+title: Community Platform — database
+subtitle: Colunas das migrações em db/migrations (não o recorte do skill de diagrama)
 kind: database
 source_doc: docs/06_database.md
-updated: 2026-09-14
+updated: 2026-09-15
 ---
 
-# Alumni Platform — Multi-Tenant Architecture Diagram
+# Community Platform — database
 
 ```mermaid
 erDiagram
-    "auth_core.users" ||--O| "person_core.profiles" : "identifica (1:1)"
-    "auth_core.users" ||--O{ "network_core.memberships" : "participa em N redes"
-    "network_core.communities" ||--O{ "network_core.memberships" : "possui membros"
-    "network_core.communities" ||--O{ "network_core.cohorts" : "possui turmas/grupos"
-    "network_core.cohorts" ||--O{ "network_core.memberships" : "associa membro a cohort"
-    "network_core.memberships" ||--O{ "network_core.member_skills" : "possesses"
-    "network_core.skills" ||--O{ "network_core.member_skills" : "tagged in"
+    "auth_core.users" ||--O| "person_core.profiles" : "1:1"
+    "auth_core.users" ||--O{ "network_core.memberships" : "N redes"
+    "network_core.communities" ||--O{ "network_core.memberships" : "membros"
+    "network_core.communities" ||--O{ "network_core.community_modules" : "liga plugins"
+    "plugin_core.modules" ||--O{ "network_core.community_modules" : "catalogo"
+    "network_core.communities" ||--O{ "network_core.cohorts" : "turmas"
+    "network_core.cohorts" ||--O{ "network_core.memberships" : "opcional"
+    "network_core.memberships" ||--o| "plugin_directory.cards" : "card"
+    "network_core.communities" ||--O{ "plugin_directory.field_groups" : "grupos perfil"
+    "plugin_directory.field_groups" ||--O{ "plugin_directory.fields" : "campos"
+    "network_core.memberships" ||--O{ "plugin_contact.messages" : "contato mediado"
+
+    "public.schema_migrations" {
+        text id PK
+        timestamptz applied_at
+    }
 
     "auth_core.users" {
         uuid id PK
-        string email UK
-        string global_role "user | super_admin"
-        string status "active | suspended"
-        timestamp created_at
+        text email UK
+        text global_role "user | super_admin"
+        text status "active | suspended"
+        timestamptz created_at
+    }
+
+    "auth_core.verification_tokens" {
+        uuid id PK
+        text email
+        text code_hash
+        integer attempts
+        timestamptz expires_at
+        timestamptz created_at
     }
 
     "person_core.profiles" {
         uuid id PK
         uuid user_id FK, UK
-        string full_name
-        string gender "woman | man | non_binary | prefer_not"
-        string avatar_url
-        jsonb birth_city "LocalizedText"
-        string birth_country
-        jsonb current_city "LocalizedText"
-        string current_country
-        jsonb contacts "linkedin, github, portfolio"
+        text full_name
+        text avatar_url
+        text preferred_locale
+        text gender "woman | man | non_binary | prefer_not"
+        text birth_country
+        text current_country
+        jsonb birth_city "GeoPlace ou null"
+        jsonb current_city "GeoPlace ou null"
         jsonb languages "[{code, proficiency}]"
-        string preferred_locale
-        timestamp updated_at
+        jsonb contacts "{linkedin, github, portfolio}"
+        timestamptz updated_at
+    }
+
+    "plugin_core.modules" {
+        uuid id PK
+        text slug UK
+        text version
+    }
+
+    "network_core.community_modules" {
+        uuid community_id PK, FK
+        uuid module_id PK, FK
+        boolean enabled
     }
 
     "network_core.communities" {
         uuid id PK
-        string slug UK "ex: alumni-2024, dev-community, ai-research"
-        string name "Nome da Comunidade/Rede"
-        string type "alumni | practice_community | incubator | mentor_network"
-        boolean is_public_showcase "Se a comunidade possui vitrine externa"
-        jsonb settings "regras especificas da rede"
-        timestamp created_at
+        text slug UK
+        text name
+        text type
+        boolean is_public_showcase
+        jsonb settings
+        timestamptz created_at
     }
 
     "network_core.cohorts" {
         uuid id PK
         uuid community_id FK
-        string name "Ex: Turma 2024, Edicao 01, Grupo IA"
-        string code "ex: T2024-1"
-        timestamp created_at
+        text name
+        text code
+        timestamptz created_at
     }
 
     "network_core.memberships" {
@@ -65,30 +95,52 @@ erDiagram
         uuid community_id FK
         uuid user_id FK
         uuid cohort_id FK
-        string network_role "member | coordinator"
-        string network_status "pending_approval | active | suspended"
-        timestamp joined_at
+        text network_role "member | coordinator"
+        text network_status "pending_approval | active | suspended"
+        timestamptz joined_at
     }
 
-    "network_core.skills" {
+    "plugin_directory.cards" {
+        uuid membership_id PK, FK
+        jsonb headline "LocalizedText"
+        jsonb bio "LocalizedText"
+        text availability_status
+        boolean public_showcase
+        jsonb custom_attributes
+    }
+
+    "plugin_directory.field_groups" {
         uuid id PK
-        uuid community_id FK "Skills isoladas por comunidade ou globais"
-        string name
-        string category
+        uuid community_id FK
+        text slug
+        jsonb label
+        jsonb description
+        integer sort_order
+        integer columns
     }
 
-    "network_core.member_skills" {
+    "plugin_directory.fields" {
+        uuid id PK
+        uuid group_id FK
+        text name
+        text type
+        jsonb label
+        jsonb description
+        jsonb options
+        integer span
+        boolean required
+        integer sort_order
+        text storage
+        text column_key
+        boolean filterable
+    }
+
+    "plugin_contact.messages" {
+        uuid id PK
         uuid membership_id FK
-        uuid skill_id FK
-        primary_key(membership_id, skill_id)
-    }
-
-    "auth_core.verification_tokens" {
-        uuid id PK
-        string email FK
-        string code_hash
-        integer attempts
-        timestamp expires_at
-        timestamp created_at
+        text sender_email
+        text sender_name
+        text body
+        timestamptz created_at
     }
 ```

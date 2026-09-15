@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { memberFromRequest } from '@community/auth';
 import { queryAsMember } from '@community/db';
 import { parseLocalized } from '@community/identity';
+import { parseField, validateCustomAttributes } from '@community/directory';
 import { activeMembership, moduleRuntime } from '@/lib/server/membership';
 
 export async function GET(req: NextRequest) {
@@ -37,6 +38,9 @@ export async function PUT(req: NextRequest) {
   if (!membership) {
     return NextResponse.json({ error: { code: 'FORBIDDEN', message: 'Sem membership ativa' } }, { status: 403 });
   }
+  if (!(await moduleRuntime.isEnabled(membership.community_id, 'directory'))) {
+    return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
+  }
   const body = await req.json();
   const communityId = body.community_id;
   if (communityId && communityId !== membership.community_id) {
@@ -47,6 +51,21 @@ export async function PUT(req: NextRequest) {
   }
   const headline = parseLocalized(body.headline);
   const bio = parseLocalized(body.bio);
+  const catalog = await queryAsMember(
+    { userId: member.sub, communityId: membership.community_id },
+    `SELECT f.name, f.type, f.options, f.storage, f.column_key, f.filterable, f.required, f.span, f.sort_order, f.label
+     FROM plugin_directory.fields f
+     JOIN plugin_directory.field_groups g ON g.id = f.group_id
+     WHERE g.community_id = $1`,
+    [membership.community_id]
+  );
+  const fields = catalog.rows
+    .map((row) => parseField(row as Record<string, unknown>))
+    .filter((field): field is NonNullable<typeof field> => Boolean(field));
+  const attributes = validateCustomAttributes(fields, body.custom_attributes);
+  if (!attributes.ok) {
+    return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: attributes.message } }, { status: 400 });
+  }
   await queryAsMember(
     { userId: member.sub, communityId: membership.community_id },
     `INSERT INTO plugin_directory.cards (
@@ -64,7 +83,7 @@ export async function PUT(req: NextRequest) {
       JSON.stringify(bio),
       body.availability_status ?? null,
       Boolean(body.public_showcase),
-      JSON.stringify(body.custom_attributes || {}),
+      JSON.stringify(attributes.value),
     ]
   );
   return NextResponse.json({ ok: true, membership_id: membership.id });

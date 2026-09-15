@@ -1,7 +1,7 @@
 ---
 title: Database Design
-status: review
-version: 2.4
+status: approved
+version: 2.5
 updated: 2026-09-15
 depends_on: [05_architecture.md]
 blocks: [07_api_contracts.md]
@@ -34,6 +34,8 @@ erDiagram
     "network_core.communities" ||--O{ "network_core.cohorts" : "possui turmas/grupos"
     "network_core.cohorts" ||--O{ "network_core.memberships" : "associa membro a cohort"
     "network_core.memberships" ||--o| "plugin_directory.cards" : "card desta comunidade"
+    "network_core.communities" ||--O{ "plugin_directory.field_groups" : "grupos de perfil"
+    "plugin_directory.field_groups" ||--O{ "plugin_directory.fields" : "campos"
     "network_core.skills" ||--O{ "network_core.member_skills" : "tagged in"
 
     "auth_core.users" {
@@ -107,7 +109,33 @@ erDiagram
         jsonb bio "LocalizedText"
         string availability_status "available_for_hire | project_partner | mentor | unavailable"
         boolean public_showcase
-        jsonb custom_attributes
+        jsonb custom_attributes "escalares; chaves = fields.name"
+    }
+
+    "plugin_directory.field_groups" {
+        uuid id PK
+        uuid community_id FK
+        string slug
+        jsonb label "LocalizedText"
+        jsonb description "LocalizedText"
+        integer sort_order
+        integer columns "1-3"
+    }
+
+    "plugin_directory.fields" {
+        uuid id PK
+        uuid group_id FK
+        string name "slug de armazenamento"
+        string type "text | textarea | localized_text | select | radio | checkbox | boolean | city | url"
+        jsonb label "LocalizedText"
+        jsonb description "LocalizedText"
+        jsonb options "[{value, label LocalizedText}]"
+        integer span "1-3"
+        boolean required
+        integer sort_order
+        string storage "person | card_column | attributes"
+        string column_key "opcional: full_name, availability_status, …"
+        boolean filterable
     }
 
     "network_core.skills" {
@@ -140,7 +168,7 @@ erDiagram
 ### 1. Uma Pessoa (perfil-base), Múltiplas Comunidades (`memberships`)
 - Uma conta `users` + perfil-base (identidade + demografia + cidades geocodificadas).
 - A mesma pessoa pode ser `member` numa comunidade e `coordinator` noutra.
-- Headline, bio, vitrine, availability: `plugin_directory.cards`. Skills ainda não têm tabela; `custom_attributes` não substitui LocalizedText.
+- Headline, bio, vitrine, availability: colunas de `plugin_directory.cards`. Catálogo em `field_groups` / `fields`. `custom_attributes` guarda só valores escalares de campos `storage=attributes`; não substitui LocalizedText nem a definição do campo.
 
 ### 2. Isolamento por `community_id` (Tenant ID)
 - Todas as consultas, buscas no diretório e ações administrativas filtram obrigatoriamente pelo `community_id`.
@@ -158,11 +186,13 @@ erDiagram
 2. **`person_core`**: identidade, demografia, GeoPlace de cidades, languages, contacts.
 3. **`network_core`**: `communities`, `memberships` (`network_role`: `member | coordinator`), `community_modules`, `cohorts` (núcleo de agrupamento; UI extra pode ser plugin depois).
 4. **`plugin_core`**: catálogo `modules`.
-5. **`plugin_directory`**: `cards` com headline/bio LocalizedText, availability, vitrine. Skills no ER legado `network_core.skills` ainda não existem em SQL.
+5. **`plugin_directory`**: `cards` (headline/bio LocalizedText, availability, vitrine, `custom_attributes`); `field_groups` e `fields` por `community_id`. Skills no ER legado `network_core.skills` ainda não existem em SQL.
 
 `community_admin` fora da v2.0.0.
 
 Índice extra: `community_modules (community_id)` unique pair já é PK.
+
+Comunidade nova: insert de `community_modules` para slugs first-party com `enabled = true`. A coluna pode permanecer `DEFAULT false` para módulos desconhecidos; a app não depende de default cego em plugin futuro.
 
 ## Hot paths / indexes (alvo da primeira migração)
 
@@ -170,6 +200,9 @@ erDiagram
 - `verification_tokens (email, expires_at)`.
 - `memberships (community_id, network_status)`.
 - `memberships (community_id, user_id)` unique.
+- `plugin_directory.field_groups (community_id, slug)` unique.
+- `plugin_directory.fields (group_id, name)` unique.
+- GIN em `plugin_directory.cards (custom_attributes)` (`jsonb_path_ops`) para facets `@>`.
 
 ## Retention
 

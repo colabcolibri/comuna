@@ -1,6 +1,6 @@
 ---
 title: Module / plugin contract
-updated: 2026-09-14
+updated: 2026-09-15
 source: docs/05_architecture.md
 ---
 
@@ -30,7 +30,7 @@ O runtime **não** lê o filesystem em runtime de produção de forma mágica: a
 1. Super-admin em `apps/admin` altera `community_modules.enabled`.
 2. `module-runtime.isEnabled(communityId, slug)` é a única porta.
 3. API do plugin retorna 404 se off (não 200 vazio com campos secretos).
-4. Seed da comunidade demo pode ligar `directory` + `showcase` + `contact-mediated`.
+4. Comunidade nova e seed: `directory` + `showcase` + `contact-mediated` nascem `enabled = true`. Admin pode desligar depois (API já existe; UI extra fora desta fatia).
 
 Não existe `if (community.type === 'alumni')` no core. Tipo de comunidade é dado + plugins, não um fork.
 
@@ -38,7 +38,7 @@ Não existe `if (community.type === 'alumni')` no core. Tipo de comunidade é da
 
 **Base (`packages/core/identity`):** `full_name`, `avatar_url`, `preferred_locale`, `gender`, cidades via Nominatim (`osm_id`), `languages`, `contacts`. País derivado do lugar.
 
-**Não-base (plugin directory):** headline/bio LocalizedText (único copy bilingue digitado), availability, vitrine.
+**Não-base (plugin directory):** headline/bio LocalizedText (único copy bilingue digitado), availability e vitrine como campos `card_column` no grupo `availability` (não no bloco de identidade), mais campos `attributes` da comunidade. Contrato: `docs/architecture/profile-fields.md`.
 
 ## Coordination
 

@@ -3,7 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { contentFromCatalog, pickContent, pickLocalizedText } from '@community/identity';
 import { displayPlace } from '@community/places';
+import type { CatalogField } from '@community/directory';
 import { AppIndexList, AppPageTemplate, AppPersonRow } from '@community/ui-member';
+import { Checkbox } from '@community/ui';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { uiCatalog } from '@/lang/catalog';
 
@@ -16,6 +18,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'plugin_directory', {
   off: 'page.off',
   privacy: 'page.privacy',
   view: 'page.view',
+  facets: 'page.facets',
 });
 
 type MemberRow = {
@@ -34,9 +37,39 @@ export default function DirectoryPage() {
   const [rows, setRows] = useState<MemberRow[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [off, setOff] = useState(false);
+  const [facets, setFacets] = useState<CatalogField[]>([]);
+  const [facetValues, setFacetValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    fetch('/api/profiles').then(async (res) => {
+    fetch('/api/directory/catalog').then(async (res) => {
+      if (res.status === 404) {
+        setOff(true);
+        return;
+      }
+      if (!res.ok) {
+        return;
+      }
+      const json = await res.json();
+      const fields = (json.groups || []).flatMap((group: { fields?: CatalogField[] }) => group.fields || []);
+      setFacets(fields.filter((field: CatalogField) => field.filterable && field.storage === 'attributes'));
+    });
+  }, []);
+
+  useEffect(() => {
+    if (off) {
+      return;
+    }
+    const params = new URLSearchParams();
+    if (searchTerm.trim()) {
+      params.set('search', searchTerm.trim());
+    }
+    Object.entries(facetValues).forEach(([name, value]) => {
+      if (value) {
+        params.set(`attr.${name}`, value);
+      }
+    });
+    const query = params.toString();
+    fetch(`/api/directory/members${query ? `?${query}` : ''}`).then(async (res) => {
       if (res.status === 404) {
         setOff(true);
         return;
@@ -44,14 +77,7 @@ export default function DirectoryPage() {
       const json = await res.json();
       setRows(json.data || []);
     });
-  }, []);
-
-  const filtered = rows.filter((p) => {
-    const headline = pickLocalizedText(p.headline, locale);
-    const bio = pickLocalizedText(p.bio, locale);
-    const city = displayPlace(p.current_city, locale);
-    return `${p.full_name} ${headline} ${bio} ${city}`.toLowerCase().includes(searchTerm.toLowerCase());
-  });
+  }, [searchTerm, facetValues, off]);
 
   return (
     <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
@@ -64,12 +90,31 @@ export default function DirectoryPage() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
+      {facets.length > 0 && (
+        <fieldset className="mb-6 space-y-2">
+          <legend className="text-sm font-medium">{copy.facets}</legend>
+          {facets.map((field) => (
+            <label key={field.name} className="flex items-center gap-2 min-h-11 text-sm">
+              <Checkbox
+                checked={facetValues[field.name] === 'true'}
+                onChange={(e) =>
+                  setFacetValues((current) => ({
+                    ...current,
+                    [field.name]: e.target.checked ? 'true' : '',
+                  }))
+                }
+              />
+              {pickLocalizedText(field.label, locale) || field.name}
+            </label>
+          ))}
+        </fieldset>
+      )}
       <p className="text-base text-muted-foreground mb-6 max-w-[40rem]">{copy.privacy}</p>
       {off && <p>{copy.off}</p>}
-      {!off && filtered.length === 0 && <p className="text-muted-foreground">{copy.empty}</p>}
-      {!off && filtered.length > 0 && (
+      {!off && rows.length === 0 && <p className="text-muted-foreground">{copy.empty}</p>}
+      {!off && rows.length > 0 && (
         <AppIndexList>
-          {filtered.map((profile) => {
+          {rows.map((profile) => {
             const headline = pickLocalizedText(profile.headline, locale);
             const city = displayPlace(profile.current_city, locale);
             return (

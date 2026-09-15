@@ -4,6 +4,7 @@
 const { Client } = require('pg');
 const { loadRootEnv } = require('./load-root-env.cjs');
 
+const { seedDirectoryCatalog } = require('./seed-directory-catalog.cjs');
 const MODULES = ['directory', 'showcase', 'contact-mediated'];
 const DEMO_MEMBER_COUNT = 40;
 
@@ -46,9 +47,11 @@ async function seed(url, email) {
     await client.query(
       `INSERT INTO network_core.community_modules (community_id, module_id, enabled)
        SELECT $1, id, true FROM plugin_core.modules
+       WHERE slug = ANY($2::text[])
        ON CONFLICT (community_id, module_id) DO UPDATE SET enabled = true`,
-      [communityId]
+      [communityId, ['directory', 'showcase', 'contact-mediated']]
     );
+    await seedDirectoryCatalog(client, communityId);
 
     for (const memberEmail of demoMemberEmails()) {
       const member = await client.query(
@@ -105,11 +108,12 @@ async function seed(url, email) {
       );
       await client.query(
         `INSERT INTO plugin_directory.cards (
-           membership_id, headline, bio, availability_status, public_showcase
-         ) VALUES ($1, $2::jsonb, $3::jsonb, 'available_for_hire', true)
+           membership_id, headline, bio, availability_status, public_showcase, custom_attributes
+         ) VALUES ($1, $2::jsonb, $3::jsonb, 'available_for_hire', true, $4::jsonb)
          ON CONFLICT (membership_id) DO UPDATE SET
            headline = EXCLUDED.headline,
-           bio = EXCLUDED.bio`,
+           bio = EXCLUDED.bio,
+           custom_attributes = EXCLUDED.custom_attributes`,
         [
           membership.rows[0].id,
           JSON.stringify([
@@ -120,6 +124,7 @@ async function seed(url, email) {
             { locale: 'pt-BR', value: `Bio sintética ${n}` },
             { locale: 'en', value: `Synthetic bio ${n}` },
           ]),
+          JSON.stringify({ host_at_home: Number(n) % 2 === 1 }),
         ]
       );
     }

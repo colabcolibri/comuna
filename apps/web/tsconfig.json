@@ -33,7 +33,7 @@
         "../../packages/core/db/src/index.ts"
       ],
       "@community/module-runtime": [
-        "../../packages/core/module-runtime/src/is-enabled.ts"
+        "../../packages/core/module-runtime/src/index.ts"
       ],
       "@community/auth": [
         "../../packages/core/auth/src/index.ts"
