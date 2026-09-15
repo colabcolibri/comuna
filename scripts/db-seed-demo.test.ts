@@ -1,10 +1,23 @@
 import { createRequire } from 'node:module';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const require = createRequire(import.meta.url);
 const { demoMemberEmails, DEMO_MEMBER_COUNT } = require('./db-seed.cjs');
 const { demoPeople } = require('./seed-demo-people.cjs');
 
 describe('demo member seed list', () => {
+  it('attaches the ops seed user to the demo community so directory has a membership', () => {
+    const source = fs.readFileSync(path.join(import.meta.dirname, 'db-seed.cjs'), 'utf8');
+    expect(source).toContain("'coordinator', 'active'");
+  });
+
+  it('attaches the ops seed user to the demo community so directory has a membership', () => {
+    const source = fs.readFileSync(path.join(import.meta.dirname, 'db-seed.cjs'), 'utf8');
+    expect(source).toMatch(/network_role, network_status/);
+    expect(source).toContain("'coordinator', 'active'");
+  });
+
   it('builds forty synthetic emails without drop or truncate', () => {
     const emails = demoMemberEmails();
     expect(DEMO_MEMBER_COUNT).toBe(40);

@@ -45,7 +45,7 @@ Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejei
 | `availability` | directory + showcase | availability (`directory`); `public_showcase` (`showcase`) | `card_column` |
 | (custom) | directory | o que a comunidade pedir | `attributes` |
 
-Grupos extra entram por seed/SQL nesta versão. Builder visual e tela admin de campos ficam para depois.
+Ops cria e apaga só campos `storage=attributes` no grupo `custom` (`/communities/:id/fields`). Campos `person`, `card_column` e atributos de seed (ex.: `hospitality`) aparecem travados. Comunidade nova recebe o mesmo seed de `scripts/seed-directory-catalog.cjs` mais o grupo `custom`.
 
 `columns` no grupo (1–3) define a densidade. `span` no campo (1–3) ocupa o grid. Mobile: uma coluna. Sem overflow horizontal.
 
@@ -65,4 +65,4 @@ Texto de nome/headline/bio: como hoje. Facets de campos `filterable` (boolean/se
 
 ## Fora deste contrato
 
-Tabela EAV de valores, skills SQL, builder de campos, FTS em respostas longas.
+Tabela EAV de valores, skills SQL, builder visual de layout, FTS em respostas longas.

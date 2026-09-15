@@ -50,4 +50,6 @@ Alvo: `package.json` `"workspaces": ["apps/*", "packages/core/*", "packages/modu
 - `apps/admin` não importa `packages/ui/member` nem rotas Stitch.
 - As duas apps importam `@community/ui` (primitives).
 - Módulo não importa outro módulo; só `core`.
+- Barrel de plugin usado em Client Component não reexporta `@community/db`. Writes ficam num subpath (`@community/directory/ops`).
+
 Código legado na raiz `src/` foi movido para `apps/web/src`.

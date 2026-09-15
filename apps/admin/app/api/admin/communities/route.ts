@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createCommunity, DuplicateCommunitySlugError, listCommunities } from '@community/communities';
 import { enableFirstPartyModules } from '@community/module-runtime';
+import { seedCommunityCatalog } from '@community/directory/ops';
 import { query } from '@community/db';
 import { jsonError } from '@/lib/http';
 import { isOpsClaims, requireOps } from '@/lib/require-ops';
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
   try {
     const community = await createCommunity({ slug, name });
     await enableFirstPartyModules(query, community.id, firstPartySlugs);
+    await seedCommunityCatalog(community.id);
     return NextResponse.json(community, { status: 201 });
   } catch (err) {
     if (err instanceof DuplicateCommunitySlugError) {

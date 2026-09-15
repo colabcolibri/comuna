@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button, Input, Label } from '@community/ui';
-import { OpsPageTemplate } from '@community/ui-admin';
+import { OpsPageTemplate, OpsTable } from '@community/ui-admin';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from './locale-provider';
 import { uiCatalog } from '@/lang/catalog';
@@ -93,38 +93,38 @@ export function CommunitiesPanel() {
         </form>
       ) : null}
       {error ? <p className="mb-4 text-sm text-destructive">{error}</p> : null}
-      {rows.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{copy.empty}</p>
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-secondary/80 border-b border-border">
-              <tr>
-                <th className="px-4 py-3 font-medium">{copy.colName}</th>
-                <th className="px-4 py-3 font-medium">{copy.colSlug}</th>
-                <th className="px-4 py-3 font-medium w-28">{copy.edit}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.id} className="border-t border-border hover:bg-secondary/50">
-                  <td className="px-4 py-3 font-medium min-w-0">
-                    <Link href={`/communities/${row.id}`} className="text-foreground hover:underline">
-                      {row.name}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 font-mono text-muted-foreground break-all">{row.slug}</td>
-                  <td className="px-4 py-3">
-                    <Button variant="link" className="h-auto px-0" asChild>
-                      <Link href={`/communities/${row.id}`}>{copy.edit}</Link>
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <OpsTable
+        columns={[
+          {
+            id: 'name',
+            header: copy.colName,
+            cell: (row) => (
+              <Link href={`/communities/${row.id}`} className="font-medium text-foreground hover:underline">
+                {row.name}
+              </Link>
+            ),
+          },
+          {
+            id: 'slug',
+            header: copy.colSlug,
+            className: 'font-mono text-muted-foreground break-all',
+            cell: (row) => row.slug,
+          },
+          {
+            id: 'edit',
+            header: copy.edit,
+            className: 'w-28',
+            cell: (row) => (
+              <Button variant="link" className="h-auto px-0" asChild>
+                <Link href={`/communities/${row.id}`}>{copy.edit}</Link>
+              </Button>
+            ),
+          },
+        ]}
+        rows={rows}
+        empty={copy.empty}
+        rowKey={(row) => row.id}
+      />
     </OpsPageTemplate>
   );
 }

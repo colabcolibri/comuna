@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { cookies } from 'next/headers';
 import { IBM_Plex_Sans } from 'next/font/google';
-import { ThemeProvider } from '@community/ui';
+import { ThemeProvider, Toaster } from '@community/ui';
 import { LOCALE_COOKIE, contentFromCatalog, pickContent, resolveUiLocale } from '@community/identity';
 import { LocaleProvider } from '@/components/locale-provider';
 import { uiCatalog } from '@/lang/catalog';
@@ -31,7 +31,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html lang={locale === 'en' ? 'en' : 'pt-BR'} className={`${ibmPlex.variable} h-full`} suppressHydrationWarning>
       <body className={`${ibmPlex.className} min-h-full antialiased bg-background text-foreground`}>
         <ThemeProvider>
-          <LocaleProvider initialLocale={locale}>{children}</LocaleProvider>
+          <LocaleProvider initialLocale={locale}>
+            {children}
+            <Toaster />
+          </LocaleProvider>
         </ThemeProvider>
       </body>
     </html>

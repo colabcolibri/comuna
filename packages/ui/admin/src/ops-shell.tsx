@@ -1,12 +1,14 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { DefaultOpsLink, type OpsLinkComponent } from './ops-link';
 import {
   Button,
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarInset,
   SidebarMenu,
@@ -16,11 +18,21 @@ import {
   SidebarTrigger,
 } from '@community/ui';
 
+export type OpsNavItem = {
+  href: string;
+  label: string;
+  active?: boolean;
+};
+
+export type OpsNavGroup = {
+  label?: string;
+  items: OpsNavItem[];
+};
+
 export function OpsShell({
   brand,
-  communitiesLabel,
-  communitiesHref = '/communities',
-  communitiesActive = false,
+  groups,
+  linkComponent: Link = DefaultOpsLink,
   signOutLabel,
   menuLabel,
   localeSlot,
@@ -29,9 +41,8 @@ export function OpsShell({
   children,
 }: {
   brand: string;
-  communitiesLabel: string;
-  communitiesHref?: string;
-  communitiesActive?: boolean;
+  groups: OpsNavGroup[];
+  linkComponent?: OpsLinkComponent;
   signOutLabel: string;
   menuLabel: string;
   localeSlot?: ReactNode;
@@ -46,19 +57,24 @@ export function OpsShell({
           <p className="px-2 text-sm font-semibold leading-none tracking-tight">{brand}</p>
         </SidebarHeader>
         <SidebarContent>
-          <SidebarGroup className="px-2 py-3">
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild isActive={communitiesActive}>
-                    <a href={communitiesHref}>
-                      <span>{communitiesLabel}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          {groups.map((group) => (
+            <SidebarGroup key={group.label || group.items[0]?.href} className="px-2 py-3">
+              {group.label ? <SidebarGroupLabel>{group.label}</SidebarGroupLabel> : null}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {group.items.map((item) => (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton asChild isActive={Boolean(item.active)}>
+                        <Link href={item.href}>
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          ))}
         </SidebarContent>
       </Sidebar>
       <SidebarInset className="min-h-0 overflow-hidden bg-background">

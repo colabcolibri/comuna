@@ -7,6 +7,13 @@ export type CommunityRow = {
   type: string;
 };
 
+export class CommunityNotFoundError extends Error {
+  constructor() {
+    super('Community not found');
+    this.name = 'CommunityNotFoundError';
+  }
+}
+
 export class DuplicateCommunitySlugError extends Error {
   constructor(slug: string) {
     super(`Duplicate community slug: ${slug}`);
@@ -50,4 +57,26 @@ export async function createCommunity(input: { slug: string; name: string; type?
     }
     throw err;
   }
+}
+
+export async function updateCommunity(
+  id: string,
+  input: { name: string; type?: string }
+): Promise<CommunityRow> {
+  const name = input.name.trim();
+  const type = input.type?.trim() || 'alumni';
+  if (!name) {
+    throw new Error('VALIDATION_ERROR');
+  }
+  const updated = await query<CommunityRow>(
+    `UPDATE network_core.communities
+     SET name = $2, type = $3
+     WHERE id = $1
+     RETURNING id, slug, name, type`,
+    [id, name, type]
+  );
+  if (!updated.rows[0]) {
+    throw new CommunityNotFoundError();
+  }
+  return updated.rows[0];
 }

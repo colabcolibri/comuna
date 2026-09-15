@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Button, cn } from '@community/ui';
+import { DefaultOpsLink, type OpsLinkComponent } from './ops-link';
 
 export function OpsPageHeader({
   kicker,
@@ -12,6 +13,7 @@ export function OpsPageHeader({
   actions,
   sticky,
   className,
+  linkComponent: Link = DefaultOpsLink,
 }: {
   kicker?: string;
   backHref?: string;
@@ -23,12 +25,13 @@ export function OpsPageHeader({
   actions?: ReactNode;
   sticky?: boolean;
   className?: string;
+  linkComponent?: OpsLinkComponent;
 }) {
   const back = backHref && backLabel ? (
     <Button variant="outline" size="sm" className="mb-4" asChild>
-      <a href={backHref} aria-label={backAriaLabel ?? backLabel}>
+      <Link href={backHref} aria-label={backAriaLabel ?? backLabel}>
         {backLabel}
-      </a>
+      </Link>
     </Button>
   ) : null;
 

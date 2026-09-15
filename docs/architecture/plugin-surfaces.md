@@ -70,3 +70,7 @@ Deep link de rota que não está em `ui.routes` → redirect `/`. API do plugin:
 4. Slot: só renderiza contributors enabled daquele `slot` id.
 
 Sem `if` de slug em `catalog.ts`, `AppSidebar` ou home — só iteração.
+
+## Barrel do directory
+
+`@community/directory` (e `./lang`) é o que o browser pode importar: pack, contribution, catálogo puro, `coreCatalog`. Writes e seed (`listOpsCatalog`, `createAttributeField`, `seedCommunityCatalog`) saem de `@community/directory/ops` — só Route Handler. O barrel público **não** reexporta `@community/db`: um import no `MemberShell` puxaria `pg` e o bundle do cliente quebra (`Can't resolve 'dns'`).

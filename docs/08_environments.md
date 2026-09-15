@@ -81,7 +81,7 @@ Cookie de sessão membro: `Secure` só quando `NODE_ENV=production`. Local HTTP 
 
 ## Seed do super-admin
 
-Script de seed (US EPIC-11) insere `global_role = super_admin` para `INITIAL_SUPER_ADMIN_EMAIL`. Login ops **não** é “digitar o e-mail na tela Stitch e virar admin”.
+Script de seed (US EPIC-11) insere `global_role = super_admin` para `INITIAL_SUPER_ADMIN_EMAIL`. O mesmo utilizador entra na comunidade `demo` como `coordinator` ativo — senão a web (`/directory`) responde vazio: a listagem exige membership, a vitrine não. Login ops **não** é “digitar o e-mail na tela Stitch e virar admin”. Membros sintéticos: `member01@demo.example` … `member40@demo.example`.
 
 ## CI
 

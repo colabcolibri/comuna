@@ -1,7 +1,7 @@
 ---
 title: API Contracts
 status: approved
-version: 1.4
+version: 1.6
 updated: 2026-09-15
 depends_on: [05_architecture.md, 06_database.md]
 blocks: []
@@ -70,10 +70,19 @@ blocks: []
 | `POST` | `/api/admin/auth/verify-otp` | Sessão admin | Public, `super_admin` | OTP | cookie `ops_token` |
 | `GET` | `/api/admin/communities` | Lista comunidades | Super-admin | — | lista |
 | `POST` | `/api/admin/communities` | Cria comunidade | Super-admin | `{ "slug", "name" }` | `201` |
+| `GET` | `/api/admin/communities/:id` | Lê comunidade | Super-admin | — | `{ id, slug, name, type }` |
+| `PUT` | `/api/admin/communities/:id` | Atualiza nome/tipo | Super-admin | `{ "name", "type?" }` | comunidade |
+| `GET` | `/api/admin/communities/:id/modules` | Estado dos plugins | Super-admin | — | `{ "data": [{ slug, enabled }] }` |
 | `PUT` | `/api/admin/communities/:id/modules/:slug` | Liga/desliga plugin | Super-admin | `{ "enabled": true }` | `200` |
-| `POST` | `/api/admin/memberships/:id/role` | Atribui `coordinator` | Super-admin | `{ "network_role" }` | `200` |
+| `GET` | `/api/admin/communities/:id/memberships` | Lista memberships; `?email=` busca uma | Super-admin | — | `{ "data" }` ou membership |
+| `POST` | `/api/admin/memberships/:id/role` | Atribui `member` / `coordinator` | Super-admin | `{ "network_role" }` | `200` |
+| `GET` | `/api/admin/communities/:id/fields` | Catálogo ops (grupos + campos, com `locked` se `storage` ≠ `attributes`) | Super-admin | — | `{ "data": OpsCatalogGroup[] }` |
+| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` no grupo `custom` | Super-admin | `{ name, type, labelPt, labelEn, optionsText?, filterable? }` | `201` |
+| `DELETE` | `/api/admin/communities/:id/fields/:fieldId` | Apaga só `storage=attributes` no grupo `custom` | Super-admin | — | `{ ok }` |
 
 `GET /api/profiles` e `/api/admin/approvals` no código atual são **legado**. `/api/ops/*` foi removido: mutações de tenant só na origem admin.
+
+Rotas UI admin do tenant: `/communities/:id/settings|modules|members|fields` (índice redireciona para `settings`). Comunidade nova faz seed do catálogo (núcleo + directory + grupo `custom`).
 
 ## Pagination / filtering
 

@@ -33,6 +33,14 @@ async function seed(url, email) {
        ON CONFLICT (user_id) DO NOTHING`,
       [userId]
     );
+    await client.query(
+      `INSERT INTO network_core.memberships (community_id, user_id, network_role, network_status)
+       VALUES ($1, $2, 'coordinator', 'active')
+       ON CONFLICT (community_id, user_id) DO UPDATE SET
+         network_status = 'active',
+         network_role = EXCLUDED.network_role`,
+      [communityId, userId]
+    );
     for (const slug of MODULES) {
       await client.query(
         `INSERT INTO plugin_core.modules (slug, version) VALUES ($1, '1.0.0')

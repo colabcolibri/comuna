@@ -5,6 +5,7 @@ export type NetworkRole = 'member' | 'coordinator';
 export type MembershipRow = {
   id: string;
   network_role: NetworkRole;
+  network_status: string;
   user_id: string;
   email: string;
 };
@@ -35,13 +36,25 @@ export async function findMembershipByEmail(
   email: string
 ): Promise<MembershipRow | null> {
   const result = await query<MembershipRow>(
-    `SELECT m.id, m.network_role, m.user_id, u.email
+    `SELECT m.id, m.network_role, m.network_status, m.user_id, u.email
      FROM network_core.memberships m
      JOIN auth_core.users u ON u.id = m.user_id
      WHERE m.community_id = $1 AND lower(u.email) = lower($2)`,
     [communityId, email.trim()]
   );
   return result.rows[0] ?? null;
+}
+
+export async function listMemberships(communityId: string): Promise<MembershipRow[]> {
+  const result = await query<MembershipRow>(
+    `SELECT m.id, m.network_role, m.network_status, m.user_id, u.email
+     FROM network_core.memberships m
+     JOIN auth_core.users u ON u.id = m.user_id
+     WHERE m.community_id = $1
+     ORDER BY u.email`,
+    [communityId]
+  );
+  return result.rows;
 }
 
 export async function setNetworkRole(membershipId: string, role: string): Promise<MembershipRow> {
@@ -51,7 +64,7 @@ export async function setNetworkRole(membershipId: string, role: string): Promis
      SET network_role = $2
      FROM auth_core.users u
      WHERE m.id = $1 AND u.id = m.user_id
-     RETURNING m.id, m.network_role, m.user_id, u.email`,
+     RETURNING m.id, m.network_role, m.network_status, m.user_id, u.email`,
     [membershipId, networkRole]
   );
   if (!updated.rows[0]) {

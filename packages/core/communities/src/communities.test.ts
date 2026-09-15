@@ -5,7 +5,7 @@ vi.mock('@community/db', () => ({
 }));
 
 import { query } from '@community/db';
-import { DuplicateCommunitySlugError, createCommunity, listCommunities } from './communities';
+import { CommunityNotFoundError, DuplicateCommunitySlugError, createCommunity, listCommunities, updateCommunity } from './communities';
 
 const mockedQuery = vi.mocked(query);
 
@@ -28,5 +28,20 @@ describe('communities', () => {
     await expect(createCommunity({ slug: 'demo', name: 'Demo' })).rejects.toBeInstanceOf(
       DuplicateCommunitySlugError
     );
+  });
+
+  it('updates name and type for an existing community', async () => {
+    mockedQuery.mockResolvedValueOnce({
+      rows: [{ id: 'c1', slug: 'demo', name: 'Nova', type: 'cohort' }],
+    } as never);
+    await expect(updateCommunity('c1', { name: 'Nova', type: 'cohort' })).resolves.toMatchObject({
+      name: 'Nova',
+      type: 'cohort',
+    });
+  });
+
+  it('throws when updating a missing community', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    await expect(updateCommunity('missing', { name: 'X' })).rejects.toBeInstanceOf(CommunityNotFoundError);
   });
 });

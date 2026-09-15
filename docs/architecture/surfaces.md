@@ -1,6 +1,6 @@
 ---
 title: Member vs admin surfaces
-updated: 2026-09-14
+updated: 2026-09-15
 source: docs/05_architecture.md
 ---
 
@@ -19,8 +19,9 @@ Volta: `docs/05_architecture.md`.
 
 - **Users:** `super_admin`.
 - **Visual:** shell denso (`packages/ui/admin`).
-- **Jobs:** comunidades, coordenadores, **toggle de módulos**.
+- **Jobs:** comunidades, coordenadores, **toggle de módulos**, catálogo de campos do tenant.
 - **Cookie:** `ops_token` (alvo).
+- **IA do chrome:** o rail é a rede. Item único na lista: comunidades. Ao abrir um tenant, o rail ganha o grupo “nesta comunidade” (dados, plugins, membros, campos). Capítulos não ficam em tabs no miolo e não são itens globais da barra.
 
 ## Same database
 

@@ -59,6 +59,16 @@ describe('monorepo workspaces', () => {
     expect(fs.existsSync(path.join(ROOT, 'packages/core/locale'))).toBe(false);
   });
 
+  it('keeps the directory public barrel off postgres', () => {
+    const index = fs.readFileSync(path.join(ROOT, 'packages/modules/directory/src/index.ts'), 'utf8');
+    const pkg = readJson('packages/modules/directory/package.json');
+    expect(index).not.toMatch(/ops-catalog|seed-community-catalog|@community\/db/);
+    expect(pkg.exports['./ops']).toBe('./src/ops.ts');
+    const ops = fs.readFileSync(path.join(ROOT, 'packages/modules/directory/src/ops.ts'), 'utf8');
+    expect(ops).toMatch(/seedCommunityCatalog/);
+    expect(ops).toMatch(/listOpsCatalog/);
+  });
+
   it('keeps the Next proxy off the Node-only auth barrel', () => {
     const source = fs.readFileSync(path.join(ROOT, 'apps/web/src/proxy.ts'), 'utf8');
     expect(source).not.toMatch(/from ['"]@community\/auth['"]/);

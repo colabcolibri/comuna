@@ -31,6 +31,16 @@ describe('OpsPageTemplate', () => {
     expect(back.getAttribute('href')).toBe('/communities');
     expect(back.textContent).toContain('Voltar');
   });
+
+  it('renders chapter nav below the header', () => {
+    render(
+      <OpsPageTemplate title="Demo" nav={<nav>Dados</nav>}>
+        <p>corpo</p>
+      </OpsPageTemplate>
+    );
+    expect(screen.getByText('Dados')).toBeTruthy();
+    expect(screen.getByText('corpo')).toBeTruthy();
+  });
 });
 
 describe('OpsSection', () => {

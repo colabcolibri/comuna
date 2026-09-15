@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@community/ui';
 import { OpsPageHeader } from './ops-page-header';
+import type { OpsLinkComponent } from './ops-link';
 
 export function OpsPageTemplate({
   kicker,
@@ -11,9 +12,11 @@ export function OpsPageTemplate({
   subtitle,
   subtitleClassName,
   actions,
+  nav,
   stickyHeader,
   children,
   className,
+  linkComponent,
 }: {
   kicker?: string;
   backHref?: string;
@@ -23,9 +26,11 @@ export function OpsPageTemplate({
   subtitle?: string;
   subtitleClassName?: string;
   actions?: ReactNode;
+  nav?: ReactNode;
   stickyHeader?: boolean;
   children?: ReactNode;
   className?: string;
+  linkComponent?: OpsLinkComponent;
 }) {
   return (
     <main
@@ -45,7 +50,9 @@ export function OpsPageTemplate({
         ledeClassName={subtitleClassName}
         actions={actions}
         sticky={stickyHeader}
+        linkComponent={linkComponent}
       />
+      {nav}
       {children}
     </main>
   );

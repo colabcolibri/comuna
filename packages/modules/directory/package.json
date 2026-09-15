@@ -4,9 +4,11 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
-    "./lang": "./src/lang.ts"
+    "./lang": "./src/lang.ts",
+    "./ops": "./src/ops.ts"
   },
   "dependencies": {
+    "@community/db": "workspace:*",
     "@community/identity": "workspace:*",
     "@community/module-runtime": "workspace:*"
   }
