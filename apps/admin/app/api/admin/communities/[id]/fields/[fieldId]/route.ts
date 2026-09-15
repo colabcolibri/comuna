@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { deleteAttributeField, updateCatalogFieldRequired, updateCatalogFieldSpan, updateOpsField } from '@community/directory/ops';
+import { deleteAttributeField, updateCatalogFieldEnabled, updateCatalogFieldRequired, updateCatalogFieldSpan, updateOpsField } from '@community/directory/ops';
 import { catalogWriteResponse } from '@/lib/catalog-http';
 import { isOpsClaims, requireOps } from '@/lib/require-ops';
 
@@ -11,11 +11,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   const { id, fieldId } = await ctx.params;
   const body = await req.json();
   try {
-    if (typeof body.required === 'boolean' && body.labelPt === undefined) {
-      await updateCatalogFieldRequired(id, fieldId, body.required);
-    } else if (body.labelPt === undefined) {
-      await updateCatalogFieldSpan(id, fieldId, Number(body.span));
-    } else {
+    if (body.labelPt !== undefined) {
       await updateOpsField(id, fieldId, {
         labelPt: typeof body.labelPt === 'string' ? body.labelPt : undefined,
         labelEn: typeof body.labelEn === 'string' ? body.labelEn : undefined,
@@ -23,6 +19,12 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
         optionsText: typeof body.optionsText === 'string' ? body.optionsText : undefined,
         filterable: Boolean(body.filterable),
       });
+    } else if (typeof body.enabled === 'boolean') {
+      await updateCatalogFieldEnabled(id, fieldId, body.enabled);
+    } else if (typeof body.required === 'boolean') {
+      await updateCatalogFieldRequired(id, fieldId, body.required);
+    } else {
+      await updateCatalogFieldSpan(id, fieldId, Number(body.span));
     }
     return NextResponse.json({ ok: true });
   } catch (err) {

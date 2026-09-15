@@ -50,7 +50,9 @@ describe('OpsSection', () => {
         <p>directory</p>
       </OpsSection>
     );
-    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Plugins');
+    const heading = screen.getByRole('heading', { level: 2 });
+    expect(heading.textContent).toBe('Plugins');
+    expect(heading.closest('section')?.className).not.toMatch(/bg-card|shadow-sm|border-border/);
     expect(screen.getByText('Liga ou desliga o que a comunidade usa.')).toBeTruthy();
     expect(screen.getByText('directory')).toBeTruthy();
   });

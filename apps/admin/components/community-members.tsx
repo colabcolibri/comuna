@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import { Button, Checkbox, Input, Label, toast } from '@community/ui';
-import { OpsCombobox, OpsSection, OpsTable } from '@community/ui-admin';
+import { OpsAlertDialog, OpsCombobox, OpsSection, OpsTable } from '@community/ui-admin';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from './locale-provider';
 import { uiCatalog } from '@/lang/catalog';
@@ -37,6 +37,9 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   suspend: 'community.members_suspend',
   reactivate: 'community.members_reactivate',
   remove: 'community.members_remove',
+  removeTitle: 'community.members_remove_title',
+  removeBody: 'community.members_remove_body',
+  cancel: 'community.fields_cancel',
   cohortNone: 'community.cohort_none',
   colCohort: 'community.col_cohort',
   error: 'community.save_error',
@@ -67,6 +70,7 @@ export function CommunityMembers({ communityId }: { communityId: string }) {
   const [userId, setUserId] = useState('');
   const [asCoordinator, setAsCoordinator] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [pendingRemoveId, setPendingRemoveId] = useState<string | null>(null);
 
   const loadMembers = (offset = 0) => {
     const q = rosterQuery.trim();
@@ -288,7 +292,7 @@ export function CommunityMembers({ communityId }: { communityId: string }) {
                 onRole={(role) => void setRole(row.id, role)}
                 onStatus={(status) => void setStatus(row.id, status)}
                 onCohort={(cohortId) => void setCohort(row.id, cohortId)}
-                onRemove={() => void remove(row.id)}
+                onRemove={() => setPendingRemoveId(row.id)}
               />
             ),
           },
@@ -302,6 +306,22 @@ export function CommunityMembers({ communityId }: { communityId: string }) {
           {copy.more}
         </Button>
       ) : null}
+      <OpsAlertDialog
+        isOpen={pendingRemoveId !== null}
+        onClose={() => setPendingRemoveId(null)}
+        title={copy.removeTitle}
+        description={copy.removeBody}
+        cancelLabel={copy.cancel}
+        confirmLabel={copy.remove}
+        confirmVariant="destructive"
+        onConfirm={() => {
+          const id = pendingRemoveId;
+          setPendingRemoveId(null);
+          if (id) {
+            void remove(id);
+          }
+        }}
+      />
     </OpsSection>
   );
 }

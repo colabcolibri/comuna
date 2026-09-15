@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
-import { OpsBadge, OpsMoveButtons } from '@community/ui-admin';
+import { OpsAlertDialog, OpsBadge, OpsMoveButtons } from '@community/ui-admin';
 import { pickLocalizedText } from '@community/identity';
 import { CommunityFieldsCreateField } from './community-fields-create-field';
 import { CommunityFieldsField } from './community-fields-field';
@@ -30,6 +30,7 @@ export function CommunityFieldsGroup({
 }) {
   const title = pickLocalizedText(group.label, locale) || group.slug;
   const [renaming, setRenaming] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState(false);
   const [labelPt, setLabelPt] = useState(pickLocalizedText(group.label, 'pt-BR') || group.slug);
   const [labelEn, setLabelEn] = useState(pickLocalizedText(group.label, 'en') || '');
 
@@ -89,8 +90,12 @@ export function CommunityFieldsGroup({
     toast.success(copy.saved);
     onChanged();
   };
-  const removeField = async (fieldId: string) => {
-    const res = await fetch(`/api/admin/communities/${communityId}/fields/${fieldId}`, { method: 'DELETE' });
+  const setEnabled = async (enabled: boolean) => {
+    const res = await fetch(`/api/admin/communities/${communityId}/groups/${group.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled }),
+    });
     if (!res.ok) {
       toast.error(copy.error);
       return;
@@ -98,14 +103,21 @@ export function CommunityFieldsGroup({
     toast.success(copy.saved);
     onChanged();
   };
-  const removeGroup = async () => {
-    const res = await fetch(`/api/admin/communities/${communityId}/groups/${group.id}`, { method: 'DELETE' });
-    if (res.status === 409) {
-      toast.error(copy.groupNotEmpty);
+  const removeField = async (fieldId: string) => {
+    const res = await fetch(`/api/admin/communities/${communityId}/fields/${fieldId}`, { method: 'DELETE' });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      toast.error(data.error?.message || copy.error);
       return;
     }
+    toast.success(copy.saved);
+    onChanged();
+  };
+  const removeGroup = async () => {
+    const res = await fetch(`/api/admin/communities/${communityId}/groups/${group.id}`, { method: 'DELETE' });
     if (!res.ok) {
-      toast.error(copy.error);
+      const data = await res.json().catch(() => ({}));
+      toast.error(res.status === 409 && data.error?.code === 'VALIDATION_ERROR' ? data.error.message || copy.groupNotEmpty : copy.error);
       return;
     }
     toast.success(copy.saved);
@@ -120,6 +132,7 @@ export function CommunityFieldsGroup({
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <h3 className="text-base font-semibold wrap-break-word">{title}</h3>
             {group.locked ? <OpsBadge>{copy.locked}</OpsBadge> : null}
+            {group.enabled ? null : <OpsBadge>{copy.inactive}</OpsBadge>}
           </div>
         </div>
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
@@ -133,8 +146,16 @@ export function CommunityFieldsGroup({
             canDown={index < total - 1}
             onMove={(direction) => void moveGroup(direction)}
           />
-          {group.locked ? null : (
-            <Button type="button" size="sm" variant="outline" onClick={() => void removeGroup()}>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => void setEnabled(!group.enabled)}
+          >
+            {group.enabled ? copy.deactivate : copy.activate}
+          </Button>
+          {group.locked || group.enabled ? null : (
+            <Button type="button" size="sm" variant="outline" onClick={() => setPendingDelete(true)}>
               {copy.delete}
             </Button>
           )}
@@ -233,6 +254,19 @@ export function CommunityFieldsGroup({
           onCreated={onChanged}
         />
       </div>
+      <OpsAlertDialog
+        isOpen={pendingDelete}
+        onClose={() => setPendingDelete(false)}
+        title={copy.groupDeleteTitle}
+        description={copy.groupDeleteBody}
+        cancelLabel={copy.cancel}
+        confirmLabel={copy.delete}
+        confirmVariant="destructive"
+        onConfirm={() => {
+          setPendingDelete(false);
+          void removeGroup();
+        }}
+      />
     </article>
   );
 }

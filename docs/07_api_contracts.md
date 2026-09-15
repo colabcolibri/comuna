@@ -1,7 +1,7 @@
 ---
 title: API Contracts
 status: review
-version: 1.17
+version: 1.18
 updated: 2026-09-15
 depends_on: [05_architecture.md, 06_database.md]
 blocks: []
@@ -98,12 +98,12 @@ blocks: []
 | `DELETE` | `/api/admin/memberships/:id` | Remove a membership | Super-admin | — | `{ ok }` |
 | `GET` | `/api/admin/communities/:id/fields` | Catálogo ops (grupos na ordem do perfil; `locked` no grupo seed e no campo se `storage` ≠ `attributes`) | Super-admin | — | `{ "data": OpsCatalogGroup[] }` com `fields[].options: [{ value, labelPt, labelEn }]` |
 | `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` (tipos do catálogo; `span` 1–3; `required` default false) | Super-admin | `{ groupId, name, type, labelPt, labelEn, options?, optionsText?, filterable?, span?, required? }` — `select`/`radio`/`checkbox` exigem `options[]` (ou `optionsText` legado) | `{ 201, OpsCatalogField }` |
-| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | Sem `labelPt`: `span` **ou** `required` (qualquer campo, núcleo incluso). Com `labelPt`: label/opções/filtro se `storage=attributes` | Super-admin | `{ "span": 1 \| 2 \| 3 }` ou `{ "required": true \| false }` ou `{ labelPt, labelEn?, options?, optionsText?, filterable? }` | `{ ok }` |
-| `DELETE` | `/api/admin/communities/:id/fields/:fieldId` | Apaga só `storage=attributes` | Super-admin | — | `{ ok }` |
+| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | Sem `labelPt`: `enabled`, `required` ou `span` (núcleo incluso). Com `labelPt`: label/opções/filtro se `storage=attributes` | Super-admin | `{ "enabled": true\|false }` ou `{ "required": true\|false }` ou `{ "span": 1\|2\|3 }` ou `{ labelPt, labelEn?, options?, optionsText?, filterable? }` | `{ ok }` |
+| `DELETE` | `/api/admin/communities/:id/fields/:fieldId` | Apaga `storage=attributes` **só se** `enabled=false` | Super-admin | — | `{ ok }`; ainda ligado = 409 |
 | `POST` | `/api/admin/communities/:id/fields/:fieldId/move` | Sobe/desce **ou** muda de grupo no mesmo tenant | Super-admin | `{ "direction": "up"\|"down" }` ou `{ "groupId" }` | `{ ok }` |
 | `POST` | `/api/admin/communities/:id/groups` | Cria grupo (não seed) | Super-admin | `{ labelPt, labelEn, columns?, slug? }` | `201` |
-| `PATCH` | `/api/admin/communities/:id/groups/:groupId` | `columns` e/ou rótulo LocalizedText (seed incluso; slug imutável) | Super-admin | `{ "columns"?: 1\|2\|3, "labelPt"?: string, "labelEn"?: string }` | `{ ok }` |
-| `DELETE` | `/api/admin/communities/:id/groups/:groupId` | Apaga grupo vazio e não-seed | Super-admin | — | `{ ok }` |
+| `PATCH` | `/api/admin/communities/:id/groups/:groupId` | `columns`, `enabled` e/ou rótulo LocalizedText (seed incluso; slug imutável) | Super-admin | `{ "columns"?: 1\|2\|3, "enabled"?: boolean, "labelPt"?: string, "labelEn"?: string }` | `{ ok }` |
+| `DELETE` | `/api/admin/communities/:id/groups/:groupId` | Apaga grupo não-seed, **desativado** e vazio | Super-admin | — | `{ ok }`; ligado ou com campos = 409 |
 | `POST` | `/api/admin/communities/:id/groups/:groupId/move` | Sobe/desce o grupo | Super-admin | `{ "direction": "up" }` ou `"down"` | `{ ok }` |
 
 APIs de membro de rede (`/api/directory/*`, `/api/memberships/me`, `/api/coord/*`) usam o cookie `community_slug` (e membership `active` nesse tenant). Sem contexto e com mais de uma membership: `400 VALIDATION_ERROR`. Uma membership só: default permitido. `docs/architecture/community-context.md`.

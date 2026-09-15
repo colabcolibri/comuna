@@ -4,7 +4,7 @@ Compostos ops em `@community/ui-admin`. Mesmo contrato visual das páginas membr
 
 - `OpsShell` — rail: grupo **Rede** (comunidades + pessoas) sempre; grupo **Nesta comunidade** só depois de abrir um tenant
 - `OpsPageHeader` / `OpsPageTemplate` — páginas
-- `OpsSection` — blocos de detalhe
+- `OpsSection` — h2 + lede (sem card; a lista/tabela é que tem borda)
 - `OpsBadge` — rótulo curto (ex.: super-admin)
 - `OpsMoveButtons` — ordem: setas com `aria-label`, sem texto “subir/descer”
 - `OpsCombobox` — busca; opções vêm do caller (já paginadas)

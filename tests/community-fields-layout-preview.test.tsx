@@ -10,6 +10,7 @@ function field(partial: Partial<OpsField> & Pick<OpsField, 'id' | 'name' | 'type
     filterable: false,
     span: 1,
     required: false,
+    enabled: true,
     options: [],
     optionsText: '',
     label: [{ locale: 'pt-BR', value: partial.name }],
@@ -73,5 +74,30 @@ describe('community fields layout preview', () => {
     );
     expect(screen.getByText('Gênero')).toBeTruthy();
     expect(container.querySelector('[style*="span 2"]')).toBeTruthy();
+  });
+
+  it('labels the two locale boxes of a localized_text field', () => {
+    render(
+      <CommunityFieldsLayoutPreview
+        slug="identity"
+        columns={1}
+        locale="pt-BR"
+        label="Prévia"
+        requiredLabel="Obrigatório"
+        optionalLabel="Opcional"
+        fields={[
+          field({
+            id: 't',
+            name: 'headline',
+            type: 'localized_text',
+            label: [{ locale: 'pt-BR', value: 'Título' }],
+          }),
+        ]}
+      />
+    );
+    expect(screen.getByText('Título')).toBeTruthy();
+    expect(screen.getByText('Opcional')).toBeTruthy();
+    expect(screen.getByText('pt-BR')).toBeTruthy();
+    expect(screen.getByText('en')).toBeTruthy();
   });
 });

@@ -35,15 +35,19 @@ export type CatalogField = {
   storage: StorageKind;
   column_key: string | null;
   filterable: boolean;
+  enabled: boolean;
   module_slug: string | null;
 };
 
 export function visibleCatalog(groups: CatalogGroup[], enabled: Iterable<string>): CatalogGroup[] {
   const on = new Set(enabled);
   return groups
+    .filter((group) => group.enabled)
     .map((group) => ({
       ...group,
-      fields: group.fields.filter((field) => !field.module_slug || on.has(field.module_slug)),
+      fields: group.fields.filter(
+        (field) => field.enabled && (!field.module_slug || on.has(field.module_slug))
+      ),
     }))
     .filter((group) => group.fields.length > 0);
 }
@@ -54,6 +58,7 @@ export type CatalogGroup = {
   description: LocalizedText;
   sort_order: number;
   columns: 1 | 2 | 3;
+  enabled: boolean;
   fields: CatalogField[];
 };
 
@@ -109,6 +114,7 @@ export function parseField(row: Record<string, unknown>): CatalogField | null {
     storage: storage as StorageKind,
     column_key: columnKey,
     filterable: Boolean(row.filterable),
+    enabled: row.enabled !== false,
     module_slug: moduleSlug,
   };
 }
@@ -129,6 +135,7 @@ export function nestCatalog(rows: Record<string, unknown>[]): CatalogGroup[] {
         description: parseLocalized(row.group_description),
         sort_order: Number(row.group_sort_order ?? row.sort_order) || 0,
         columns: asSpan(row.columns),
+        enabled: row.group_enabled !== false,
         fields: [],
       });
     }

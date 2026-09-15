@@ -117,7 +117,7 @@ export function PeoplePanel() {
   return (
     <OpsPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
       <form
-        className="mb-8 grid max-w-lg gap-3 rounded-xl border border-border p-4"
+        className="mb-8 grid max-w-lg gap-3"
         onSubmit={(ev) => {
           ev.preventDefault();
           void createPerson();

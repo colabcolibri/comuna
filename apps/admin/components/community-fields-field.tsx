@@ -1,27 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  Button,
-  Checkbox,
-  Input,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  toast,
-} from '@community/ui';
-import { OpsBadge, OpsMoveButtons } from '@community/ui-admin';
+import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
+import { OpsAlertDialog, OpsBadge, OpsMoveButtons } from '@community/ui-admin';
 import { pickLocalizedText } from '@community/identity';
 import {
   clampFieldSpan,
@@ -69,6 +50,7 @@ export function CommunityFieldsField({
   const [filterable, setFilterable] = useState(field.filterable);
   const [busy, setBusy] = useState(false);
   const [pendingGroupId, setPendingGroupId] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState(false);
   const spanChoices = fieldSpanChoices(groupColumns);
   const showSpan = groupColumns > 1;
   const spanId = `ops-field-span-${field.id}`;
@@ -125,6 +107,20 @@ export function CommunityFieldsField({
     onChanged();
   };
 
+  const setEnabled = async (enabled: boolean) => {
+    const res = await fetch(`/api/admin/communities/${communityId}/fields/${field.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled }),
+    });
+    if (!res.ok) {
+      toast.error(copy.error);
+      return;
+    }
+    toast.success(copy.saved);
+    onChanged();
+  };
+
   const save = async () => {
     setBusy(true);
     const res = await fetch(`/api/admin/communities/${communityId}/fields/${field.id}`, {
@@ -156,6 +152,7 @@ export function CommunityFieldsField({
               {pickLocalizedText(field.label, locale) || field.name}
             </p>
             {field.locked ? <OpsBadge>{copy.locked}</OpsBadge> : null}
+            {field.enabled ? null : <OpsBadge>{copy.inactive}</OpsBadge>}
           </div>
           <p className="text-xs text-muted-foreground wrap-break-word">
             {fieldTypeLabel(field.type, copy)} · {field.required ? copy.required : copy.optional}
@@ -172,8 +169,16 @@ export function CommunityFieldsField({
           <Button type="button" size="sm" variant="outline" onClick={() => setOpen((value) => !value)}>
             {copy.edit}
           </Button>
-          {field.locked ? null : (
-            <Button type="button" size="sm" variant="outline" onClick={onRemove}>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={() => void setEnabled(!field.enabled)}
+          >
+            {field.enabled ? copy.deactivate : copy.activate}
+          </Button>
+          {field.locked || field.enabled ? null : (
+            <Button type="button" size="sm" variant="outline" onClick={() => setPendingDelete(true)}>
               {copy.delete}
             </Button>
           )}
@@ -285,20 +290,28 @@ export function CommunityFieldsField({
           )}
         </div>
       ) : null}
-      <AlertDialog open={pendingGroupId !== null} onOpenChange={(next) => { if (!next) setPendingGroupId(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{copy.moveGroupConfirm}</AlertDialogTitle>
-            <AlertDialogDescription>{copy.moveGroupHelp}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{copy.cancel}</AlertDialogCancel>
-            <AlertDialogAction onClick={() => pendingGroupId && void setGroup(pendingGroupId)}>
-              {copy.moveGroup}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <OpsAlertDialog
+        isOpen={pendingGroupId !== null}
+        onClose={() => setPendingGroupId(null)}
+        title={copy.moveGroupConfirm}
+        description={copy.moveGroupHelp}
+        cancelLabel={copy.cancel}
+        confirmLabel={copy.moveGroup}
+        onConfirm={() => pendingGroupId && void setGroup(pendingGroupId)}
+      />
+      <OpsAlertDialog
+        isOpen={pendingDelete}
+        onClose={() => setPendingDelete(false)}
+        title={copy.deleteTitle}
+        description={copy.deleteBody}
+        cancelLabel={copy.cancel}
+        confirmLabel={copy.delete}
+        confirmVariant="destructive"
+        onConfirm={() => {
+          setPendingDelete(false);
+          onRemove();
+        }}
+      />
     </li>
   );
 }

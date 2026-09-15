@@ -1,7 +1,7 @@
 ---
 title: Database Design
 status: approved
-version: 2.6
+version: 2.7
 updated: 2026-09-15
 depends_on: [05_architecture.md]
 blocks: [07_api_contracts.md]
@@ -143,6 +143,7 @@ erDiagram
         jsonb description "LocalizedText"
         integer sort_order
         integer columns "1-3"
+        boolean enabled
     }
 
     "plugin_directory.fields" {
@@ -155,6 +156,7 @@ erDiagram
         jsonb options "[{value, label LocalizedText}]"
         integer span "1-3"
         boolean required
+        boolean enabled
         integer sort_order
         string storage "person | card_column | attributes"
         string column_key "opcional: full_name, availability_status, …"

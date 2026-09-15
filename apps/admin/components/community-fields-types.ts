@@ -9,6 +9,7 @@ export type OpsField = {
   filterable: boolean;
   span: 1 | 2 | 3;
   required: boolean;
+  enabled: boolean;
   options: { value: string; labelPt: string; labelEn: string }[];
   optionsText: string;
   label: LocalizedText;
@@ -19,6 +20,7 @@ export type OpsGroup = {
   slug: string;
   columns: number;
   locked: boolean;
+  enabled: boolean;
   label: LocalizedText;
   fields: OpsField[];
 };
@@ -76,6 +78,13 @@ export type CatalogCopy = {
   requirement: string;
   required: string;
   optional: string;
+  deactivate: string;
+  activate: string;
+  inactive: string;
+  deleteTitle: string;
+  deleteBody: string;
+  groupDeleteTitle: string;
+  groupDeleteBody: string;
   groupLabel: string;
   moveGroup: string;
   moveGroupHelp: string;

@@ -2,7 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Input, Label, Textarea, toast } from '@community/ui';
-import { OpsPageTemplate, OpsTabs, OpsHtmlPreview } from '@community/ui-admin';
+import { OpsAlertDialog, OpsPageTemplate, OpsTabs, OpsHtmlPreview } from '@community/ui-admin';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { composeMail, defaultCopy, KIND_SLOT, KIND_VARIABLES, previewVarsFor, type EmailKind } from '@community/mail/compose';
 import { useLocale } from './locale-provider';
@@ -29,6 +29,9 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   envelopeNote: 'emails.envelope_note',
   save: 'emails.save',
   reset: 'emails.reset',
+  resetTitle: 'emails.reset_title',
+  resetBody: 'emails.reset_body',
+  cancel: 'community.fields_cancel',
   saved: 'emails.saved',
   resetOk: 'emails.reset_ok',
   error: 'community.save_error',
@@ -94,6 +97,7 @@ export function EmailsPanel() {
   const [body, setBody] = useState(initial.body);
   const [envelope, setEnvelope] = useState(FALLBACK_ENVELOPE);
   const [lastField, setLastField] = useState<FieldKey>('body');
+  const [pendingReset, setPendingReset] = useState(false);
   const subjectRef = useRef<HTMLInputElement>(null);
   const headingRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
@@ -277,7 +281,7 @@ export function EmailsPanel() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button type="submit">{copy.save}</Button>
-            <Button type="button" variant="outline" onClick={() => void reset()}>
+            <Button type="button" variant="outline" onClick={() => setPendingReset(true)}>
               {copy.reset}
             </Button>
           </div>
@@ -288,6 +292,19 @@ export function EmailsPanel() {
           <OpsHtmlPreview title={copy.preview} html={previewHtml} />
         </div>
       </form>
+      <OpsAlertDialog
+        isOpen={pendingReset}
+        onClose={() => setPendingReset(false)}
+        title={copy.resetTitle}
+        description={copy.resetBody}
+        cancelLabel={copy.cancel}
+        confirmLabel={copy.reset}
+        confirmVariant="destructive"
+        onConfirm={() => {
+          setPendingReset(false);
+          void reset();
+        }}
+      />
     </OpsPageTemplate>
   );
 }

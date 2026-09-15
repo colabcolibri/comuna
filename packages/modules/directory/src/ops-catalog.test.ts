@@ -87,9 +87,14 @@ describe('ops catalog', () => {
   });
 
   it('rejects deleting a locked person field', async () => {
-    mockedQuery.mockResolvedValueOnce({ rows: [{ storage: 'person' }] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [{ storage: 'person', enabled: false }] } as never);
     await expect(deleteAttributeField('c1', 'f1')).rejects.toMatchObject({ message: 'LOCKED' });
     expect(mockedQuery).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects deleting an extra field that is still on', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ storage: 'attributes', enabled: true }] } as never);
+    await expect(deleteAttributeField('c1', 'f1')).rejects.toMatchObject({ message: 'ACTIVE' });
   });
 
   it('groups fields under their catalog group', async () => {

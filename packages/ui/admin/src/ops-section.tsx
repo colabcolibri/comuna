@@ -13,7 +13,7 @@ export function OpsSection({
   className?: string;
 }) {
   return (
-    <section className={cn('min-w-0 rounded-xl border border-border bg-card p-6 shadow-sm', className)}>
+    <section className={cn('min-w-0', className)}>
       <h2 className="text-xl font-semibold leading-tight tracking-tight text-foreground">{title}</h2>
       {description ? (
         <p className="mt-1 text-base text-muted-foreground max-w-[40rem] leading-relaxed">{description}</p>

@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import { Button, Input, Label, toast } from '@community/ui';
-import { OpsSection, OpsTable } from '@community/ui-admin';
+import { OpsAlertDialog, OpsSection, OpsTable } from '@community/ui-admin';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from './locale-provider';
 import { uiCatalog } from '@/lang/catalog';
@@ -16,6 +16,9 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   create: 'community.cohorts_create',
   created: 'community.cohorts_created',
   delete: 'community.fields_delete',
+  deleteTitle: 'community.cohorts_delete_title',
+  deleteBody: 'community.cohorts_delete_body',
+  cancel: 'community.fields_cancel',
   error: 'community.save_error',
 });
 
@@ -27,6 +30,7 @@ export function CommunityCohorts({ communityId }: { communityId: string }) {
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
   const [busy, setBusy] = useState(false);
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
   const load = () => {
     fetch(`/api/admin/communities/${communityId}/cohorts`).then(async (res) => {
@@ -93,7 +97,7 @@ export function CommunityCohorts({ communityId }: { communityId: string }) {
             id: 'action',
             header: copy.delete,
             cell: (row) => (
-              <Button type="button" size="sm" variant="outline" onClick={() => void remove(row.id)}>
+              <Button type="button" size="sm" variant="outline" onClick={() => setPendingId(row.id)}>
                 {copy.delete}
               </Button>
             ),
@@ -102,6 +106,22 @@ export function CommunityCohorts({ communityId }: { communityId: string }) {
         rows={rows}
         empty={copy.empty}
         rowKey={(row) => row.id}
+      />
+      <OpsAlertDialog
+        isOpen={pendingId !== null}
+        onClose={() => setPendingId(null)}
+        title={copy.deleteTitle}
+        description={copy.deleteBody}
+        cancelLabel={copy.cancel}
+        confirmLabel={copy.delete}
+        confirmVariant="destructive"
+        onConfirm={() => {
+          const id = pendingId;
+          setPendingId(null);
+          if (id) {
+            void remove(id);
+          }
+        }}
       />
     </OpsSection>
   );

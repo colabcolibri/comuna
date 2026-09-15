@@ -15,6 +15,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       columns: Object.prototype.hasOwnProperty.call(body, 'columns') ? body.columns : undefined,
       labelPt: body.labelPt,
       labelEn: body.labelEn,
+      enabled: typeof body.enabled === 'boolean' ? body.enabled : undefined,
     });
     return NextResponse.json({ ok: true });
   } catch (err) {

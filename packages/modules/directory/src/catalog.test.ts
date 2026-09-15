@@ -122,6 +122,30 @@ describe('directory catalog', () => {
     expect(noShowcase.flatMap((g) => g.fields.map((f) => f.name))).toEqual(['full_name', 'host_at_home']);
   });
 
+  it('hides disabled groups and fields from the member catalog', () => {
+    const groups = nestCatalog([
+      {
+        group_slug: 'person',
+        group_label: [{ locale: 'pt-BR', value: 'Sobre você' }],
+        group_enabled: true,
+        name: 'full_name',
+        type: 'text',
+        storage: 'person',
+        enabled: false,
+      },
+      {
+        group_slug: 'person',
+        group_label: [{ locale: 'pt-BR', value: 'Sobre você' }],
+        group_enabled: true,
+        name: 'gender',
+        type: 'select',
+        storage: 'person',
+        enabled: true,
+      },
+    ]);
+    expect(visibleCatalog(groups, []).flatMap((group) => group.fields.map((field) => field.name))).toEqual(['gender']);
+  });
+
   it('treats required empty text as missing and boolean as filled', () => {
     const name = parseField({
       name: 'full_name',

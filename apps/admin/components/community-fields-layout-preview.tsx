@@ -1,4 +1,5 @@
 import { pickLocalizedText } from '@community/identity';
+import { cn } from '@community/ui';
 import { catalogColumns, clampFieldSpan, type OpsField } from './community-fields-types';
 
 export function CommunityFieldsLayoutPreview({
@@ -96,10 +97,10 @@ function PreviewCell({
   const name = pickLocalizedText(field.label, locale) || field.name;
   const status = field.required ? requiredLabel : optionalLabel;
   return (
-    <div className={className} style={style}>
+    <div className={cn(className, field.enabled ? undefined : 'opacity-50')} style={style}>
       {field.type === 'image' ? (
         <div className="flex flex-col items-center gap-2">
-          <span className="flex w-full min-w-0 items-baseline justify-between gap-2">
+          <span className="flex w-full min-w-0 items-baseline gap-2">
             <span className="truncate text-sm font-medium">{name}</span>
             <span className="shrink-0 text-xs text-muted-foreground">{status}</span>
           </span>
@@ -110,18 +111,18 @@ function PreviewCell({
         </div>
       ) : (
         <div className="space-y-1.5 min-w-0">
-          <span className="flex min-w-0 items-baseline justify-between gap-2">
+          <span className="flex min-w-0 items-baseline gap-2">
             <span className="truncate text-sm font-medium">{name}</span>
             <span className="shrink-0 text-xs text-muted-foreground">{status}</span>
           </span>
-          <FakeControl type={field.type} />
+          <FakeControl type={field.type} name={field.name} />
         </div>
       )}
     </div>
   );
 }
 
-function FakeControl({ type }: { type: string }) {
+function FakeControl({ type, name }: { type: string; name: string }) {
   if (type === 'boolean') {
     return (
       <span aria-hidden className="flex min-h-11 items-center gap-3">
@@ -142,10 +143,17 @@ function FakeControl({ type }: { type: string }) {
     return <span aria-hidden className="block min-h-24 w-full rounded-md border border-input bg-background" />;
   }
   if (type === 'localized_text') {
+    const box = name === 'bio' ? 'min-h-24' : 'h-11';
     return (
-      <span aria-hidden className="grid grid-cols-2 gap-3">
-        <span className="block h-11 rounded-md border border-input bg-background" />
-        <span className="block h-11 rounded-md border border-input bg-background" />
+      <span aria-hidden className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <span className="min-w-0 space-y-1">
+          <span className="block text-xs text-muted-foreground">pt-BR</span>
+          <span className={cn('block w-full rounded-md border border-input bg-background', box)} />
+        </span>
+        <span className="min-w-0 space-y-1">
+          <span className="block text-xs text-muted-foreground">en</span>
+          <span className={cn('block w-full rounded-md border border-input bg-background', box)} />
+        </span>
       </span>
     );
   }

@@ -15,6 +15,9 @@ export function catalogWriteResponse(err: unknown) {
   if (err.message === 'NOT_FOUND') {
     return jsonError('NOT_FOUND', 'Inexistente', 404);
   }
+  if (err.message === 'ACTIVE') {
+    return jsonError('VALIDATION_ERROR', 'Desative antes de excluir', 409);
+  }
   if (err.message === 'GROUP_NOT_EMPTY') {
     return jsonError('VALIDATION_ERROR', 'Grupo ainda tem campos', 409);
   }

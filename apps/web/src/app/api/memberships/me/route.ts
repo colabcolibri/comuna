@@ -51,7 +51,7 @@ export async function PUT(req: NextRequest) {
     `SELECT f.name, f.type, f.options, f.storage, f.column_key, f.filterable, f.required, f.span, f.sort_order, f.label
      FROM plugin_directory.fields f
      JOIN plugin_directory.field_groups g ON g.id = f.group_id
-     WHERE g.community_id = $1`,
+     WHERE g.community_id = $1 AND g.enabled AND f.enabled`,
     [resolved.seat.id]
   );
   const fields = catalog.rows

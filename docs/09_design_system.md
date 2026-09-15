@@ -1,7 +1,7 @@
 ---
 title: Design System
 status: review
-version: 1.14
+version: 1.16
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
@@ -15,7 +15,8 @@ blocks: []
 - **Primary UI stack:** `ts-shadcn` — primitives em `packages/ui/primitives` (`@community/ui`). Compostos membro em `packages/ui/member` e `apps/web/src/components/app/`.
 - **Select / Checkbox / menu:** shadcn em `@community/ui` (`SelectTrigger` + portal; `DropdownMenu`; `Checkbox` Radix; `Tabs`). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`, `OpsTabs`, `OpsHtmlPreview`) é que fecham o produto.
 - **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, espaços aninhados. Workspace (trocar de comunidade) **não** é sidebar de espaços — ver `community-context.md`.
-- **Copy de formulário:** grupo = título. Campo = rótulo + **Obrigatório** ou **Opcional** (os dois estados, sempre). Sem lede que ensina o schema. Sem “demografia”, “headline”, “intermediado”.
+- **Copy de formulário:** grupo = título. Campo = rótulo + **Obrigatório** ou **Opcional** (os dois estados, sempre), no mesmo eixo do nome. Sem lede que ensina o schema. Sem “demografia”, “headline”, “intermediado”.
+- **Prévia de campos (ops):** silhueta do perfil em tela larga. `localized_text` = dois controles com legenda de locale, não dois campos.
 - **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
 ## Colors
@@ -68,7 +69,8 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `OpsSubnav` | Tabs horizontais de **rota** (legado / uso pontual; capítulos do tenant vão no rail) | `packages/ui/admin/src/ops-subnav.tsx` |
 | `OpsTabs` | Tabs shadcn de **estado** (ex.: kinds de e-mail). Horizontal por padrão: irmãos do mesmo formulário, sem segundo rail. Vertical só se a lista for longa e o conteúdo for um só painel. | `packages/ui/admin/src/ops-tabs.tsx` |
 | `OpsHtmlPreview` | Iframe de HTML (e-mail). Atualiza `head`/`body` no documento já aberto; não troca `srcDoc` a cada tecla. | `packages/ui/admin/src/ops-html-preview.tsx` |
-| `OpsSection` | Bloco h2 + lede dentro do workspace | `packages/ui/admin/src/ops-section.tsx` |
+| `OpsAlertDialog` | Confirmação destrutiva (mesmo contrato de `AppAlertDialog`). Admin **não** importa `@community/ui-member`. Excluir abre isto; desativar não. | `packages/ui/admin/src/ops-alert-dialog.tsx` |
+| `OpsSection` | Bloco h2 + lede no workspace (**sem Card**; igual `AppProfileSection`). Card fica na tabela, na lista ou no grupo de campos — não no capítulo inteiro | `packages/ui/admin/src/ops-section.tsx` |
 | `OpsBadge` | Rótulo curto (ex.: super-admin). Não cola no nome | `packages/ui/admin/src/ops-badge.tsx` |
 | `OpsMoveButtons` | Ordem: `Button` `icon-sm` + seta, `aria-label` i18n. Sem “subir/descer” em texto. Desabilitado no extremo (não some). | `packages/ui/admin/src/ops-move-buttons.tsx` |
 | `OpsCombobox` | Typeahead (listbox). Hits vêm do servidor; o componente não recebe 10k opções | `packages/ui/admin/src/ops-combobox.tsx` |

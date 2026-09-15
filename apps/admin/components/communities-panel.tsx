@@ -80,7 +80,7 @@ export function CommunitiesPanel() {
       }
     >
       {open ? (
-        <form onSubmit={create} className="mb-6 rounded-xl border border-border bg-card p-4 shadow-sm flex flex-col sm:flex-row gap-3 sm:items-end">
+        <form onSubmit={create} className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1 min-w-0 space-y-2">
             <Label htmlFor="community-name">{copy.name}</Label>
             <Input id="community-name" value={name} onChange={(ev) => setName(ev.target.value)} required />

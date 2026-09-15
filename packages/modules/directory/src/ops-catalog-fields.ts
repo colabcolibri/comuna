@@ -25,6 +25,7 @@ export type OpsCatalogField = {
   filterable: boolean;
   span: 1 | 2 | 3;
   required: boolean;
+  enabled: boolean;
   options: OpsChoiceOption[];
   optionsText: string;
   label: LocalizedText;
@@ -129,6 +130,7 @@ function asOpsField(row: {
   filterable: boolean;
   span: number;
   required: boolean;
+  enabled: boolean;
   options: unknown;
   label: unknown;
 }): OpsCatalogField {
@@ -141,6 +143,7 @@ function asOpsField(row: {
     filterable: row.filterable,
     span: parseCatalogSpan(row.span, 1),
     required: Boolean(row.required),
+    enabled: row.enabled !== false,
     options: storedOptionsToOps(row.options),
     optionsText: optionsToText(row.options),
     label: parseLocalized(row.label),
@@ -210,6 +213,7 @@ export async function createAttributeField(
     filterable: boolean;
     span: number;
     required: boolean;
+    enabled: boolean;
     options: unknown;
     label: unknown;
   }>(
@@ -222,7 +226,7 @@ export async function createAttributeField(
        'attributes', null, $6,
        (SELECT id FROM plugin_core.modules WHERE slug = 'directory')
      )
-     RETURNING id, name, type, storage, filterable, span, required, options, label`,
+     RETURNING id, name, type, storage, filterable, span, required, enabled, options, label`,
     [
       input.groupId,
       name,
@@ -277,6 +281,27 @@ export async function updateCatalogFieldRequired(
   await query(`UPDATE plugin_directory.fields SET required = $2 WHERE id = $1`, [fieldId, required]);
 }
 
+export async function updateCatalogFieldEnabled(
+  communityId: string,
+  fieldId: string,
+  enabled: unknown
+): Promise<void> {
+  if (typeof enabled !== 'boolean') {
+    throw new CatalogWriteError('VALIDATION_ERROR');
+  }
+  const found = await query<{ id: string }>(
+    `SELECT f.id
+     FROM plugin_directory.fields f
+     JOIN plugin_directory.field_groups g ON g.id = f.group_id
+     WHERE f.id = $1 AND g.community_id = $2`,
+    [fieldId, communityId]
+  );
+  if (!found.rows[0]) {
+    throw new CatalogWriteError('NOT_FOUND');
+  }
+  await query(`UPDATE plugin_directory.fields SET enabled = $2 WHERE id = $1`, [fieldId, enabled]);
+}
+
 export async function updateOpsField(
   communityId: string,
   fieldId: string,
@@ -316,8 +341,8 @@ export async function updateOpsField(
 }
 
 export async function deleteAttributeField(communityId: string, fieldId: string): Promise<void> {
-  const found = await query<{ storage: string }>(
-    `SELECT f.storage
+  const found = await query<{ storage: string; enabled: boolean }>(
+    `SELECT f.storage, f.enabled
      FROM plugin_directory.fields f
      JOIN plugin_directory.field_groups g ON g.id = f.group_id
      WHERE f.id = $1 AND g.community_id = $2`,
@@ -329,6 +354,9 @@ export async function deleteAttributeField(communityId: string, fieldId: string)
   }
   if (isFieldLocked(row.storage)) {
     throw new CatalogWriteError('LOCKED');
+  }
+  if (row.enabled) {
+    throw new CatalogWriteError('ACTIVE');
   }
   await query(`DELETE FROM plugin_directory.fields WHERE id = $1`, [fieldId]);
 }
