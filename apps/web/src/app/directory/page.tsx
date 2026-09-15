@@ -1,11 +1,22 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { pickLocalizedText } from '@community/identity';
+import { contentFromCatalog, pickContent, pickLocalizedText } from '@community/identity';
 import { displayPlace } from '@community/places';
 import { AppIndexList, AppPageTemplate, AppPersonRow } from '@community/ui-member';
 import { useLocale } from '@/components/app/LocaleProvider';
-import { useUiBind } from '@/lang/use-ui';
+import { uiCatalog } from '@/lang/catalog';
+
+const CONTENT = contentFromCatalog(uiCatalog, 'plugin_directory', {
+  kicker: 'page.kicker',
+  title: 'page.title',
+  subtitle: 'page.subtitle',
+  search: 'page.search',
+  empty: 'page.empty',
+  off: 'page.off',
+  privacy: 'page.privacy',
+  view: 'page.view',
+});
 
 type MemberRow = {
   id: string;
@@ -19,7 +30,7 @@ type MemberRow = {
 
 export default function DirectoryPage() {
   const locale = useLocale();
-  const t = useUiBind('plugin_directory');
+  const copy = pickContent(CONTENT, locale);
   const [rows, setRows] = useState<MemberRow[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [off, setOff] = useState(false);
@@ -43,9 +54,9 @@ export default function DirectoryPage() {
   });
 
   return (
-    <AppPageTemplate kicker={t('page.kicker')} title={t('page.title')} subtitle={t('page.subtitle')}>
+    <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
       <label className="block text-sm font-medium mb-2" htmlFor="global-search">
-        {t('page.search')}
+        {copy.search}
       </label>
       <input
         id="global-search"
@@ -53,9 +64,9 @@ export default function DirectoryPage() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <p className="text-base text-muted-foreground mb-6 max-w-[40rem]">{t('page.privacy')}</p>
-      {off && <p>{t('page.off')}</p>}
-      {!off && filtered.length === 0 && <p className="text-muted-foreground">{t('page.empty')}</p>}
+      <p className="text-base text-muted-foreground mb-6 max-w-[40rem]">{copy.privacy}</p>
+      {off && <p>{copy.off}</p>}
+      {!off && filtered.length === 0 && <p className="text-muted-foreground">{copy.empty}</p>}
       {!off && filtered.length > 0 && (
         <AppIndexList>
           {filtered.map((profile) => {

@@ -3,39 +3,29 @@
 import React, { useEffect, useState } from 'react';
 import { AppIndexList, AppPageTemplate, AppPersonRow } from '@community/ui-member';
 import { Button } from '@community/ui';
-import { pickContent } from '@community/identity';
-import { pickLocalizedText } from '@community/identity';
+import { contentFromCatalog, mergeContent, pickContent, pickLocalizedText } from '@community/identity';
 import { displayPlace } from '@community/places';
 import { AppDialogTemplate } from '@/components/templates/AppDialogTemplate';
 import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
 import { useLocale } from '@/components/app/LocaleProvider';
+import { uiCatalog } from '@/lang/catalog';
 
-const CONTENT = {
-  'pt-BR': {
-    kicker: 'Público',
-    title: 'Vitrine pública',
-    subtitle: 'Campos públicos. Sem e-mail do membro.',
-    contact: 'Enviar mensagem',
-    cancel: 'Cancelar',
-    send: 'Enviar',
-    success: 'Mensagem enviada',
-    email: 'Seu e-mail',
-    message: 'Mensagem',
-    off: 'Módulo de vitrine desligado.',
-  },
-  en: {
-    kicker: 'Public',
-    title: 'Public showcase',
-    subtitle: 'Public fields only. No member email.',
-    contact: 'Send message',
-    cancel: 'Cancel',
-    send: 'Send',
-    success: 'Message sent',
-    email: 'Your email',
-    message: 'Message',
-    off: 'Showcase module is off.',
-  },
-} as const;
+const CONTENT = mergeContent(
+  contentFromCatalog(uiCatalog, 'plugin_showcase', {
+    kicker: 'page.kicker',
+    title: 'page.title',
+    subtitle: 'page.subtitle',
+    off: 'page.off',
+  }),
+  contentFromCatalog(uiCatalog, 'plugin_contact_mediated', {
+    contact: 'form.contact',
+    cancel: 'form.cancel',
+    send: 'form.send',
+    success: 'form.success',
+    email: 'form.email',
+    message: 'form.message',
+  })
+);
 
 type Row = { id: string; full_name: string; headline: unknown; current_city: unknown };
 

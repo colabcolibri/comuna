@@ -1,27 +1,18 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { pickContent } from '@community/identity';
+import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from '@/components/app/LocaleProvider';
+import { uiCatalog } from '@/lang/catalog';
 
-const CONTENT = {
-  'pt-BR': {
-    title: 'Ops',
-    create: 'Criar comunidade',
-    slug: 'Slug',
-    name: 'Nome',
-    modules: 'Módulos',
-    forbidden: 'Somente super_admin.',
-  },
-  en: {
-    title: 'Ops',
-    create: 'Create community',
-    slug: 'Slug',
-    name: 'Name',
-    modules: 'Modules',
-    forbidden: 'super_admin only.',
-  },
-} as const;
+const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
+  title: 'ops.title',
+  create: 'ops.create',
+  slug: 'ops.slug',
+  name: 'ops.name',
+  modules: 'ops.modules',
+  forbidden: 'ops.forbidden',
+});
 
 type Community = { id: string; slug: string; name: string; type: string };
 

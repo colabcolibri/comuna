@@ -1,31 +1,20 @@
 'use client';
 
 import React, { useState } from 'react';
-import { pickContent } from '@community/identity';
+import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from '@/components/app/LocaleProvider';
+import { uiCatalog } from '@/lang/catalog';
 
-const CONTENT = {
-  'pt-BR': {
-    heading: 'Entrar com código',
-    emailLabel: 'E-mail',
-    send: 'Enviar código',
-    sending: 'Enviando…',
-    codeLabel: 'Código de 6 dígitos',
-    validate: 'Validar código',
-    success: 'Sessão iniciada',
-    exit: 'Sair',
-  },
-  en: {
-    heading: 'Sign in with code',
-    emailLabel: 'Email',
-    send: 'Send code',
-    sending: 'Sending…',
-    codeLabel: '6-digit code',
-    validate: 'Verify code',
-    success: 'Signed in',
-    exit: 'Sign out',
-  },
-} as const;
+const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
+  heading: 'otp_form.heading',
+  emailLabel: 'otp_form.email_label',
+  send: 'otp_form.send',
+  sending: 'otp_form.sending',
+  codeLabel: 'otp_form.code_label',
+  validate: 'otp_form.validate',
+  success: 'otp_form.success',
+  exit: 'otp_form.exit',
+});
 
 export default function AppOtpForm() {
   const copy = pickContent(CONTENT, useLocale());

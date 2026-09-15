@@ -3,27 +3,18 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { pickContent } from '@community/identity';
+import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from '@/components/app/LocaleProvider';
+import { uiCatalog } from '@/lang/catalog';
 
-const CONTENT = {
-  'pt-BR': {
-    brand: 'Community',
-    home: 'Entrar',
-    profile: 'Perfil',
-    directory: 'Diretório',
-    showcase: 'Vitrine',
-    coord: 'Pedidos',
-  },
-  en: {
-    brand: 'Community',
-    home: 'Sign in',
-    profile: 'Profile',
-    directory: 'Directory',
-    showcase: 'Showcase',
-    coord: 'Requests',
-  },
-} as const;
+const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
+  brand: 'navbar.brand',
+  home: 'navbar.home',
+  profile: 'chrome.profile',
+  directory: 'chrome.directory',
+  showcase: 'chrome.showcase',
+  coord: 'chrome.coord',
+});
 
 export default function AppNavbar() {
   const pathname = usePathname();

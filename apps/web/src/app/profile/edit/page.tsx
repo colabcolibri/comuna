@@ -5,7 +5,7 @@ import { AppCardTemplate } from '@/components/templates/AppCardTemplate';
 import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
 import { AppPageTemplate } from '@community/ui-member';
 import { Button, Checkbox, Input, Label, Textarea } from '@community/ui';
-import { pickContent } from '@community/identity';
+import { contentFromCatalog, mergeContent, pickContent } from '@community/identity';
 import {
   localizedPair,
   parseContacts,
@@ -15,80 +15,50 @@ import {
 import { parsePlace, type GeoPlace } from '@community/places';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { CitySearchField } from '@/components/app/CitySearchField';
+import { uiCatalog } from '@/lang/catalog';
 
 const AVAILABILITY = ['available_for_hire', 'project_partner', 'mentor', 'unavailable'] as const;
 const LANGUAGE_CODES = ['pt', 'en', 'es', 'fr'] as const;
 
-const CONTENT = {
-  'pt-BR': {
-    title: 'Seu perfil',
-    subtitle: 'Identidade na pessoa. Headline e bio desta comunidade em pt-BR e en. Cidade vem da busca geográfica.',
-    save: 'Salvar',
-    saved: 'Perfil atualizado',
-    error: 'Não foi possível salvar',
-    identity: 'Identidade',
-    name: 'Nome completo',
-    avatar: 'URL do avatar',
-    person: 'Pessoa',
-    gender: 'Gênero',
-    genderWoman: 'Mulher',
-    genderMan: 'Homem',
-    genderNb: 'Não binário',
-    genderSkip: 'Prefiro não dizer',
-    genderUnset: 'Não informado',
-    birthCity: 'Cidade de nascimento',
-    currentCity: 'Cidade onde mora',
-    languages: 'Idiomas que fala',
-    contacts: 'Links',
-    linkedin: 'LinkedIn',
-    github: 'GitHub',
-    portfolio: 'Portfólio',
-    directory: 'Nesta comunidade',
-    headline: 'Headline',
-    bio: 'Bio',
-    availability: 'Disponibilidade',
-    showcase: 'Mostrar na vitrine pública',
-    hire: 'Disponível para contratação',
-    partner: 'Parceiro de projeto',
-    mentor: 'Mentoria',
-    unavailable: 'Indisponível',
-    proficiency: 'Proficiência',
-  },
-  en: {
-    title: 'Your profile',
-    subtitle: 'Identity on the person. Headline and bio for this community in pt-BR and en. City comes from geo search.',
-    save: 'Save',
-    saved: 'Profile updated',
-    error: 'Could not save',
-    identity: 'Identity',
-    name: 'Full name',
-    avatar: 'Avatar URL',
-    person: 'Person',
-    gender: 'Gender',
-    genderWoman: 'Woman',
-    genderMan: 'Man',
-    genderNb: 'Non-binary',
-    genderSkip: 'Prefer not to say',
-    genderUnset: 'Not set',
-    birthCity: 'City of birth',
-    currentCity: 'City of residence',
-    languages: 'Languages spoken',
-    contacts: 'Links',
-    linkedin: 'LinkedIn',
-    github: 'GitHub',
-    portfolio: 'Portfolio',
-    directory: 'This community',
-    headline: 'Headline',
-    bio: 'Bio',
-    availability: 'Availability',
-    showcase: 'Show on the public showcase',
-    hire: 'Available for hire',
-    partner: 'Project partner',
-    mentor: 'Mentoring',
-    unavailable: 'Unavailable',
-    proficiency: 'Proficiency',
-  },
-} as const;
+const CONTENT = mergeContent(
+  contentFromCatalog(uiCatalog, 'core_identity', {
+    kicker: 'profile.kicker',
+    title: 'profile.title',
+    subtitle: 'profile.subtitle',
+    save: 'profile.save',
+    saved: 'profile.saved',
+    error: 'profile.error',
+    identity: 'profile.identity',
+    name: 'profile.name',
+    avatar: 'profile.avatar',
+    person: 'profile.person',
+    gender: 'profile.gender',
+    genderWoman: 'profile.gender_woman',
+    genderMan: 'profile.gender_man',
+    genderNb: 'profile.gender_nb',
+    genderSkip: 'profile.gender_skip',
+    genderUnset: 'profile.gender_unset',
+    birthCity: 'profile.birth_city',
+    currentCity: 'profile.current_city',
+    languages: 'profile.languages',
+    contacts: 'profile.contacts',
+    linkedin: 'profile.linkedin',
+    github: 'profile.github',
+    portfolio: 'profile.portfolio',
+  }),
+  contentFromCatalog(uiCatalog, 'plugin_directory', {
+    directory: 'card.section',
+    headline: 'card.headline',
+    bio: 'card.bio',
+    availability: 'card.availability',
+    showcase: 'card.showcase',
+    hire: 'card.hire',
+    partner: 'card.partner',
+    mentor: 'card.mentor',
+    unavailable: 'card.unavailable',
+    proficiency: 'card.proficiency',
+  })
+);
 
 function LocalizedPairFields({
   id,

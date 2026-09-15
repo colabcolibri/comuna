@@ -1,6 +1,6 @@
 'use client';
 
-import { useUiBind } from '@/lang/use-ui';
+import { contentFromCatalog, pickContent } from '@community/identity';
 import {
   Alert,
   AlertDescription,
@@ -19,9 +19,28 @@ import {
 } from '@community/ui';
 import { Mail } from 'lucide-react';
 import { useState } from 'react';
+import { useLocale } from '@/components/app/LocaleProvider';
+import { uiCatalog } from '@/lang/catalog';
+
+const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
+  title: 'otp.title',
+  subtitle: 'otp.subtitle',
+  emailLabel: 'otp.email_label',
+  change: 'otp.change',
+  send: 'otp.send',
+  sending: 'otp.sending',
+  codeLegend: 'otp.code_legend',
+  verify: 'otp.verify',
+  verifying: 'otp.verifying',
+  resend: 'otp.resend',
+  spam: 'otp.spam',
+  privacy: 'otp.privacy',
+  invalid: 'otp.invalid',
+  signedIn: 'otp.signed_in',
+});
 
 export default function OtpCard() {
-  const t = useUiBind('core_web');
+  const copy = pickContent(CONTENT, useLocale());
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -40,12 +59,12 @@ export default function OtpCard() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error?.message || t('otp.invalid'));
+        throw new Error(data.error?.message || copy.invalid);
       }
       setStep('code');
       setCode('');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t('otp.invalid'));
+      setError(err instanceof Error ? err.message : copy.invalid);
     } finally {
       setLoading(false);
     }
@@ -63,12 +82,12 @@ export default function OtpCard() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error?.message || t('otp.invalid'));
+        throw new Error(data.error?.message || copy.invalid);
       }
       setDone({ email: data.user.email, role: data.user.global_role });
       window.location.href = '/directory';
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t('otp.invalid'));
+      setError(err instanceof Error ? err.message : copy.invalid);
     } finally {
       setLoading(false);
     }
@@ -78,7 +97,7 @@ export default function OtpCard() {
     return (
       <Card className="w-full min-w-0">
         <CardHeader>
-          <CardTitle>{t('otp.signed_in')}</CardTitle>
+          <CardTitle>{copy.signedIn}</CardTitle>
           <CardDescription>{done.email}</CardDescription>
         </CardHeader>
       </Card>
@@ -91,8 +110,8 @@ export default function OtpCard() {
         <div className="mx-auto mb-1 flex size-12 items-center justify-center rounded-xl border bg-secondary text-primary">
           <Mail className="size-5" aria-hidden />
         </div>
-        <CardTitle className="text-xl">{t('otp.title')}</CardTitle>
-        <CardDescription className="text-pretty">{t('otp.subtitle')}</CardDescription>
+        <CardTitle className="text-xl">{copy.title}</CardTitle>
+        <CardDescription className="text-pretty">{copy.subtitle}</CardDescription>
       </CardHeader>
       <CardContent>
         {step === 'email' ? (
@@ -109,7 +128,7 @@ export default function OtpCard() {
               </Alert>
             ) : null}
             <div className="grid gap-2">
-              <Label htmlFor="otp-email">{t('otp.email_label')}</Label>
+              <Label htmlFor="otp-email">{copy.emailLabel}</Label>
               <Input
                 id="otp-email"
                 type="email"
@@ -121,7 +140,7 @@ export default function OtpCard() {
               />
             </div>
             <Button type="submit" className="h-11 w-full" disabled={loading}>
-              {loading ? t('otp.sending') : t('otp.send')}
+              {loading ? copy.sending : copy.send}
             </Button>
           </form>
         ) : (
@@ -134,16 +153,16 @@ export default function OtpCard() {
           >
             <div className="flex min-w-0 items-center justify-between gap-3 rounded-lg border bg-secondary px-3 py-2.5">
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">{t('otp.email_label')}</p>
+                <p className="text-xs text-muted-foreground">{copy.emailLabel}</p>
                 <p className="truncate text-sm font-medium">{email}</p>
               </div>
               <Button type="button" variant="link" className="h-auto shrink-0 px-0" onClick={() => setStep('email')}>
-                {t('otp.change')}
+                {copy.change}
               </Button>
             </div>
             <div className="grid min-w-0 gap-3">
               <Label htmlFor="otp-code" className="justify-center text-center">
-                {t('otp.code_legend')}
+                {copy.codeLegend}
               </Label>
               <InputOTP
                 id="otp-code"
@@ -170,19 +189,19 @@ export default function OtpCard() {
               </Alert>
             ) : null}
             <Button type="submit" className="h-11 w-full" disabled={loading || code.length !== 6}>
-              {loading ? t('otp.verifying') : t('otp.verify')}
+              {loading ? copy.verifying : copy.verify}
             </Button>
             <div className="grid gap-2 border-t pt-4 text-center">
               <Button type="button" variant="link" className="h-auto" onClick={() => void requestCode()}>
-                {t('otp.resend')}
+                {copy.resend}
               </Button>
-              <p className="text-xs text-muted-foreground">{t('otp.spam')}</p>
+              <p className="text-xs text-muted-foreground">{copy.spam}</p>
             </div>
           </form>
         )}
       </CardContent>
       <CardFooter className="border-t">
-        <p className="text-xs text-muted-foreground">{t('otp.privacy')}</p>
+        <p className="text-xs text-muted-foreground">{copy.privacy}</p>
       </CardFooter>
     </Card>
   );

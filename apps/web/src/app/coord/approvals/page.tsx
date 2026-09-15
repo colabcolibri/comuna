@@ -1,32 +1,21 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { pickContent } from '@community/identity';
+import { contentFromCatalog, pickContent } from '@community/identity';
 import { AppPageTemplate } from '@community/ui-member';
 import { useLocale } from '@/components/app/LocaleProvider';
+import { uiCatalog } from '@/lang/catalog';
 
-const CONTENT = {
-  'pt-BR': {
-    kicker: 'Coordenação',
-    title: 'Pedidos de entrada',
-    subtitle: 'Delibere solicitações de novos membros desta comunidade.',
-    empty: 'Fila vazia.',
-    forbidden: 'Só coordenação desta comunidade.',
-    approve: 'Aprovar',
-    reject: 'Recusar',
-    notice: 'Aprovar dá acesso intermediado ao diretório. Contato permanece protegido.',
-  },
-  en: {
-    kicker: 'Coordination',
-    title: 'Join requests',
-    subtitle: 'Review requests for this community.',
-    empty: 'Queue is empty.',
-    forbidden: 'Coordinators of this community only.',
-    approve: 'Approve',
-    reject: 'Reject',
-    notice: 'Approval grants mediated directory access. Contact stays protected.',
-  },
-} as const;
+const CONTENT = contentFromCatalog(uiCatalog, 'core_membership', {
+  kicker: 'coord.kicker',
+  title: 'coord.title',
+  subtitle: 'coord.subtitle',
+  empty: 'coord.empty',
+  forbidden: 'coord.forbidden',
+  approve: 'coord.approve',
+  reject: 'coord.reject',
+  notice: 'coord.notice',
+});
 
 type Row = { id: string; full_name: string; network_status: string };
 
