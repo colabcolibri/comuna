@@ -16,5 +16,7 @@ describe('member localized copy', () => {
     expect(valueAt(copy, 'en')).toBe('Engineer');
     expect(pickLocalizedEntries(copy, 'en')).toBe('Engineer');
     expect(pickLocalizedText(copy, 'fr')).toBe('Engenheira');
+    expect(pickLocalizedText(null, 'pt-BR')).toBe('');
+    expect(pickLocalizedText(undefined, 'en')).toBe('');
   });
 });

@@ -4,7 +4,7 @@ export { AppIndexList, AppPersonRow, personInitials } from './app-person-row';
 export { AppAuthFrame } from './app-auth-frame';
 export { AppAlertDialog } from './app-alert-dialog';
 export { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader } from './app-dialog';
-export { AppSheet } from './app-sheet';
+export { AppSheet, type AppSheetSide } from './app-sheet';
 export { AppShowcaseCard, AppShowcaseGrid } from './app-showcase-card';
 export { FieldGrid, fieldSpanClass } from './field-grid';
 export { AppFormDock, AppProfileSection, AppProfileStack } from './app-profile-section';

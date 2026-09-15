@@ -53,11 +53,17 @@ export function pickLocalizedEntries(entries: unknown, locale: string | undefine
 }
 
 export function pickLocalizedText(
-  values: LocalizedText | { 'pt-BR'?: string | null; en?: string | null },
+  values: LocalizedText | { 'pt-BR'?: string | null; en?: string | null } | null | undefined,
   locale: string | undefined
 ): string {
+  if (values == null) {
+    return '';
+  }
   if (Array.isArray(values)) {
     return pickLocalizedEntries(values, locale);
+  }
+  if (typeof values !== 'object') {
+    return '';
   }
   return pickLocalizedEntries(
     [

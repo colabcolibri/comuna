@@ -30,7 +30,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: { code: 'UNAUTHORIZED', message: 'Sessão inválida' } }, { status: 401 });
   }
   const parsed = personWriteFromBody(await req.json());
-  if (!parsed.ok) {
+  if (parsed.ok === false) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: parsed.message } }, { status: 400 });
   }
   const ctx = await memberCtx(member.sub);

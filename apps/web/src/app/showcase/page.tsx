@@ -20,6 +20,7 @@ import { SHOWCASE_ROW_ACTION } from '@community/showcase';
 import { uiCatalog } from '@/lang/catalog';
 import { slotOn } from '@/modules/registry';
 import type { PublicShowcaseProfile } from '@/lib/showcase/publicProfiles';
+import { availabilityLabel } from '@/lib/people/availability';
 
 const CONTENT = mergeContent(
   contentFromCatalog(uiCatalog, 'plugin_showcase', {
@@ -58,14 +59,6 @@ function languageLabel(code: string, copy: Record<string, string>) {
   if (code === 'en') return copy.langEn;
   if (code === 'es') return copy.langEs;
   if (code === 'fr') return copy.langFr;
-  return null;
-}
-
-function availabilityLabel(status: string | null, copy: Record<string, string>) {
-  if (status === 'available_for_hire') return copy.hire;
-  if (status === 'project_partner') return copy.partner;
-  if (status === 'mentor') return copy.mentor;
-  if (status === 'unavailable') return copy.unavailable;
   return null;
 }
 

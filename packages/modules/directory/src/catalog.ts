@@ -159,7 +159,7 @@ export function validateCustomAttributes(
     }
     const parsed = coerceAttribute(field, input[field.name]);
     if (!parsed.ok) {
-      return parsed;
+      return { ok: false, message: parsed.message };
     }
     if (parsed.value !== undefined) {
       value[field.name] = parsed.value;
@@ -222,7 +222,7 @@ export function parseAttrFilters(
     }
     const coerced = coerceAttribute(field, field.type === 'boolean' ? raw === 'true' : raw);
     if (!coerced.ok) {
-      return coerced;
+      return { ok: false, message: coerced.message };
     }
     if (coerced.value === undefined) {
       continue;

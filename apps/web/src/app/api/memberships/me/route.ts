@@ -66,7 +66,7 @@ export async function PUT(req: NextRequest) {
     .map((row) => parseField(row as Record<string, unknown>))
     .filter((field): field is NonNullable<typeof field> => Boolean(field));
   const attributes = validateCustomAttributes(fields, body.custom_attributes);
-  if (!attributes.ok) {
+  if (attributes.ok === false) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: attributes.message } }, { status: 400 });
   }
   await queryAsMember(

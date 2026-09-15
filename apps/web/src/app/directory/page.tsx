@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { contentFromCatalog, pickContent, pickLocalizedText } from '@community/identity';
-import { displayPlace } from '@community/places';
+import { displayPlaceLocality } from '@community/places';
 import type { CatalogField } from '@community/directory';
 import { AppIndexList, AppPageTemplate, AppPersonRow } from '@community/ui-member';
 import { Checkbox } from '@community/ui';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { uiCatalog } from '@/lang/catalog';
+import { availabilityLabel } from '@/lib/people/availability';
 
 const CONTENT = contentFromCatalog(uiCatalog, 'plugin_directory', {
   kicker: 'page.kicker',
@@ -18,11 +19,16 @@ const CONTENT = contentFromCatalog(uiCatalog, 'plugin_directory', {
   privacy: 'page.privacy',
   view: 'page.view',
   facets: 'page.facets',
+  hire: 'card.hire',
+  partner: 'card.partner',
+  mentor: 'card.mentor',
+  unavailable: 'card.unavailable',
 });
 
 type MemberRow = {
   id: string;
   full_name: string;
+  avatar_url: string | null;
   current_city: unknown;
   languages: unknown;
   headline: unknown;
@@ -40,6 +46,10 @@ export default function DirectoryPage() {
 
   useEffect(() => {
     fetch('/api/directory/catalog').then(async (res) => {
+      if (res.status === 401) {
+        window.location.replace('/login');
+        return;
+      }
       if (res.status === 404) {
         window.location.replace('/');
         return;
@@ -65,8 +75,16 @@ export default function DirectoryPage() {
     });
     const query = params.toString();
     fetch(`/api/directory/members${query ? `?${query}` : ''}`).then(async (res) => {
+      if (res.status === 401) {
+        window.location.replace('/login');
+        return;
+      }
       if (res.status === 404) {
         window.location.replace('/');
+        return;
+      }
+      if (!res.ok) {
+        setRows([]);
         return;
       }
       const json = await res.json();
@@ -110,13 +128,14 @@ export default function DirectoryPage() {
         <AppIndexList>
           {rows.map((profile) => {
             const headline = pickLocalizedText(profile.headline, locale);
-            const city = displayPlace(profile.current_city, locale);
+            const city = displayPlaceLocality(profile.current_city, locale);
             return (
               <AppPersonRow
                 key={profile.id}
                 name={profile.full_name}
+                photo={profile.avatar_url}
                 headline={[headline, city].filter(Boolean).join(' · ')}
-                status={profile.availability_status}
+                status={availabilityLabel(profile.availability_status, copy)}
               />
             );
           })}
