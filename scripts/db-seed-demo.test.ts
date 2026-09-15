@@ -64,6 +64,10 @@ describe('demo member seed list', () => {
     expect(new Set(people.map((person) => person.full_name)).size).toBe(300);
   });
 
+  it('puts the demo login member in three communities for the switcher', () => {
+    expect(communitySlugsFor(1)).toEqual(['demo', 'cerrado-lab', 'pratica-dados']);
+  });
+
   it('puts some people in more than one community and leaves others in a single house', () => {
     const multi = [];
     const single = [];

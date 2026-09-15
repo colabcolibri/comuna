@@ -1,6 +1,18 @@
 'use strict';
 
 const GUEST = {
+  '1:cerrado-lab': [
+    'Produto para quem ainda não tem runway',
+    'Product for teams without runway yet',
+    'Ajuda fundador a cortar escopo antes de pedir captação. Fala de discovery com cliente real, não de slide. Entra quando a incubadora precisa de alguém que já viu produto morrer por feature demais.',
+    'Helps founders cut scope before they fundraise. Talks discovery with real customers, not slides. Shows up when the incubator needs someone who has seen a product die from too many features.',
+  ],
+  '1:pratica-dados': [
+    'Mapa de quem sabe o quê',
+    'A map of who knows what',
+    'Monta diretório interno de prática em dados sem virar planilha morta. Pergunta onde o dado nasce e quem responde quando quebra. Prefere ofício explícito a cargo genérico na rede.',
+    'Builds an internal directory of data practice without letting it rot into a dead spreadsheet. Asks where data is born and who answers when it breaks. Prefers explicit craft over generic titles in the network.',
+  ],
   '11:saude-territorio': [
     'Score de crédito no território',
     'Credit scoring in the territory',

@@ -8,7 +8,9 @@ export function isDatabaseReadOnly(): boolean {
 }
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
-const DEMO_LOGIN_PATH = '/api/auth/demo-login';
+
+/** Rotas de auth que não gravam no Postgres — só cookie de sessão. */
+const READ_ONLY_AUTH_EXEMPT_PATHS = new Set(['/api/auth/demo-login', '/api/auth/logout']);
 
 export function readOnlyBlockedResponse(req: NextRequest): NextResponse | null {
   if (!isDatabaseReadOnly()) {
@@ -17,7 +19,7 @@ export function readOnlyBlockedResponse(req: NextRequest): NextResponse | null {
   if (!req.nextUrl.pathname.startsWith('/api/')) {
     return null;
   }
-  if (req.nextUrl.pathname === DEMO_LOGIN_PATH) {
+  if (READ_ONLY_AUTH_EXEMPT_PATHS.has(req.nextUrl.pathname)) {
     return null;
   }
   if (SAFE_METHODS.has(req.method)) {

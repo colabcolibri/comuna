@@ -508,6 +508,10 @@ function homeSlug(n) {
 }
 
 function communitySlugsFor(n) {
+  // Conta da demo (`member01@demo.example`): três casas para o switcher.
+  if (n === 1) {
+    return ['demo', 'cerrado-lab', 'pratica-dados'];
+  }
   const slugs = new Set([homeSlug(n)]);
   if (n % 11 === 0) slugs.add(HOME_SLUGS[n % 6]);
   if (n % 13 === 0) slugs.add(HOME_SLUGS[(n + 3) % 6]);
