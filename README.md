@@ -1,12 +1,49 @@
 # Comuna
 
-Plataforma web de comunidades: pessoas, tenants e um diretório — sem feed, sem chat, sem “rede social”. Alumni, turma, prática ou incubadora são tipos de comunidade, não o produto.
+A small open-source platform for member spaces that stay out of your pocket.
 
-Duas apps Next no mesmo Postgres: **web** (membros, visitantes, coordenadores) e **admin** (super-admin). Plugins ligam ou desligam por comunidade.
+Not a social network. Not a feed. Not another place that pings you until you come back. Comuna is for people who already have a project — a cohort, an alumni year, a practice, an incubator — and need a house for it: members, a public face, a way to write to someone without handing over their inbox.
 
-## Arranque rápido
+The name is on purpose. A *comuna* is a shared place with a door. You choose when to walk in.
 
-Precisa de Node.js 20+, [pnpm](https://pnpm.io) 11 e Docker Desktop.
+## Why it exists
+
+Every project eventually hits the same wall. Spreadsheets for the roster. WhatsApp for everything else. Then a “community” product that arrives with chat, stories, badges, and a profile that wants your whole life.
+
+The needs underneath that mess are quieter:
+
+- **Spaces that do not leak.** Project A, project B, and project C are different rooms. They keep their own people, their own fields, their own tone. Isolation is the point.
+- **People over time.** A group that is happening now, and a group that already happened, both deserve a roster that still makes sense.
+- **A window, not a megaphone.** The network can be visible to the world. Contact can be possible. An email address does not have to be the price of showing up.
+- **A map of consent.** Where people are, what they share, what stays inside — field by field, person by person.
+- **Software you visit.** A forum, if it ever exists here, should work like the old web: you go there, you read, you leave. It does not sit in your notifications deciding that now is the time.
+
+Some things want to be shared across rooms later — a simple course that several cohorts can pick up or drop, a time bank where offering and asking is a gift of hours, not a product. Those are not the core. They are guests. The core has to stay small enough that adding them does not turn the house into an amusement park.
+
+Comuna borrows the mood of WordPress and Moodle: a stubborn centre, and modules you switch on when a space actually needs them. Expand the edges. Do not fatten the middle.
+
+This is software for people who still believe a network can be a practice, not an audience. It will not save anything. It might help a few rooms stay kinder than the default.
+
+## What runs today
+
+Two Next.js apps, one Postgres, plugins that are off until a community turns them on.
+
+| App | Who | Local |
+| --- | --- | ----- |
+| [apps/web](apps/web) | Members, guests, coordinators | [http://localhost:3014](http://localhost:3014) |
+| [apps/admin](apps/admin) | Super-admin | [http://localhost:3015](http://localhost:3015) |
+
+**In the core:** email OTP, a person, a community (tenant), membership, join requests, cohorts, a base profile.
+
+**As modules, per space:** a richer directory and field catalog, a public showcase, mediated contact (the message is delivered; the address is not).
+
+Locales: `pt-BR` (default) and `en`.
+
+**Not in this cut — and not coming in as chat:** a course catalog shared across tenants, an internal map, a forum, a time bank, payments, OAuth, native apps. If they land, they land as modules. The core does not grow a timeline to make room for them.
+
+## Quick start
+
+Node.js 20+, [pnpm](https://pnpm.io) 11, Docker Desktop.
 
 ```bash
 docker compose up -d
@@ -17,79 +54,44 @@ pnpm db:seed
 pnpm dev
 ```
 
-Noutra aba:
+In another terminal:
 
 ```bash
 pnpm dev:admin
 ```
 
-| Superfície | URL |
-| ---------- | --- |
-| Membros | [http://localhost:3014](http://localhost:3014) |
-| Ops | [http://localhost:3015](http://localhost:3015) |
-| Mailpit (OTP local) | [http://localhost:8026](http://localhost:8026) |
-| Postgres | `localhost:5433` (`alumni_db`) |
+OTP for local login lands in [Mailpit](http://localhost:8026), not in the API JSON. Ops seed: `INITIAL_SUPER_ADMIN_EMAIL`. Postgres is on `localhost:5433`.
 
-Entrada ops: o e-mail em `INITIAL_SUPER_ADMIN_EMAIL` (seed). OTP cai no Mailpit, não no JSON da API.
-
-## O que faz
-
-- Comunidade = tenant com membros, papéis e coordenação de entrada
-- Perfil-base da pessoa (identidade); campos extras só com o plugin de diretório
-- Vitrine pública e contato mediado, se o módulo estiver ligado naquele tenant
-- Catálogo de campos no admin (grupos, obrigatoriedade, layout do perfil)
-- i18n `pt-BR` (padrão) e `en`
-- OTP por e-mail (SMTP; Mailpit no local)
-
-Não entra nesta versão: chat, fórum, feed, pagamentos, OAuth, apps nativos.
-
-## Repositório
-
-```txt
-apps/web          membros e vitrine
-apps/admin        super-admin
-packages/core     auth, mail, identity, db, comunidades
-packages/modules  directory, showcase, contact-mediated
-packages/ui       primitives shadcn + compostos membro/ops
-db/migrations     SQL datado (sem Prisma)
-docs/             contrato do produto
-```
-
-Pacotes npm: `@community/*`. O nome do repo no GitHub é [comuna](https://github.com/colabcolibri/comuna).
-
-## Configuração
-
-Cópia mínima em `.env.example`. Contrato completo: [`docs/08_environments.md`](docs/08_environments.md).
-
-| Variável | Função |
-| -------- | ------ |
-| `DATABASE_URL` | Postgres |
-| `JWT_SECRET` | Sessão |
-| `SMTP_HOST` / `SMTP_PORT` | Envio (vazio = não envia) |
-| `EMAIL_FROM_ADDRESS` | From de fallback |
-| `NEXT_PUBLIC_APP_URL` | URL da web de membros |
-| `INITIAL_SUPER_ADMIN_EMAIL` | Seed do ops |
-
-Não commitar `.env`. `ALLOW_DEV_OTP=true` só no local — nunca em produção.
-
-## Testes
+Env contract: [docs/08_environments.md](docs/08_environments.md). Do not commit `.env`.
 
 ```bash
 pnpm test
 ```
 
-Vitest. Estratégia: [`docs/10_test_strategy.md`](docs/10_test_strategy.md).
+## Layout
 
-## Documentação
+```txt
+apps/web             member app
+apps/admin           ops app
+packages/core        auth, mail, identity, db, tenants
+packages/modules     directory, showcase, contact-mediated
+packages/ui          shadcn primitives + composed templates
+db/migrations        dated SQL (no Prisma)
+docs/                product contract
+```
 
-O produto vive em `docs/`, não neste README.
+Workspace packages are `@community/*`. The public repo is [colabcolibri/comuna](https://github.com/colabcolibri/comuna).
 
-| Doc | Conteúdo |
-| --- | -------- |
-| [00_scope](docs/00_scope.md) | O que é / o que não é |
-| [05_architecture](docs/05_architecture.md) | Apps, pacotes, plugins |
-| [06_database](docs/06_database.md) | Schema |
-| [07_api_contracts](docs/07_api_contracts.md) | HTTP |
-| [08_environments](docs/08_environments.md) | Local, env, SMTP |
-| [09_design_system](docs/09_design_system.md) | UI |
-| [Índice](docs/README.md) | Todos os phase docs |
+## Documentation
+
+The README is the front door. The house rules live in `docs/`.
+
+| | |
+| --- | --- |
+| [Scope](docs/00_scope.md) | What the product is |
+| [Architecture](docs/05_architecture.md) | Apps, packages, plugin gate |
+| [Database](docs/06_database.md) | Schema |
+| [API](docs/07_api_contracts.md) | HTTP |
+| [Environments](docs/08_environments.md) | Local run, SMTP |
+| [Design](docs/09_design_system.md) | UI |
+| [Index](docs/README.md) | Full list |
