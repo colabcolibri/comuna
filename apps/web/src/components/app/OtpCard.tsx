@@ -9,7 +9,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
   Input,
@@ -35,7 +34,6 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   verifying: 'otp.verifying',
   resend: 'otp.resend',
   spam: 'otp.spam',
-  privacy: 'otp.privacy',
   invalid: 'otp.invalid',
   signedIn: 'otp.signed_in',
   rateLimit: 'otp.rate_limit',
@@ -210,11 +208,6 @@ export default function OtpCard() {
           </form>
         )}
       </CardContent>
-      {copy.privacy ? (
-        <CardFooter className="border-t">
-          <p className="text-xs text-muted-foreground">{copy.privacy}</p>
-        </CardFooter>
-      ) : null}
     </Card>
   );
 }
