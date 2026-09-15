@@ -1,27 +1,26 @@
-import * as React from 'react';
-import { ScrollArea, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@community/ui';
+import type { ReactNode } from 'react';
+import { AppSheet, type AppSheetSide } from '@community/ui-member';
 
-export interface AppSheetTemplateProps {
+export function AppSheetTemplate({
+  isOpen,
+  onClose,
+  title,
+  description,
+  side = 'right',
+  content,
+  footer,
+}: {
   isOpen: boolean;
   onClose: () => void;
-  title?: React.ReactNode;
-  description?: React.ReactNode;
-  side?: 'left' | 'right';
-  content: React.ReactNode;
-}
-
-export function AppSheetTemplate({ isOpen, onClose, title, description, side = 'right', content }: AppSheetTemplateProps) {
+  title?: ReactNode;
+  description?: ReactNode;
+  side?: AppSheetSide;
+  content: ReactNode;
+  footer?: ReactNode;
+}) {
   return (
-    <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <SheetContent side={side} className="flex flex-col">
-        <SheetHeader>
-          <SheetTitle>{title ?? 'Painel'}</SheetTitle>
-          {description ? <SheetDescription>{description}</SheetDescription> : null}
-        </SheetHeader>
-        <ScrollArea type="always" className="min-h-0 flex-1">
-          <div className="px-4 pb-4">{content}</div>
-        </ScrollArea>
-      </SheetContent>
-    </Sheet>
+    <AppSheet open={isOpen} onClose={onClose} side={side} title={title ?? 'Painel'} description={description} footer={footer}>
+      {content}
+    </AppSheet>
   );
 }

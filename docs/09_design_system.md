@@ -1,7 +1,7 @@
 ---
 title: Design System
 status: review
-version: 1.8
+version: 1.9
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
@@ -60,9 +60,13 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | -------- | ------- | ----------------- |
 | `AppPageHeader` | Kicker + h1 + lede + actions | `packages/ui/member/src/app-page-header.tsx` |
 | `AppPageTemplate` | Main + page header | `packages/ui/member/src/app-page-template.tsx` |
+| `OpsPageHeader` / `OpsPageTemplate` | Mesmo contrato (kicker, h1, lede, actions) no admin — **não** importa `@community/ui-member` | `packages/ui/admin/src/ops-page-*.tsx` |
+| `OpsSection` | Bloco de trabalho ops (h2 + lede + corpo em card) | `packages/ui/admin/src/ops-section.tsx` |
 | `AppAuthFrame` | Login centrado com kicker | `packages/ui/member/src/app-auth-frame.tsx` |
 | `AppIndexList` / `AppPersonRow` | Índice de pessoas (não grid de cards) | `packages/ui/member/src/app-person-row.tsx` |
-| `AppAlertDialog` | Confirmação (cancelar / confirmar) | `packages/ui/member/src/app-alert-dialog.tsx` — primitive `alert-dialog` via CLI |
+| `AppAlertDialog` | Confirmação (cancelar / confirmar) | `packages/ui/member/src/app-alert-dialog.tsx` |
+| `AppSheet` | Painel lateral / fundo; body com `ScrollArea` | `packages/ui/member/src/app-sheet.tsx` |
+| `AppShowcaseCard` | Cartão da vitrine (foto, headline, chips, Ver perfil) | `packages/ui/member/src/app-showcase-card.tsx` |
 | `Toaster` (Sonner) | Feedback **transitório** (salvar, envio) | `packages/ui/primitives` — `toast` de `@community/ui`. Um `Toaster` no layout. **Não** usa `AppAlertTemplate` no topo da página para “salvo”. |
 | `AppAlertTemplate` | Alerta **inline** (erro de campo, estado na tela) | `templates/AppAlertTemplate.tsx` |
 | `MemberShell` | Sidebar + inset + header; páginas rolam com `ScrollArea`; rodapé no chrome (fora do scroll) | `apps/web/.../MemberShell.tsx` |
@@ -74,7 +78,7 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 
 `AppNavbar.tsx` (barra ciano “Community”) é chrome morto / concorrente. Fora do contrato. Não redesenhar: remover na US de shell.
 
-Não existe `AppProfileCard` ainda. US de design cria compostos a partir do Stitch, sem editar primitives.
+Não existe rota `/profile/:id`. O detalhe público é o `AppDialog` na vitrine.
 
 ## Screen flows
 
@@ -84,12 +88,12 @@ Jobs: ver vitrine, pedir contato, entrar com código, buscar pessoas, editar o p
 
 | Tela (rota hoje) | Job | Quem | Chrome | Problema atual | Alvo visual (Stitch) |
 | ----------------- | --- | ---- | ------ | -------------- | --------------------- |
-| `/showcase` | Ver pessoas públicas | Visitante / membro | Header slim; sheet com Entrar ou perfil | Cards crus, dialog genérico, header com “voltar” + e-mail | Vitrine com cards (foto, headline, chips, Ver perfil) |
-| `/` | Entrar com OTP | Visitante | Mesmo header; sheet = Entrar destacado | Header especial com “voltar”; parece outra marca | OTP centrado, um CTA |
-| `/directory` | Buscar membros | Membro | Sheet: Diretório ativo | Busca sem hierarquia; aside de privacidade sem filtro real; sem “Ver perfil” | Grid + rail de filtro; empty state |
-| `/profile/edit` | Editar perfil-base | Membro | Sidebar: Meu perfil | Título/salvar somem no scroll; nome estreito; foto com texto em cima; cidade fora do campo; demografia misturada com links | Header sticky com Salvar; identidade em superfície (disco + nome full-width); grupos `person` / `links`; cidade no mesmo chrome do input |
-| Perfil público (rota ausente) | Ler perfil sanitizado | Visitante | Sheet visitante | **Não existe** — contato dispara da lista | Página de detalhe + CTA Solicitar contato |
-| Contato (dialog/sheet) | Pedir contato mediado | Visitante | Overlay; não empilhar sheet de nav | Inputs nativos, hex no erro | Sheet direita ou dialog; copy de mediação |
+| `/showcase` | Ver pessoas públicas | Visitante / membro | Header: Vitrine ativa | — | Cartões com headline + bio breve; diálogo do perfil |
+| Perfil público | Ler perfil sanitizado | Visitante | `AppDialog` + `ScrollArea` | — | Headline no header; bio no body |
+| Contato | Pedir contato mediado | Visitante | `AppSheet` right / bottom | Form dentro do diálogo | Sheet depois de Enviar mensagem |
+| `/` | Entrar com OTP | Visitante | Mesmo header | OTP centrado | OTP centrado, um CTA |
+| `/directory` | Buscar membros | Membro | Sidebar: Diretório | Busca sem hierarquia | Lista em linhas; empty state |
+| `/profile/edit` | Editar perfil-base | Membro | Sidebar: Meu perfil | — | Header sticky; identidade em superfície; grupos person / links |
 | `/coord/approvals` | Aprovar entrada | Coordenador | Sheet: + Pedidos | Tabela mínima; header “Coordenação” paralelo | Tabela com Aprovar/Recusar rotulados |
 | `/ops`, admin | Operar tenants | Super-admin | Rail `--primary` (split WP); header `h-14`; PT/EN, tema e Sair `h-9` | Rail cream; controles 44px | App admin |
 
@@ -97,13 +101,11 @@ Estados obrigatórios por tela: loading (skeleton no grid/tabela), vazio (copy +
 
 ```mermaid
 flowchart LR
-    V[Vitrine] -->|menu sheet| S[Sheet destinos + perfil]
-    V -->|card| P[Perfil público]
-    P -->|contato| C[Sheet ou dialog mediado]
-    V -->|Entrar no sheet| O[OTP]
+    V[Vitrine] -->|Ver perfil| P[Dialog perfil público]
+    P -->|Enviar mensagem| C[Sheet right ou bottom]
+    V -->|Entrar| O[OTP]
     O -->|sessão| D[Diretório]
-    S -->|Meu perfil| E[Editar perfil]
-    S -->|Pedidos se coord| F[Pedidos de entrada]
+    D -->|Meu perfil| E[Editar perfil]
 ```
 
 ```mermaid

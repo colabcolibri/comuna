@@ -1,19 +1,28 @@
-import * as React from 'react';
-import { Dialog } from '@community/ui';
+import type { ReactNode } from 'react';
+import { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader } from '@community/ui-member';
 
-export interface AppDialogTemplateProps {
+export function AppDialogTemplate({
+  isOpen,
+  onClose,
+  title,
+  description,
+  content,
+  actions,
+  size = 'md',
+}: {
   isOpen: boolean;
   onClose: () => void;
-  title?: React.ReactNode;
-  description?: React.ReactNode;
-  content: React.ReactNode;
-  actions?: React.ReactNode;
-}
-
-export function AppDialogTemplate({ isOpen, onClose, title, description, content, actions }: AppDialogTemplateProps) {
+  title?: ReactNode;
+  description?: ReactNode;
+  content: ReactNode;
+  actions?: ReactNode;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+}) {
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title={title} description={description} actions={actions}>
-      {content}
-    </Dialog>
+    <AppDialog open={isOpen} onClose={onClose} size={size}>
+      <AppDialogHeader title={title} description={description} />
+      <AppDialogBody>{content}</AppDialogBody>
+      {actions ? <AppDialogFooter>{actions}</AppDialogFooter> : null}
+    </AppDialog>
   );
 }

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@community/ui';
 
-function initials(name: string) {
+export function personInitials(name: string) {
   const parts = name.trim().split(/\s+/).slice(0, 2);
   return parts.map((p) => p[0]?.toUpperCase() ?? '').join('') || '?';
 }
@@ -31,7 +31,7 @@ export function AppPersonRow({
         className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium"
         aria-hidden
       >
-        {initials(name)}
+        {personInitials(name)}
       </div>
       <div className="min-w-0 flex-1">
         <h2 className="font-semibold text-foreground truncate">{name}</h2>

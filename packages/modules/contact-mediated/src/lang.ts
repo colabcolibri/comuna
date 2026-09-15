@@ -8,6 +8,7 @@ export const contactMediatedPack = definePack({
     'form.success': 'Mensagem enviada',
     'form.email': 'Seu e-mail',
     'form.message': 'Mensagem',
+    'form.privacy': 'O e-mail da pessoa não aparece. A mensagem passa pela plataforma.',
   },
   en: {
     'form.contact': 'Send message',
@@ -16,5 +17,6 @@ export const contactMediatedPack = definePack({
     'form.success': 'Message sent',
     'form.email': 'Your email',
     'form.message': 'Message',
+    'form.privacy': 'Their email stays hidden. The message goes through the platform.',
   },
 });

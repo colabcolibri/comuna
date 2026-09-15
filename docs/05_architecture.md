@@ -80,6 +80,7 @@ flowchart TD
 | `docs/architecture/profile-fields.md` | Catálogo de grupos/campos, templates, jsonb + GIN |
 | `docs/architecture/plugin-surfaces.md` | Contribuições (registry + `module_id`); off = filtro genérico |
 | `docs/architecture/media.md` | Avatar: store + chave; Postgres só URL |
+| `docs/architecture/showcase-public.md` | O que a vitrine pode mostrar |
 
 ## System modules (core)
 

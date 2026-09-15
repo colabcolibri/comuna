@@ -19,7 +19,8 @@
     overflow: hidden;
   }
 
-  .member-page-scroll [data-slot="scroll-area-viewport"] {
+  .member-page-scroll [data-slot="scroll-area-viewport"],
+  .app-scroll [data-slot="scroll-area-viewport"] {
     overflow-y: auto !important;
   }
 

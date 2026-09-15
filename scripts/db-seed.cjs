@@ -5,12 +5,8 @@ const { Client } = require('pg');
 const { loadRootEnv } = require('./load-root-env.cjs');
 
 const { seedDirectoryCatalog } = require('./seed-directory-catalog.cjs');
+const { DEMO_MEMBER_COUNT, demoMemberEmails, demoPeople, emailFor } = require('./seed-demo-people.cjs');
 const MODULES = ['directory', 'showcase', 'contact-mediated'];
-const DEMO_MEMBER_COUNT = 40;
-
-function demoMemberEmails(count = DEMO_MEMBER_COUNT) {
-  return Array.from({ length: count }, (_, i) => `member${String(i + 1).padStart(2, '0')}@demo.example`);
-}
 
 async function seed(url, email) {
   const client = new Client({ connectionString: url });
@@ -49,11 +45,12 @@ async function seed(url, email) {
        SELECT $1, id, true FROM plugin_core.modules
        WHERE slug = ANY($2::text[])
        ON CONFLICT (community_id, module_id) DO UPDATE SET enabled = true`,
-      [communityId, ['directory', 'showcase', 'contact-mediated']]
+      [communityId, MODULES]
     );
     await seedDirectoryCatalog(client, communityId);
 
-    for (const memberEmail of demoMemberEmails()) {
+    for (const person of demoPeople()) {
+      const memberEmail = emailFor(person);
       const member = await client.query(
         `INSERT INTO auth_core.users (email, global_role, status)
          VALUES ($1, 'user', 'active')
@@ -62,41 +59,32 @@ async function seed(url, email) {
         [memberEmail]
       );
       const memberId = member.rows[0].id;
-      const n = memberEmail.match(/member(\d+)/)[1];
       await client.query(
         `INSERT INTO person_core.profiles (
            user_id, full_name, preferred_locale, gender, birth_country, current_country,
-           birth_city, current_city, languages
-         ) VALUES ($1, $2, 'pt-BR', 'prefer_not', 'BR', 'BR', $3::jsonb, $4::jsonb, $5::jsonb)
+           birth_city, current_city, languages, contacts
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8::jsonb, $9::jsonb, $10::jsonb)
          ON CONFLICT (user_id) DO UPDATE SET
+           full_name = EXCLUDED.full_name,
+           preferred_locale = EXCLUDED.preferred_locale,
+           gender = EXCLUDED.gender,
+           birth_country = EXCLUDED.birth_country,
+           current_country = EXCLUDED.current_country,
            birth_city = EXCLUDED.birth_city,
            current_city = EXCLUDED.current_city,
-           languages = EXCLUDED.languages`,
+           languages = EXCLUDED.languages,
+           contacts = EXCLUDED.contacts`,
         [
           memberId,
-          `Demo Member ${n}`,
-          JSON.stringify({
-            provider: 'nominatim',
-            osm_id: 298285,
-            osm_type: 'relation',
-            lat: '-23.5505',
-            lon: '-46.6333',
-            country_code: 'BR',
-            label: { 'pt-BR': 'São Paulo', en: 'Sao Paulo' },
-          }),
-          JSON.stringify({
-            provider: 'nominatim',
-            osm_id: 298285,
-            osm_type: 'relation',
-            lat: '-23.5505',
-            lon: '-46.6333',
-            country_code: 'BR',
-            label: { 'pt-BR': 'São Paulo', en: 'Sao Paulo' },
-          }),
-          JSON.stringify([
-            { code: 'pt', proficiency: 'native' },
-            { code: 'en', proficiency: 'fluent' },
-          ]),
+          person.full_name,
+          person.preferred_locale,
+          person.gender,
+          person.birth_city.country_code,
+          person.current_city.country_code,
+          JSON.stringify(person.birth_city),
+          JSON.stringify(person.current_city),
+          JSON.stringify(person.languages),
+          JSON.stringify(person.contacts || {}),
         ]
       );
       const membership = await client.query(
@@ -109,22 +97,20 @@ async function seed(url, email) {
       await client.query(
         `INSERT INTO plugin_directory.cards (
            membership_id, headline, bio, availability_status, public_showcase, custom_attributes
-         ) VALUES ($1, $2::jsonb, $3::jsonb, 'available_for_hire', true, $4::jsonb)
+         ) VALUES ($1, $2::jsonb, $3::jsonb, $4, $5, $6::jsonb)
          ON CONFLICT (membership_id) DO UPDATE SET
            headline = EXCLUDED.headline,
            bio = EXCLUDED.bio,
+           availability_status = EXCLUDED.availability_status,
+           public_showcase = EXCLUDED.public_showcase,
            custom_attributes = EXCLUDED.custom_attributes`,
         [
           membership.rows[0].id,
-          JSON.stringify([
-            { locale: 'pt-BR', value: `Headline ${n}` },
-            { locale: 'en', value: `Member headline ${n}` },
-          ]),
-          JSON.stringify([
-            { locale: 'pt-BR', value: `Bio sintética ${n}` },
-            { locale: 'en', value: `Synthetic bio ${n}` },
-          ]),
-          JSON.stringify({ host_at_home: Number(n) % 2 === 1 }),
+          JSON.stringify(person.headline),
+          JSON.stringify(person.bio),
+          person.availability,
+          person.public_showcase,
+          JSON.stringify({ host_at_home: Boolean(person.host_at_home) }),
         ]
       );
     }
@@ -148,7 +134,7 @@ async function main() {
 if (require.main === module) {
   main().catch((err) => {
     console.error(err);
-    process.exit(1);
+  process.exit(1);
   });
 }
 

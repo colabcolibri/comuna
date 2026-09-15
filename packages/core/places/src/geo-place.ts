@@ -51,6 +51,30 @@ export function displayPlace(raw: unknown, locale: PlaceLocale): string {
   return placeLabel(parsePlace(raw), locale);
 }
 
+export function countryName(code: string, locale: PlaceLocale): string {
+  if (!/^[A-Z]{2}$/.test(code)) {
+    return '';
+  }
+  try {
+    return new Intl.DisplayNames([locale], { type: 'region' }).of(code) || '';
+  } catch {
+    return '';
+  }
+}
+
+export function displayPlaceLocality(raw: unknown, locale: PlaceLocale): string {
+  const place = parsePlace(raw);
+  const city = placeLabel(place, locale);
+  if (!city) {
+    return '';
+  }
+  const country = place ? countryName(place.country_code, locale) : '';
+  if (!country || city.toLowerCase().includes(country.toLowerCase())) {
+    return city;
+  }
+  return `${city}, ${country}`;
+}
+
 export function placeKey(place: Pick<GeoPlace, 'osm_type' | 'osm_id'>): string {
   return `${place.osm_type}:${place.osm_id}`;
 }
