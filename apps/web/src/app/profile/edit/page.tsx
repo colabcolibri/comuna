@@ -2,9 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { AppCardTemplate } from '@/components/templates/AppCardTemplate';
-import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
 import { AppPageTemplate, FieldGrid, fieldSpanClass } from '@community/ui-member';
-import { Button } from '@community/ui';
+import { Button, toast } from '@community/ui';
 import { contentFromCatalog, pickContent, pickLocalizedText } from '@community/identity';
 import { coreCatalog, type CatalogField, type CatalogGroup } from '@community/directory';
 import { useLocale } from '@/components/app/LocaleProvider';
@@ -28,8 +27,6 @@ export default function ProfileEditPage() {
   const copy = pickContent(CONTENT, locale);
   const [groups, setGroups] = useState<CatalogGroup[]>(coreCatalog());
   const [values, setValues] = useState<Record<string, unknown>>({});
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState('');
 
   const fields = useMemo(() => groups.flatMap((group) => group.fields), [groups]);
 
@@ -57,12 +54,11 @@ export default function ProfileEditPage() {
         });
       }
       setValues(next);
-    }).catch(() => setError(copy.error));
+    }).catch(() => toast.error(copy.error));
   }, [copy.error]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     const profileRes = await fetch('/api/profiles/me', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -70,7 +66,7 @@ export default function ProfileEditPage() {
     });
     if (!profileRes.ok) {
       const data = await profileRes.json();
-      setError(data.error?.message || copy.error);
+      toast.error(data.error?.message || copy.error);
       return;
     }
     const writesCard = fields.some((field) => field.storage !== 'person');
@@ -82,18 +78,15 @@ export default function ProfileEditPage() {
       });
       if (!cardRes.ok) {
         const data = await cardRes.json();
-        setError(data.error?.message || copy.error);
+        toast.error(data.error?.message || copy.error);
         return;
       }
     }
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    toast.success(copy.saved);
   };
 
   return (
     <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
-      {saved && <AppAlertTemplate variant="success" title={copy.saved} message={copy.saved} />}
-      {error && <AppAlertTemplate variant="destructive" title={copy.error} message={error} />}
       <form onSubmit={handleSave} className="space-y-6">
         {groups.map((group, index) => (
           <AppCardTemplate

@@ -18,3 +18,5 @@ export * from './components/ui/sidebar';
 export * from './components/ui/skeleton';
 export * from './components/ui/textarea';
 export * from './components/ui/tooltip';
+export { Toaster } from './components/ui/sonner';
+export { toast } from 'sonner';

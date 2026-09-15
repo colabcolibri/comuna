@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { cookies } from 'next/headers';
 import { IBM_Plex_Sans } from 'next/font/google';
-import { ThemeProvider } from '@community/ui';
+import { ThemeProvider, Toaster } from '@community/ui';
 import { LOCALE_COOKIE, contentFromCatalog, pickContent, resolveUiLocale } from '@community/identity';
 import { MemberShell } from '@/components/app/MemberShell';
 import { EnabledModulesProvider } from '@/components/app/EnabledModulesProvider';
@@ -40,6 +40,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <LocaleProvider initialLocale={locale}>
             <EnabledModulesProvider enabled={enabledModules}>
               <MemberShell sessionEmail={session?.email ?? null}>{children}</MemberShell>
+              <Toaster />
             </EnabledModulesProvider>
           </LocaleProvider>
         </ThemeProvider>

@@ -2,11 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { AppIndexList, AppPageTemplate, AppPersonRow } from '@community/ui-member';
-import { Button } from '@community/ui';
+import { Button, toast } from '@community/ui';
 import { contentFromCatalog, mergeContent, pickContent, pickLocalizedText } from '@community/identity';
 import { displayPlace } from '@community/places';
 import { AppDialogTemplate } from '@/components/templates/AppDialogTemplate';
-import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { useEnabledModules } from '@/components/app/EnabledModulesProvider';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
@@ -39,7 +38,6 @@ export default function ShowcasePage() {
   const [selected, setSelected] = useState<Row | null>(null);
   const [senderEmail, setSenderEmail] = useState('');
   const [message, setMessage] = useState('');
-  const [sentSuccess, setSentSuccess] = useState(false);
   const [fieldError, setFieldError] = useState('');
 
   useEffect(() => {
@@ -73,13 +71,11 @@ export default function ShowcasePage() {
       setFieldError(data.error?.message || copy.message);
       return;
     }
-    setSentSuccess(true);
-    setTimeout(() => {
-      setSentSuccess(false);
-      setSelected(null);
-      setSenderEmail('');
-      setMessage('');
-    }, 2000);
+    toast.success(copy.success);
+    setSelected(null);
+    setSenderEmail('');
+    setMessage('');
+    setFieldError('');
   };
 
   return (
@@ -111,10 +107,7 @@ export default function ShowcasePage() {
         title={copy.contact}
         description={copy.subtitle}
         content={
-          sentSuccess ? (
-            <AppAlertTemplate variant="success" title={copy.success} message={copy.success} />
-          ) : (
-            <form id="contact-form" onSubmit={handleSendMessage} className="flex flex-col gap-4">
+          <form id="contact-form" onSubmit={handleSendMessage} className="flex flex-col gap-4">
               {fieldError && <p className="text-destructive">{fieldError}</p>}
               <label className="text-sm">
                 {copy.email}
@@ -137,11 +130,9 @@ export default function ShowcasePage() {
                 />
               </label>
             </form>
-          )
         }
         actions={
-          !sentSuccess && (
-            <>
+          <>
               <Button variant="outline" onClick={() => setSelected(null)}>
                 {copy.cancel}
               </Button>
@@ -149,7 +140,6 @@ export default function ShowcasePage() {
                 {copy.send}
               </Button>
             </>
-          )
         }
       />
     </AppPageTemplate>
