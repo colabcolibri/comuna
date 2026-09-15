@@ -67,7 +67,7 @@ blocks: []
 | `GET` | `/api/me/communities` | Comunidades com membership `active` da pessoa | Member | — | `{ "data": [{ id, slug, name, network_role }] }` |
 | `GET` | `/api/community/modules` | Slugs enabled da comunidade do contexto (cookie `community_slug` ou vitrine pública) | Public / member | — | `{ "enabled": ["directory", "showcase"] }` |
 | `GET` | `/api/directory/catalog` | Grupos e campos; API **omite** campos cujo `module_id` não está enabled (núcleo sempre). 404 só se o plugin **directory** está off | Member | — | `{ "groups": [ { fields } ] }` |
-| `GET` | `/api/directory/members` | Diretório rico | Member; **404 se plugin off** | query + facets | `{ "data", "meta" }` |
+| `GET` | `/api/directory/members` | Diretório rico | Member; **404 se plugin off** | `search` / `status` / `cohort` / `attr.*` / `page` / `size` (24, 48, 96; default 24) | `{ "data", "meta": { page, pageSize, total } }` |
 | `GET` | `/api/profiles/public` | Vitrine desta comunidade | Public; **404 se plugin off** | `?slug=` ou cookie `community_slug` + `search` / `status` / `attr.*` / `page` / `size` (24, 48, 96; default 24) | `{ "data", "meta": { page, pageSize, total } }` |
 | `POST` | `/api/contact/:membershipId` | Contato mediado (legado) | Public; **404 se plugin off** | `sender_name`, `sender_email` obrigatórios; `message` ≥ 40; `sender_phone` opcional | `200` |
 | `POST` | `/api/profiles/:id/contact` | Contato mediado (vitrine/diretório) | Public; **404 se plugin off** ou sem vitrine; 5 / hora / IP | `sender_name`, `sender_email` obrigatórios; `message` ≥ 40; `sender_phone` opcional | `200`; e-mail `contact_notice` com `community_name` do tenant |

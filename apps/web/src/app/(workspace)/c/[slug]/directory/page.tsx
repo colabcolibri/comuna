@@ -42,6 +42,9 @@ export default async function DirectoryPage({
       status={query.get('status') || ''}
       cohorts={cohorts}
       cohort={query.get('cohort') || ''}
+      page={listed.body.meta.page}
+      pageSize={listed.body.meta.pageSize}
+      total={listed.body.meta.total}
     />
   );
 }

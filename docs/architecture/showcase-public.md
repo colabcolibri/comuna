@@ -35,7 +35,7 @@ Query: `search` (nome, headline, bio), `status` (só se availability for filtrá
 
 Rotas no grupo `(public)`: `/showcase`, `/c/{slug}/showcase`. Workspace fica em `(workspace)` com `MemberShell`.
 
-Hero: `AppShowcasePortal` (título + texto do admin). Cartões: `AppShowcaseCard`. Busca rotulada; filtros no `AppFilterSheet`. Paginação acima e abaixo da grelha; seletor 24, 48 ou 96. **Lista vazia** (ninguém optou, ou o recorte não devolveu ninguém): `AppShowcaseEmpty` — título + frase, `role="status"`. Não é grelha em branco nem uma linha miúda. Casa sem opt-in e busca sem resultado usam copy diferente (`page.empty` vs `page.empty_filtered`).
+Hero: `AppShowcasePortal` (título + texto do admin). Cartões: `AppShowcaseCard`. Busca rotulada; filtros no `AppFilterSheet`. Paginação acima e abaixo da grelha; seletor 24, 48 ou 96. O mesmo `AppShowcasePager` serve o diretório interno. **Lista vazia** (ninguém optou, ou o recorte não devolveu ninguém): `AppShowcaseEmpty` — título + frase, `role="status"`. Não é grelha em branco nem uma linha miúda. Casa sem opt-in e busca sem resultado usam copy diferente (`page.empty` vs `page.empty_filtered`).
 
 UI do diálogo: `AppDialog`. **Enviar mensagem** no footer abre `AppSheet`.
 

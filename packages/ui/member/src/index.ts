@@ -7,7 +7,7 @@ export { AppAlertDialog } from './app-alert-dialog';
 export { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader } from './app-dialog';
 export { AppSheet, type AppSheetSide } from './app-sheet';
 export { AppFilterSheet } from './app-filter-sheet';
-export { AppShowcaseCard, AppShowcaseGrid } from './app-showcase-card';
+export { AppPersonCard, AppShowcaseCard, AppShowcaseGrid } from './app-showcase-card';
 export { AppShowcaseEmpty, AppShowcasePager, AppShowcasePortal } from './app-showcase-portal';
 export { AppPublicChrome } from './app-public-chrome';
 export { FieldGrid, fieldSpanClass } from './field-grid';

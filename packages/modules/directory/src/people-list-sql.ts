@@ -68,9 +68,6 @@ export function peopleListQuery(input: {
     clauses.push(`c.availability_status = $${params.length}`);
   }
   const where = `${FROM} WHERE ${clauses.join(' AND ')}`;
-  if (input.scope !== 'showcase') {
-    return { ok: true, text: `${SELECT} ${where} ORDER BY p.full_name`, params, page: 1, pageSize: 0 };
-  }
   const page = Math.max(1, Number.parseInt(input.searchParams.get('page') || '1', 10) || 1);
   const pageSize = parseShowcasePageSize(input.searchParams.get('size'));
   const offset = (page - 1) * pageSize;

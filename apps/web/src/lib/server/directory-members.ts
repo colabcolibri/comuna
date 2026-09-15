@@ -28,6 +28,9 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
   if (built.ok === false) {
     return { status: 400 as const, body: { error: { code: 'VALIDATION_ERROR', message: built.message } } };
   }
+  const counted = built.countText
+    ? await queryAsMember<{ total: number }>(ctx, built.countText, built.countParams)
+    : { rows: [{ total: 0 }] };
   const result = await queryAsMember(ctx, built.text, built.params);
   const keys = listedAttributeNames(listFields);
   return {
@@ -37,7 +40,11 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
       facets: attributeFacets(listFields),
       listFields,
       availabilityFilter: availabilityIsFilterable(listFields),
-      meta: { page: 1 },
+      meta: {
+        page: built.page,
+        pageSize: built.pageSize,
+        total: counted.rows[0]?.total ?? 0,
+      },
     },
   };
 }

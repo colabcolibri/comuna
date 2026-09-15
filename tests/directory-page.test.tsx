@@ -66,12 +66,15 @@ describe('directory panel', () => {
             facetValues={{}}
             cohorts={[]}
             cohort=""
+            total={1}
           />
         </EnabledModulesProvider>
       </LocaleProvider>
     );
     expect(screen.getByRole('heading', { name: 'Marina Silva' })).toBeTruthy();
     expect(screen.queryByText('Nenhum membro ativo nesta comunidade.')).toBeNull();
+    expect(screen.queryByText('Mentora.')).toBeNull();
+    expect(screen.getAllByLabelText('1–1 de 1').length).toBe(2);
   });
 
   it('opens the shared profile dialog from a directory row', async () => {
@@ -86,11 +89,12 @@ describe('directory panel', () => {
             facetValues={{}}
             cohorts={[]}
             cohort=""
+            total={1}
           />
         </EnabledModulesProvider>
       </LocaleProvider>
     );
-    screen.getByRole('button', { name: 'Ver perfil' }).click();
+    screen.getByRole('button', { name: 'Ver perfil: Marina Silva' }).click();
     await waitFor(() => {
       expect(screen.getByRole('dialog')).toBeTruthy();
     });

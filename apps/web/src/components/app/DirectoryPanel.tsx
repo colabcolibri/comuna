@@ -10,13 +10,19 @@ import { activeFilterCount, directoryQueryString } from '@/lib/people/directory-
 import type { PersonCard } from '@/lib/people/person-card';
 import { useDebouncedValue } from '@/lib/people/use-debounced-value';
 import { slotOn } from '@/modules/registry';
-import type { CatalogField, ListField } from '@community/directory';
-import { availabilityIsFilterable, projectPersonView } from '@community/directory';
-import { contentFromCatalog, mergeContent, pickContent } from '@community/identity';
+import { SHOWCASE_PAGE_SIZE, SHOWCASE_PAGE_SIZES, availabilityIsFilterable, projectPersonView, type CatalogField, type ListField } from '@community/directory';
+import { contentFromCatalog, interpolate, mergeContent, pickContent } from '@community/identity';
 import { displayPlaceLocality } from '@community/places';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
 import { Button, Input } from '@community/ui';
-import { AppFilterSheet, AppIndexList, AppPageTemplate, AppPersonRow } from '@community/ui-member';
+import {
+  AppFilterSheet,
+  AppPageTemplate,
+  AppPersonCard,
+  AppShowcaseEmpty,
+  AppShowcaseGrid,
+  AppShowcasePager,
+} from '@community/ui-member';
 import { ListFilter } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -28,7 +34,15 @@ const CONTENT = mergeContent(
       title: 'page.title',
       subtitle: 'page.subtitle',
       search: 'page.search',
+      searchHint: 'page.search_hint',
+      emptyTitle: 'page.empty_title',
       empty: 'page.empty',
+      emptyFilteredTitle: 'page.empty_filtered_title',
+      emptyFiltered: 'page.empty_filtered',
+      range: 'page.range',
+      prev: 'page.prev',
+      next: 'page.next',
+      size: 'page.size',
       privacy: 'page.privacy',
       view: 'page.view',
       close: 'page.close',
@@ -68,6 +82,7 @@ const CONTENT = mergeContent(
     message: 'form.message',
     requiredMissing: 'form.required_missing',
     messageMin: 'form.message_min',
+    messageCount: 'form.message_count',
     privacy: 'form.privacy',
   })
 );
@@ -81,6 +96,9 @@ export function DirectoryPanel({
   cohorts,
   cohort,
   status = '',
+  page = 1,
+  pageSize = SHOWCASE_PAGE_SIZE,
+  total = 0,
 }: {
   rows: PersonCard[];
   facets: CatalogField[];
@@ -90,6 +108,9 @@ export function DirectoryPanel({
   cohorts: { id: string; name: string }[];
   cohort: string;
   status?: string;
+  page?: number;
+  pageSize?: number;
+  total?: number;
 }) {
   const locale = useLocale();
   const copy = pickContent(CONTENT, locale);
@@ -102,25 +123,50 @@ export function DirectoryPanel({
   const debounced = useDebouncedValue(term, 300);
   const count = activeFilterCount(facetValues, [status]);
   const canFilter = facets.length > 0 || availabilityIsFilterable(listFields);
+  const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const to = Math.min(page * pageSize, total);
+  const sliced = Boolean(search || count || cohort);
 
   useEffect(() => {
     setTerm(search);
   }, [search]);
 
   useEffect(() => {
-    const query = directoryQueryString(debounced, facetValues, cohort, status);
-    const next = query ? `${pathname}?${query}` : pathname;
-    const committed = directoryQueryString(search, facetValues, cohort, status);
-    const committedPath = committed ? `${pathname}?${committed}` : pathname;
-    if (next === committedPath) {
+    if (debounced === search) {
       return;
     }
-    router.replace(next, { scroll: false });
-  }, [debounced, facetValues, cohort, status, pathname, search, router]);
-
-  function go(nextSearch: string, nextFacets: Record<string, string>, nextCohort = cohort, nextStatus = status) {
-    const query = directoryQueryString(nextSearch, nextFacets, nextCohort, nextStatus);
+    const query = directoryQueryString(debounced, facetValues, cohort, status, 1, pageSize);
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [debounced, facetValues, cohort, status, pathname, search, router, pageSize]);
+
+  function go(
+    nextSearch: string,
+    nextFacets: Record<string, string>,
+    nextCohort = cohort,
+    nextStatus = status,
+    nextPage = 1,
+    nextSize = pageSize
+  ) {
+    const query = directoryQueryString(nextSearch, nextFacets, nextCohort, nextStatus, nextPage, nextSize);
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
+
+  function pager(className: string) {
+    return (
+      <AppShowcasePager
+        className={className}
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        prevLabel={copy.prev}
+        nextLabel={copy.next}
+        sizeLabel={copy.size}
+        sizes={SHOWCASE_PAGE_SIZES}
+        summary={interpolate(copy.range, { from: String(from), to: String(to), total: String(total) })}
+        onPage={(next) => go(search, facetValues, cohort, status, next)}
+        onPageSize={(next) => go(search, facetValues, cohort, status, 1, next)}
+      />
+    );
   }
 
   return (
@@ -130,7 +176,13 @@ export function DirectoryPanel({
           <label className="mb-2 block text-sm font-medium" htmlFor="global-search">
             {copy.search}
           </label>
-          <Input id="global-search" className="min-h-11 w-full" value={term} onChange={(e) => setTerm(e.target.value)} />
+          <Input
+            id="global-search"
+            className="min-h-11 w-full"
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+            placeholder={copy.searchHint}
+          />
         </div>
         <PeopleCohortSelect
           id="directory-cohort"
@@ -175,36 +227,39 @@ export function DirectoryPanel({
         ) : null}
       </div>
       <p className="mb-6 max-w-160 text-base text-muted-foreground">{copy.privacy}</p>
-      {rows.length === 0 && <p className="text-muted-foreground">{copy.empty}</p>}
-      {rows.length > 0 && (
-        <AppIndexList>
-          {rows.map((profile) => {
-            const view = projectPersonView({
-              profile,
-              fields: listFields,
-              density: 'card',
-              locale,
-              cityLabel: displayPlaceLocality(profile.current_city, locale),
-              availabilityLabel: availabilityLabel(profile.availability_status, copy),
-            });
-            return (
-              <AppPersonRow
-                key={profile.id}
-                name={view.name}
-                photo={view.photoUrl}
-                headline={[view.headline, view.city].filter(Boolean).join(' · ')}
-                languages={view.languages.map((item) => item.label)}
-                languagesLabel={view.languagesHeading || copy.languages}
-                status={view.availability}
-                action={
-                  <Button variant="outline" className="min-h-11 w-full sm:w-auto" onClick={() => setSelected(profile)}>
-                    {copy.view}
-                  </Button>
-                }
-              />
-            );
-          })}
-        </AppIndexList>
+      {rows.length === 0 ? (
+        <AppShowcaseEmpty title={sliced ? copy.emptyFilteredTitle : copy.emptyTitle} body={sliced ? copy.emptyFiltered : copy.empty} />
+      ) : (
+        <>
+          {pager('mb-6')}
+          <AppShowcaseGrid>
+            {rows.map((profile) => {
+              const view = projectPersonView({
+                profile,
+                fields: listFields,
+                density: 'card',
+                locale,
+                cityLabel: displayPlaceLocality(profile.current_city, locale),
+                availabilityLabel: availabilityLabel(profile.availability_status, copy),
+              });
+              return (
+                <AppPersonCard
+                  key={profile.id}
+                  variant="compact"
+                  name={view.name}
+                  photoUrl={view.photoUrl}
+                  headline={view.headline}
+                  city={view.city}
+                  languages={view.languages.map((item) => item.label)}
+                  availability={view.availability}
+                  actionLabel={copy.view}
+                  onOpen={() => setSelected(profile)}
+                />
+              );
+            })}
+          </AppShowcaseGrid>
+          {pager('mt-10')}
+        </>
       )}
       <PersonInspect
         profile={selected}

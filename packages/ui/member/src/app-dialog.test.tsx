@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader } from './app-dialog';
-import { AppShowcaseCard } from './app-showcase-card';
+import { AppPersonCard, AppShowcaseCard } from './app-showcase-card';
 
 describe('AppDialog', () => {
   it('renders header, body and footer', () => {
@@ -58,5 +58,31 @@ describe('AppShowcaseCard', () => {
     expect(screen.getByText('Disponibilidade')).toBeTruthy();
     expect(screen.getByText('Recebe em casa')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Ver perfil: Marina Silva' })).toBeTruthy();
+  });
+
+  it('keeps compact cards short: no bio, facts, or field headings', () => {
+    render(
+      <AppPersonCard
+        variant="compact"
+        name="Marina Silva"
+        headline="Produto"
+        summary="Desenha produtos para redes profissionais."
+        city="São Paulo, Brasil"
+        languagesLabel="Idiomas"
+        languages={['Português', 'Inglês']}
+        availability="Mentoria"
+        availabilityLabel="Disponibilidade"
+        facts={[{ label: 'Recebe em casa', values: [] }]}
+        actionLabel="Ver perfil"
+        onOpen={() => undefined}
+      />
+    );
+    expect(screen.getByText('Produto')).toBeTruthy();
+    expect(screen.queryByText('Desenha produtos para redes profissionais.')).toBeNull();
+    expect(screen.queryByText('Idiomas')).toBeNull();
+    expect(screen.queryByText('Disponibilidade')).toBeNull();
+    expect(screen.queryByText('Recebe em casa')).toBeNull();
+    expect(screen.getByText('Mentoria')).toBeTruthy();
+    expect(screen.getByText('Português')).toBeTruthy();
   });
 });

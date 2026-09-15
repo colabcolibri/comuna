@@ -2,24 +2,14 @@ import type { ReactNode } from 'react';
 import { personInitials } from './app-person-row';
 import { AppPersonFieldGroup } from './app-person-field-group';
 
+export type AppPersonCardVariant = 'compact' | 'teaser';
+
 export function AppShowcaseGrid({ children }: { children: ReactNode }) {
   return <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">{children}</div>;
 }
 
-export function AppShowcaseCard({
-  name,
-  photoUrl,
-  headline,
-  city,
-  summary,
-  languagesLabel,
-  languages,
-  availabilityLabel,
-  availability,
-  facts,
-  actionLabel,
-  onOpen,
-}: {
+type AppPersonCardProps = {
+  variant?: AppPersonCardVariant;
   name: string;
   photoUrl?: string | null;
   headline?: string | null;
@@ -32,8 +22,27 @@ export function AppShowcaseCard({
   facts?: { label: string; values: string[] }[];
   actionLabel: string;
   onOpen: () => void;
-}) {
+};
+
+export function AppPersonCard({
+  variant = 'teaser',
+  name,
+  photoUrl,
+  headline,
+  city,
+  summary,
+  languagesLabel,
+  languages,
+  availabilityLabel,
+  availability,
+  facts,
+  actionLabel,
+  onOpen,
+}: AppPersonCardProps) {
+  const compact = variant === 'compact';
   const mark = personInitials(name);
+  const photoClass = compact ? 'size-16 text-lg' : 'size-20 text-xl';
+  const spoken = compact ? languages?.slice(0, 3) : languages;
   return (
     <article className="min-w-0">
       <button
@@ -50,10 +59,10 @@ export function AppShowcaseCard({
         </span>
         <div className="flex min-w-0 items-start gap-4 p-5 pb-0 pr-12">
           {photoUrl ? (
-            <img src={photoUrl} alt="" className="size-20 shrink-0 rounded-full object-cover" />
+            <img src={photoUrl} alt="" className={`${photoClass} shrink-0 rounded-full object-cover`} />
           ) : (
             <div
-              className="flex size-20 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-medium text-primary-foreground"
+              className={`flex ${photoClass} shrink-0 items-center justify-center rounded-full bg-primary font-medium text-primary-foreground`}
               aria-hidden
             >
               {mark}
@@ -65,21 +74,40 @@ export function AppShowcaseCard({
           </div>
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-3 p-5">
-          {headline ? <p className="text-base font-medium leading-snug text-foreground">{headline}</p> : null}
-          {summary ? (
+          {headline ? (
+            <p className={`text-base font-medium leading-snug text-foreground ${compact ? 'line-clamp-2' : ''}`}>{headline}</p>
+          ) : null}
+          {!compact && summary ? (
             <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">{summary}</p>
           ) : null}
-          {languages && languages.length > 0 ? (
-            <AppPersonFieldGroup label={languagesLabel || ''} values={languages} />
-          ) : null}
-          {availability ? (
-            <AppPersonFieldGroup label={availabilityLabel || ''} values={[availability]} />
-          ) : null}
-          {facts?.map((item) => (
-            <AppPersonFieldGroup key={item.label} label={item.label} values={item.values} />
-          ))}
+          {compact ? (
+            <>
+              {spoken && spoken.length > 0 ? <AppPersonFieldGroup label="" values={spoken} /> : null}
+              {availability ? (
+                <span className="inline-flex w-fit rounded-md border border-border bg-secondary px-2.5 py-1 text-sm text-foreground">
+                  {availability}
+                </span>
+              ) : null}
+            </>
+          ) : (
+            <>
+              {spoken && spoken.length > 0 ? (
+                <AppPersonFieldGroup label={languagesLabel || ''} values={spoken} />
+              ) : null}
+              {availability ? (
+                <AppPersonFieldGroup label={availabilityLabel || ''} values={[availability]} />
+              ) : null}
+              {facts?.map((item) => (
+                <AppPersonFieldGroup key={item.label} label={item.label} values={item.values} />
+              ))}
+            </>
+          )}
         </div>
       </button>
     </article>
   );
+}
+
+export function AppShowcaseCard(props: Omit<AppPersonCardProps, 'variant'>) {
+  return <AppPersonCard variant="teaser" {...props} />;
 }

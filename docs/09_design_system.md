@@ -84,15 +84,15 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `OpsCombobox` | Typeahead (listbox). Hits vêm do servidor; o componente não recebe 10k opções | `packages/ui/admin/src/ops-combobox.tsx` |
 | `OpsTable` | Tabela densa ops | `packages/ui/admin/src/ops-table.tsx` |
 | `AppAuthFrame` | Login centrado com kicker | `packages/ui/member/src/app-auth-frame.tsx` |
-| `AppIndexList` / `AppPersonRow` | Índice de pessoas (não grid de cards); row pode mostrar idiomas se a lista directory marcar `card` | `packages/ui/member/src/app-person-row.tsx` |
+| `AppIndexList` / `AppPersonRow` | Índice denso (ops / listas que ainda não são grelha) | `packages/ui/member/src/app-person-row.tsx` |
 | `AppAlertDialog` | Confirmação (cancelar / confirmar) | `packages/ui/member/src/app-alert-dialog.tsx` |
 | `AppDialog` | Perfil / detalhe: header e footer fora do scroll; body é `ScrollArea` shadcn com viewport `overflow-y: scroll` limitado (`app-dialog-scroll`) | `packages/ui/member/src/app-dialog.tsx` |
 | `AppSheet` | Sheet shadcn: `SheetTrigger` + `SheetContent` + `SheetClose`. Corpo `grid flex-1 auto-rows-min gap-6 px-4`. Filtros e enviar mensagem usam este template. | `packages/ui/member/src/app-sheet.tsx` |
 | `AppFilterSheet` | `AppSheet` com trigger na página, limpar e fechar no rodapé | `packages/ui/member/src/app-filter-sheet.tsx` |
 | `AppPublicChrome` | Página pública da vitrine: header sem sidebar, documento rola | `packages/ui/member/src/app-public-chrome.tsx` |
-| `AppShowcasePortal` / `AppShowcasePager` | Herói do portal público + paginação | `packages/ui/member/src/app-showcase-portal.tsx` |
+| `AppShowcasePortal` / `AppShowcasePager` | Herói do portal público + paginação das listas de pessoas (vitrine e diretório; 24/48/96; acima e abaixo da grelha) | `packages/ui/member/src/app-showcase-portal.tsx` |
 | `AppPersonFieldGroup` | Rótulo do campo + valores em chips (vitrine, diálogo) | `packages/ui/member/src/app-person-field-group.tsx` |
-| `AppShowcaseCard` | Cartão da vitrine (foto 80px; cada extra com label; cartão inteiro abre o perfil) | `packages/ui/member/src/app-showcase-card.tsx` |
+| `AppPersonCard` / `AppShowcaseCard` | Cartão de pessoa. `compact` = diretório (foto 64px, headline, idiomas e disponibilidade sem bio). `teaser` (`AppShowcaseCard`) = vitrine (foto 80px, bio, extras com label). Cartão inteiro abre o perfil | `packages/ui/member/src/app-showcase-card.tsx` |
 | `Toaster` (Sonner) | Feedback **transitório** (salvar, envio) | `packages/ui/primitives` — `toast` de `@community/ui`. Um `Toaster` no layout. Alerta **inline** = `Alert` de `@community/ui`, não toast. |
 | `MemberShell` | Sidebar + inset + header; páginas rolam com `ScrollArea`; rodapé no chrome (fora do scroll) | `apps/web/.../MemberShell.tsx` |
 | `AppSidebar` | Destinos desta comunidade; rodapé = perfil + Sair | `apps/web/.../AppSidebar.tsx` |
@@ -117,7 +117,7 @@ Navegação do **workspace**: sidebar shadcn no desktop; header sem destinos de 
 | Contato | Pedir contato mediado | Visitante | `AppSheet` (mesmo template dos filtros) | Form no `AppDialog` | Trigger **Enviar mensagem**; sheet com nome, e-mail e mensagem obrigatórios (mensagem ≥ 40), telefone opcional; CTA **Enviar** passa a **Enviando…** e fica `disabled` até a resposta |
 | `/` | Ver assentos e comunidades públicas | Visitante / membro | Header da plataforma | — | Lista de tenants; OTP fica em `/login` |
 | `/login` | Entrar com OTP | Visitante | `AppPublicChrome` | Sidebar no OTP | OTP centrado, um CTA |
-| `/c/{slug}/directory` | Buscar membros **desta** comunidade | Membro | Sidebar: comunidade + Diretório | Path legado `/directory` | Lista em linhas; `Ver perfil` abre o mesmo diálogo da vitrine |
+| `/c/{slug}/directory` | Buscar membros **desta** comunidade | Membro | Sidebar: comunidade + Diretório | Path legado `/directory` | Grelha de `AppPersonCard` compacto; `AppShowcasePager` acima e abaixo; o cartão abre o mesmo diálogo da vitrine |
 | `/c/{slug}/profile` | Card e campos desta comunidade | Membro | Nesta comunidade | Misturado com identidade | Formulário só `storage` ≠ `person` |
 | `/profile` | Editar identidade | Membro | Rodapé: Meu perfil | Path legado `/profile/edit` | Nome, foto, cidade, links |
 | `/c/{slug}/coord/approvals` | Aprovar entrada **deste** tenant | Coordenador neste slug | Pedidos só se coord aqui | Path legado `/coord` | Tabela com Aprovar/Recusar rotulados |
@@ -135,8 +135,8 @@ flowchart LR
     P -->|Enviar mensagem| C[AppSheet direita]
     S -->|Entrar| O[OTP]
     O -->|sessão| W
-    W -->|Diretório| D[Lista]
-    D -->|Ver perfil| P
+    W -->|Diretório| D[Grelha compacta]
+    D -->|cartao| P
     W -->|Meu perfil| E[Editar perfil]
     W -->|outra comunidade| W
 ```
@@ -155,8 +155,8 @@ flowchart TB
 | Breakpoint | Width | Behavior |
 | ---------- | ----- | -------- |
 | Mobile | `< 640px` | Uma coluna; header = menu + marca + locale + tema (sem links); sheet 100% largura; hit 44px; sem overflow-x |
-| Tablet | `640–1024px` | Lista de pessoas em uma coluna; filtros no `AppFilterSheet` à direita |
-| Desktop | `> 768px` | Sidebar; colapsada = rail de ícones + inicial da comunidade; páginas `max-w-6xl`; filtros continuam no sheet à direita (não rail esquerdo) |
+| Tablet | `640–1024px` | Grelha de pessoas em duas colunas; filtros no `AppFilterSheet` à direita |
+| Desktop | `> 768px` | Sidebar; colapsada = rail de ícones + inicial da comunidade; páginas `max-w-6xl`; grelha em três colunas; filtros continuam no sheet à direita (não rail esquerdo) |
 
 ## Copy
 

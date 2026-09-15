@@ -32,7 +32,7 @@ Vitrine: `gender`, `birth_city`, `public_showcase` ficam `off` / filtro false. N
 
 `projectPersonView` (domínio directory) monta slots: identidade, headline, bio, idiomas, availability, facts, links. UI só desenha. Cada extra em `facts` traz **label do catálogo** + `values[]` (checkbox vira vários valores; boolean verdadeiro é só o rótulo). Idiomas e disponibilidade também saem com heading do campo. Idiomas nunca misturam com availability.
 
-Densidade `card`: só `placement = card`. Densidade `detail`: `card` ou `detail`.
+Densidade `card`: só `placement = card`. Densidade `detail`: `card` ou `detail`. A UI do diretório desenha `card` em `AppPersonCard` `compact` (sem bio/facts mesmo que o seed deixe bio em `detail`). A vitrine desenha `card` em `AppShowcaseCard` (`teaser`). As duas listas paginam com o mesmo `AppShowcasePager` e os mesmos `page`/`size` (24, 48, 96).
 
 Load: `LIST_FIELDS_SQL` + `parseListFields`. Facets: `attributeFacets`. Filtro `attr.*`: `parseAttrFilters` lê `ListField.filterable`, não o catálogo do perfil.
 

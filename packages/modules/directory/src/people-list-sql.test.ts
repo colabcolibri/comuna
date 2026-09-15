@@ -36,7 +36,9 @@ describe('peopleListQuery', () => {
     expect(built.text.match(/JOIN/g)?.length).toBe(2);
     expect(built.text).toContain('custom_attributes @>');
     expect(built.text).toContain("m.network_status = 'active'");
-    expect(built.params).toEqual(['c1', '{"host_at_home":true}', '%ana%']);
+    expect(built.params).toEqual(['c1', '{"host_at_home":true}', '%ana%', 24, 0]);
+    expect(built.text).toContain('LIMIT $');
+    expect(built.pageSize).toBe(24);
   });
 
   it('scopes showcase with public_showcase and availability, not cohort', () => {
@@ -53,6 +55,18 @@ describe('peopleListQuery', () => {
     expect(built.text).toContain('c.public_showcase = true');
     expect(built.text).toContain('c.availability_status = $');
     expect(built.text).not.toContain('cohort_id');
+  });
+
+  it('paginates directory and showcase with the same size rules', () => {
+    const directory = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams('page=2&size=48'),
+      fields: [host],
+      scope: 'directory',
+    });
+    expect(directory.ok && directory.page).toBe(2);
+    expect(directory.ok && directory.pageSize).toBe(48);
+    expect(directory.ok && directory.params.at(-1)).toBe(48);
   });
 
   it('paginates the showcase and searches bio', () => {
