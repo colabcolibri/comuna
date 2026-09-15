@@ -45,7 +45,7 @@ Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejei
 | `availability` | directory + showcase | availability (`directory`); `public_showcase` (`showcase`) | `card_column` |
 | (custom) | directory | o que a comunidade pedir | `attributes` |
 
-Ops cria e apaga só campos `storage=attributes` no grupo `custom` (`/communities/:id/fields`). Campos `person`, `card_column` e atributos de seed (ex.: `hospitality`) aparecem travados. Comunidade nova recebe o mesmo seed de `scripts/seed-directory-catalog.cjs` mais o grupo `custom`.
+Ops reordena grupos e campos (`sort_order`); a lista do admin é a ordem do formulário de perfil. Cria grupo novo e campo `attributes` em qualquer grupo. Apaga só `storage=attributes`. Grupos seed (`identity`, `person`, `links`, `community_copy`, `availability`, `hospitality`) não apagam. Grupo da comunidade só some se estiver vazio. Comunidade nova recebe o seed de `scripts/seed-directory-catalog.cjs` mais o grupo `custom`.
 
 `columns` no grupo (1–3) define a densidade. `span` no campo (1–3) ocupa o grid. Mobile: uma coluna. Sem overflow horizontal.
 

@@ -76,7 +76,7 @@ psql postgresql://postgres:postgres@localhost:5433/alumni_db
 Cookie de sessão membro: `Secure` só quando `NODE_ENV=production`. Local HTTP usa `Secure=false` de propósito.
 
 - Web (membros): `http://localhost:3014`
-- Admin: `http://localhost:3015` (`apps/admin`) — login OTP + comunidades + módulos + coordenador. Cookie `ops_token`. Seed: `INITIAL_SUPER_ADMIN_EMAIL` (default `admin@example.com`).
+- Admin: `http://localhost:3015` (`apps/admin`) — login OTP + comunidades + pessoas da rede + módulos + coordenador. Cookie `ops_token`. Seed: `INITIAL_SUPER_ADMIN_EMAIL` (default `admin@example.com`).
 - **Não** usar reset de banco.
 
 ## Seed do super-admin

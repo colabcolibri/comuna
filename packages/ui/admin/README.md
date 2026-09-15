@@ -2,9 +2,11 @@
 
 Compostos ops em `@community/ui-admin`. Mesmo contrato visual das páginas membro (`kicker` + `h1` + `lede` + `actions`), cópia própria — não importa `@community/ui-member`.
 
-- `OpsShell` — rail: grupo **Rede** (comunidades) sempre; grupo **Nesta comunidade** só depois de abrir um tenant
+- `OpsShell` — rail: grupo **Rede** (comunidades + pessoas) sempre; grupo **Nesta comunidade** só depois de abrir um tenant
 - `OpsPageHeader` / `OpsPageTemplate` — páginas
 - `OpsSection` — blocos de detalhe
+- `OpsBadge` — rótulo curto (ex.: super-admin)
+- `OpsCombobox` — busca; opções vêm do caller (já paginadas)
 - `OpsTable` — listas densas
 - `OpsSubnav` — tabs horizontais (não usar no tenant; capítulos vão no rail)
 

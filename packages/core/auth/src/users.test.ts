@@ -5,7 +5,7 @@ vi.mock('@community/db', () => ({
 }));
 
 import { query } from '@community/db';
-import { findUserByEmail, isSuperAdmin } from './users';
+import { ensureUserByEmail, findUserByEmail, InvalidEmailError, isSuperAdmin } from './users';
 
 const mockedQuery = vi.mocked(query);
 
@@ -32,5 +32,18 @@ describe('ops user lookup', () => {
   it('returns null when the email is not in auth_core.users', async () => {
     mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
     await expect(findUserByEmail('nobody@example.com')).resolves.toBeNull();
+  });
+
+  it('rejects a string that is not an email before writing', async () => {
+    await expect(ensureUserByEmail('nao-e-email')).rejects.toBeInstanceOf(InvalidEmailError);
+    expect(mockedQuery).not.toHaveBeenCalled();
+  });
+
+  it('creates a user when the email is new', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    mockedQuery.mockResolvedValueOnce({
+      rows: [{ id: 'u2', email: 'm@example.com', global_role: 'user' }],
+    } as never);
+    await expect(ensureUserByEmail('m@example.com')).resolves.toMatchObject({ id: 'u2', global_role: 'user' });
   });
 });

@@ -14,6 +14,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   brand: 'chrome.brand',
   network: 'chrome.network',
   communities: 'chrome.communities',
+  people: 'chrome.people',
   here: 'chrome.this_community',
   settings: 'community.settings',
   modules: 'community.modules',
@@ -42,7 +43,10 @@ export function OpsChrome({ children }: { children: ReactNode }) {
   const groups: OpsNavGroup[] = [
     {
       label: copy.network,
-      items: [{ href: '/communities', label: copy.communities, active: !tenantId }],
+      items: [
+        { href: '/communities', label: copy.communities, active: pathname === '/communities' },
+        { href: '/people', label: copy.people, active: pathname === '/people' || pathname.startsWith('/people/') },
+      ],
     },
   ];
   if (tenantId) {

@@ -19,9 +19,10 @@ Volta: `docs/05_architecture.md`.
 
 - **Users:** `super_admin`.
 - **Visual:** shell denso (`packages/ui/admin`).
-- **Jobs:** comunidades, coordenadores, **toggle de módulos**, catálogo de campos do tenant.
+- **Jobs:** comunidades, pessoas da rede (assentos e papéis), coordenadores, **toggle de módulos**, catálogo de campos do tenant.
 - **Cookie:** `ops_token` (alvo).
-- **IA do chrome:** o rail é a rede. Item único na lista: comunidades. Ao abrir um tenant, o rail ganha o grupo “nesta comunidade” (dados, plugins, membros, campos). Capítulos não ficam em tabs no miolo e não são itens globais da barra.
+- **IA do chrome:** o rail é a rede. Itens globais: **comunidades** e **pessoas**. Ao abrir um tenant, o rail ganha o grupo “nesta comunidade” (dados, plugins, membros, campos). Capítulos não ficam em tabs no miolo.
+- **Adicionar membro:** combobox com typeahead (`q` ≥ 2, teto 20). Ops não lista a base inteira num `<select>`. O roster da comunidade (tabela) ainda é a lista deste tenant — paginar se passar da casa dos milhares.
 
 ## Same database
 

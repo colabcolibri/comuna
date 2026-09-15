@@ -15,12 +15,15 @@ export function OpsTable<T>({
     return <p className="text-sm text-muted-foreground">{empty}</p>;
   }
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
-      <table className="w-full text-left text-sm">
-        <thead className="border-b border-border bg-secondary/80">
+    <div className="overflow-x-auto rounded-xl border border-border bg-card">
+      <table className="w-full min-w-[36rem] text-left text-sm">
+        <thead className="border-b border-border bg-secondary/60">
           <tr>
             {columns.map((column) => (
-              <th key={column.id} className={`px-4 py-3 font-medium ${column.className ?? ''}`}>
+              <th
+                key={column.id}
+                className={`px-4 py-2.5 text-xs font-medium uppercase tracking-wide text-muted-foreground ${column.className ?? ''}`}
+              >
                 {column.header}
               </th>
             ))}
@@ -28,9 +31,9 @@ export function OpsTable<T>({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={rowKey(row)} className="border-t border-border hover:bg-secondary/50">
+            <tr key={rowKey(row)} className="border-t border-border align-top hover:bg-secondary/40">
               {columns.map((column) => (
-                <td key={column.id} className={`px-4 py-3 min-w-0 ${column.className ?? ''}`}>
+                <td key={column.id} className={`px-4 py-3.5 min-w-0 ${column.className ?? ''}`}>
                   {column.cell(row)}
                 </td>
               ))}

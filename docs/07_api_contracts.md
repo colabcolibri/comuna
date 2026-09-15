@@ -1,7 +1,7 @@
 ---
 title: API Contracts
 status: approved
-version: 1.6
+version: 1.11
 updated: 2026-09-15
 depends_on: [05_architecture.md, 06_database.md]
 blocks: []
@@ -68,6 +68,7 @@ blocks: []
 | `GET` | `/api/coord/approvals` | Fila | Coordinator | `?status=` | `{ "pending" }` |
 | `POST` | `/api/coord/approvals/:membershipId` | Aprova / rejeita | Coordinator | `{ "action", "reason" }` | `{ "status" }` |
 | `POST` | `/api/admin/auth/verify-otp` | Sessão admin | Public, `super_admin` | OTP | cookie `ops_token` |
+| `GET` | `/api/admin/people` | Pessoas da rede + assentos (comunidade, papel, status) | Super-admin | — | `{ "data": NetworkPerson[] }` |
 | `GET` | `/api/admin/communities` | Lista comunidades | Super-admin | — | lista |
 | `POST` | `/api/admin/communities` | Cria comunidade | Super-admin | `{ "slug", "name" }` | `201` |
 | `GET` | `/api/admin/communities/:id` | Lê comunidade | Super-admin | — | `{ id, slug, name, type }` |
@@ -75,10 +76,16 @@ blocks: []
 | `GET` | `/api/admin/communities/:id/modules` | Estado dos plugins | Super-admin | — | `{ "data": [{ slug, enabled }] }` |
 | `PUT` | `/api/admin/communities/:id/modules/:slug` | Liga/desliga plugin | Super-admin | `{ "enabled": true }` | `200` |
 | `GET` | `/api/admin/communities/:id/memberships` | Lista memberships; `?email=` busca uma | Super-admin | — | `{ "data" }` ou membership |
+| `GET` | `/api/admin/communities/:id/people` | Busca pessoas **fora** deste tenant. `q` min 2; máx 20 hits. Sem `q` (ou curto) = `[]`. Nunca dump da base. | Super-admin | `?q=` | `{ "data": [{ id, email, full_name }] }` |
+| `POST` | `/api/admin/communities/:id/memberships` | Liga user existente como membership `active` | Super-admin | `{ "userId", "network_role?" }` | `201` |
 | `POST` | `/api/admin/memberships/:id/role` | Atribui `member` / `coordinator` | Super-admin | `{ "network_role" }` | `200` |
-| `GET` | `/api/admin/communities/:id/fields` | Catálogo ops (grupos + campos, com `locked` se `storage` ≠ `attributes`) | Super-admin | — | `{ "data": OpsCatalogGroup[] }` |
-| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` no grupo `custom` | Super-admin | `{ name, type, labelPt, labelEn, optionsText?, filterable? }` | `201` |
-| `DELETE` | `/api/admin/communities/:id/fields/:fieldId` | Apaga só `storage=attributes` no grupo `custom` | Super-admin | — | `{ ok }` |
+| `GET` | `/api/admin/communities/:id/fields` | Catálogo ops (grupos na ordem do perfil; `locked` no grupo seed e no campo se `storage` ≠ `attributes`) | Super-admin | — | `{ "data": OpsCatalogGroup[] }` |
+| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` num grupo existente | Super-admin | `{ groupId, name, type, labelPt, labelEn, optionsText?, filterable? }` | `201` |
+| `DELETE` | `/api/admin/communities/:id/fields/:fieldId` | Apaga só `storage=attributes` | Super-admin | — | `{ ok }` |
+| `POST` | `/api/admin/communities/:id/fields/:fieldId/move` | Sobe/desce o campo no grupo | Super-admin | `{ "direction": "up" }` ou `"down"` | `{ ok }` |
+| `POST` | `/api/admin/communities/:id/groups` | Cria grupo (não seed) | Super-admin | `{ labelPt, labelEn, columns?, slug? }` | `201` |
+| `DELETE` | `/api/admin/communities/:id/groups/:groupId` | Apaga grupo vazio e não-seed | Super-admin | — | `{ ok }` |
+| `POST` | `/api/admin/communities/:id/groups/:groupId/move` | Sobe/desce o grupo | Super-admin | `{ "direction": "up" }` ou `"down"` | `{ ok }` |
 
 `GET /api/profiles` e `/api/admin/approvals` no código atual são **legado**. `/api/ops/*` foi removido: mutações de tenant só na origem admin.
 

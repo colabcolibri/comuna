@@ -61,9 +61,11 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `AppPageHeader` | Kicker + h1 + lede + actions | `packages/ui/member/src/app-page-header.tsx` |
 | `AppPageTemplate` | Main + page header | `packages/ui/member/src/app-page-template.tsx` |
 | `OpsPageHeader` / `OpsPageTemplate` | Mesmo contrato (kicker, h1, lede, actions, `nav`) no admin — **não** importa `@community/ui-member` | `packages/ui/admin/src/ops-page-*.tsx` |
-| `OpsShell` | Rail contextual: rede = comunidades; tenant = capítulos | `packages/ui/admin/src/ops-shell.tsx` |
+| `OpsShell` | Rail contextual: rede = comunidades + pessoas; tenant = capítulos | `packages/ui/admin/src/ops-shell.tsx` |
 | `OpsSubnav` | Tabs horizontais (legado / uso pontual; capítulos do tenant vão no rail) | `packages/ui/admin/src/ops-subnav.tsx` |
 | `OpsSection` | Bloco h2 + lede dentro do workspace | `packages/ui/admin/src/ops-section.tsx` |
+| `OpsBadge` | Rótulo curto (ex.: super-admin). Não cola no nome | `packages/ui/admin/src/ops-badge.tsx` |
+| `OpsCombobox` | Typeahead (listbox). Hits vêm do servidor; o componente não recebe 10k opções | `packages/ui/admin/src/ops-combobox.tsx` |
 | `OpsTable` | Tabela densa ops | `packages/ui/admin/src/ops-table.tsx` |
 | `AppAuthFrame` | Login centrado com kicker | `packages/ui/member/src/app-auth-frame.tsx` |
 | `AppIndexList` / `AppPersonRow` | Índice de pessoas (não grid de cards) | `packages/ui/member/src/app-person-row.tsx` |
@@ -95,10 +97,10 @@ Jobs: ver vitrine, pedir contato, entrar com código, buscar pessoas, editar o p
 | Perfil público | Ler perfil sanitizado | Visitante | `AppDialog` + `ScrollArea` | — | Headline no header; bio no body |
 | Contato | Pedir contato mediado | Visitante | `AppSheet` right / bottom | Form dentro do diálogo | Sheet depois de Enviar mensagem |
 | `/` | Entrar com OTP | Visitante | Mesmo header | OTP centrado | OTP centrado, um CTA |
-| `/directory` | Buscar membros | Membro | Sidebar: Diretório | Busca sem hierarquia | Lista em linhas; empty state |
+| `/directory` | Buscar membros | Membro | Sidebar: Diretório | — | Lista em linhas; `Ver perfil` abre o mesmo diálogo da vitrine |
 | `/profile/edit` | Editar perfil-base | Membro | Sidebar: Meu perfil | — | Header sticky; identidade em superfície; grupos person / links |
 | `/coord/approvals` | Aprovar entrada | Coordenador | Sheet: + Pedidos | Tabela mínima; header “Coordenação” paralelo | Tabela com Aprovar/Recusar rotulados |
-| `/ops`, admin | Operar tenants | Super-admin | Rail `--primary`; lista = só **Rede / comunidades**; tenant = + **nesta comunidade** | Um item “comunidades” com capítulos em tabs | App admin |
+| `/ops`, admin | Operar tenants | Super-admin | Rail `--primary`; lista = **Rede / comunidades + pessoas**; tenant = + **nesta comunidade** | Um item “comunidades” com capítulos em tabs | App admin |
 
 Estados obrigatórios por tela: loading (skeleton no grid/tabela), vazio (copy + ação), erro recuperável, blocked (403 coord / módulo desligado).
 
@@ -108,6 +110,7 @@ flowchart LR
     P -->|Enviar mensagem| C[Sheet right ou bottom]
     V -->|Entrar| O[OTP]
     O -->|sessão| D[Diretório]
+    D -->|Ver perfil| P
     D -->|Meu perfil| E[Editar perfil]
 ```
 

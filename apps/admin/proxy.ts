@@ -3,7 +3,11 @@ import { OPS_COOKIE, verifyOpsToken } from '../../packages/core/auth/src/session
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const protectedPath = pathname === '/communities' || pathname.startsWith('/communities/');
+  const protectedPath =
+    pathname === '/communities' ||
+    pathname.startsWith('/communities/') ||
+    pathname === '/people' ||
+    pathname.startsWith('/people/');
   if (!protectedPath) {
     return NextResponse.next();
   }
@@ -23,5 +27,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/communities', '/communities/:path*'],
+  matcher: ['/communities', '/communities/:path*', '/people', '/people/:path*'],
 };
