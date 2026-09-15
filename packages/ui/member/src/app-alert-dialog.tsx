@@ -27,7 +27,7 @@ export function AppAlertDialog({
   title: ReactNode;
   description?: ReactNode;
   confirmLabel: string;
-  cancelLabel: string;
+  cancelLabel?: string;
   onConfirm: () => void;
   confirmVariant?: 'default' | 'destructive';
 }) {
@@ -44,7 +44,7 @@ export function AppAlertDialog({
           {description ? <AlertDialogDescription>{description}</AlertDialogDescription> : null}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
+          {cancelLabel ? <AlertDialogCancel>{cancelLabel}</AlertDialogCancel> : null}
           <AlertDialogAction variant={confirmVariant} onClick={onConfirm}>
             {confirmLabel}
           </AlertDialogAction>

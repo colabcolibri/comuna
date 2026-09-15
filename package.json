@@ -7,7 +7,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "pnpm --filter @community/web dev",
+    "dev": "node scripts/dev-web.cjs",
+    "dev:demo": "DATABASE_READ_ONLY=1 node scripts/dev-web.cjs",
     "dev:admin": "pnpm --filter @community/admin dev",
     "build": "pnpm --filter @community/web build",
     "start": "pnpm --filter @community/web start",

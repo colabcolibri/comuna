@@ -43,7 +43,7 @@ export function CommunityFieldsLayoutPreview({
         <OpsDialogHeader title={label} description={help} />
         <OpsDialogBody>
           <div className="overflow-x-auto">
-            <div className="min-w-[36rem]">
+            <div className="min-w-xl">
               {photos.length ? (
                 <div className="flex min-w-0 flex-row items-center gap-6">
                   {photos.map((field) => (
@@ -141,7 +141,7 @@ function FakeControl({ type, name }: { type: string; name: string }) {
   if (type === 'boolean') {
     return (
       <span aria-hidden className="flex min-h-11 items-center gap-3">
-        <span className="size-4 rounded-[4px] border border-input" />
+        <span className="size-4 rounded-sm border border-input" />
         <span className="h-2 w-24 rounded-sm bg-muted" />
       </span>
     );

@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { NextRequest } from 'next/server';
 import { isDatabaseReadOnly, readOnlyBlockedResponse } from './read-only';
+import { READ_ONLY_ERROR_CODE, isReadOnlyErrorPayload } from './read-only-error';
+
+describe('isReadOnlyErrorPayload', () => {
+  it('recognizes the proxy envelope', () => {
+    expect(isReadOnlyErrorPayload({ error: { code: READ_ONLY_ERROR_CODE } })).toBe(true);
+    expect(isReadOnlyErrorPayload({ error: { code: 'FORBIDDEN' } })).toBe(false);
+  });
+});
 
 function req(method: string, path: string) {
   return new NextRequest(new URL(path, 'http://localhost:3014'), { method });

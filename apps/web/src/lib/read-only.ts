@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { LOCALE_COOKIE, pickContent } from '@community/identity';
 import { coreWebPack } from '@/lang/core_web';
+import { READ_ONLY_ERROR_CODE } from '@/lib/read-only-error';
 
 export function isDatabaseReadOnly(): boolean {
   return process.env.DATABASE_READ_ONLY === '1';
@@ -20,7 +21,7 @@ export function readOnlyBlockedResponse(req: NextRequest): NextResponse | null {
   }
   const locale = pickContent(coreWebPack, req.cookies.get(LOCALE_COOKIE)?.value);
   return NextResponse.json(
-    { error: { code: 'READ_ONLY', message: locale['demo.write_blocked'] } },
+    { error: { code: READ_ONLY_ERROR_CODE, message: locale['demo.write_blocked'] } },
     { status: 403 }
   );
 }

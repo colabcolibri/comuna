@@ -110,6 +110,18 @@ O visitante usa `/showcase` e `/c/{slug}/showcase` — já são públicos (`docs
 
 Criar o projecto no host e colar secrets é **HAR**. Este runbook fecha a receita; o URL no ar é o humano.
 
+### Local
+
+Mesmo Postgres do `pnpm dev` (Docker + `.env` + migrate + seed). Só liga a sessão só de leitura:
+
+```bash
+pnpm dev:demo
+```
+
+**Uma instância por vez.** O Next 16 não deixa dois `next dev` no mesmo `apps/web`, mesmo em portas diferentes. Se `pnpm dev` já está no 3014, pare esse terminal (Ctrl+C) e só então rode `pnpm dev:demo`. Não dá para ter os dois em paralelo.
+
+Abre `http://localhost:3014/showcase`. A faixa no topo e o diálogo nos writes só aparecem com `DATABASE_READ_ONLY=1`. `pnpm dev` normal continua a gravar.
+
 ### Peças
 
 1. Postgres gerido (Neon, Railway Postgres, ou equivalente). SSL na `DATABASE_URL` como o fornecedor indicar.

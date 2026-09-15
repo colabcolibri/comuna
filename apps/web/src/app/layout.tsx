@@ -9,6 +9,7 @@ import { listMyCommunities } from '@community/memberships';
 import { WorkspaceModules } from '@/components/app/EnabledModulesProvider';
 import { LocaleProvider } from '@/components/app/LocaleProvider';
 import { DemoRibbon } from '@/components/app/DemoRibbon';
+import { DemoWriteNotice } from '@/components/app/DemoWriteNotice';
 import { isDatabaseReadOnly } from '@/lib/read-only';
 import { getMemberSession } from '@/lib/server/member-session';
 import { moduleRuntime, viewerEnabledSlugs } from '@/lib/server/membership';
@@ -60,6 +61,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             <LocaleProvider initialLocale={locale}>
               <WorkspaceModules enabledBySlug={enabledBySlug} publicEnabled={publicEnabled}>
                 {children}
+                {isDatabaseReadOnly() ? <DemoWriteNotice /> : null}
                 <Toaster />
               </WorkspaceModules>
             </LocaleProvider>

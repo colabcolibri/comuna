@@ -273,7 +273,7 @@ export function EmailsPanel() {
             <Textarea
               ref={bodyRef}
               id="ops-email-body"
-              className="min-h-32 max-h-56 resize-y overflow-auto whitespace-pre-wrap break-words text-sm leading-relaxed"
+              className="min-h-32 max-h-56 resize-y overflow-auto whitespace-pre-wrap wrap-break-word text-sm leading-relaxed"
               value={body}
               onFocus={() => setLastField('body')}
               onChange={(ev) => setBody(ev.target.value)}

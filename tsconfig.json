@@ -40,6 +40,7 @@
   },
   "include": [
     "packages/**/*.ts",
+    "packages/**/*.tsx",
     "apps/web/src/**/*.ts",
     "apps/web/src/**/*.tsx",
     "apps/admin/**/*.ts",

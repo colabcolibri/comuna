@@ -171,7 +171,7 @@ Voz institucional, curta, em sentence case. **Kicker, título e subtítulo são 
 | Ajuda | Uma frase se o controlo for ambíguo | Env vars, papéis internos |
 | Empty | Vitrine sem cartões: título + uma frase (`AppShowcaseEmpty`). Casa sem opt-in ≠ busca/filtro sem resultado | “Carregando…”, grelha vazia, uma linha miúda no canto |
 | Privacidade | No login, no diretório e no envio de mensagem — curta | Ensaio em todo header |
-| Demo (`DATABASE_READ_ONLY`) | Uma faixa acima do chrome: é demonstração, os dados não mudam | `DEMO=1`, snapshot, localStorage, “Postgres” |
+| Demo (`DATABASE_READ_ONLY`) | Faixa acima do chrome. Write em `/api` abre `AppAlertDialog`: comando indisponível na demo | `DEMO=1`, snapshot, um `if` por botão |
 
 Proibido na UI (docs e logs podem): intermediado, tenant, membership, schema, demografia, headline, `super_admin`, `SMTP_HOST`, Mailpit, “no banco”, slug como aula. Ops pode ver **identificador na URL**. Membro e visitante: o produto. Ops: a operação, ainda humano.
 

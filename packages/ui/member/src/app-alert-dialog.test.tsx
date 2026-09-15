@@ -20,4 +20,12 @@ describe('AppAlertDialog', () => {
     expect(screen.getByRole('button', { name: 'Cancelar' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Sair' })).toBeTruthy();
   });
+
+  it('omits cancel when the notice has a single action', () => {
+    render(
+      <AppAlertDialog isOpen onClose={() => {}} title="Comando indisponível na demo" confirmLabel="Ok" onConfirm={() => {}} />
+    );
+    expect(screen.getByRole('button', { name: 'Ok' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Cancelar' })).toBeNull();
+  });
 });
