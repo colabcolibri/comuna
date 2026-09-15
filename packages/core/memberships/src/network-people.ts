@@ -1,4 +1,5 @@
 import { queryAsOps } from '@community/db';
+import { likeContains, PEOPLE_SEARCH_MIN, OPS_LIST_LIMIT } from './memberships';
 
 export type NetworkPersonSeat = {
   community_id: string;
@@ -41,7 +42,10 @@ function parseSeats(raw: unknown): NetworkPersonSeat[] {
   return seats;
 }
 
-export async function listNetworkPeople(): Promise<NetworkPerson[]> {
+export async function listNetworkPeople(input: { q?: string; offset?: number } = {}): Promise<NetworkPerson[]> {
+  const needle = (input.q || '').trim().slice(0, 80);
+  const applySearch = needle.length >= PEOPLE_SEARCH_MIN;
+  const offset = Math.max(0, input.offset || 0);
   const result = await queryAsOps<{
     id: string;
     email: string;
@@ -68,8 +72,15 @@ export async function listNetworkPeople(): Promise<NetworkPerson[]> {
      LEFT JOIN person_core.profiles p ON p.user_id = u.id
      LEFT JOIN network_core.memberships m ON m.user_id = u.id
      LEFT JOIN network_core.communities c ON c.id = m.community_id
+     WHERE (
+       NOT $1::boolean
+       OR u.email ILIKE $2 ESCAPE E'\\\\'
+       OR coalesce(p.full_name, '') ILIKE $2 ESCAPE E'\\\\'
+     )
      GROUP BY u.id, u.email, u.global_role, p.full_name
-     ORDER BY 3, u.email`
+     ORDER BY 3, u.email
+     LIMIT $3 OFFSET $4`,
+    [applySearch, applySearch ? likeContains(needle) : '%', OPS_LIST_LIMIT, offset]
   );
   return result.rows.map((row) => ({
     id: row.id,

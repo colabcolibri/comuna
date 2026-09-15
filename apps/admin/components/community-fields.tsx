@@ -38,8 +38,18 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   typeUrl: 'community.fields_type_url',
   moveUp: 'community.fields_move_up',
   moveDown: 'community.fields_move_down',
-  order: 'community.fields_order',
   columns: 'community.fields_columns',
+  columnsHelp: 'community.fields_columns_help',
+  columns1: 'community.fields_columns_1',
+  columns2: 'community.fields_columns_2',
+  columns3: 'community.fields_columns_3',
+  span: 'community.fields_span',
+  edit: 'community.fields_edit',
+  save: 'community.save',
+  typeCity: 'community.fields_type_city',
+  typeLocalized: 'community.fields_type_localized',
+  typeRadio: 'community.fields_type_radio',
+  typeCheckbox: 'community.fields_type_checkbox',
 });
 
 export function CommunityFields({ communityId }: { communityId: string }) {

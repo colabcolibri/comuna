@@ -1,6 +1,6 @@
 import { query } from '@community/db';
 import { localizedPair, parseLocalized, type LocalizedText } from '@community/identity';
-import { CatalogWriteError, isSeedGroup, slugifyCatalogName } from './ops-catalog-shared';
+import { CatalogWriteError, isSeedGroup, parseCatalogColumns, slugifyCatalogName } from './ops-catalog-shared';
 
 export type OpsCatalogGroupRecord = {
   id: string;
@@ -22,7 +22,7 @@ export async function createCatalogGroup(
   if (!slug) {
     throw new CatalogWriteError('VALIDATION_ERROR');
   }
-  const columns = input.columns === 2 || input.columns === 3 ? input.columns : 1;
+  const columns = parseCatalogColumns(input.columns, 1);
   try {
     const inserted = await query<{ id: string; slug: string; columns: number; label: unknown }>(
       `INSERT INTO plugin_directory.field_groups (community_id, slug, label, description, sort_order, columns)
@@ -48,6 +48,21 @@ export async function createCatalogGroup(
       throw new CatalogWriteError('DUPLICATE_GROUP');
     }
     throw err;
+  }
+}
+
+export async function updateCatalogGroupColumns(
+  communityId: string,
+  groupId: string,
+  columns: unknown
+): Promise<void> {
+  const next = parseCatalogColumns(columns);
+  const updated = await query<{ id: string }>(
+    `UPDATE plugin_directory.field_groups SET columns = $3 WHERE id = $1 AND community_id = $2 RETURNING id`,
+    [groupId, communityId, next]
+  );
+  if (!updated.rows[0]) {
+    throw new CatalogWriteError('NOT_FOUND');
   }
 }
 

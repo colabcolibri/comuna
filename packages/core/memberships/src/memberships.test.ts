@@ -17,6 +17,7 @@ import {
   likeContains,
   searchPeopleOutsideCommunity,
   setNetworkRole,
+  pickCommunitySeat,
 } from './memberships';
 
 const mockedQuery = vi.mocked(query);
@@ -25,20 +26,21 @@ const mockedOps = vi.mocked(queryAsOps);
 describe('setNetworkRole', () => {
   beforeEach(() => {
     mockedQuery.mockReset();
+    mockedOps.mockReset();
   });
 
   it('rejects roles that are not member or coordinator', async () => {
     await expect(setNetworkRole('m1', 'super_admin')).rejects.toBeInstanceOf(InvalidNetworkRoleError);
-    expect(mockedQuery).not.toHaveBeenCalled();
+    expect(mockedOps).not.toHaveBeenCalled();
   });
 
   it('throws when the membership id does not exist', async () => {
-    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    mockedOps.mockResolvedValueOnce({ rows: [] } as never);
     await expect(setNetworkRole('missing', 'coordinator')).rejects.toBeInstanceOf(MembershipNotFoundError);
   });
 
   it('returns the updated membership', async () => {
-    mockedQuery.mockResolvedValueOnce({
+    mockedOps.mockResolvedValueOnce({
       rows: [{ id: 'm1', network_role: 'coordinator', network_status: 'active', user_id: 'u1', email: 'a@b.c' }],
     } as never);
     await expect(setNetworkRole('m1', 'coordinator')).resolves.toMatchObject({
@@ -122,16 +124,50 @@ describe('searchPeopleOutsideCommunity', () => {
 
 describe('listMemberships', () => {
   beforeEach(() => {
-    mockedQuery.mockReset();
+    mockedOps.mockReset();
   });
 
-  it('returns memberships for a community ordered by email', async () => {
-    mockedQuery.mockResolvedValueOnce({
+  it('returns memberships for a community ordered by email, capped', async () => {
+    mockedOps.mockResolvedValueOnce({
       rows: [
         { id: 'm1', network_role: 'member', network_status: 'active', user_id: 'u1', email: 'a@b.c' },
       ],
     } as never);
     await expect(listMemberships('c1')).resolves.toHaveLength(1);
-    expect(String(mockedQuery.mock.calls[0]?.[0])).toContain('ORDER BY u.email');
+    expect(String(mockedOps.mock.calls[0]?.[0])).toContain('ORDER BY u.email');
+    expect(String(mockedOps.mock.calls[0]?.[0])).toContain('LIMIT');
+  });
+});
+
+describe('pickCommunitySeat', () => {
+  const alumni = {
+    id: 'c1',
+    slug: 'alumni',
+    name: 'Alumni',
+    network_role: 'member' as const,
+    membership_id: 'm1',
+  };
+  const lab = {
+    id: 'c2',
+    slug: 'lab',
+    name: 'Lab',
+    network_role: 'coordinator' as const,
+    membership_id: 'm2',
+  };
+
+  it('uses the slug when the person sits there', () => {
+    expect(pickCommunitySeat([alumni, lab], 'lab')).toEqual({ ok: true, seat: lab });
+  });
+
+  it('forbids a slug that is not an active seat', () => {
+    expect(pickCommunitySeat([alumni], 'lab')).toEqual({ ok: false, code: 'FORBIDDEN' });
+  });
+
+  it('defaults when there is a single seat and no slug', () => {
+    expect(pickCommunitySeat([alumni], null)).toEqual({ ok: true, seat: alumni });
+  });
+
+  it('does not pick LIMIT-1 when two seats have no slug', () => {
+    expect(pickCommunitySeat([alumni, lab], undefined)).toEqual({ ok: false, code: 'VALIDATION_ERROR' });
   });
 });

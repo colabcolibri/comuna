@@ -1,9 +1,9 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { Button, Input, Label, toast } from '@community/ui';
+import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast } from '@community/ui';
 import { pickLocalizedText } from '@community/identity';
-import { CATALOG_SELECT_CLASS, type CatalogCopy, type OpsGroup } from './community-fields-types';
+import { fieldCanFilter, fieldNeedsOptions, type CatalogCopy, type OpsGroup } from './community-fields-types';
 
 export function CommunityFieldsCreateField({
   communityId,
@@ -26,6 +26,7 @@ export function CommunityFieldsCreateField({
   const [labelEn, setLabelEn] = useState('');
   const [optionsText, setOptionsText] = useState('');
   const [filterable, setFilterable] = useState(true);
+  const [span, setSpan] = useState('1');
   const [busy, setBusy] = useState(false);
 
   const selectedGroup = groupId || groups[0]?.id || '';
@@ -44,6 +45,7 @@ export function CommunityFieldsCreateField({
         labelEn,
         optionsText,
         filterable,
+        span: Number(span),
       }),
     });
     setBusy(false);
@@ -76,19 +78,18 @@ export function CommunityFieldsCreateField({
         <form onSubmit={create} className="mt-4 grid max-w-lg gap-4">
           <div className="space-y-2">
             <Label htmlFor="ops-field-group">{copy.group}</Label>
-            <select
-              id="ops-field-group"
-              className={CATALOG_SELECT_CLASS}
-              value={selectedGroup}
-              onChange={(ev) => setGroupId(ev.target.value)}
-              required
-            >
-              {groups.map((group) => (
-                <option key={group.id} value={group.id}>
-                  {pickLocalizedText(group.label, locale) || group.slug}
-                </option>
-              ))}
-            </select>
+            <Select value={selectedGroup} onValueChange={setGroupId}>
+              <SelectTrigger id="ops-field-group">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {groups.map((group) => (
+                  <SelectItem key={group.id} value={group.id}>
+                    {pickLocalizedText(group.label, locale) || group.slug}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="ops-field-name">{copy.name}</Label>
@@ -96,18 +97,22 @@ export function CommunityFieldsCreateField({
           </div>
           <div className="space-y-2">
             <Label htmlFor="ops-field-type">{copy.type}</Label>
-            <select
-              id="ops-field-type"
-              className={CATALOG_SELECT_CLASS}
-              value={type}
-              onChange={(ev) => setType(ev.target.value)}
-            >
-              <option value="boolean">{copy.typeBoolean}</option>
-              <option value="select">{copy.typeSelect}</option>
-              <option value="text">{copy.typeText}</option>
-              <option value="textarea">{copy.typeTextarea}</option>
-              <option value="url">{copy.typeUrl}</option>
-            </select>
+            <Select value={type} onValueChange={setType}>
+              <SelectTrigger id="ops-field-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="boolean">{copy.typeBoolean}</SelectItem>
+                <SelectItem value="select">{copy.typeSelect}</SelectItem>
+                <SelectItem value="radio">{copy.typeRadio}</SelectItem>
+                <SelectItem value="checkbox">{copy.typeCheckbox}</SelectItem>
+                <SelectItem value="text">{copy.typeText}</SelectItem>
+                <SelectItem value="textarea">{copy.typeTextarea}</SelectItem>
+                <SelectItem value="localized_text">{copy.typeLocalized}</SelectItem>
+                <SelectItem value="url">{copy.typeUrl}</SelectItem>
+                <SelectItem value="city">{copy.typeCity}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="ops-field-pt">{copy.labelPt}</Label>
@@ -117,12 +122,12 @@ export function CommunityFieldsCreateField({
             <Label htmlFor="ops-field-en">{copy.labelEn}</Label>
             <Input id="ops-field-en" value={labelEn} onChange={(ev) => setLabelEn(ev.target.value)} />
           </div>
-          {type === 'select' ? (
+          {fieldNeedsOptions(type) ? (
             <div className="space-y-2">
               <Label htmlFor="ops-field-options">{copy.options}</Label>
-              <textarea
+              <Textarea
                 id="ops-field-options"
-                className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-sm"
+                className="min-h-24 w-full font-mono text-sm"
                 value={optionsText}
                 onChange={(ev) => setOptionsText(ev.target.value)}
                 required
@@ -130,12 +135,25 @@ export function CommunityFieldsCreateField({
               <p className="text-xs text-muted-foreground">{copy.optionsHelp}</p>
             </div>
           ) : null}
-          {type === 'boolean' || type === 'select' ? (
+          {fieldCanFilter(type) ? (
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={filterable} onChange={(ev) => setFilterable(ev.target.checked)} />
+              <Checkbox checked={filterable} onCheckedChange={(checked) => setFilterable(checked === true)} />
               {copy.filterable}
             </label>
           ) : null}
+          <div className="space-y-2">
+            <Label>{copy.span}</Label>
+            <Select value={span} onValueChange={setSpan}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1</SelectItem>
+                <SelectItem value="2">2</SelectItem>
+                <SelectItem value="3">3</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button type="submit" disabled={busy}>
             {copy.create}
           </Button>

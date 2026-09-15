@@ -45,9 +45,9 @@ Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejei
 | `availability` | directory + showcase | availability (`directory`); `public_showcase` (`showcase`) | `card_column` |
 | (custom) | directory | o que a comunidade pedir | `attributes` |
 
-Ops reordena grupos e campos (`sort_order`); a lista do admin é a ordem do formulário de perfil. Cria grupo novo e campo `attributes` em qualquer grupo. Apaga só `storage=attributes`. Grupos seed (`identity`, `person`, `links`, `community_copy`, `availability`, `hospitality`) não apagam. Grupo da comunidade só some se estiver vazio. Comunidade nova recebe o seed de `scripts/seed-directory-catalog.cjs` mais o grupo `custom`.
+Ops reordena grupos e campos (`sort_order`); a lista do admin é a ordem do formulário de perfil. `locked` não congela ordem nem densidade: só impede apagar grupo seed e campo com `storage` ≠ `attributes`. Cria grupo novo e campo `attributes` em qualquer grupo (tipos do contrato, `span` 1–3). Edita label/opções/filtro dos extras; `span` também nos campos núcleo. Grupo da comunidade só some se estiver vazio. Comunidade nova recebe o seed de `scripts/seed-directory-catalog.cjs` mais o grupo `custom`.
 
-`columns` no grupo (1–3) define a densidade. `span` no campo (1–3) ocupa o grid. Mobile: uma coluna. Sem overflow horizontal.
+`columns` no grupo (1–3) é **campos por linha no perfil** em tela larga — não coluna de banco. Ops altera em qualquer grupo, inclusive seed, com rótulos (“um embaixo do outro” / lado a lado). `span` no campo (1–3) ocupa o grid. Mobile: sempre empilha. Sem overflow horizontal. Lista fechada: `Select` shadcn (`SelectTrigger` / `SelectContent` / `SelectItem` em `@community/ui`). Combobox de busca continua `OpsCombobox`. Ordem na UI: setas com rótulo acessível. Sem pin de `identity` nesta versão.
 
 ## Tipos (templates)
 

@@ -37,5 +37,6 @@ describe('listNetworkPeople', () => {
     const people = await listNetworkPeople();
     expect(people[0].seats[0].network_role).toBe('coordinator');
     expect(String(mockedQuery.mock.calls[0]?.[0])).toContain('json_agg');
+    expect(String(mockedQuery.mock.calls[0]?.[0])).toContain('LIMIT');
   });
 });

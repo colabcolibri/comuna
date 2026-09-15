@@ -19,6 +19,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   settings: 'community.settings',
   modules: 'community.modules',
   members: 'community.members',
+  cohorts: 'community.cohorts',
   fields: 'community.fields',
   signout: 'chrome.signout',
   menu: 'chrome.open_menu',
@@ -57,6 +58,7 @@ export function OpsChrome({ children }: { children: ReactNode }) {
         { href: `${base}/settings`, label: copy.settings, active: chapterActive(pathname, `${base}/settings`) },
         { href: `${base}/modules`, label: copy.modules, active: chapterActive(pathname, `${base}/modules`) },
         { href: `${base}/members`, label: copy.members, active: chapterActive(pathname, `${base}/members`) },
+        { href: `${base}/cohorts`, label: copy.cohorts, active: chapterActive(pathname, `${base}/cohorts`) },
         { href: `${base}/fields`, label: copy.fields, active: chapterActive(pathname, `${base}/fields`) },
       ],
     });

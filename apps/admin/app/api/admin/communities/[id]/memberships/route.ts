@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   DuplicateMembershipError,
   InvalidNetworkRoleError,
+  OPS_LIST_LIMIT,
   UserNotFoundError,
   addExistingMember,
   findMembershipByEmail,
@@ -28,8 +29,10 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
     }
     return NextResponse.json(membership);
   }
-  const data = await listMemberships(id);
-  return NextResponse.json({ data });
+  const q = req.nextUrl.searchParams.get('q') || '';
+  const offset = Math.max(0, Number(req.nextUrl.searchParams.get('offset') || '0') || 0);
+  const data = await listMemberships(id, { q, offset });
+  return NextResponse.json({ data, meta: { hasMore: data.length === OPS_LIST_LIMIT } });
 }
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {

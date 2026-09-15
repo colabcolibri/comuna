@@ -4,6 +4,7 @@ export { OpsPageHeader } from './ops-page-header';
 export { OpsPageTemplate } from './ops-page-template';
 export { OpsSection } from './ops-section';
 export { OpsBadge } from './ops-badge';
+export { OpsMoveButtons } from './ops-move-buttons';
 export { OpsCombobox, type OpsComboboxOption } from './ops-combobox';
 export { OpsTable } from './ops-table';
 export { OpsSubnav } from './ops-subnav';

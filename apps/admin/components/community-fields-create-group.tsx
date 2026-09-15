@@ -1,8 +1,8 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { Button, Input, Label, toast } from '@community/ui';
-import { CATALOG_SELECT_CLASS, type CatalogCopy } from './community-fields-types';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
+import type { CatalogCopy } from './community-fields-types';
 
 export function CommunityFieldsCreateGroup({
   communityId,
@@ -60,16 +60,17 @@ export function CommunityFieldsCreateGroup({
           </div>
           <div className="space-y-2">
             <Label htmlFor="ops-group-columns">{copy.columns}</Label>
-            <select
-              id="ops-group-columns"
-              className={CATALOG_SELECT_CLASS}
-              value={columns}
-              onChange={(ev) => setColumns(ev.target.value)}
-            >
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-            </select>
+            <Select value={columns} onValueChange={setColumns}>
+              <SelectTrigger id="ops-group-columns">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">{copy.columns1}</SelectItem>
+                <SelectItem value="2">{copy.columns2}</SelectItem>
+                <SelectItem value="3">{copy.columns3}</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">{copy.columnsHelp}</p>
           </div>
           <Button type="submit" disabled={busy}>
             {copy.createGroup}

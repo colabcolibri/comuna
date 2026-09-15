@@ -1,7 +1,7 @@
 import { query } from '@community/db';
 import { localizedPair, parseLocalized, pickLocalizedText, type LocalizedText } from '@community/identity';
-import { isFieldLocked, isSeedGroup } from './ops-catalog-shared';
-import type { OpsCatalogField } from './ops-catalog-fields';
+import { isFieldLocked, isSeedGroup, parseCatalogSpan } from './ops-catalog-shared';
+import { optionsToText, type OpsCatalogField } from './ops-catalog-fields';
 
 export type OpsCatalogGroup = {
   id: string;
@@ -23,10 +23,12 @@ export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGro
     type: string | null;
     storage: string | null;
     filterable: boolean | null;
+    span: number | null;
+    options: unknown;
     label: unknown;
   }>(
     `SELECT g.id AS group_id, g.slug AS group_slug, g.label AS group_label, g.columns AS group_columns,
-            f.id AS field_id, f.name, f.type, f.storage, f.filterable, f.label
+            f.id AS field_id, f.name, f.type, f.storage, f.filterable, f.span, f.options, f.label
      FROM plugin_directory.field_groups g
      LEFT JOIN plugin_directory.fields f ON f.group_id = g.id
      WHERE g.community_id = $1
@@ -57,6 +59,8 @@ export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGro
       storage: row.storage,
       locked: isFieldLocked(row.storage),
       filterable: Boolean(row.filterable),
+      span: parseCatalogSpan(row.span, 1),
+      optionsText: optionsToText(row.options),
       label: parseLocalized(row.label),
     });
   }

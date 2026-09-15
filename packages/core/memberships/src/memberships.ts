@@ -2,13 +2,20 @@ import { query, queryAsOps } from '@community/db';
 
 export type NetworkRole = 'member' | 'coordinator';
 
+export type NetworkStatus = 'pending_approval' | 'active' | 'suspended';
+
 export type MembershipRow = {
   id: string;
   network_role: NetworkRole;
   network_status: string;
   user_id: string;
   email: string;
+  full_name?: string;
+  cohort_id?: string | null;
+  cohort_name?: string | null;
 };
+
+export const OPS_LIST_LIMIT = 50;
 
 export class MembershipNotFoundError extends Error {
   constructor() {
@@ -24,11 +31,25 @@ export class InvalidNetworkRoleError extends Error {
   }
 }
 
+export class InvalidNetworkStatusError extends Error {
+  constructor(status: string) {
+    super(`Invalid network_status: ${status}`);
+    this.name = 'InvalidNetworkStatusError';
+  }
+}
+
 function asRole(role: string): NetworkRole {
   if (role === 'member' || role === 'coordinator') {
     return role;
   }
   throw new InvalidNetworkRoleError(role);
+}
+
+function asStatus(status: string): NetworkStatus {
+  if (status === 'pending_approval' || status === 'active' || status === 'suspended') {
+    return status;
+  }
+  throw new InvalidNetworkStatusError(status);
 }
 
 export async function findMembershipByEmail(
@@ -152,21 +173,103 @@ export async function addMembership(input: {
   }
 }
 
-export async function listMemberships(communityId: string): Promise<MembershipRow[]> {
-  const result = await query<MembershipRow>(
-    `SELECT m.id, m.network_role, m.network_status, m.user_id, u.email
+export async function listMemberships(
+  communityId: string,
+  input: { q?: string; offset?: number } = {}
+): Promise<MembershipRow[]> {
+  const needle = (input.q || '').trim().slice(0, PEOPLE_SEARCH_Q_MAX);
+  const applySearch = needle.length >= PEOPLE_SEARCH_MIN;
+  const offset = Math.max(0, input.offset || 0);
+  const result = await queryAsOps<MembershipRow>(
+    `SELECT m.id, m.network_role, m.network_status, m.user_id, u.email,
+            coalesce(nullif(p.full_name, ''), u.email) AS full_name,
+            m.cohort_id, c.name AS cohort_name
      FROM network_core.memberships m
      JOIN auth_core.users u ON u.id = m.user_id
+     LEFT JOIN person_core.profiles p ON p.user_id = u.id
+     LEFT JOIN network_core.cohorts c ON c.id = m.cohort_id
      WHERE m.community_id = $1
-     ORDER BY u.email`,
-    [communityId]
+       AND (
+         NOT $2::boolean
+         OR u.email ILIKE $3 ESCAPE E'\\\\'
+         OR coalesce(p.full_name, '') ILIKE $3 ESCAPE E'\\\\'
+       )
+     ORDER BY u.email
+     LIMIT $4 OFFSET $5`,
+    [communityId, applySearch, applySearch ? likeContains(needle) : '%', OPS_LIST_LIMIT, offset]
   );
   return result.rows;
 }
 
+export async function setNetworkStatus(membershipId: string, status: string): Promise<MembershipRow> {
+  const networkStatus = asStatus(status);
+  const updated = await queryAsOps<MembershipRow>(
+    `UPDATE network_core.memberships AS m
+     SET network_status = $2
+     FROM auth_core.users u
+     WHERE m.id = $1 AND u.id = m.user_id
+     RETURNING m.id, m.network_role, m.network_status, m.user_id, u.email`,
+    [membershipId, networkStatus]
+  );
+  if (!updated.rows[0]) {
+    throw new MembershipNotFoundError();
+  }
+  return updated.rows[0];
+}
+
+export async function removeMembership(membershipId: string): Promise<void> {
+  const deleted = await queryAsOps(
+    `DELETE FROM network_core.memberships WHERE id = $1 RETURNING id`,
+    [membershipId]
+  );
+  if (!deleted.rows[0]) {
+    throw new MembershipNotFoundError();
+  }
+}
+
+export type MyCommunity = {
+  id: string;
+  slug: string;
+  name: string;
+  network_role: NetworkRole;
+  membership_id: string;
+};
+
+export async function listMyCommunities(userId: string): Promise<MyCommunity[]> {
+  const result = await query<MyCommunity>(
+    `SELECT c.id, c.slug, c.name, m.network_role, m.id AS membership_id
+     FROM network_core.memberships m
+     JOIN network_core.communities c ON c.id = m.community_id
+     WHERE m.user_id = $1 AND m.network_status = 'active'
+     ORDER BY c.name`,
+    [userId]
+  );
+  return result.rows.map((row) => ({ ...row, network_role: asRole(row.network_role) }));
+}
+
+export function pickCommunitySeat(
+  seats: MyCommunity[],
+  slug: string | null | undefined
+): { ok: true; seat: MyCommunity } | { ok: false; code: 'FORBIDDEN' | 'VALIDATION_ERROR' } {
+  if (slug) {
+    const seat = seats.find((item) => item.slug === slug);
+    if (!seat) {
+      return { ok: false, code: 'FORBIDDEN' };
+    }
+    return { ok: true, seat };
+  }
+  if (seats.length === 1) {
+    return { ok: true, seat: seats[0] };
+  }
+  if (seats.length === 0) {
+    return { ok: false, code: 'FORBIDDEN' };
+  }
+  return { ok: false, code: 'VALIDATION_ERROR' };
+}
+
 export async function setNetworkRole(membershipId: string, role: string): Promise<MembershipRow> {
   const networkRole = asRole(role);
-  const updated = await query<MembershipRow>(
+  const updated = await queryAsOps<MembershipRow>(
     `UPDATE network_core.memberships AS m
      SET network_role = $2
      FROM auth_core.users u

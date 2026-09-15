@@ -7,6 +7,8 @@ export type OpsField = {
   storage: string;
   locked: boolean;
   filterable: boolean;
+  span: 1 | 2 | 3;
+  optionsText: string;
   label: LocalizedText;
 };
 
@@ -35,6 +37,8 @@ export type CatalogCopy = {
   createGroup: string;
   locked: string;
   delete: string;
+  edit: string;
+  save: string;
   error: string;
   duplicate: string;
   groupNotEmpty: string;
@@ -43,10 +47,24 @@ export type CatalogCopy = {
   typeBoolean: string;
   typeSelect: string;
   typeUrl: string;
+  typeCity: string;
+  typeLocalized: string;
+  typeRadio: string;
+  typeCheckbox: string;
   moveUp: string;
   moveDown: string;
-  order: string;
   columns: string;
+  columnsHelp: string;
+  columns1: string;
+  columns2: string;
+  columns3: string;
+  span: string;
 };
 
-export const CATALOG_SELECT_CLASS = 'h-9 w-full max-w-full rounded-md border border-input bg-background px-3 text-sm';
+export function fieldNeedsOptions(type: string): boolean {
+  return type === 'select' || type === 'radio' || type === 'checkbox';
+}
+
+export function fieldCanFilter(type: string): boolean {
+  return type === 'boolean' || fieldNeedsOptions(type);
+}

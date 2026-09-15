@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Button, Input } from '@community/ui';
 import { OpsBadge, OpsPageTemplate } from '@community/ui-admin';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from './locale-provider';
@@ -12,6 +13,8 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   title: 'people.title',
   subtitle: 'people.subtitle',
   empty: 'people.empty',
+  search: 'people.search',
+  more: 'community.members_more',
   none: 'people.none',
   badgeAdmin: 'people.badge_admin',
   badgeAdminHint: 'people.badge_admin_hint',
@@ -46,16 +49,27 @@ function initials(name: string) {
 export function PeoplePanel() {
   const copy = pickContent(CONTENT, useLocale());
   const [rows, setRows] = useState<Person[]>([]);
+  const [query, setQuery] = useState('');
+  const [hasMore, setHasMore] = useState(false);
 
-  useEffect(() => {
-    fetch('/api/admin/people').then(async (res) => {
+  const load = (offset: number, q: string) => {
+    fetch(`/api/admin/people?q=${encodeURIComponent(q)}&offset=${offset}`).then(async (res) => {
       if (!res.ok) {
         return;
       }
       const json = await res.json();
-      setRows(json.data || []);
+      const next = (json.data || []) as Person[];
+      setRows((current) => (offset === 0 ? next : [...current, ...next]));
+      setHasMore(Boolean(json.meta?.hasMore));
     });
-  }, []);
+  };
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      load(0, query.trim());
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [query]);
 
   const roleLabel = (role: string) => (role === 'coordinator' ? copy.roleCoordinator : copy.roleMember);
   const statusLabel = (status: string) => {
@@ -70,6 +84,9 @@ export function PeoplePanel() {
 
   return (
     <OpsPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
+      <div className="mb-6 max-w-lg">
+        <Input value={query} onChange={(ev) => setQuery(ev.target.value)} placeholder={copy.search} />
+      </div>
       {rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">{copy.empty}</p>
       ) : (
@@ -117,6 +134,11 @@ export function PeoplePanel() {
           ))}
         </ul>
       )}
+      {hasMore ? (
+        <Button type="button" variant="outline" className="mt-4" onClick={() => load(rows.length, query.trim())}>
+          {copy.more}
+        </Button>
+      ) : null}
     </OpsPageTemplate>
   );
 }

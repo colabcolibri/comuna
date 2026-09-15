@@ -29,6 +29,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       labelEn: String(body.labelEn || ''),
       optionsText: typeof body.optionsText === 'string' ? body.optionsText : '',
       filterable: Boolean(body.filterable),
+      span: Number(body.span || 1),
     });
     return NextResponse.json(field, { status: 201 });
   } catch (err) {

@@ -5,11 +5,10 @@ vi.mock('@community/db', () => ({
 }));
 
 import { query } from '@community/db';
-import { CatalogWriteError } from './ops-catalog-shared';
-import { movedSequence } from './ops-catalog-shared';
-import { createAttributeField, deleteAttributeField } from './ops-catalog-fields';
+import { CatalogWriteError, movedSequence, parseCatalogColumns } from './ops-catalog-shared';
+import { createAttributeField, deleteAttributeField, updateOpsField } from './ops-catalog-fields';
 import { listOpsCatalog } from './ops-catalog';
-import { deleteCatalogGroup } from './ops-catalog-groups';
+import { deleteCatalogGroup, updateCatalogGroupColumns } from './ops-catalog-groups';
 
 const mockedQuery = vi.mocked(query);
 
@@ -91,5 +90,32 @@ describe('ops catalog', () => {
   it('rejects deleting a seed group', async () => {
     mockedQuery.mockResolvedValueOnce({ rows: [{ slug: 'identity', n: 0 }] } as never);
     await expect(deleteCatalogGroup('c1', 'g1')).rejects.toMatchObject({ message: 'LOCKED' });
+  });
+
+  it('updates columns on a seed group', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'g1' }] } as never);
+    await updateCatalogGroupColumns('c1', 'g1', 3);
+    expect(mockedQuery).toHaveBeenCalledWith(
+      expect.stringContaining('SET columns = $3'),
+      ['g1', 'c1', 3]
+    );
+  });
+
+  it('rejects columns outside 1-3', async () => {
+    await expect(updateCatalogGroupColumns('c1', 'g1', 4)).rejects.toMatchObject({ message: 'VALIDATION_ERROR' });
+    expect(mockedQuery).not.toHaveBeenCalled();
+  });
+
+  it('updates span on a locked field without touching label', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ storage: 'person', type: 'text' }] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    await updateOpsField('c1', 'f1', { span: 2 });
+    expect(String(mockedQuery.mock.calls[1]?.[0])).toContain('SET span');
+  });
+});
+
+describe('parseCatalogColumns', () => {
+  it('falls back when the value is omitted', () => {
+    expect(parseCatalogColumns(undefined, 1)).toBe(1);
   });
 });

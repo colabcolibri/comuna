@@ -5,7 +5,17 @@ export class CatalogWriteError extends Error {
   }
 }
 
-export const ATTRIBUTE_FIELD_TYPES = ['text', 'textarea', 'boolean', 'select', 'url'] as const;
+export const ATTRIBUTE_FIELD_TYPES = [
+  'text',
+  'textarea',
+  'boolean',
+  'select',
+  'url',
+  'city',
+  'localized_text',
+  'radio',
+  'checkbox',
+] as const;
 export type AttributeFieldType = (typeof ATTRIBUTE_FIELD_TYPES)[number];
 
 export const SEED_GROUP_SLUGS = new Set([
@@ -23,6 +33,29 @@ export function isFieldLocked(storage: string): boolean {
 
 export function isSeedGroup(slug: string): boolean {
   return SEED_GROUP_SLUGS.has(slug);
+}
+
+export function fieldNeedsOptions(type: string): boolean {
+  return type === 'select' || type === 'radio' || type === 'checkbox';
+}
+
+export function fieldCanFilter(type: string): boolean {
+  return type === 'boolean' || fieldNeedsOptions(type);
+}
+
+export function parseCatalogColumns(value: unknown, fallback?: 1 | 2 | 3): 1 | 2 | 3 {
+  if (value === 1 || value === 2 || value === 3) {
+    return value;
+  }
+  const missing = value === undefined || value === null || (typeof value === 'number' && Number.isNaN(value));
+  if (fallback && missing) {
+    return fallback;
+  }
+  throw new CatalogWriteError('VALIDATION_ERROR');
+}
+
+export function parseCatalogSpan(value: unknown, fallback?: 1 | 2 | 3): 1 | 2 | 3 {
+  return parseCatalogColumns(value, fallback);
 }
 
 export function slugifyCatalogName(raw: string): string {

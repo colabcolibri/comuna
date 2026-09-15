@@ -6,6 +6,7 @@ Compostos ops em `@community/ui-admin`. Mesmo contrato visual das páginas membr
 - `OpsPageHeader` / `OpsPageTemplate` — páginas
 - `OpsSection` — blocos de detalhe
 - `OpsBadge` — rótulo curto (ex.: super-admin)
+- `OpsMoveButtons` — ordem: setas com `aria-label`, sem texto “subir/descer”
 - `OpsCombobox` — busca; opções vêm do caller (já paginadas)
 - `OpsTable` — listas densas
 - `OpsSubnav` — tabs horizontais (não usar no tenant; capítulos vão no rail)
