@@ -122,7 +122,7 @@ pnpm dev:demo
 
 Abre `http://localhost:3014/showcase`. A faixa no topo e o diálogo nos writes só aparecem com `DATABASE_READ_ONLY=1`. `pnpm dev` normal continua a gravar.
 
-**Login na demo:** `/login` mostra `member01@demo.example` e um botão **Entrar** (sem OTP). Essa conta tem membership em **três** comunidades (`demo`, `cerrado-lab`, `pratica-dados`) para o switcher. A rota `POST /api/auth/demo-login` responde **404** sem `DATABASE_READ_ONLY=1`. Com read-only: `SELECT` + JWT; só esse e-mail no allowlist. **Nunca** ligar `DATABASE_READ_ONLY` numa base com contas reais. Depois de mudar o seed, rode `pnpm db:seed` de novo.
+**Login na demo:** `/login` mostra `member01@demo.example` e um botão **Entrar** (sem OTP). Essa conta tem membership em **três** comunidades (`demo`, `cerrado-lab`, `pratica-dados`) para o switcher. A rota `POST /api/auth/demo-login` responde **404** sem `DATABASE_READ_ONLY=1`. Com read-only: `SELECT` + JWT; só esse e-mail no allowlist. **Nunca** ligar `DATABASE_READ_ONLY` numa base com contas reais. Depois de mudar o seed, rode `pnpm db:seed` de novo. Avatares dos 300 membros: URLs diretas [DiceBear](https://www.dicebear.com/styles/sprouts/) estilo **sprouts** (ilustração colorida), gravadas só em `avatar_url` — sem ficheiro em `storage/`. Desligue com `SEED_DEMO_AVATARS=0`.
 
 ### Peças
 

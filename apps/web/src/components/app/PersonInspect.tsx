@@ -5,6 +5,7 @@ import { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader, AppPersonFi
 import { Button, DialogTitle, Input, Label, Textarea, toast } from '@community/ui';
 import { CONTACT_MESSAGE_MIN, parseContactPayload } from '@community/contact-mediated';
 import { projectPersonView, type ListField } from '@community/directory';
+import { interpolate } from '@community/identity';
 import { displayPlaceLocality } from '@community/places';
 import { availabilityLabel } from '@/lib/people/availability';
 import { sendPersonContact } from '@/lib/api/contact';
@@ -94,6 +95,11 @@ export function PersonInspect({
     view && (view.languages.length > 0 || view.availability || view.facts.length > 0 || view.links.length > 0)
   );
   const split = Boolean((view?.headline || view?.summary) && hasMeta);
+  const messageLen = message.trim().length;
+  const messageCountLabel = interpolate(copy.messageCount || '{count}/{min}', {
+    count: String(messageLen),
+    min: String(CONTACT_MESSAGE_MIN),
+  });
 
   return (
     <AppDialog open={!!profile} onClose={closeAll} size="xl">
@@ -242,13 +248,19 @@ export function PersonInspect({
                 <Textarea
                   id="contact-message"
                   className="min-h-32"
-                  required
-                  minLength={CONTACT_MESSAGE_MIN}
                   rows={4}
                   value={message}
                   disabled={sending}
-                  onChange={(e) => setMessage(e.target.value)}
+                  aria-describedby="contact-message-count"
+                  aria-invalid={fieldError === copy.messageMin || undefined}
+                  onChange={(e) => {
+                    setMessage(e.target.value);
+                    if (fieldError === copy.messageMin) setFieldError('');
+                  }}
                 />
+                <p id="contact-message-count" className="text-sm text-muted-foreground tabular-nums">
+                  {messageCountLabel}
+                </p>
               </div>
             </form>
           </AppSheet>

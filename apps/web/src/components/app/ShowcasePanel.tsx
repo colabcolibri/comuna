@@ -76,6 +76,7 @@ const CONTENT = mergeContent(
     message: 'form.message',
     requiredMissing: 'form.required_missing',
     messageMin: 'form.message_min',
+    messageCount: 'form.message_count',
     privacy: 'form.privacy',
   })
 );

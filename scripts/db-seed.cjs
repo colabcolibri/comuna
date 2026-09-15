@@ -14,6 +14,7 @@ const {
   seedTenantExtras,
 } = require('./seed-communities.cjs');
 const { membershipCard } = require('./seed-membership-cards.cjs');
+const { seedDemoAvatarsForPeople, seedDemoAvatarsEnabled } = require('./seed-demo-avatars.cjs');
 
 const MODULES = ['directory', 'showcase', 'contact-mediated'];
 
@@ -138,8 +139,11 @@ async function seed(url, email) {
       );
     }
 
+    const people = demoPeople();
+    const memberIds = new Map();
+
     let membershipCount = 0;
-    for (const person of demoPeople()) {
+    for (const person of people) {
       const member = await client.query(
         `INSERT INTO auth_core.users (email, global_role, status)
          VALUES ($1, 'user', 'active')
@@ -148,6 +152,7 @@ async function seed(url, email) {
         [emailFor(person)]
       );
       const memberId = member.rows[0].id;
+      memberIds.set(person.n, memberId);
       await upsertProfile(client, memberId, person);
       for (const slug of communitySlugsFor(person.n)) {
         const tenant = tenants[slug];
@@ -187,9 +192,11 @@ async function seed(url, email) {
         membershipCount += 1;
       }
     }
+    const avatarCount = await seedDemoAvatarsForPeople(client, people, async (person) => memberIds.get(person.n));
     const demoId = tenants.demo.id;
+    const avatarNote = seedDemoAvatarsEnabled() ? ` avatars=${avatarCount}` : '';
     console.log(
-      `seed ok user=${userId} communities=${SEED_COMMUNITIES.length} demo=${demoId} people=${DEMO_MEMBER_COUNT} memberships=${membershipCount}`
+      `seed ok user=${userId} communities=${SEED_COMMUNITIES.length} demo=${demoId} people=${DEMO_MEMBER_COUNT} memberships=${membershipCount}${avatarNote}`
     );
   } finally {
     await client.end();

@@ -57,6 +57,10 @@ Adapters: `local` (fs) e `s3`. A app escolhe por env. Sem `if (prod)` nas págin
 
 Apagar conta / titular LGPD: `delete` da chave + `avatar_url = null`.
 
+## Seed da demo (exceção)
+
+No dataset de demonstração, `pnpm db:seed` pode gravar em `avatar_url` **links diretos** [DiceBear](https://www.dicebear.com/styles/sprouts/) (estilo `sprouts`) — sem ObjectStore. Só no seed; o membro em produção continua a subir ficheiro via `POST /api/profiles/me/avatar`. Desligue com `SEED_DEMO_AVATARS=0`.
+
 ## O que recusar
 
 | Tentação | Porquê não |
