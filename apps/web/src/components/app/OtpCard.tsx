@@ -1,7 +1,6 @@
 'use client';
 
-import { pickContent } from '@community/identity';
-import { useLocale } from '@/components/app/LocaleProvider';
+import { useUiBind } from '@/lang/use-ui';
 import {
   Alert,
   AlertDescription,
@@ -21,43 +20,8 @@ import {
 import { Mail } from 'lucide-react';
 import { useState } from 'react';
 
-const CONTENT = {
-  'pt-BR': {
-    title: 'Entrar',
-    subtitle: 'Digite seu e-mail cadastrado para receber um código de 6 dígitos, sem senha.',
-    emailLabel: 'E-mail cadastrado',
-    change: 'Alterar',
-    send: 'Enviar código',
-    sending: 'Enviando…',
-    codeLegend: 'Código de 6 dígitos enviado para seu e-mail',
-    verify: 'Verificar e entrar',
-    verifying: 'Validando…',
-    resend: 'Reenviar código',
-    spam: 'Não recebeu? Verifique o spam ou solicite um novo envio.',
-    privacy: 'Acesso restrito. Seus dados não vão para a vitrine pública.',
-    invalid: 'Código inválido ou expirado. Solicite outro.',
-    signedIn: 'Sessão iniciada',
-  },
-  en: {
-    title: 'Sign in',
-    subtitle: 'Enter your email to receive a 6-digit code. No password.',
-    emailLabel: 'Registered email',
-    change: 'Change',
-    send: 'Send code',
-    sending: 'Sending…',
-    codeLegend: '6-digit code sent to your email',
-    verify: 'Verify and enter',
-    verifying: 'Checking…',
-    resend: 'Resend code',
-    spam: 'Did not get it? Check spam or request a new code.',
-    privacy: 'Restricted access. Your data is not listed publicly.',
-    invalid: 'Invalid or expired code. Request another.',
-    signedIn: 'Signed in',
-  },
-} as const;
-
 export default function OtpCard() {
-  const copy = pickContent(CONTENT, useLocale());
+  const t = useUiBind('core_web');
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -76,12 +40,12 @@ export default function OtpCard() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error?.message || copy.invalid);
+        throw new Error(data.error?.message || t('otp.invalid'));
       }
       setStep('code');
       setCode('');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : copy.invalid);
+      setError(err instanceof Error ? err.message : t('otp.invalid'));
     } finally {
       setLoading(false);
     }
@@ -99,12 +63,12 @@ export default function OtpCard() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error?.message || copy.invalid);
+        throw new Error(data.error?.message || t('otp.invalid'));
       }
       setDone({ email: data.user.email, role: data.user.global_role });
       window.location.href = '/directory';
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : copy.invalid);
+      setError(err instanceof Error ? err.message : t('otp.invalid'));
     } finally {
       setLoading(false);
     }
@@ -114,7 +78,7 @@ export default function OtpCard() {
     return (
       <Card className="w-full min-w-0">
         <CardHeader>
-          <CardTitle>{copy.signedIn}</CardTitle>
+          <CardTitle>{t('otp.signed_in')}</CardTitle>
           <CardDescription>{done.email}</CardDescription>
         </CardHeader>
       </Card>
@@ -127,8 +91,8 @@ export default function OtpCard() {
         <div className="mx-auto mb-1 flex size-12 items-center justify-center rounded-xl border bg-secondary text-primary">
           <Mail className="size-5" aria-hidden />
         </div>
-        <CardTitle className="text-xl">{copy.title}</CardTitle>
-        <CardDescription className="text-pretty">{copy.subtitle}</CardDescription>
+        <CardTitle className="text-xl">{t('otp.title')}</CardTitle>
+        <CardDescription className="text-pretty">{t('otp.subtitle')}</CardDescription>
       </CardHeader>
       <CardContent>
         {step === 'email' ? (
@@ -145,7 +109,7 @@ export default function OtpCard() {
               </Alert>
             ) : null}
             <div className="grid gap-2">
-              <Label htmlFor="otp-email">{copy.emailLabel}</Label>
+              <Label htmlFor="otp-email">{t('otp.email_label')}</Label>
               <Input
                 id="otp-email"
                 type="email"
@@ -157,7 +121,7 @@ export default function OtpCard() {
               />
             </div>
             <Button type="submit" className="h-11 w-full" disabled={loading}>
-              {loading ? copy.sending : copy.send}
+              {loading ? t('otp.sending') : t('otp.send')}
             </Button>
           </form>
         ) : (
@@ -170,16 +134,16 @@ export default function OtpCard() {
           >
             <div className="flex min-w-0 items-center justify-between gap-3 rounded-lg border bg-secondary px-3 py-2.5">
               <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">{copy.emailLabel}</p>
+                <p className="text-xs text-muted-foreground">{t('otp.email_label')}</p>
                 <p className="truncate text-sm font-medium">{email}</p>
               </div>
               <Button type="button" variant="link" className="h-auto shrink-0 px-0" onClick={() => setStep('email')}>
-                {copy.change}
+                {t('otp.change')}
               </Button>
             </div>
             <div className="grid min-w-0 gap-3">
               <Label htmlFor="otp-code" className="justify-center text-center">
-                {copy.codeLegend}
+                {t('otp.code_legend')}
               </Label>
               <InputOTP
                 id="otp-code"
@@ -206,19 +170,19 @@ export default function OtpCard() {
               </Alert>
             ) : null}
             <Button type="submit" className="h-11 w-full" disabled={loading || code.length !== 6}>
-              {loading ? copy.verifying : copy.verify}
+              {loading ? t('otp.verifying') : t('otp.verify')}
             </Button>
             <div className="grid gap-2 border-t pt-4 text-center">
               <Button type="button" variant="link" className="h-auto" onClick={() => void requestCode()}>
-                {copy.resend}
+                {t('otp.resend')}
               </Button>
-              <p className="text-xs text-muted-foreground">{copy.spam}</p>
+              <p className="text-xs text-muted-foreground">{t('otp.spam')}</p>
             </div>
           </form>
         )}
       </CardContent>
       <CardFooter className="border-t">
-        <p className="text-xs text-muted-foreground">{copy.privacy}</p>
+        <p className="text-xs text-muted-foreground">{t('otp.privacy')}</p>
       </CardFooter>
     </Card>
   );

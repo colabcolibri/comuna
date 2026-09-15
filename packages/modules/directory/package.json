@@ -1,5 +1,12 @@
 {
   "name": "@community/directory",
   "version": "0.0.0",
-  "private": true
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./lang": "./src/lang.ts"
+  },
+  "dependencies": {
+    "@community/identity": "workspace:*"
+  }
 }

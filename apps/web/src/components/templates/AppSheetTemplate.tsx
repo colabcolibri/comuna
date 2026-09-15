@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@community/ui';
+import { ScrollArea, Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@community/ui';
 
 export interface AppSheetTemplateProps {
   isOpen: boolean;
@@ -18,7 +18,9 @@ export function AppSheetTemplate({ isOpen, onClose, title, description, side = '
           <SheetTitle>{title ?? 'Painel'}</SheetTitle>
           {description ? <SheetDescription>{description}</SheetDescription> : null}
         </SheetHeader>
-        <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4">{content}</div>
+        <ScrollArea type="always" className="min-h-0 flex-1">
+          <div className="px-4 pb-4">{content}</div>
+        </ScrollArea>
       </SheetContent>
     </Sheet>
   );

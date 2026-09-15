@@ -14,6 +14,21 @@
     min-height: 100%;
   }
 
+  html:has([data-slot="sidebar-wrapper"]) {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .member-page-scroll [data-slot="scroll-area-viewport"] {
+    overflow-y: auto !important;
+  }
+
+  .member-page-scroll [data-slot="scroll-area-viewport"] > div {
+    display: flex !important;
+    min-height: 100%;
+    flex-direction: column;
+  }
+
   body {
     background-color: var(--background);
     color: var(--foreground);

@@ -1,20 +1,10 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { LOCALE_COOKIE, pickContent, resolveUiLocale } from '@community/identity';
+import { LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
 import { AppAuthFrame } from '@community/ui-member';
 import OtpCard from '@/components/app/OtpCard';
 import { getMemberSession } from '@/lib/server/member-session';
-
-const CONTENT = {
-  'pt-BR': {
-    kicker: 'Acesso',
-    hint: 'O código chega no Mailpit em localhost:8026.',
-  },
-  en: {
-    kicker: 'Access',
-    hint: 'The code lands in Mailpit at localhost:8026.',
-  },
-} as const;
+import { uiCatalog } from '@/lang/catalog';
 
 export default async function LoginPage() {
   const session = await getMemberSession();
@@ -22,12 +12,12 @@ export default async function LoginPage() {
     redirect('/directory');
   }
   const locale = resolveUiLocale((await cookies()).get(LOCALE_COOKIE)?.value);
-  const copy = pickContent(CONTENT, locale);
+  const t = uiCatalog.bind('core_web', locale);
 
   return (
-    <AppAuthFrame kicker={copy.kicker}>
+    <AppAuthFrame kicker={t('login.kicker')}>
       <OtpCard />
-      <p className="mt-6 text-center text-base text-muted-foreground">{copy.hint}</p>
+      <p className="mt-6 text-center text-base text-muted-foreground">{t('login.hint')}</p>
     </AppAuthFrame>
   );
 }

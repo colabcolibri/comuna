@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
-import { SidebarInset, SidebarProvider, SidebarTrigger, ThemeToggle } from '@community/ui';
+import { ScrollArea, SidebarInset, SidebarProvider, SidebarTrigger, ThemeToggle } from '@community/ui';
 import { pickContent } from '@community/identity';
 import { AppSidebar } from '@/components/app/AppSidebar';
 import { LocaleSwitcher } from '@/components/app/LocaleSwitcher';
@@ -15,11 +15,15 @@ const CONTENT = {
     brand: 'Alumni',
     showcase: 'Vitrine',
     toggle: 'Abrir menu',
+    toDark: 'Ativar tema escuro',
+    toLight: 'Ativar tema claro',
   },
   en: {
     brand: 'Alumni',
     showcase: 'Showcase',
     toggle: 'Open menu',
+    toDark: 'Switch to dark theme',
+    toLight: 'Switch to light theme',
   },
 } as const;
 
@@ -40,10 +44,10 @@ export function MemberShell({
   const showcaseActive = pathname.startsWith('/showcase');
 
   return (
-    <SidebarProvider className="min-h-svh">
+    <SidebarProvider className="h-svh max-h-svh overflow-hidden">
       <AppSidebar email={sessionEmail} />
-      <SidebarInset className="min-h-svh">
-        <header className="sticky top-0 z-20 border-b border-border bg-card">
+      <SidebarInset className="h-svh max-h-svh min-h-0 overflow-hidden">
+        <header className="sticky top-0 z-20 shrink-0 border-b border-border bg-card">
           <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:px-6">
           <SidebarTrigger className="size-11 shrink-0 md:hidden" aria-label={copy.toggle} />
           <Link
@@ -65,12 +69,14 @@ export function MemberShell({
           </Link>
           <div className="ml-auto flex items-center gap-1">
             <LocaleSwitcher />
-            <ThemeToggle />
+            <ThemeToggle toDark={copy.toDark} toLight={copy.toLight} />
           </div>
           </div>
         </header>
-        {children}
-        <MemberFooter />
+        <ScrollArea className="member-page-scroll min-h-0 flex-1">
+          {children}
+          <MemberFooter />
+        </ScrollArea>
       </SidebarInset>
     </SidebarProvider>
   );

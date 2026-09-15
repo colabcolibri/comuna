@@ -1,0 +1,1 @@
+export { contactMediatedPack } from './lang';

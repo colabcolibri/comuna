@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ClipboardList, LayoutGrid, LogIn, LogOut, SquareChevronLeft, SquareChevronRight, UserRound, Users } from 'lucide-react';
-import { pickContent } from '@community/identity';
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +17,7 @@ import {
   SidebarRail,
   useSidebar,
 } from '@community/ui';
+import { pickContent } from '@community/identity';
 import { AppAlertDialog } from '@community/ui-member';
 import { useLocale } from '@/components/app/LocaleProvider';
 

@@ -44,6 +44,15 @@
       "@community/places": [
         "../../packages/core/places/src/index.ts"
       ],
+      "@community/directory": [
+        "../../packages/modules/directory/src/index.ts"
+      ],
+      "@community/showcase": [
+        "../../packages/modules/showcase/src/index.ts"
+      ],
+      "@community/contact-mediated": [
+        "../../packages/modules/contact-mediated/src/index.ts"
+      ],
       "@community/ui-member": [
         "../../packages/ui/member/src/index.ts"
       ]

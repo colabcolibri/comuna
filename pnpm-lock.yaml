@@ -102,9 +102,15 @@ importers:
       '@community/auth':
         specifier: workspace:*
         version: link:../../packages/core/auth
+      '@community/contact-mediated':
+        specifier: workspace:*
+        version: link:../../packages/modules/contact-mediated
       '@community/db':
         specifier: workspace:*
         version: link:../../packages/core/db
+      '@community/directory':
+        specifier: workspace:*
+        version: link:../../packages/modules/directory
       '@community/identity':
         specifier: workspace:*
         version: link:../../packages/core/identity
@@ -114,6 +120,9 @@ importers:
       '@community/places':
         specifier: workspace:*
         version: link:../../packages/core/places
+      '@community/showcase':
+        specifier: workspace:*
+        version: link:../../packages/modules/showcase
       '@community/ui':
         specifier: workspace:*
         version: link:../../packages/ui/primitives
@@ -155,11 +164,23 @@ importers:
 
   packages/core/places: {}
 
-  packages/modules/contact-mediated: {}
+  packages/modules/contact-mediated:
+    dependencies:
+      '@community/identity':
+        specifier: workspace:*
+        version: link:../../core/identity
 
-  packages/modules/directory: {}
+  packages/modules/directory:
+    dependencies:
+      '@community/identity':
+        specifier: workspace:*
+        version: link:../../core/identity
 
-  packages/modules/showcase: {}
+  packages/modules/showcase:
+    dependencies:
+      '@community/identity':
+        specifier: workspace:*
+        version: link:../../core/identity
 
   packages/ui/admin:
     dependencies:

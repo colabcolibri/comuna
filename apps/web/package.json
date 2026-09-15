@@ -9,8 +9,11 @@
   },
   "dependencies": {
     "@community/auth": "workspace:*",
+    "@community/contact-mediated": "workspace:*",
     "@community/db": "workspace:*",
+    "@community/directory": "workspace:*",
     "@community/identity": "workspace:*",
+    "@community/showcase": "workspace:*",
     "@community/module-runtime": "workspace:*",
     "@community/places": "workspace:*",
     "@community/ui": "workspace:*",

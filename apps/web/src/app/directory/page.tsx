@@ -1,34 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { pickContent } from '@community/identity';
 import { pickLocalizedText } from '@community/identity';
 import { displayPlace } from '@community/places';
 import { AppIndexList, AppPageTemplate, AppPersonRow } from '@community/ui-member';
 import { useLocale } from '@/components/app/LocaleProvider';
-
-const CONTENT = {
-  'pt-BR': {
-    kicker: 'Membros',
-    title: 'Encontre pessoas da rede',
-    subtitle: 'Diretório intermediado. Contato sem e-mail público.',
-    search: 'Buscar por nome ou headline',
-    empty: 'Nenhum membro ativo nesta comunidade.',
-    off: 'Módulo de diretório desligado.',
-    privacy: 'Contato intermediado. O e-mail direto não aparece aqui.',
-    view: 'Ver perfil',
-  },
-  en: {
-    kicker: 'Members',
-    title: 'Find people in the network',
-    subtitle: 'Mediated directory. No public email.',
-    search: 'Search by name or headline',
-    empty: 'No active members in this community.',
-    off: 'Directory module is off.',
-    privacy: 'Mediated contact. Direct email is hidden.',
-    view: 'View profile',
-  },
-} as const;
+import { useUiBind } from '@/lang/use-ui';
 
 type MemberRow = {
   id: string;
@@ -42,7 +19,7 @@ type MemberRow = {
 
 export default function DirectoryPage() {
   const locale = useLocale();
-  const copy = pickContent(CONTENT, locale);
+  const t = useUiBind('plugin_directory');
   const [rows, setRows] = useState<MemberRow[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [off, setOff] = useState(false);
@@ -66,9 +43,9 @@ export default function DirectoryPage() {
   });
 
   return (
-    <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
+    <AppPageTemplate kicker={t('page.kicker')} title={t('page.title')} subtitle={t('page.subtitle')}>
       <label className="block text-sm font-medium mb-2" htmlFor="global-search">
-        {copy.search}
+        {t('page.search')}
       </label>
       <input
         id="global-search"
@@ -76,9 +53,9 @@ export default function DirectoryPage() {
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <p className="text-base text-muted-foreground mb-6 max-w-[40rem]">{copy.privacy}</p>
-      {off && <p>{copy.off}</p>}
-      {!off && filtered.length === 0 && <p className="text-muted-foreground">{copy.empty}</p>}
+      <p className="text-base text-muted-foreground mb-6 max-w-[40rem]">{t('page.privacy')}</p>
+      {off && <p>{t('page.off')}</p>}
+      {!off && filtered.length === 0 && <p className="text-muted-foreground">{t('page.empty')}</p>}
       {!off && filtered.length > 0 && (
         <AppIndexList>
           {filtered.map((profile) => {
