@@ -72,7 +72,7 @@ export function OpsShell({
             </Button>
           </div>
         </header>
-        <div className="min-h-0 flex-1 overflow-auto p-4 md:p-6">{children}</div>
+        <div className="min-h-0 flex-1 overflow-auto">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

@@ -1,8 +1,8 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
-import Link from 'next/link';
 import { Button, Input, Label } from '@community/ui';
+import { OpsPageTemplate, OpsSection } from '@community/ui-admin';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from './locale-provider';
 import { uiCatalog } from '@/lang/catalog';
@@ -19,6 +19,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   promote: 'community.promote',
   notMember: 'community.not_member',
   back: 'community.back',
+  backTo: 'community.back_to',
   roleCoordinator: 'community.role_coordinator',
 });
 
@@ -98,20 +99,16 @@ export function CommunityDetail({
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl min-w-0 space-y-6">
-      <header className="space-y-1">
-        <Link href="/communities" className="inline-block text-sm leading-none text-muted-foreground hover:text-foreground">
-          {copy.back}
-        </Link>
-        <h1 className="text-2xl font-semibold leading-tight tracking-tight break-words">{name}</h1>
-        <p className="font-mono text-sm leading-none text-muted-foreground break-all">{slug}</p>
-      </header>
+    <OpsPageTemplate
+      backHref="/communities"
+      backLabel={copy.back}
+      backAriaLabel={copy.backTo}
+      title={name}
+      subtitle={slug}
+      subtitleClassName="font-mono text-sm"
+    >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <section className="lg:col-span-2 rounded-xl border border-border bg-card p-6 shadow-sm space-y-4">
-          <div className="space-y-1">
-            <h2 className="font-semibold leading-tight">{copy.modules}</h2>
-            <p className="text-sm leading-snug text-muted-foreground">{copy.modulesHelp}</p>
-          </div>
+        <OpsSection className="lg:col-span-2" title={copy.modules} description={copy.modulesHelp}>
           <ul className="divide-y divide-border">
             {modules.map((mod) => (
               <li key={mod.slug} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
@@ -128,12 +125,8 @@ export function CommunityDetail({
               </li>
             ))}
           </ul>
-        </section>
-        <section className="rounded-xl border border-border bg-card p-6 shadow-sm h-fit space-y-4">
-          <div className="space-y-1">
-            <h2 className="font-semibold leading-tight">{copy.coordinator}</h2>
-            <p className="text-sm leading-snug text-muted-foreground">{copy.coordinatorHelp}</p>
-          </div>
+        </OpsSection>
+        <OpsSection title={copy.coordinator} description={copy.coordinatorHelp}>
           <form onSubmit={lookup} className="space-y-3">
             <div className="space-y-2">
               <Label htmlFor="member-email">{copy.email}</Label>
@@ -149,9 +142,9 @@ export function CommunityDetail({
               {copy.lookup}
             </Button>
           </form>
-          {lookupError ? <p className="text-sm text-destructive">{lookupError}</p> : null}
+          {lookupError ? <p className="mt-3 text-sm text-destructive">{lookupError}</p> : null}
           {found ? (
-            <div className="space-y-2 text-sm">
+            <div className="mt-3 space-y-2 text-sm">
               <p className="break-all">
                 {found.email}
                 {found.network_role === 'coordinator' ? ` · ${copy.roleCoordinator}` : ''}
@@ -163,8 +156,8 @@ export function CommunityDetail({
               ) : null}
             </div>
           ) : null}
-        </section>
+        </OpsSection>
       </div>
-    </div>
+    </OpsPageTemplate>
   );
 }

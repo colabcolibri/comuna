@@ -3,12 +3,15 @@
 import { FormEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button, Input, Label } from '@community/ui';
+import { OpsPageTemplate } from '@community/ui-admin';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from './locale-provider';
 import { uiCatalog } from '@/lang/catalog';
 
 const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
+  kicker: 'communities.kicker',
   title: 'communities.title',
+  subtitle: 'communities.subtitle',
   add: 'communities.add',
   create: 'communities.create',
   slug: 'communities.slug',
@@ -66,15 +69,18 @@ export function CommunitiesPanel() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl min-w-0 space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-semibold leading-tight tracking-tight">{copy.title}</h1>
+    <OpsPageTemplate
+      kicker={copy.kicker}
+      title={copy.title}
+      subtitle={copy.subtitle}
+      actions={
         <Button type="button" onClick={() => setOpen((value) => !value)}>
           {copy.add}
         </Button>
-      </div>
+      }
+    >
       {open ? (
-        <form onSubmit={create} className="rounded-xl border border-border bg-card p-4 shadow-sm flex flex-col sm:flex-row gap-3 sm:items-end">
+        <form onSubmit={create} className="mb-6 rounded-xl border border-border bg-card p-4 shadow-sm flex flex-col sm:flex-row gap-3 sm:items-end">
           <div className="flex-1 min-w-0 space-y-2">
             <Label htmlFor="community-name">{copy.name}</Label>
             <Input id="community-name" value={name} onChange={(ev) => setName(ev.target.value)} required />
@@ -86,7 +92,7 @@ export function CommunitiesPanel() {
           <Button type="submit">{copy.create}</Button>
         </form>
       ) : null}
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {error ? <p className="mb-4 text-sm text-destructive">{error}</p> : null}
       {rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">{copy.empty}</p>
       ) : (
@@ -119,6 +125,6 @@ export function CommunitiesPanel() {
           </table>
         </div>
       )}
-    </div>
+    </OpsPageTemplate>
   );
 }
