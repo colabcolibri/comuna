@@ -146,7 +146,7 @@ Não é obrigatório publicar `apps/admin` neste URL. Ops fica fora da demo púb
 DATABASE_URL='postgresql://...railway...' pnpm db:seed
 ```
 
-Na app, `DATABASE_READ_ONLY=1` impede INSERT/UPDATE/DELETE na sessão Node. A vitrine (SELECT) segue. Login, contacto e pedido de membership rebentam no banco de propósito — o seed não apodrece. Isso não é um segundo modo no UI.
+Na app, `DATABASE_READ_ONLY=1` impede INSERT/UPDATE/DELETE na sessão Node e o `proxy` responde `403 READ_ONLY` em qualquer `POST`/`PUT`/`PATCH`/`DELETE` de `/api/*` (uma porta; não há `if` por botão). A vitrine (SELECT) segue. Uma faixa no layout raiz avisa que é demonstração.
 
 Generate a strong `JWT_SECRET`. Não publiques o e-mail do super-admin no README da demo.
 

@@ -12,7 +12,7 @@ export function AppPublicChrome({
   children: ReactNode;
 }) {
   return (
-    <div className="flex min-h-svh flex-col bg-background">
+    <div className="flex min-h-full flex-col bg-background">
       <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur-sm">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4 sm:px-6">
           <div className="min-w-0">{wordmark}</div>

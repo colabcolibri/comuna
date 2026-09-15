@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { AUTH_COOKIE, verifyMemberToken } from '../../../packages/core/auth/src/session';
 import { memberAuthCookieOptions } from '../../../packages/core/auth/src/cookie-options';
 import { COMMUNITY_COOKIE } from '../../../packages/core/communities/src/cookie';
+import { readOnlyBlockedResponse } from './lib/read-only';
 
 function withCommunityHeader(req: NextRequest, slug: string | null) {
   const requestHeaders = new Headers(req.headers);
@@ -16,6 +17,10 @@ function withCommunityHeader(req: NextRequest, slug: string | null) {
 }
 
 export async function proxy(req: NextRequest) {
+  const blocked = readOnlyBlockedResponse(req);
+  if (blocked) {
+    return blocked;
+  }
   const { pathname } = req.nextUrl;
   const workspace = pathname.match(/^\/c\/([^/]+)(\/.*)?$/);
   const slug = workspace?.[1] ?? null;
@@ -54,5 +59,6 @@ export const config = {
     '/coord/:path*',
     '/coord',
     '/c/:path*',
+    '/api/:path*',
   ],
 };
