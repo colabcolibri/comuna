@@ -16,6 +16,8 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_identity', {
   uploading: 'profile.avatar_uploading',
   invalid: 'profile.avatar_invalid',
   empty: 'profile.select_empty',
+  required: 'profile.required',
+  optional: 'profile.optional',
 });
 
 export function FieldControl({
@@ -37,13 +39,23 @@ export function FieldControl({
 }) {
   const label = pickLocalizedText(field.label, locale) || field.name;
   const description = pickLocalizedText(field.description, locale);
+  const copy = pickContent(CONTENT, locale);
   const id = `field-${field.name}`;
+  const meta = {
+    label,
+    required: field.required,
+    requiredLabel: copy.required,
+    optionalLabel: copy.optional,
+  };
 
   if (field.type === 'image') {
     return (
       <ImageControl
         id={id}
         label={label}
+        required={field.required}
+        requiredLabel={copy.required}
+        optionalLabel={copy.optional}
         value={value}
         onChange={onChange}
         initials={initials}
@@ -54,7 +66,13 @@ export function FieldControl({
   if (field.type === 'city') {
     return (
       <div className="space-y-1 min-w-0">
-        <CitySearchField id={id} label={label} value={(value as GeoPlace | null) || null} onChange={onChange} />
+        <CitySearchField
+          id={id}
+          label={label}
+          status={field.required ? copy.required : copy.optional}
+          value={(value as GeoPlace | null) || null}
+          onChange={onChange}
+        />
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
       </div>
     );
@@ -68,7 +86,7 @@ export function FieldControl({
     const extra = field.name === 'bio' ? { rows: 4 as const } : {};
     return (
       <div className="space-y-2 min-w-0">
-        <p className="text-sm font-medium">{label}</p>
+        <FieldMeta htmlFor={undefined} {...meta} />
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2 min-w-0">
@@ -100,8 +118,11 @@ export function FieldControl({
     return (
       <label className="flex items-center gap-3 min-h-11 text-sm min-w-0">
         <Checkbox id={id} checked={Boolean(value)} onCheckedChange={(checked) => onChange(checked === true)} />
-        <span>
-          <span className="font-medium">{label}</span>
+        <span className="min-w-0 flex-1">
+          <span className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <span className="font-medium">{label}</span>
+            <span className="text-xs text-muted-foreground">{field.required ? copy.required : copy.optional}</span>
+          </span>
           {description ? <span className="block text-muted-foreground">{description}</span> : null}
         </span>
       </label>
@@ -116,13 +137,16 @@ export function FieldControl({
           locale={locale}
           value={value}
           onChange={onChange}
+          status={field.required ? copy.required : copy.optional}
         />
       );
     }
     const selected = Array.isArray(value) ? (value as string[]) : [];
     return (
       <fieldset className="space-y-2 min-w-0">
-        <legend className="text-sm font-medium">{label}</legend>
+        <legend className="w-full">
+          <FieldMeta {...meta} />
+        </legend>
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
         <div className="flex flex-wrap gap-2">
           {field.options.map((option) => {
@@ -151,10 +175,10 @@ export function FieldControl({
   }
 
   if (field.type === 'select' || field.type === 'radio') {
-    const empty = pickContent(CONTENT, locale).empty;
+    const empty = copy.empty;
     return (
       <div className="space-y-2 min-w-0">
-        <Label htmlFor={id}>{label}</Label>
+        <FieldMeta htmlFor={id} {...meta} />
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
         <Select value={String(value || '') || undefined} onValueChange={onChange}>
           <SelectTrigger id={id} className="w-full min-h-11">
@@ -175,13 +199,14 @@ export function FieldControl({
   const Field = field.type === 'textarea' ? Textarea : Input;
   return (
     <div className="space-y-2 min-w-0">
-      <Label htmlFor={id}>{label}</Label>
+      <FieldMeta htmlFor={id} {...meta} />
       {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
       <Field
         id={id}
         type={field.type === 'url' ? 'url' : undefined}
         className={field.type === 'textarea' ? 'min-h-32 w-full' : 'min-h-11 w-full'}
         value={String(value || '')}
+        required={field.required}
         onChange={(e) => onChange(e.target.value)}
         {...(field.type === 'textarea' ? { rows: 4 } : {})}
       />
@@ -189,15 +214,43 @@ export function FieldControl({
   );
 }
 
+function FieldMeta({
+  htmlFor,
+  label,
+  required,
+  requiredLabel,
+  optionalLabel,
+}: {
+  htmlFor?: string;
+  label: string;
+  required: boolean;
+  requiredLabel: string;
+  optionalLabel: string;
+}) {
+  const status = required ? requiredLabel : optionalLabel;
+  return (
+    <span className="flex min-w-0 w-full flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      {htmlFor ? <Label htmlFor={htmlFor}>{label}</Label> : <span className="text-sm font-medium">{label}</span>}
+      <span className="text-xs text-muted-foreground">{status}</span>
+    </span>
+  );
+}
+
 function ImageControl({
   id,
   label,
+  required,
+  requiredLabel,
+  optionalLabel,
   value,
   onChange,
   initials,
 }: {
   id: string;
   label: string;
+  required: boolean;
+  requiredLabel: string;
+  optionalLabel: string;
   value: unknown;
   onChange: (value: unknown) => void;
   initials?: string;
@@ -228,6 +281,7 @@ function ImageControl({
 
   return (
     <div className="flex w-28 shrink-0 flex-col items-center gap-2 sm:w-32">
+      <FieldMeta label={label} required={required} requiredLabel={requiredLabel} optionalLabel={optionalLabel} />
       <span className="relative block size-28 overflow-hidden rounded-full border border-border bg-primary text-primary-foreground focus-within:ring-[3px] focus-within:ring-ring/50 sm:size-32">
         {src ? (
           <img src={src} alt="" className="size-full object-cover" />

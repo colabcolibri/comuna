@@ -16,11 +16,13 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
 export function CitySearchField({
   id,
   label,
+  status,
   value,
   onChange,
 }: {
   id: string;
   label: string;
+  status?: string;
   value: GeoPlace | null;
   onChange: (place: GeoPlace | null) => void;
 }) {
@@ -49,7 +51,10 @@ export function CitySearchField({
 
   return (
     <div className="space-y-2 min-w-0">
-      <Label htmlFor={id}>{label}</Label>
+      <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <Label htmlFor={id}>{label}</Label>
+        {status ? <span className="text-xs text-muted-foreground">{status}</span> : null}
+      </div>
       {value ? (
         <div className="flex min-h-11 min-w-0 items-center gap-2 rounded-md border border-input bg-transparent px-3">
           <p className="min-w-0 flex-1 truncate text-sm">{selected}</p>

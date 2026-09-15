@@ -6,7 +6,11 @@
     ".": "./src/index.ts",
     "./session": "./src/session.ts"
   },
+  "dependencies": {
+    "nodemailer": "^7.0.13"
+  },
   "devDependencies": {
+    "@types/nodemailer": "^6.4.24",
     "vitest": "^2.0.2"
   }
 }

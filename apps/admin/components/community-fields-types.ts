@@ -8,6 +8,7 @@ export type OpsField = {
   locked: boolean;
   filterable: boolean;
   span: 1 | 2 | 3;
+  required: boolean;
   options: { value: string; labelPt: string; labelEn: string }[];
   optionsText: string;
   label: LocalizedText;
@@ -24,9 +25,11 @@ export type OpsGroup = {
 
 export type CatalogCopy = {
   empty: string;
+  pageEmpty: string;
   add: string;
   addGroup: string;
   name: string;
+  nameHelp: string;
   type: string;
   group: string;
   labelPt: string;
@@ -40,6 +43,10 @@ export type CatalogCopy = {
   create: string;
   createGroup: string;
   locked: string;
+  lockedHint: string;
+  saved: string;
+  rename: string;
+  cancel: string;
   delete: string;
   edit: string;
   save: string;
@@ -55,6 +62,7 @@ export type CatalogCopy = {
   typeLocalized: string;
   typeRadio: string;
   typeCheckbox: string;
+  typeImage: string;
   moveUp: string;
   moveDown: string;
   columns: string;
@@ -63,8 +71,15 @@ export type CatalogCopy = {
   columns2: string;
   columns3: string;
   span: string;
+  spanHelp: string;
+  layoutPreview: string;
+  requirement: string;
+  required: string;
+  optional: string;
   groupLabel: string;
   moveGroup: string;
+  moveGroupHelp: string;
+  moveGroupConfirm: string;
 };
 
 export function fieldNeedsOptions(type: string): boolean {
@@ -73,4 +88,55 @@ export function fieldNeedsOptions(type: string): boolean {
 
 export function fieldCanFilter(type: string): boolean {
   return type === 'boolean' || fieldNeedsOptions(type);
+}
+
+export function catalogColumns(columns: number): 1 | 2 | 3 {
+  if (columns === 2 || columns === 3) {
+    return columns;
+  }
+  return 1;
+}
+
+export function fieldSpanChoices(columns: number): Array<1 | 2 | 3> {
+  const cols = catalogColumns(columns);
+  if (cols === 1) {
+    return [1];
+  }
+  if (cols === 2) {
+    return [1, 2];
+  }
+  return [1, 2, 3];
+}
+
+export function clampFieldSpan(span: number, columns: number): 1 | 2 | 3 {
+  const cols = catalogColumns(columns);
+  const next = Math.min(Math.max(1, span), cols);
+  return next === 2 || next === 3 ? next : 1;
+}
+
+export function fieldTypeLabel(type: string, copy: CatalogCopy): string {
+  switch (type) {
+    case 'text':
+      return copy.typeText;
+    case 'textarea':
+      return copy.typeTextarea;
+    case 'boolean':
+      return copy.typeBoolean;
+    case 'select':
+      return copy.typeSelect;
+    case 'url':
+      return copy.typeUrl;
+    case 'city':
+      return copy.typeCity;
+    case 'localized_text':
+      return copy.typeLocalized;
+    case 'radio':
+      return copy.typeRadio;
+    case 'checkbox':
+      return copy.typeCheckbox;
+    case 'image':
+      return copy.typeImage;
+    default:
+      return type;
+  }
 }

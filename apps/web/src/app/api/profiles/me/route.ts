@@ -3,6 +3,7 @@ import { memberFromRequest } from '@community/auth';
 import { queryAsMember } from '@community/db';
 import { PERSON_PROFILE_COLUMNS, personWriteFromBody, personWriteSqlParams } from '@community/identity';
 import { COMMUNITY_COOKIE } from '@community/communities';
+import { missingRequiredFields, parseField } from '@community/directory';
 import { listMyCommunities, pickCommunitySeat } from '@community/memberships';
 
 async function memberCtx(req: NextRequest, userId: string) {
@@ -36,6 +37,33 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: parsed.message } }, { status: 400 });
   }
   const ctx = await memberCtx(req, member.sub);
+  if (ctx.communityId) {
+    const catalog = await queryAsMember(
+      ctx,
+      `SELECT f.name, f.type, f.options, f.storage, f.column_key, f.filterable, f.required, f.span, f.sort_order, f.label
+       FROM plugin_directory.fields f
+       JOIN plugin_directory.field_groups g ON g.id = f.group_id
+       WHERE g.community_id = $1`,
+      [ctx.communityId]
+    );
+    const fields = catalog.rows
+      .map((row) => parseField(row as Record<string, unknown>))
+      .filter((field): field is NonNullable<typeof field> => Boolean(field) && field.storage === 'person');
+    const values: Record<string, unknown> = {
+      full_name: parsed.write.full_name,
+      avatar_url: parsed.write.avatar_url,
+      gender: parsed.write.gender,
+      birth_city: parsed.write.birth_city,
+      current_city: parsed.write.current_city,
+      languages: parsed.write.languages,
+      linkedin: parsed.write.contacts.linkedin,
+      github: parsed.write.contacts.github,
+      portfolio: parsed.write.contacts.portfolio,
+    };
+    if (missingRequiredFields(fields, values).length) {
+      return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: 'Preencha os campos obrigatórios.' } }, { status: 400 });
+    }
+  }
   await queryAsMember(
     ctx,
     `INSERT INTO person_core.profiles (

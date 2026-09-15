@@ -29,7 +29,7 @@ Hoje o Next de membros vive em `apps/web`. Pacotes `@community/*` via pnpm works
 | ------- | --------- | ---- | ----- |
 | Member web | Next.js 16 | `apps/web` (alvo) | Stitch + plugins montados |
 | Admin web | Next.js 16 | `apps/admin` (alvo) | Shell ops; toggle módulos |
-| Core libs | TS packages | `packages/core/*` | Auth, identity, mail, platform, communities; sem React de página |
+| Core libs | TS packages | `packages/core/*` | Auth (SMTP via nodemailer), identity, mail, platform, communities; sem React de página |
 | Modules | TS packages | `packages/modules/<slug>` | Manifest + optional UI |
 | UI primitives | React / shadcn | `packages/ui/primitives` | Button, Input, InputOTP, Select, Checkbox. CLI neste pacote |
 | UI member | React | `packages/ui/member` | Compostos Stitch |

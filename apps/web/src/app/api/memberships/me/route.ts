@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queryAsMember } from '@community/db';
 import { parseLocalized } from '@community/identity';
-import { parseField, validateCustomAttributes } from '@community/directory';
+import { missingRequiredFields, parseField, validateCustomAttributes } from '@community/directory';
 import { canWriteCards } from '@/modules/registry';
 import { moduleRuntime } from '@/lib/server/membership';
 import { memberCommunityFromRequest } from '@/lib/server/member-community';
@@ -60,6 +60,16 @@ export async function PUT(req: NextRequest) {
   const attributes = validateCustomAttributes(fields, body.custom_attributes);
   if (attributes.ok === false) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: attributes.message } }, { status: 400 });
+  }
+  const values: Record<string, unknown> = {
+    headline,
+    bio,
+    availability_status: body.availability_status ?? null,
+    public_showcase: Boolean(body.public_showcase),
+    ...attributes.value,
+  };
+  if (missingRequiredFields(fields.filter((field) => field.storage !== 'person'), values).length) {
+    return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: 'Preencha os campos obrigatórios.' } }, { status: 400 });
   }
   await queryAsMember(
     { userId: resolved.userId, communityId: resolved.seat.id },

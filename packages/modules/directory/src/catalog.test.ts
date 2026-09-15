@@ -1,4 +1,4 @@
-import { nestCatalog, parseAttrFilters, parseField, validateCustomAttributes, visibleCatalog } from './catalog';
+import { missingRequiredFields, nestCatalog, parseAttrFilters, parseField, validateCustomAttributes, visibleCatalog } from './catalog';
 
 describe('directory catalog', () => {
   it('rejects unknown field types', () => {
@@ -120,5 +120,21 @@ describe('directory catalog', () => {
     expect(onlyCore.map((g) => g.slug)).toEqual(['person']);
     const noShowcase = visibleCatalog(groups, ['directory']);
     expect(noShowcase.flatMap((g) => g.fields.map((f) => f.name))).toEqual(['full_name', 'host_at_home']);
+  });
+
+  it('treats required empty text as missing and boolean as filled', () => {
+    const name = parseField({
+      name: 'full_name',
+      type: 'text',
+      storage: 'person',
+      required: true,
+    });
+    const flag = parseField({
+      name: 'host_at_home',
+      type: 'boolean',
+      storage: 'attributes',
+      required: true,
+    });
+    expect(missingRequiredFields([name!, flag!], { full_name: '  ', host_at_home: false })).toEqual([name]);
   });
 });

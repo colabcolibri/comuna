@@ -1,7 +1,7 @@
 ---
 title: API Contracts
 status: review
-version: 1.15
+version: 1.17
 updated: 2026-09-15
 depends_on: [05_architecture.md, 06_database.md]
 blocks: []
@@ -73,8 +73,8 @@ blocks: []
 | `POST` | `/api/coord/approvals` | Aprova / recusa | Coordinator | `{ "membershipId", "action": "approve" \| "reject" }` | `{ "status" }` |
 | `POST` | `/api/admin/auth/request-otp` | Envia OTP ops | Public, só se o e-mail é `super_admin` | `{ "email" }` | `{ "message" }` |
 | `POST` | `/api/admin/auth/verify-otp` | Sessão admin | Public, `super_admin` | OTP | cookie `ops_token` |
-| `GET` | `/api/admin/platform` | Settings da instalação | Super-admin | — | `{ product_name, from_name, from_address, support_url, logo_url }` |
-| `PUT` | `/api/admin/platform` | Grava settings da instalação | Super-admin | mesmos campos | objeto |
+| `GET` | `/api/admin/platform` | Settings da instalação + status SMTP | Super-admin | — | settings + `smtp: { configured, host, port, secure, auth }` (sem senha) |
+| `PUT` | `/api/admin/platform` | Grava settings da instalação | Super-admin | identity fields; ignora `smtp` | objeto settings |
 | `GET` | `/api/admin/email-templates` | Copy default ou overlay + envelope + slot | Super-admin | `?kind=&locale=` | `{ data: TemplateView }` com `subject`, `heading`, `body`, `slot`, `variables`, `envelope`, `previewHtml` |
 | `PUT` | `/api/admin/email-templates/:kind` | Overlay de copy | Super-admin | `{ locale, subject, heading, body }` | `{ ok }` |
 | `DELETE` | `/api/admin/email-templates/:kind` | Volta ao default | Super-admin | `?locale=` | `{ ok }` |
@@ -97,8 +97,8 @@ blocks: []
 | `POST` | `/api/admin/memberships/:id/cohort` | Liga ou tira turma | Super-admin | `{ "cohortId": uuid \| null }` | `{ ok }` |
 | `DELETE` | `/api/admin/memberships/:id` | Remove a membership | Super-admin | — | `{ ok }` |
 | `GET` | `/api/admin/communities/:id/fields` | Catálogo ops (grupos na ordem do perfil; `locked` no grupo seed e no campo se `storage` ≠ `attributes`) | Super-admin | — | `{ "data": OpsCatalogGroup[] }` com `fields[].options: [{ value, labelPt, labelEn }]` |
-| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` (tipos do catálogo; `span` 1–3) | Super-admin | `{ groupId, name, type, labelPt, labelEn, options?, optionsText?, filterable?, span? }` — `select`/`radio`/`checkbox` exigem `options[]` (ou `optionsText` legado) | `{ 201, OpsCatalogField }` |
-| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | Sem `labelPt`: só `span` (qualquer campo). Com `labelPt`: label/opções/filtro se `storage=attributes` | Super-admin | `{ "span": 1 \| 2 \| 3 }` ou `{ labelPt, labelEn?, options?, optionsText?, filterable? }` | `{ ok }` |
+| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` (tipos do catálogo; `span` 1–3; `required` default false) | Super-admin | `{ groupId, name, type, labelPt, labelEn, options?, optionsText?, filterable?, span?, required? }` — `select`/`radio`/`checkbox` exigem `options[]` (ou `optionsText` legado) | `{ 201, OpsCatalogField }` |
+| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | Sem `labelPt`: `span` **ou** `required` (qualquer campo, núcleo incluso). Com `labelPt`: label/opções/filtro se `storage=attributes` | Super-admin | `{ "span": 1 \| 2 \| 3 }` ou `{ "required": true \| false }` ou `{ labelPt, labelEn?, options?, optionsText?, filterable? }` | `{ ok }` |
 | `DELETE` | `/api/admin/communities/:id/fields/:fieldId` | Apaga só `storage=attributes` | Super-admin | — | `{ ok }` |
 | `POST` | `/api/admin/communities/:id/fields/:fieldId/move` | Sobe/desce **ou** muda de grupo no mesmo tenant | Super-admin | `{ "direction": "up"\|"down" }` ou `{ "groupId" }` | `{ ok }` |
 | `POST` | `/api/admin/communities/:id/groups` | Cria grupo (não seed) | Super-admin | `{ labelPt, labelEn, columns?, slug? }` | `201` |
@@ -110,7 +110,7 @@ APIs de membro de rede (`/api/directory/*`, `/api/memberships/me`, `/api/coord/*
 
 `GET /api/profiles` (lista legado) e `/admin/approvals` foram removidos. `/api/ops/*` não existe: mutações de tenant só na origem admin.
 
-Rotas UI admin do tenant: `/communities/:id/settings|modules|members|cohorts|fields` (índice redireciona para `settings`). Globais: `/communities`, `/people`, `/platform`, `/emails`. Comunidade nova faz seed do catálogo (núcleo + directory + grupo `custom`).
+Rotas UI admin do tenant: `/communities/:id/settings|modules|members|cohorts|fields` (índice redireciona para `settings`). Em `fields`, criar grupo é ação da página; criar campo é no grupo (`groupId` fixo no POST). Globais: `/communities`, `/people`, `/platform`, `/emails`. Comunidade nova faz seed do catálogo (núcleo + directory + grupo `custom`).
 
 ## Pagination / filtering
 

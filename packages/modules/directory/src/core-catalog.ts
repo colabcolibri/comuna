@@ -5,13 +5,14 @@ const loc = (pt: string, en: string) => [
   { locale: 'pt-BR' as const, value: pt },
   { locale: 'en' as const, value: en },
 ];
+const untitled = [] as const;
 
 export function coreCatalog(): CatalogGroup[] {
   return nestCatalog([
     {
       group_slug: 'identity',
-      group_label: loc('Identidade', 'Identity'),
-      group_description: loc('Nome e foto.', 'Name and photo.'),
+      group_label: loc('Nome e foto', 'Name and photo'),
+      group_description: untitled,
       columns: 1,
       name: 'full_name',
       type: 'text',
@@ -23,8 +24,8 @@ export function coreCatalog(): CatalogGroup[] {
     },
     {
       group_slug: 'identity',
-      group_label: loc('Identidade', 'Identity'),
-      group_description: loc('Nome e foto.', 'Name and photo.'),
+      group_label: loc('Nome e foto', 'Name and photo'),
+      group_description: untitled,
       columns: 1,
       name: 'avatar_url',
       type: 'image',
@@ -35,8 +36,8 @@ export function coreCatalog(): CatalogGroup[] {
     },
     {
       group_slug: 'person',
-      group_label: loc('Pessoa', 'Person'),
-      group_description: loc('Demografia.', 'Demographics.'),
+      group_label: loc('Sobre você', 'About you'),
+      group_description: untitled,
       columns: 2,
       name: 'gender',
       type: 'select',
@@ -53,8 +54,8 @@ export function coreCatalog(): CatalogGroup[] {
     },
     {
       group_slug: 'person',
-      group_label: loc('Pessoa', 'Person'),
-      group_description: loc('Demografia.', 'Demographics.'),
+      group_label: loc('Sobre você', 'About you'),
+      group_description: untitled,
       columns: 2,
       name: 'birth_city',
       type: 'city',
@@ -65,8 +66,8 @@ export function coreCatalog(): CatalogGroup[] {
     },
     {
       group_slug: 'person',
-      group_label: loc('Pessoa', 'Person'),
-      group_description: loc('Demografia.', 'Demographics.'),
+      group_label: loc('Sobre você', 'About you'),
+      group_description: untitled,
       columns: 2,
       name: 'current_city',
       type: 'city',
@@ -77,8 +78,8 @@ export function coreCatalog(): CatalogGroup[] {
     },
     {
       group_slug: 'person',
-      group_label: loc('Pessoa', 'Person'),
-      group_description: loc('Demografia.', 'Demographics.'),
+      group_label: loc('Sobre você', 'About you'),
+      group_description: untitled,
       columns: 2,
       name: 'languages',
       type: 'checkbox',
@@ -94,7 +95,7 @@ export function coreCatalog(): CatalogGroup[] {
     {
       group_slug: 'links',
       group_label: loc('Links', 'Links'),
-      group_description: loc('Onde te encontrar.', 'Where to find you.'),
+      group_description: untitled,
       columns: 1,
       name: 'linkedin',
       type: 'url',
@@ -106,7 +107,7 @@ export function coreCatalog(): CatalogGroup[] {
     {
       group_slug: 'links',
       group_label: loc('Links', 'Links'),
-      group_description: loc('Onde te encontrar.', 'Where to find you.'),
+      group_description: untitled,
       columns: 1,
       name: 'github',
       type: 'url',
@@ -118,7 +119,7 @@ export function coreCatalog(): CatalogGroup[] {
     {
       group_slug: 'links',
       group_label: loc('Links', 'Links'),
-      group_description: loc('Onde te encontrar.', 'Where to find you.'),
+      group_description: untitled,
       columns: 1,
       name: 'portfolio',
       type: 'url',

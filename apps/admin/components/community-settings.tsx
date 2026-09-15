@@ -4,7 +4,7 @@ import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast } from '@community/ui';
 import { OpsSection } from '@community/ui-admin';
-import { COMMUNITY_TYPES, type CommunitySettings as CommunitySettingsValue } from '@community/communities';
+import { COMMUNITY_TYPES, type CommunitySettings as CommunitySettingsValue } from '@community/communities/types';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from './locale-provider';
 import { uiCatalog } from '@/lang/catalog';

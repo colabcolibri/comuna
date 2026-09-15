@@ -238,6 +238,35 @@ export function parseAttrFilters(
   return { ok: true, filters };
 }
 
+export function fieldValueIsBlank(field: CatalogField, value: unknown): boolean {
+  if (field.type === 'boolean') {
+    return false;
+  }
+  if (field.type === 'city') {
+    if (!value || typeof value !== 'object') {
+      return true;
+    }
+    const place = value as { osm_id?: unknown; name?: unknown };
+    return place.osm_id == null && !String(place.name || '').trim();
+  }
+  if (field.type === 'localized_text') {
+    if (!Array.isArray(value)) {
+      return true;
+    }
+    return !value.some(
+      (item) => item && typeof item === 'object' && String((item as { value?: unknown }).value || '').trim()
+    );
+  }
+  if (field.type === 'checkbox') {
+    return !Array.isArray(value) || value.length === 0;
+  }
+  return !String(value ?? '').trim();
+}
+
+export function missingRequiredFields(fields: CatalogField[], values: Record<string, unknown>): CatalogField[] {
+  return fields.filter((field) => field.required && fieldValueIsBlank(field, values[field.name]));
+}
+
 export function filterableAttributeNames(fields: CatalogField[]): string[] {
   return fields.filter((field) => field.storage === 'attributes' && field.filterable).map((field) => field.name);
 }

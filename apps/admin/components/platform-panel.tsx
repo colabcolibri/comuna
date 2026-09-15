@@ -19,6 +19,15 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   save: 'community.save',
   saved: 'platform.saved',
   error: 'community.save_error',
+  smtpTitle: 'platform.smtp_title',
+  smtpHelp: 'platform.smtp_help',
+  smtpOff: 'platform.smtp_off',
+  smtpHost: 'platform.smtp_host',
+  smtpPort: 'platform.smtp_port',
+  smtpSecure: 'platform.smtp_secure',
+  smtpAuth: 'platform.smtp_auth',
+  smtpAuthYes: 'platform.smtp_auth_yes',
+  smtpAuthNo: 'platform.smtp_auth_no',
 });
 
 type Settings = {
@@ -27,6 +36,14 @@ type Settings = {
   from_address: string;
   support_url: string;
   logo_url: string;
+};
+
+type SmtpStatus = {
+  configured: boolean;
+  host: string;
+  port: number;
+  secure: string;
+  auth: boolean;
 };
 
 export function PlatformPanel() {
@@ -39,13 +56,22 @@ export function PlatformPanel() {
     logo_url: '',
   });
   const [busy, setBusy] = useState(false);
+  const [smtp, setSmtp] = useState<SmtpStatus | null>(null);
 
   useEffect(() => {
     fetch('/api/admin/platform').then(async (res) => {
       if (!res.ok) {
         return;
       }
-      setForm(await res.json());
+      const data = await res.json();
+      setForm({
+        product_name: data.product_name,
+        from_name: data.from_name,
+        from_address: data.from_address,
+        support_url: data.support_url,
+        logo_url: data.logo_url,
+      });
+      setSmtp(data.smtp ?? null);
     });
   }, []);
 
@@ -117,6 +143,32 @@ export function PlatformPanel() {
           {copy.save}
         </Button>
       </form>
+      <section className="mt-10 max-w-lg space-y-2 border-t border-border pt-6">
+        <h2 className="text-sm font-medium">{copy.smtpTitle}</h2>
+        <p className="text-sm text-muted-foreground">{copy.smtpHelp}</p>
+        {smtp?.configured ? (
+          <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="text-muted-foreground">{copy.smtpHost}</dt>
+              <dd className="break-all">{smtp.host}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">{copy.smtpPort}</dt>
+              <dd>{smtp.port}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">{copy.smtpSecure}</dt>
+              <dd>{smtp.secure}</dd>
+            </div>
+            <div>
+              <dt className="text-muted-foreground">{copy.smtpAuth}</dt>
+              <dd>{smtp.auth ? copy.smtpAuthYes : copy.smtpAuthNo}</dd>
+            </div>
+          </dl>
+        ) : (
+          <p className="text-sm">{copy.smtpOff}</p>
+        )}
+      </section>
     </OpsPageTemplate>
   );
 }

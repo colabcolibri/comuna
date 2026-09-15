@@ -1,7 +1,7 @@
 ---
 title: Design System
 status: review
-version: 1.13
+version: 1.14
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
@@ -15,6 +15,7 @@ blocks: []
 - **Primary UI stack:** `ts-shadcn` — primitives em `packages/ui/primitives` (`@community/ui`). Compostos membro em `packages/ui/member` e `apps/web/src/components/app/`.
 - **Select / Checkbox / menu:** shadcn em `@community/ui` (`SelectTrigger` + portal; `DropdownMenu`; `Checkbox` Radix; `Tabs`). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`, `OpsTabs`, `OpsHtmlPreview`) é que fecham o produto.
 - **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, espaços aninhados. Workspace (trocar de comunidade) **não** é sidebar de espaços — ver `community-context.md`.
+- **Copy de formulário:** grupo = título. Campo = rótulo + **Obrigatório** ou **Opcional** (os dois estados, sempre). Sem lede que ensina o schema. Sem “demografia”, “headline”, “intermediado”.
 - **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
 ## Colors

@@ -82,4 +82,10 @@ describe('monorepo workspaces', () => {
     expect(source).not.toMatch(/from ['"]@community\/mail['"]/);
     expect(source).not.toMatch(/from ['"]@community\/platform['"]/);
   });
+
+  it('keeps the community settings form off the Node communities barrel', () => {
+    const source = fs.readFileSync(path.join(ROOT, 'apps/admin/components/community-settings.tsx'), 'utf8');
+    expect(source).toMatch(/from ['"]@community\/communities\/types['"]/);
+    expect(source).not.toMatch(/from ['"]@community\/communities['"]/);
+  });
 });

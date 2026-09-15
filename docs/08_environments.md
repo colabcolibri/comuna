@@ -1,7 +1,7 @@
 ---
 title: Environments and Setup
 status: review
-version: 1.4
+version: 1.5
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 05_architecture.md]
 blocks: []
@@ -17,8 +17,11 @@ blocks: []
 | `DATABASE_URL` | Postgres | Sim | `postgresql://postgres:postgres@localhost:5433/alumni_db` | All |
 | `JWT_SECRET` | Assinatura JWT | Sim | sintético local | All |
 | `INITIAL_SUPER_ADMIN_EMAIL` | Seed ops (não promove via login da vitrine) | Sim | `admin@example.com` | Local / Staging |
-| `SMTP_HOST` | SMTP | Sim local | `localhost` | Local |
-| `SMTP_PORT` | SMTP | Sim local | `1025` | Local |
+| `SMTP_HOST` | Host SMTP. Vazio = não envia | Sim local | `localhost` | All |
+| `SMTP_PORT` | Porta SMTP | Sim local | `1026` (Mailpit publicado) | All |
+| `SMTP_SECURE` | `none` \| `starttls` \| `tls`. Omisso: heurística da porta | Não | vazio no Mailpit | All |
+| `SMTP_USER` | AUTH. Vazio no Mailpit | Não | — | Staging / prod |
+| `SMTP_PASS` | Senha SMTP. Nunca no GET admin | Não | — | Staging / prod |
 | `EMAIL_FROM_ADDRESS` | Fallback From se a plataforma ainda não tem `from_address` | Sim | `auth@community.local` | All |
 | `NEXT_PUBLIC_APP_URL` | URL membro | Sim | `http://localhost:3014` | All |
 | `MEDIA_ROOT` | Pasta local do ObjectStore | Não (default `storage`) | `storage` | Local |

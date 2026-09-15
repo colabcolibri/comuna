@@ -1,10 +1,38 @@
 'use client';
 
-import { useState } from 'react';
-import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
+import { useEffect, useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Button,
+  Checkbox,
+  Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  toast,
+} from '@community/ui';
 import { OpsBadge, OpsMoveButtons } from '@community/ui-admin';
 import { pickLocalizedText } from '@community/identity';
-import { fieldCanFilter, fieldNeedsOptions, type CatalogCopy, type OpsField, type OpsGroup } from './community-fields-types';
+import {
+  clampFieldSpan,
+  fieldCanFilter,
+  fieldNeedsOptions,
+  fieldSpanChoices,
+  fieldTypeLabel,
+  type CatalogCopy,
+  type OpsField,
+  type OpsGroup,
+} from './community-fields-types';
 import { CommunityFieldsOptionsEditor, emptyOptionRow } from './community-fields-options';
 
 export function CommunityFieldsField({
@@ -19,6 +47,7 @@ export function CommunityFieldsField({
   onRemove,
   groups,
   currentGroupId,
+  groupColumns,
 }: {
   communityId: string;
   field: OpsField;
@@ -31,21 +60,28 @@ export function CommunityFieldsField({
   onRemove: () => void;
   groups: OpsGroup[];
   currentGroupId: string;
+  groupColumns: number;
 }) {
   const [open, setOpen] = useState(false);
   const [labelPt, setLabelPt] = useState(pickLocalizedText(field.label, 'pt-BR') || field.name);
   const [labelEn, setLabelEn] = useState(pickLocalizedText(field.label, 'en') || '');
-  const [options, setOptions] = useState(
-    field.options?.length ? field.options : [emptyOptionRow()]
-  );
+  const [options, setOptions] = useState(field.options?.length ? field.options : [emptyOptionRow()]);
   const [filterable, setFilterable] = useState(field.filterable);
   const [busy, setBusy] = useState(false);
+  const [pendingGroupId, setPendingGroupId] = useState<string | null>(null);
+  const spanChoices = fieldSpanChoices(groupColumns);
+  const showSpan = groupColumns > 1;
   const spanId = `ops-field-span-${field.id}`;
+  const requiredId = `ops-field-required-${field.id}`;
+
+  useEffect(() => {
+    setLabelPt(pickLocalizedText(field.label, 'pt-BR') || field.name);
+    setLabelEn(pickLocalizedText(field.label, 'en') || '');
+    setOptions(field.options?.length ? field.options : [emptyOptionRow()]);
+    setFilterable(field.filterable);
+  }, [field]);
 
   const setGroup = async (groupId: string) => {
-    if (groupId === currentGroupId) {
-      return;
-    }
     const res = await fetch(`/api/admin/communities/${communityId}/fields/${field.id}/move`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -55,6 +91,9 @@ export function CommunityFieldsField({
       toast.error(copy.error);
       return;
     }
+    toast.success(copy.saved);
+    setPendingGroupId(null);
+    setOpen(false);
     onChanged();
   };
 
@@ -62,12 +101,27 @@ export function CommunityFieldsField({
     const res = await fetch(`/api/admin/communities/${communityId}/fields/${field.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ span }),
+      body: JSON.stringify({ span: clampFieldSpan(span, groupColumns) }),
     });
     if (!res.ok) {
       toast.error(copy.error);
       return;
     }
+    toast.success(copy.saved);
+    onChanged();
+  };
+
+  const setRequired = async (required: boolean) => {
+    const res = await fetch(`/api/admin/communities/${communityId}/fields/${field.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ required }),
+    });
+    if (!res.ok) {
+      toast.error(copy.error);
+      return;
+    }
+    toast.success(copy.saved);
     onChanged();
   };
 
@@ -88,6 +142,7 @@ export function CommunityFieldsField({
       toast.error(copy.error);
       return;
     }
+    toast.success(copy.saved);
     setOpen(false);
     onChanged();
   };
@@ -102,43 +157,11 @@ export function CommunityFieldsField({
             </p>
             {field.locked ? <OpsBadge>{copy.locked}</OpsBadge> : null}
           </div>
-          <p className="font-mono text-xs text-muted-foreground wrap-break-word">
-            {field.name} · {field.type} · {field.storage}
+          <p className="text-xs text-muted-foreground wrap-break-word">
+            {fieldTypeLabel(field.type, copy)} · {field.required ? copy.required : copy.optional}
           </p>
         </div>
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
-          <div className="flex min-w-0 items-center gap-2">
-            <Label htmlFor={`ops-field-group-${field.id}`} className="text-xs text-muted-foreground whitespace-nowrap">
-              {copy.moveGroup}
-            </Label>
-            <Select value={currentGroupId} onValueChange={(next) => void setGroup(next)}>
-              <SelectTrigger id={`ops-field-group-${field.id}`} size="sm" className="w-[min(100%,12rem)]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {groups.map((item) => (
-                  <SelectItem key={item.id} value={item.id}>
-                    {pickLocalizedText(item.label, locale) || item.slug}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex min-w-0 items-center gap-2">
-            <Label htmlFor={spanId} className="text-xs text-muted-foreground whitespace-nowrap">
-              {copy.span}
-            </Label>
-            <Select value={String(field.span)} onValueChange={(next) => void setSpan(Number(next))}>
-              <SelectTrigger id={spanId} size="sm" className="w-[4.75rem]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1</SelectItem>
-                <SelectItem value="2">2</SelectItem>
-                <SelectItem value="3">3</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
           <OpsMoveButtons
             moveUp={copy.moveUp}
             moveDown={copy.moveDown}
@@ -146,55 +169,136 @@ export function CommunityFieldsField({
             canDown={index < total - 1}
             onMove={onMove}
           />
+          <Button type="button" size="sm" variant="outline" onClick={() => setOpen((value) => !value)}>
+            {copy.edit}
+          </Button>
           {field.locked ? null : (
-            <>
-              <Button type="button" size="sm" variant="outline" onClick={() => setOpen((value) => !value)}>
-                {copy.edit}
-              </Button>
-              <Button type="button" size="sm" variant="outline" onClick={onRemove}>
-                {copy.delete}
-              </Button>
-            </>
+            <Button type="button" size="sm" variant="outline" onClick={onRemove}>
+              {copy.delete}
+            </Button>
           )}
         </div>
       </div>
-      {open && !field.locked ? (
+      {open ? (
         <div className="mt-3 grid max-w-3xl gap-3 border-t border-border pt-3">
+          {field.locked ? <p className="text-sm text-muted-foreground">{copy.lockedHint}</p> : null}
+          {field.locked ? null : (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor={`ops-field-pt-${field.id}`}>{copy.labelPt}</Label>
+                <Input
+                  id={`ops-field-pt-${field.id}`}
+                  value={labelPt}
+                  onChange={(ev) => setLabelPt(ev.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor={`ops-field-en-${field.id}`}>{copy.labelEn}</Label>
+                <Input
+                  id={`ops-field-en-${field.id}`}
+                  value={labelEn}
+                  onChange={(ev) => setLabelEn(ev.target.value)}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {copy.name}: <span className="font-mono break-all">{field.name}</span>
+              </p>
+              {fieldNeedsOptions(field.type) ? (
+                <CommunityFieldsOptionsEditor
+                  idPrefix={`ops-field-opt-${field.id}`}
+                  rows={options}
+                  onChange={setOptions}
+                  copy={copy}
+                />
+              ) : null}
+              {fieldCanFilter(field.type) ? (
+                <label className="flex items-center gap-2 text-sm">
+                  <Checkbox checked={filterable} onCheckedChange={(checked) => setFilterable(checked === true)} />
+                  {copy.filterable}
+                </label>
+              ) : null}
+            </>
+          )}
           <div className="space-y-2">
-            <Label htmlFor={`ops-field-pt-${field.id}`}>{copy.labelPt}</Label>
-            <Input
-              id={`ops-field-pt-${field.id}`}
-              value={labelPt}
-              onChange={(ev) => setLabelPt(ev.target.value)}
-            />
+            <Label htmlFor={requiredId}>{copy.requirement}</Label>
+            <Select value={field.required ? 'required' : 'optional'} onValueChange={(next) => void setRequired(next === 'required')}>
+              <SelectTrigger id={requiredId} className="w-[min(100%,16rem)]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="optional">{copy.optional}</SelectItem>
+                <SelectItem value="required">{copy.required}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor={`ops-field-en-${field.id}`}>{copy.labelEn}</Label>
-            <Input
-              id={`ops-field-en-${field.id}`}
-              value={labelEn}
-              onChange={(ev) => setLabelEn(ev.target.value)}
-            />
-          </div>
-          {fieldNeedsOptions(field.type) ? (
-            <CommunityFieldsOptionsEditor
-              idPrefix={`ops-field-opt-${field.id}`}
-              rows={options}
-              onChange={setOptions}
-              copy={copy}
-            />
+          {showSpan ? (
+            <div className="space-y-2">
+              <Label htmlFor={spanId}>{copy.span}</Label>
+              <Select
+                value={String(clampFieldSpan(field.span, groupColumns))}
+                onValueChange={(next) => void setSpan(Number(next))}
+              >
+                <SelectTrigger id={spanId} className="w-[min(100%,12rem)]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {spanChoices.map((span) => (
+                    <SelectItem key={span} value={String(span)}>
+                      {span}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">{copy.spanHelp}</p>
+            </div>
           ) : null}
-          {fieldCanFilter(field.type) ? (
-            <label className="flex items-center gap-2 text-sm">
-              <Checkbox checked={filterable} onCheckedChange={(checked) => setFilterable(checked === true)} />
-              {copy.filterable}
-            </label>
+          {groups.length > 1 ? (
+            <div className="space-y-2">
+              <Label htmlFor={`ops-field-group-${field.id}`}>{copy.moveGroup}</Label>
+              <Select
+                value={currentGroupId}
+                onValueChange={(next) => {
+                  if (next === currentGroupId) {
+                    return;
+                  }
+                  setPendingGroupId(next);
+                }}
+              >
+                <SelectTrigger id={`ops-field-group-${field.id}`} className="w-[min(100%,16rem)]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {groups.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {pickLocalizedText(item.label, locale) || item.slug}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">{copy.moveGroupHelp}</p>
+            </div>
           ) : null}
-          <Button type="button" size="sm" disabled={busy} onClick={() => void save()}>
-            {copy.save}
-          </Button>
+          {field.locked ? null : (
+            <Button type="button" size="sm" disabled={busy} onClick={() => void save()}>
+              {copy.save}
+            </Button>
+          )}
         </div>
       ) : null}
+      <AlertDialog open={pendingGroupId !== null} onOpenChange={(next) => { if (!next) setPendingGroupId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{copy.moveGroupConfirm}</AlertDialogTitle>
+            <AlertDialogDescription>{copy.moveGroupHelp}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{copy.cancel}</AlertDialogCancel>
+            <AlertDialogAction onClick={() => pendingGroupId && void setGroup(pendingGroupId)}>
+              {copy.moveGroup}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </li>
   );
 }

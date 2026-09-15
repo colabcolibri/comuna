@@ -5,7 +5,6 @@ import { OpsSection } from '@community/ui-admin';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from './locale-provider';
 import { uiCatalog } from '@/lang/catalog';
-import { CommunityFieldsCreateField } from './community-fields-create-field';
 import { CommunityFieldsCreateGroup } from './community-fields-create-group';
 import { CommunityFieldsGroup } from './community-fields-group';
 import type { OpsGroup } from './community-fields-types';
@@ -14,9 +13,11 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   title: 'community.fields',
   help: 'community.fields_help',
   empty: 'community.fields_empty',
+  pageEmpty: 'community.fields_page_empty',
   add: 'community.fields_add',
   addGroup: 'community.fields_add_group',
   name: 'community.fields_name',
+  nameHelp: 'community.fields_name_help',
   type: 'community.fields_type',
   group: 'community.fields_group',
   labelPt: 'community.fields_label_pt',
@@ -30,6 +31,10 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   create: 'community.fields_create',
   createGroup: 'community.fields_create_group',
   locked: 'community.fields_locked',
+  lockedHint: 'community.fields_locked_hint',
+  saved: 'community.fields_saved',
+  rename: 'community.fields_rename',
+  cancel: 'community.fields_cancel',
   delete: 'community.fields_delete',
   error: 'community.save_error',
   duplicate: 'community.fields_duplicate',
@@ -47,14 +52,22 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   columns2: 'community.fields_columns_2',
   columns3: 'community.fields_columns_3',
   span: 'community.fields_span',
+  spanHelp: 'community.fields_span_help',
+  layoutPreview: 'community.fields_layout_preview',
+  requirement: 'community.fields_requirement',
+  required: 'community.fields_required',
+  optional: 'community.fields_optional',
   edit: 'community.fields_edit',
   save: 'community.save',
   typeCity: 'community.fields_type_city',
   typeLocalized: 'community.fields_type_localized',
   typeRadio: 'community.fields_type_radio',
   typeCheckbox: 'community.fields_type_checkbox',
+  typeImage: 'community.fields_type_image',
   groupLabel: 'community.fields_group_label',
   moveGroup: 'community.fields_move_group',
+  moveGroupHelp: 'community.fields_move_group_help',
+  moveGroupConfirm: 'community.fields_move_group_confirm',
 });
 
 export function CommunityFields({ communityId }: { communityId: string }) {
@@ -78,12 +91,11 @@ export function CommunityFields({ communityId }: { communityId: string }) {
 
   return (
     <OpsSection title={copy.title} description={copy.help}>
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+      <div className="mb-8">
         <CommunityFieldsCreateGroup communityId={communityId} copy={copy} onCreated={load} />
-        <CommunityFieldsCreateField communityId={communityId} groups={groups} locale={locale} copy={copy} onCreated={load} />
       </div>
       {groups.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{copy.empty}</p>
+        <p className="text-sm text-muted-foreground">{copy.pageEmpty}</p>
       ) : (
         <div className="grid gap-4">
           {groups.map((group, index) => (

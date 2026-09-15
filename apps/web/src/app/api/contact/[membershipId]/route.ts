@@ -24,25 +24,22 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ membership
   if (!to) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Perfil não encontrado' } }, { status: 404 });
   }
-  const host = process.env.SMTP_HOST;
-  if (host) {
-    const community = await query<{ name: string; settings: unknown }>(
-      `SELECT name, settings FROM network_core.communities WHERE id = $1`,
-      [row.community_id]
-    );
-    const settings = community.rows[0]?.settings as { default_locale?: string } | undefined;
-    const locale = settings?.default_locale === 'en' ? 'en' : 'pt-BR';
-    await sendKindEmail({
-      kind: 'contact_notice',
-      to,
-      locale,
-      vars: {
-        community_name: community.rows[0]?.name || '',
-        sender_name: String(body.sender_name || ''),
-        sender_email: String(body.sender_email || ''),
-        message: String(body.message || ''),
-      },
-    });
-  }
+  const community = await query<{ name: string; settings: unknown }>(
+    `SELECT name, settings FROM network_core.communities WHERE id = $1`,
+    [row.community_id]
+  );
+  const settings = community.rows[0]?.settings as { default_locale?: string } | undefined;
+  const locale = settings?.default_locale === 'en' ? 'en' : 'pt-BR';
+  await sendKindEmail({
+    kind: 'contact_notice',
+    to,
+    locale,
+    vars: {
+      community_name: community.rows[0]?.name || '',
+      sender_name: String(body.sender_name || ''),
+      sender_email: String(body.sender_email || ''),
+      message: String(body.message || ''),
+    },
+  });
   return NextResponse.json({ message: 'Mensagem enviada com sucesso' });
 }

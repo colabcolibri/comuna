@@ -40,6 +40,7 @@ export function CommunityFieldsCreateGroup({
     setLabelEn('');
     setColumns('1');
     setOpen(false);
+    toast.success(copy.saved);
     onCreated();
   };
 
@@ -72,9 +73,14 @@ export function CommunityFieldsCreateGroup({
             </Select>
             <p className="text-xs text-muted-foreground">{copy.columnsHelp}</p>
           </div>
-          <Button type="submit" disabled={busy}>
-            {copy.createGroup}
-          </Button>
+          <div className="flex min-w-0 flex-wrap gap-2">
+            <Button type="submit" disabled={busy}>
+              {copy.createGroup}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              {copy.cancel}
+            </Button>
+          </div>
         </form>
       ) : null}
     </div>

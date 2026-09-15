@@ -1,8 +1,8 @@
 ---
 title: Security
 status: approved
-version: 1.2
-updated: 2026-09-14
+version: 1.3
+updated: 2026-09-15
 depends_on: [00_scope.md, 01_tech_stack.md]
 blocks: [03_user_types.md, 04_principles.md, 05_architecture.md]
 ---
@@ -93,7 +93,7 @@ _N/A até expansão europeia._
 | ----------- | ------- | -------- | ------------ |
 | `DATABASE_URL` | `.env` | 90 dias | Sim |
 | `JWT_SECRET` | `.env` | 180 dias | Sim |
-| SMTP / Resend key | `.env` | Conforme provedor | Sim |
+| SMTP / Resend key | `.env` (`SMTP_PASS`) | Conforme provedor | Sim; nunca `platform_settings` nem GET admin |
 
 `.env` gitignored; `.env.example` só sintético.
 

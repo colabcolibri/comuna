@@ -2,34 +2,30 @@
 
 import { FormEvent, useState } from 'react';
 import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
-import { pickLocalizedText } from '@community/identity';
-import { fieldCanFilter, fieldNeedsOptions, type CatalogCopy, type OpsGroup } from './community-fields-types';
+import { fieldCanFilter, fieldNeedsOptions, type CatalogCopy } from './community-fields-types';
 import { CommunityFieldsOptionsEditor, emptyOptionRow, type OptionRow } from './community-fields-options';
 
 export function CommunityFieldsCreateField({
   communityId,
-  groups,
-  locale,
+  groupId,
   copy,
   onCreated,
 }: {
   communityId: string;
-  groups: OpsGroup[];
-  locale: string | undefined;
+  groupId: string;
   copy: CatalogCopy;
   onCreated: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [groupId, setGroupId] = useState(groups[0]?.id || '');
   const [name, setName] = useState('');
   const [type, setType] = useState('boolean');
   const [labelPt, setLabelPt] = useState('');
   const [labelEn, setLabelEn] = useState('');
   const [options, setOptions] = useState<OptionRow[]>([emptyOptionRow()]);
   const [filterable, setFilterable] = useState(true);
+  const [required, setRequired] = useState(false);
   const [busy, setBusy] = useState(false);
-
-  const selectedGroup = groupId || groups[0]?.id || '';
+  const idPrefix = `ops-new-field-${groupId}`;
 
   const create = async (e: FormEvent) => {
     e.preventDefault();
@@ -38,13 +34,14 @@ export function CommunityFieldsCreateField({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        groupId: selectedGroup,
+        groupId,
         name,
         type,
         labelPt,
         labelEn,
         options,
         filterable,
+        required,
       }),
     });
     setBusy(false);
@@ -60,42 +57,30 @@ export function CommunityFieldsCreateField({
     setLabelPt('');
     setLabelEn('');
     setOptions([emptyOptionRow()]);
+    setFilterable(true);
+    setRequired(false);
     setOpen(false);
+    toast.success(copy.saved);
     onCreated();
   };
 
-  if (groups.length === 0) {
-    return null;
-  }
-
   return (
     <div className="min-w-0">
-      <Button type="button" variant="outline" onClick={() => setOpen((value) => !value)}>
+      <Button type="button" size="sm" variant="outline" onClick={() => setOpen((value) => !value)}>
         {copy.add}
       </Button>
       {open ? (
         <form onSubmit={create} className="mt-4 grid max-w-3xl gap-4">
           <div className="space-y-2">
-            <Label htmlFor="ops-field-group">{copy.group}</Label>
-            <Select value={selectedGroup} onValueChange={setGroupId}>
-              <SelectTrigger id="ops-field-group">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {groups.map((group) => (
-                  <SelectItem key={group.id} value={group.id}>
-                    {pickLocalizedText(group.label, locale) || group.slug}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor={`${idPrefix}-pt`}>{copy.labelPt}</Label>
+            <Input id={`${idPrefix}-pt`} value={labelPt} onChange={(ev) => setLabelPt(ev.target.value)} required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="ops-field-name">{copy.name}</Label>
-            <Input id="ops-field-name" className="font-mono" value={name} onChange={(ev) => setName(ev.target.value)} required />
+            <Label htmlFor={`${idPrefix}-en`}>{copy.labelEn}</Label>
+            <Input id={`${idPrefix}-en`} value={labelEn} onChange={(ev) => setLabelEn(ev.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="ops-field-type">{copy.type}</Label>
+            <Label htmlFor={`${idPrefix}-type`}>{copy.type}</Label>
             <Select
               value={type}
               onValueChange={(next) => {
@@ -105,7 +90,7 @@ export function CommunityFieldsCreateField({
                 }
               }}
             >
-              <SelectTrigger id="ops-field-type">
+              <SelectTrigger id={`${idPrefix}-type`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -122,15 +107,18 @@ export function CommunityFieldsCreateField({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="ops-field-pt">{copy.labelPt}</Label>
-            <Input id="ops-field-pt" value={labelPt} onChange={(ev) => setLabelPt(ev.target.value)} required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="ops-field-en">{copy.labelEn}</Label>
-            <Input id="ops-field-en" value={labelEn} onChange={(ev) => setLabelEn(ev.target.value)} />
+            <Label htmlFor={`${idPrefix}-name`}>{copy.name}</Label>
+            <Input
+              id={`${idPrefix}-name`}
+              className="font-mono"
+              value={name}
+              onChange={(ev) => setName(ev.target.value)}
+              required
+            />
+            <p className="text-xs text-muted-foreground">{copy.nameHelp}</p>
           </div>
           {fieldNeedsOptions(type) ? (
-            <CommunityFieldsOptionsEditor idPrefix="ops-field-opt" rows={options} onChange={setOptions} copy={copy} />
+            <CommunityFieldsOptionsEditor idPrefix={`${idPrefix}-opt`} rows={options} onChange={setOptions} copy={copy} />
           ) : null}
           {fieldCanFilter(type) ? (
             <label className="flex items-center gap-2 text-sm">
@@ -138,9 +126,18 @@ export function CommunityFieldsCreateField({
               {copy.filterable}
             </label>
           ) : null}
-          <Button type="submit" disabled={busy}>
-            {copy.create}
-          </Button>
+          <label className="flex items-center gap-2 text-sm">
+            <Checkbox checked={required} onCheckedChange={(checked) => setRequired(checked === true)} />
+            {copy.required}
+          </label>
+          <div className="flex min-w-0 flex-wrap gap-2">
+            <Button type="submit" disabled={busy}>
+              {copy.create}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              {copy.cancel}
+            </Button>
+          </div>
         </form>
       ) : null}
     </div>

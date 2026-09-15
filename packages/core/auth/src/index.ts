@@ -13,7 +13,14 @@ export {
   normalizeEmail,
   type AuthUser,
 } from './users';
-export { sendSmtpMail } from './smtp';
+export {
+  sendSmtpMail,
+  formatReplyToHeader,
+  describeSmtpTransport,
+  isSmtpConfigured,
+  loadSmtpTransportConfig,
+  type SmtpTransportView,
+} from './smtp';
 export {
   signMemberToken,
   verifyMemberToken,

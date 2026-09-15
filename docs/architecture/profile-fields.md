@@ -15,12 +15,12 @@ Plugin off **não** mostra campos daquele plugin. O dono é `fields.module_id` (
 | Peça | Onde | Pesquisa |
 | --- | --- | --- |
 | Grupo | `plugin_directory.field_groups` | não busca membro |
-| Campo (name, tipo, label, description, opções, span, grupo) | `plugin_directory.fields` | catálogo; gera facets |
+| Campo (name, tipo, label, description, **required**, opções, span, grupo) | `plugin_directory.fields` | catálogo; gera facets |
 | Identidade | `person_core.profiles` | colunas atuais |
 | Headline, bio, availability, vitrine | colunas de `plugin_directory.cards` | coluna / LocalizedText |
 | Valores custom (boolean, select, texto curto) | `cards.custom_attributes` jsonb | GIN + `@>` |
 
-`name` do campo é o slug de armazenamento. Imutável depois que existir valor. Label e description são LocalizedText (dado da comunidade), não pack de chrome. Chrome da página (salvar, erro) continua pack + `CONTENT`.
+`name` do campo é o slug de armazenamento. Imutável depois que existir valor. Label é LocalizedText (dado da comunidade). `description` do **grupo** não aparece no perfil — grupo só tem título. `description` do **campo** só existe se o rótulo não basta (formato, exemplo); não é parágrafo de produto. O estado que **sempre** aparece ao lado do rótulo é `required`: **Obrigatório** ou **Opcional**. Chrome da página (salvar, erro, esses dois vocábulos) continua pack + `CONTENT`.
 
 ## Storage binding
 
@@ -39,7 +39,7 @@ Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejei
 | slug | Origem | Campos | Storage |
 | --- | --- | --- | --- |
 | `identity` | core (não some) | nome, avatar (`image`) | `person` |
-| `community_copy` | directory | headline, bio | `card_column` |
+| `community_copy` | directory | título, apresentação | `card_column` |
 | `person` | core | gênero, cidades, idiomas (12 códigos + nível) | `person` |
 | `links` | core | linkedin, github, portfólio | `person` |
 | `availability` | directory + showcase | availability (`directory`); `public_showcase` (`showcase`) | `card_column` |
@@ -47,9 +47,9 @@ Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejei
 
 Hospitalidade (`host_at_home`) **não** é seed de plataforma. Só a comunidade `demo` ganha esse grupo no `db:seed`. Comunidade nova: núcleo + headline/bio/availability + grupo `custom` vazio. Ops cria extras por tenant.
 
-Ops reordena grupos e campos (`sort_order`); a lista do admin é a ordem do formulário de perfil. `locked` não congela ordem nem densidade: só impede apagar grupo seed e campo com `storage` ≠ `attributes`. Cria grupo novo e campo `attributes` em qualquer grupo (tipos do contrato). Edita label/opções/filtro dos extras **e o rótulo LocalizedText de qualquer grupo** (slug do grupo não muda). Move campo entre grupos do mesmo tenant. `span` (1–3) é largura no grid, na linha do campo — sem abrir editar, inclusive núcleo. Grupo da comunidade só some se estiver vazio. Comunidade nova recebe o seed de `scripts/seed-directory-catalog.cjs` mais o grupo `custom`.
+Ops reordena grupos e campos (`sort_order`); a lista do admin é a ordem do formulário de perfil. `locked` não congela ordem, densidade **nem `required`**: só impede apagar grupo seed e campo com `storage` ≠ `attributes`. A tela de campos é **lista + detalhe**: grupo no cartão (nome visível, ordem, `columns`, prévia da linha); campo na linha (rótulo, tipo humano, obrigatório/opcional, setas). **Criar grupo** fica no topo da página; **adicionar campo** só no rodapé do grupo (sem seletor de grupo na criação). Rótulos pt/en do grupo abrem em «renomear». Editar o campo guarda copy/opções/filtro dos extras; `required`, `span` e mudança de grupo ficam no mesmo painel (núcleo incluso). `span` só aparece se o grupo tem `columns` > 1, com opções 1…`columns`. Mover de grupo pede confirmação. Internos (`name`, `storage`) não são a linha principal. Grupo da comunidade só some se estiver vazio. Comunidade nova recebe o seed de `scripts/seed-directory-catalog.cjs` mais o grupo `custom`. Write do membro recusa campo `required` em branco (`boolean` preenchido conta mesmo `false`).
 
-`columns` no grupo (1–3) é **campos por linha no perfil** em tela larga — não coluna de banco. Ops altera em qualquer grupo, inclusive seed, com rótulos (“um embaixo do outro” / lado a lado). `span` no campo (1–3) ocupa o grid. Mobile: sempre empilha. Sem overflow horizontal. Lista fechada: `Select` shadcn (`SelectTrigger` / `SelectContent` / `SelectItem` em `@community/ui`). Combobox de busca continua `OpsCombobox`. Ordem na UI: setas com rótulo acessível. Sem pin de `identity` nesta versão.
+`columns` no grupo (1–3) é **campos por linha no perfil** em tela larga — não coluna de banco. Ops altera em qualquer grupo, inclusive seed, com rótulos (“um embaixo do outro” / lado a lado). `span` no campo (1–3) ocupa o grid. Mobile: sempre empilha. A prévia no ops é essa linha larga: rótulo, obrigatório/opcional e silhueta do controle. Grupo `identity` mostra foto ao lado do nome. Em viewport estreito a prévia rola no eixo x; a página não transborda. Lista fechada: `Select` shadcn (`SelectTrigger` / `SelectContent` / `SelectItem` em `@community/ui`). Combobox de busca continua `OpsCombobox`. Ordem na UI: setas com rótulo acessível. Sem pin de `identity` nesta versão.
 
 ## Tipos (templates)
 

@@ -1,9 +1,8 @@
 import { query } from '@community/db';
 import { composeMail, defaultCopy, type MailCopy } from './compose';
 import { isEmailKind, isEmailLocale, KIND_SLOT, KIND_VARIABLES, previewVarsFor, type EmailKind, type EmailLocale, type EmailSlot, type EmailVariable } from './tokens';
-import { getPlatformSettings, type PlatformSettings } from '@community/platform';
-import { sendSmtpMail } from '@community/auth';
-import { formatFromHeader } from '@community/platform';
+import { sendSmtpMail, formatReplyToHeader, isSmtpConfigured } from '@community/auth';
+import { formatFromHeader, getPlatformSettings, type PlatformSettings } from '@community/platform';
 
 export class MailValidationError extends Error {
   constructor() {
@@ -127,17 +126,18 @@ export async function sendKindEmail(input: {
   locale: EmailLocale;
   vars: Record<string, string>;
 }): Promise<void> {
-  const host = process.env.SMTP_HOST;
-  if (!host) {
+  if (!isSmtpConfigured()) {
     return;
   }
   const settings = await getPlatformSettings();
   const rendered = await renderEmail({ kind: input.kind, locale: input.locale, vars: input.vars, settings });
   await sendSmtpMail({
-    host,
-    port: Number(process.env.SMTP_PORT || '1026'),
     from: formatFromHeader(settings, process.env.EMAIL_FROM_ADDRESS),
     to: input.to,
+    replyTo:
+      input.kind === 'contact_notice'
+        ? formatReplyToHeader(input.vars.sender_name, input.vars.sender_email)
+        : undefined,
     subject: rendered.subject,
     text: rendered.text,
     html: rendered.html,

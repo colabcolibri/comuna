@@ -15,8 +15,8 @@ async function seedDirectoryCatalog(client, communityId) {
   const groups = [
     {
       slug: 'identity',
-      label: loc('Identidade', 'Identity'),
-      description: loc('Nome e foto.', 'Name and photo.'),
+      label: loc('Nome e foto', 'Name and photo'),
+      description: loc('', ''),
       sort: 10,
       columns: 1,
       fields: [
@@ -43,8 +43,8 @@ async function seedDirectoryCatalog(client, communityId) {
     },
     {
       slug: 'person',
-      label: loc('Pessoa', 'Person'),
-      description: loc('Demografia.', 'Demographics.'),
+      label: loc('Sobre você', 'About you'),
+      description: loc('', ''),
       sort: 30,
       columns: 2,
       fields: [
@@ -109,7 +109,7 @@ async function seedDirectoryCatalog(client, communityId) {
     {
       slug: 'links',
       label: loc('Links', 'Links'),
-      description: loc('Onde te encontrar.', 'Where to find you.'),
+      description: loc('', ''),
       sort: 35,
       columns: 1,
       fields: [
@@ -145,14 +145,14 @@ async function seedDirectoryCatalog(client, communityId) {
     {
       slug: 'community_copy',
       label: loc('Nesta comunidade', 'This community'),
-      description: loc('Headline e bio desta rede.', 'Headline and bio for this network.'),
+      description: loc('', ''),
       sort: 20,
       columns: 1,
       fields: [
         {
           name: 'headline',
           type: 'localized_text',
-          label: loc('Headline', 'Headline'),
+          label: loc('Título', 'Title'),
           span: 1,
           storage: 'card_column',
           column_key: 'headline',
@@ -162,7 +162,7 @@ async function seedDirectoryCatalog(client, communityId) {
         {
           name: 'bio',
           type: 'localized_text',
-          label: loc('Bio', 'Bio'),
+          label: loc('Apresentação', 'About'),
           span: 1,
           storage: 'card_column',
           column_key: 'bio',
@@ -174,7 +174,7 @@ async function seedDirectoryCatalog(client, communityId) {
     {
       slug: 'availability',
       label: loc('Disponibilidade', 'Availability'),
-      description: loc('Como você aparece no diretório.', 'How you appear in the directory.'),
+      description: loc('', ''),
       sort: 40,
       columns: 1,
       fields: [
@@ -231,7 +231,7 @@ async function seedDemoCatalogExtras(client, communityId) {
     {
       slug: 'hospitality',
       label: loc('Hospitalidade', 'Hospitality'),
-      description: loc('Pergunta só desta comunidade de demo.', 'Question only for this demo community.'),
+      description: loc('', ''),
       sort: 50,
       columns: 1,
       fields: [
@@ -239,7 +239,6 @@ async function seedDemoCatalogExtras(client, communityId) {
           name: 'host_at_home',
           type: 'boolean',
           label: loc('Topa receber pessoas na sua casa?', 'Would you host people at your home?'),
-          description: loc('Para encontros presenciais da rede.', 'For in-person meetups.'),
           span: 1,
           storage: 'attributes',
           filterable: true,

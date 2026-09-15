@@ -44,11 +44,13 @@ export function LanguagesField({
   locale,
   value,
   onChange,
+  status,
 }: {
   field: CatalogField;
   locale: string;
   value: unknown;
   onChange: (value: unknown) => void;
+  status?: string;
 }) {
   const label = pickLocalizedText(field.label, locale) || field.name;
   const description = pickLocalizedText(field.description, locale);
@@ -107,7 +109,10 @@ export function LanguagesField({
 
   return (
     <div className="space-y-2 min-w-0">
-      <Label>{label}</Label>
+      <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <Label>{label}</Label>
+        {status ? <span className="text-xs text-muted-foreground">{status}</span> : null}
+      </div>
       {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
 
       {selected.length === 0 ? (

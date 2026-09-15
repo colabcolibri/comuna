@@ -1,102 +1,61 @@
-import net from 'net';
+import nodemailer from 'nodemailer';
+import type { SmtpTransportConfig } from './smtp-config';
+import { loadSmtpTransportConfig } from './smtp-config';
 
-function smtpAddress(from: string): string {
-  const match = from.match(/<([^>]+)>/);
-  return match?.[1] || from;
-}
-
-function lastReply(buffer: string): { code: number; complete: boolean } | null {
-  const lines = buffer.split(/\r?\n/).filter((line) => line.length > 0);
-  if (!lines.length) {
-    return null;
-  }
-  const last = lines[lines.length - 1];
-  const match = last.match(/^(\d{3})([\s-])/);
-  if (!match) {
-    return null;
-  }
-  return { code: Number(match[1]), complete: match[2] === ' ' };
-}
-
-export async function sendSmtpMail(opts: {
-  host: string;
-  port: number;
+export type SmtpMessage = {
   from: string;
   to: string;
   subject: string;
   text: string;
   html?: string;
-}): Promise<void> {
-  const { host, port, from, to, subject, text, html } = opts;
-  const boundary = `b${Date.now()}`;
-  const mime = html
-    ? [
-        `MIME-Version: 1.0`,
-        `Content-Type: multipart/alternative; boundary="${boundary}"`,
-        ``,
-        `--${boundary}`,
-        `Content-Type: text/plain; charset=utf-8`,
-        ``,
-        text,
-        `--${boundary}`,
-        `Content-Type: text/html; charset=utf-8`,
-        ``,
-        html,
-        `--${boundary}--`,
-      ].join('\r\n')
-    : [`Content-Type: text/plain; charset=utf-8`, ``, text].join('\r\n');
-  await new Promise<void>((resolve, reject) => {
-    const socket = net.connect({ host, port });
-    let buffer = '';
-    let step = 0;
-    const payload = [`Subject: ${subject}`, `From: ${from}`, `To: ${to}`, ``, mime, `.`].join('\r\n');
-    const outbound = [
-      'EHLO community.local',
-      `MAIL FROM:<${smtpAddress(from)}>`,
-      `RCPT TO:<${to}>`,
-      'DATA',
-      payload,
-      'QUIT',
-    ];
+  replyTo?: string;
+};
 
-    const fail = (err: Error) => {
-      socket.destroy();
-      reject(err);
-    };
-
-    const timer = setTimeout(() => fail(new Error('SMTP timeout')), 8000);
-
-    const writeNext = () => {
-      if (step >= outbound.length) {
-        return;
-      }
-      socket.write(`${outbound[step++]}\r\n`);
-    };
-
-    socket.on('error', (err) => {
-      clearTimeout(timer);
-      reject(err);
-    });
-
-    socket.on('data', (chunk) => {
-      buffer += chunk.toString();
-      const reply = lastReply(buffer);
-      if (!reply?.complete) {
-        return;
-      }
-      buffer = '';
-      if (reply.code >= 400) {
-        clearTimeout(timer);
-        fail(new Error(`SMTP ${reply.code}`));
-        return;
-      }
-      if (reply.code === 221 || step >= outbound.length) {
-        clearTimeout(timer);
-        socket.end();
-        resolve();
-        return;
-      }
-      writeNext();
-    });
-  });
+function nodemailerOptions(config: SmtpTransportConfig) {
+  const auth = config.user ? { user: config.user, pass: config.pass } : undefined;
+  if (config.secure === 'tls') {
+    return { host: config.host, port: config.port, secure: true, auth };
+  }
+  if (config.secure === 'starttls') {
+    return { host: config.host, port: config.port, secure: false, requireTLS: true, auth };
+  }
+  return { host: config.host, port: config.port, secure: false, ignoreTLS: true, auth };
 }
+
+export async function sendSmtpMail(
+  message: SmtpMessage,
+  config: SmtpTransportConfig | null = loadSmtpTransportConfig()
+): Promise<void> {
+  if (!config) {
+    throw new Error('SMTP_NOT_CONFIGURED');
+  }
+  const transport = nodemailer.createTransport({
+    ...nodemailerOptions(config),
+    connectionTimeout: 8000,
+    greetingTimeout: 8000,
+    socketTimeout: 8000,
+  });
+  try {
+    await transport.sendMail({
+      from: message.from,
+      to: message.to,
+      subject: message.subject,
+      text: message.text,
+      html: message.html,
+      replyTo: message.replyTo,
+    });
+  } finally {
+    transport.close();
+  }
+}
+
+export { formatReplyToHeader } from './smtp-headers';
+export {
+  describeSmtpTransport,
+  isSmtpConfigured,
+  loadSmtpTransportConfig,
+  resolveSmtpSecure,
+  type SmtpSecure,
+  type SmtpTransportConfig,
+  type SmtpTransportView,
+} from './smtp-config';

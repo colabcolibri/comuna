@@ -27,6 +27,10 @@ export default defineConfig({
       { find: '@community/mail', replacement: path.resolve(__dirname, './packages/core/mail/src/index.ts') },
       { find: '@community/identity', replacement: path.resolve(__dirname, './packages/core/identity/src/index.ts') },
       { find: '@community/places', replacement: path.resolve(__dirname, './packages/core/places/src/index.ts') },
+      {
+        find: '@community/communities/types',
+        replacement: path.resolve(__dirname, './packages/core/communities/src/types.ts'),
+      },
       { find: '@community/communities', replacement: path.resolve(__dirname, './packages/core/communities/src/index.ts') },
       { find: '@community/memberships', replacement: path.resolve(__dirname, './packages/core/memberships/src/index.ts') },
       { find: '@community/module-runtime', replacement: path.resolve(__dirname, './packages/core/module-runtime/src/index.ts') },

@@ -24,6 +24,7 @@ export type OpsCatalogField = {
   locked: boolean;
   filterable: boolean;
   span: 1 | 2 | 3;
+  required: boolean;
   options: OpsChoiceOption[];
   optionsText: string;
   label: LocalizedText;
@@ -127,6 +128,7 @@ function asOpsField(row: {
   storage: string;
   filterable: boolean;
   span: number;
+  required: boolean;
   options: unknown;
   label: unknown;
 }): OpsCatalogField {
@@ -138,6 +140,7 @@ function asOpsField(row: {
     locked: isFieldLocked(row.storage),
     filterable: row.filterable,
     span: parseCatalogSpan(row.span, 1),
+    required: Boolean(row.required),
     options: storedOptionsToOps(row.options),
     optionsText: optionsToText(row.options),
     label: parseLocalized(row.label),
@@ -156,6 +159,7 @@ export async function createAttributeField(
     optionsText?: string;
     filterable?: boolean;
     span?: number;
+    required?: boolean;
   }
 ): Promise<OpsCatalogField> {
   if (!input.groupId) {
@@ -205,6 +209,7 @@ export async function createAttributeField(
     storage: string;
     filterable: boolean;
     span: number;
+    required: boolean;
     options: unknown;
     label: unknown;
   }>(
@@ -212,12 +217,12 @@ export async function createAttributeField(
        group_id, name, type, label, description, options, span, required, sort_order,
        storage, column_key, filterable, module_id
      ) VALUES (
-       $1, $2, $3, $4::jsonb, '[]'::jsonb, $5::jsonb, $7, false,
+       $1, $2, $3, $4::jsonb, '[]'::jsonb, $5::jsonb, $7, $8,
        (SELECT coalesce(max(sort_order), 0) + 10 FROM plugin_directory.fields WHERE group_id = $1),
        'attributes', null, $6,
        (SELECT id FROM plugin_core.modules WHERE slug = 'directory')
      )
-     RETURNING id, name, type, storage, filterable, span, options, label`,
+     RETURNING id, name, type, storage, filterable, span, required, options, label`,
     [
       input.groupId,
       name,
@@ -226,6 +231,7 @@ export async function createAttributeField(
       JSON.stringify(options),
       filterable,
       span,
+      Boolean(input.required),
     ]
   );
   return asOpsField(inserted.rows[0]);
@@ -248,6 +254,27 @@ export async function updateCatalogFieldSpan(
     throw new CatalogWriteError('NOT_FOUND');
   }
   await query(`UPDATE plugin_directory.fields SET span = $2 WHERE id = $1`, [fieldId, next]);
+}
+
+export async function updateCatalogFieldRequired(
+  communityId: string,
+  fieldId: string,
+  required: unknown
+): Promise<void> {
+  if (typeof required !== 'boolean') {
+    throw new CatalogWriteError('VALIDATION_ERROR');
+  }
+  const found = await query<{ id: string }>(
+    `SELECT f.id
+     FROM plugin_directory.fields f
+     JOIN plugin_directory.field_groups g ON g.id = f.group_id
+     WHERE f.id = $1 AND g.community_id = $2`,
+    [fieldId, communityId]
+  );
+  if (!found.rows[0]) {
+    throw new CatalogWriteError('NOT_FOUND');
+  }
+  await query(`UPDATE plugin_directory.fields SET required = $2 WHERE id = $1`, [fieldId, required]);
 }
 
 export async function updateOpsField(

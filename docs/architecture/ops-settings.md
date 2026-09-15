@@ -21,7 +21,7 @@ Uma row singleton `ops_core.platform_settings`. Ops vê no rail global (junto de
 | `support_url` | Rodapé de e-mail e copy de ajuda |
 | `logo_url` | Envelope (http/https ou path da app); vazio = só texto |
 
-Sem MFA, sem SMTP host na UI (continua env), sem apagar a instalação.
+Sem MFA, sem apagar a instalação. SMTP **não** é formulário: senha e host ficam no env. A tela de plataforma mostra só status (host/porta/TLS/AUTH sim|não), via `describeSmtpTransport()`.
 
 ## Community (`/communities/:id/settings`)
 

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AppPageTemplate, AppProfileSection, AppProfileStack, FieldGrid, fieldSpanClass } from '@community/ui-member';
 import { Button, Skeleton, toast } from '@community/ui';
 import { contentFromCatalog, pickContent, pickLocalizedText } from '@community/identity';
-import { coreCatalog, type CatalogField, type CatalogGroup } from '@community/directory';
+import { coreCatalog, missingRequiredFields, type CatalogField, type CatalogGroup } from '@community/directory';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { FieldControl } from '@/components/app/FieldControl';
 import { uiCatalog } from '@/lang/catalog';
@@ -33,6 +33,7 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
       save: 'profile.save',
       saved: 'profile.saved',
       error: 'profile.error',
+      requiredMissing: 'profile.required_missing',
       pairPt: 'profile.pair_pt',
       pairEn: 'profile.pair_en',
     }),
@@ -82,6 +83,10 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (missingRequiredFields(fields, values).length) {
+      toast.error(copy.requiredMissing);
+      return;
+    }
     setSaving(true);
     if (scope === 'person') {
       const profileRes = await fetch('/api/profiles/me', {
@@ -134,7 +139,7 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
     <AppPageTemplate
       kicker={copy.kicker}
       title={copy.title}
-      subtitle={copy.subtitle}
+      subtitle={copy.subtitle || undefined}
       stickyHeader
       actions={saveControl('min-h-11')}
     >
@@ -143,14 +148,9 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
           <AppProfileStack>
             {groups.map((group) => {
               const title = pickLocalizedText(group.label, locale) || group.slug;
-              const description = pickLocalizedText(group.description, locale);
               const identity = group.slug === 'identity' ? splitIdentity(group.fields) : null;
               return (
-                <AppProfileSection
-                  key={group.slug}
-                  title={title}
-                  description={group.slug === 'identity' ? undefined : description || undefined}
-                >
+                <AppProfileSection key={group.slug} title={title}>
                   {identity && identity.photos.length ? (
                     <div className="flex min-w-0 flex-col gap-6 rounded-xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:p-6">
                       {identity.photos.map((field) => (

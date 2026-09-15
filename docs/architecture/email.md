@@ -53,7 +53,15 @@ Preview no admin: o mesmo `composeMail` (`@community/mail/compose`) com o copy d
 
 ## Transporte
 
-`sendSmtpMail` em `@community/auth` aceita `html` + `text`, `From: "Nome" <addr>`. Host/porta env (`SMTP_*`). From: plataforma (`from_address`) com fallback `EMAIL_FROM_ADDRESS`. Sem SMTP: não inventar sucesso se o produto exige envio; local com Mailpit.
+Um cliente SMTP (`nodemailer` em `@community/auth`), não um handshake TCP feito à mão. SRP: `smtp-config.ts` lê env; `smtp-headers.ts` monta Reply-To; `smtp.ts` envia.
+
+Baseline local: Mailpit (`SMTP_HOST=localhost`, `SMTP_PORT=1026`, sem AUTH, `SMTP_SECURE=none` — default da porta 1026). UI: `http://localhost:8026`.
+
+Produção / staging: o mesmo transporte, com `SMTP_USER` / `SMTP_PASS` e TLS. Heurística se `SMTP_SECURE` omisso: 465 → `tls`, 587 → `starttls`, resto → `none`. Override explícito: `none` | `starttls` | `tls`.
+
+`sendKindEmail` é o único gate: sem `SMTP_HOST` não envia (rotas não rechecam env). Com host, AUTH/TLS vêm da config. From: plataforma (`from_address`) com fallback `EMAIL_FROM_ADDRESS`. `contact_notice` preenche Reply-To com o visitante; MAIL FROM continua da plataforma.
+
+Segredo (`SMTP_PASS`) só em env. `GET /api/admin/platform` devolve `smtp` só com host, porta, modo TLS e se há usuário — nunca senha. Admin não grava SMTP em `platform_settings`.
 
 ## Fora deste contrato
 

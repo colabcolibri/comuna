@@ -16,14 +16,14 @@ apps/
   admin/               # Next — super_admin
 packages/
   core/
-    auth/
+    auth/              # OTP, sessão, SMTP (nodemailer; config + send)
     db/
     identity/          # perfil-base + pickContent
     places/            # GeoPlace + CityDirectory (não é plugin)
     files/             # ObjectStore (avatar)
-    mail/              # envelope + kinds + overlay
+    mail/              # envelope + kinds + overlay; `./compose` no browser
     platform/          # singleton ops_core.platform_settings
-    communities/
+    communities/       # barrel Node; `./types` no browser
     memberships/
     module-runtime/
   modules/

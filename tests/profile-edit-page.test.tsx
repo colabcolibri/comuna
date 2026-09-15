@@ -20,8 +20,8 @@ const catalogGroups = [
         name: 'headline',
         type: 'localized_text',
         label: [
-          { locale: 'pt-BR', value: 'Headline' },
-          { locale: 'en', value: 'Headline' },
+          { locale: 'pt-BR', value: 'Título' },
+          { locale: 'en', value: 'Title' },
         ],
         description: [],
         options: [],
@@ -92,8 +92,10 @@ describe('profile forms', () => {
     await waitFor(() => {
       expect(screen.getByLabelText('Nome completo')).toBeTruthy();
     });
-    expect(screen.getByRole('heading', { name: 'Identidade' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Nome e foto' })).toBeTruthy();
     expect(screen.getByLabelText('Foto')).toBeTruthy();
+    expect(screen.getByText('Obrigatório')).toBeTruthy();
+    expect(screen.getAllByText('Opcional').length).toBeGreaterThan(0);
     expect(screen.getByText('Português')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Remover Português' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Adicionar novo idioma' })).toBeTruthy();
@@ -108,7 +110,7 @@ describe('profile forms', () => {
       </LocaleProvider>
     );
     await waitFor(() => {
-      expect(screen.getByLabelText('Headline (pt-BR)')).toBeTruthy();
+      expect(screen.getByLabelText('Título (pt-BR)')).toBeTruthy();
     });
     expect(screen.queryByLabelText('Nome completo')).toBeNull();
   });

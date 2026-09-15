@@ -6,7 +6,7 @@ vi.mock('@community/db', () => ({
 
 import { query } from '@community/db';
 import { CatalogWriteError, movedSequence, parseCatalogColumns } from './ops-catalog-shared';
-import { createAttributeField, deleteAttributeField, updateCatalogFieldSpan, normalizeOpsChoiceOptions } from './ops-catalog-fields';
+import { createAttributeField, deleteAttributeField, updateCatalogFieldRequired, updateCatalogFieldSpan, normalizeOpsChoiceOptions } from './ops-catalog-fields';
 import { listOpsCatalog } from './ops-catalog';
 import { deleteCatalogGroup, updateCatalogGroupColumns } from './ops-catalog-groups';
 import { moveCatalogFieldToGroup } from './ops-catalog-order';
@@ -160,6 +160,13 @@ describe('ops catalog', () => {
     mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
     await updateCatalogFieldSpan('c1', 'f1', 2);
     expect(String(mockedQuery.mock.calls[1]?.[0])).toContain('SET span');
+  });
+
+  it('updates required on a locked field', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'f1' }] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    await updateCatalogFieldRequired('c1', 'f1', true);
+    expect(String(mockedQuery.mock.calls[1]?.[0])).toContain('SET required');
   });
 
   it('moves a field to another group in the same community', async () => {

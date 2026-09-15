@@ -1,34 +1,16 @@
 import { query } from '@community/db';
+import { isCommunityType, parseCommunitySettings, type CommunityRow } from './types';
 
-export const COMMUNITY_TYPES = ['alumni', 'practice_community', 'incubator', 'mentor_network'] as const;
-export type CommunityType = (typeof COMMUNITY_TYPES)[number];
-
-export type CommunitySettings = {
-  description: string;
-  default_locale: 'pt-BR' | 'en';
-};
-
-export type CommunityRow = {
-  id: string;
-  slug: string;
-  name: string;
-  type: string;
-  is_public_showcase: boolean;
-  settings: CommunitySettings;
-};
+export {
+  COMMUNITY_TYPES,
+  isCommunityType,
+  parseCommunitySettings,
+  type CommunityRow,
+  type CommunitySettings,
+  type CommunityType,
+} from './types';
 
 const COMMUNITY_COLUMNS = 'id, slug, name, type, is_public_showcase, settings';
-
-export function isCommunityType(value: string): value is CommunityType {
-  return (COMMUNITY_TYPES as readonly string[]).includes(value);
-}
-
-export function parseCommunitySettings(raw: unknown): CommunitySettings {
-  const source = raw && typeof raw === 'object' && !Array.isArray(raw) ? (raw as Record<string, unknown>) : {};
-  const description = String(source.description ?? '').trim().slice(0, 500);
-  const default_locale = source.default_locale === 'en' ? 'en' : 'pt-BR';
-  return { description, default_locale };
-}
 
 export class CommunityNotFoundError extends Error {
   constructor() {

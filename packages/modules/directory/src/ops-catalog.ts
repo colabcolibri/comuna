@@ -24,11 +24,12 @@ export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGro
     storage: string | null;
     filterable: boolean | null;
     span: number | null;
+    required: boolean | null;
     options: unknown;
     label: unknown;
   }>(
     `SELECT g.id AS group_id, g.slug AS group_slug, g.label AS group_label, g.columns AS group_columns,
-            f.id AS field_id, f.name, f.type, f.storage, f.filterable, f.span, f.options, f.label
+            f.id AS field_id, f.name, f.type, f.storage, f.filterable, f.span, f.required, f.options, f.label
      FROM plugin_directory.field_groups g
      LEFT JOIN plugin_directory.fields f ON f.group_id = g.id
      WHERE g.community_id = $1
@@ -60,6 +61,7 @@ export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGro
       locked: isFieldLocked(row.storage),
       filterable: Boolean(row.filterable),
       span: parseCatalogSpan(row.span, 1),
+      required: Boolean(row.required),
       options: storedOptionsToOps(row.options),
       optionsText: optionsToText(row.options),
       label: parseLocalized(row.label),
@@ -83,7 +85,7 @@ export async function ensureCustomGroup(communityId: string): Promise<string> {
     [
       communityId,
       JSON.stringify(localizedPair('Campos da comunidade', 'Community fields')),
-      JSON.stringify(localizedPair('Perguntas extras desta rede.', 'Extra questions for this network.')),
+      JSON.stringify([]),
     ]
   );
   return inserted.rows[0].id;

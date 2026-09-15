@@ -47,6 +47,9 @@
       "@community/communities": [
         "../../packages/core/communities/src/index.ts"
       ],
+      "@community/communities/types": [
+        "../../packages/core/communities/src/types.ts"
+      ],
       "@community/places": [
         "../../packages/core/places/src/index.ts"
       ],

@@ -67,19 +67,16 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
   if (!to) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Perfil não encontrado' } }, { status: 404 });
   }
-  const host = process.env.SMTP_HOST;
-  if (host) {
-    await sendKindEmail({
-      kind: 'contact_notice',
-      to,
-      locale: 'pt-BR',
-      vars: {
-        community_name: '',
-        sender_name: senderName,
-        sender_email: senderEmail,
-        message,
-      },
-    });
-  }
+  await sendKindEmail({
+    kind: 'contact_notice',
+    to,
+    locale: 'pt-BR',
+    vars: {
+      community_name: '',
+      sender_name: senderName,
+      sender_email: senderEmail,
+      message,
+    },
+  });
   return NextResponse.json({ message: 'Mensagem enviada com sucesso' });
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { describeSmtpTransport } from '@community/auth';
 import { getPlatformSettings, PlatformValidationError, updatePlatformSettings } from '@community/platform';
 import { jsonError } from '@/lib/http';
 import { isOpsClaims, requireOps } from '@/lib/require-ops';
@@ -9,7 +10,7 @@ export async function GET(req: NextRequest) {
     return ops;
   }
   const settings = await getPlatformSettings();
-  return NextResponse.json(settings);
+  return NextResponse.json({ ...settings, smtp: describeSmtpTransport() });
 }
 
 export async function PUT(req: NextRequest) {
