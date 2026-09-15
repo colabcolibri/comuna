@@ -74,7 +74,7 @@ Não existe `AppProfileCard` ainda. US de design cria compostos a partir do Stit
 
 ## Screen flows
 
-Navegação nomeada: **sidebar shadcn** no desktop (`collapsible=icon`; fechada = rail de ícones). **Sheet** só abaixo de 768px. Header: trigger + Vitrine + locale + tema. Conteúdo: `max-w-6xl`. **Sair** abre `AppAlertDialog` (não logout imediato).
+Navegação nomeada: **sidebar shadcn** no desktop (`collapsible=icon`; fechada = rail de ícones). **Sheet** só abaixo de 768px. Header: logo + Vitrine + locale + tema (`max-w-6xl`). Trigger de menu: primeiro item da sidebar no desktop; no header só abaixo de 768px. **Sair** abre `AppAlertDialog`.
 
 Jobs: ver vitrine, pedir contato, entrar com código, buscar pessoas, editar o próprio perfil, coordenar entrada. Super-admin (`/ops`, app admin) fica **fora** deste chrome.
 
@@ -104,7 +104,7 @@ flowchart LR
 
 ```mermaid
 flowchart TB
-    H[Header: menu / Vitrine / locale / tema]
+    H[Header: logo / Vitrine / locale / tema]
     H -->|abre| SH[Sheet esquerda]
     SH --> N[Nav: Entrar ou Diretório / Meu perfil / Pedidos]
     SH --> PF[Dock perfil no rodapé do sheet]
@@ -116,7 +116,7 @@ flowchart TB
 | ---------- | ----- | -------- |
 | Mobile | `< 640px` | Uma coluna; header só Vitrine + locale + tema + menu; sheet 100% largura; hit 44px; sem overflow-x |
 | Tablet | `640–1024px` | Lista de pessoas em uma coluna; filtros em sheet próprio |
-| Desktop | `> 768px` | Sidebar; colapsada só o logo; páginas `max-w-6xl` |
+| Desktop | `> 768px` | Sidebar; colapsada = rail de ícones; páginas `max-w-6xl` |
 
 ## Accessibility baseline
 

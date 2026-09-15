@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ClipboardList, LayoutGrid, LogIn, LogOut, UserRound, Users } from 'lucide-react';
+import { ClipboardList, LayoutGrid, LogIn, LogOut, PanelLeft, UserRound, Users } from 'lucide-react';
 import { pickContent } from '@community/identity';
 import {
   Sidebar,
@@ -23,8 +23,8 @@ import { useLocale } from '@/components/app/LocaleProvider';
 
 const CONTENT = {
   'pt-BR': {
-    brand: 'Alumni',
     showcase: 'Vitrine',
+    toggle: 'Abrir ou fechar menu',
     signin: 'Entrar',
     directory: 'Diretório',
     profile: 'Meu perfil',
@@ -35,8 +35,8 @@ const CONTENT = {
     cancel: 'Cancelar',
   },
   en: {
-    brand: 'Alumni',
     showcase: 'Showcase',
+    toggle: 'Toggle menu',
     signin: 'Sign in',
     directory: 'Directory',
     profile: 'My profile',
@@ -64,11 +64,9 @@ export function AppSidebar({ email }: { email: string | null }) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" tooltip={copy.brand} onClick={toggleSidebar}>
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                A
-              </div>
-              <span>{copy.brand}</span>
+            <SidebarMenuButton tooltip={copy.toggle} onClick={toggleSidebar}>
+              <PanelLeft />
+              <span>{copy.toggle}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -99,6 +99,21 @@ importers:
 
   apps/web:
     dependencies:
+      '@community/auth':
+        specifier: workspace:*
+        version: link:../../packages/core/auth
+      '@community/db':
+        specifier: workspace:*
+        version: link:../../packages/core/db
+      '@community/identity':
+        specifier: workspace:*
+        version: link:../../packages/core/identity
+      '@community/module-runtime':
+        specifier: workspace:*
+        version: link:../../packages/core/module-runtime
+      '@community/places':
+        specifier: workspace:*
+        version: link:../../packages/core/places
       '@community/ui':
         specifier: workspace:*
         version: link:../../packages/ui/primitives
@@ -128,9 +143,11 @@ importers:
 
   packages/core/db: {}
 
-  packages/core/identity: {}
-
-  packages/core/locale: {}
+  packages/core/identity:
+    dependencies:
+      '@community/places':
+        specifier: workspace:*
+        version: link:../places
 
   packages/core/memberships: {}
 

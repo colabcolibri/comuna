@@ -12,10 +12,12 @@ import Link from 'next/link';
 
 const CONTENT = {
   'pt-BR': {
+    brand: 'Alumni',
     showcase: 'Vitrine',
     toggle: 'Abrir ou fechar menu',
   },
   en: {
+    brand: 'Alumni',
     showcase: 'Showcase',
     toggle: 'Toggle menu',
   },
@@ -41,8 +43,18 @@ export function MemberShell({
     <SidebarProvider className="min-h-svh">
       <AppSidebar email={sessionEmail} />
       <SidebarInset className="min-h-svh">
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-2 border-b border-border bg-card px-4 sm:px-6">
-          <SidebarTrigger className="size-11" aria-label={copy.toggle} />
+        <header className="sticky top-0 z-20 border-b border-border bg-card">
+          <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:px-6">
+          <SidebarTrigger className="size-11 shrink-0 md:hidden" aria-label={copy.toggle} />
+          <Link
+            href="/showcase"
+            className="flex min-h-11 min-w-0 items-center gap-2 px-1 text-foreground hover:text-foreground"
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground">
+              A
+            </span>
+            <span className="truncate font-semibold tracking-tight">{copy.brand}</span>
+          </Link>
           <Link
             href="/showcase"
             className={`inline-flex items-center min-h-11 px-2 text-base ${
@@ -54,6 +66,7 @@ export function MemberShell({
           <div className="ml-auto flex items-center gap-1">
             <LocaleSwitcher />
             <ThemeToggle />
+          </div>
           </div>
         </header>
         {children}

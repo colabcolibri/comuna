@@ -52,6 +52,12 @@ describe('monorepo workspaces', () => {
     }
   });
 
+  it('does not keep a locale workspace package', () => {
+    const yaml = fs.readFileSync(path.join(ROOT, 'pnpm-lock.yaml'), 'utf8');
+    expect(yaml).not.toMatch(/packages\/core\/locale/);
+    expect(fs.existsSync(path.join(ROOT, 'packages/core/locale'))).toBe(false);
+  });
+
   it('keeps the Next proxy off the Node-only auth barrel', () => {
     const source = fs.readFileSync(path.join(ROOT, 'apps/web/src/proxy.ts'), 'utf8');
     expect(source).not.toMatch(/from ['"]@community\/auth['"]/);

@@ -1,7 +1,7 @@
 ---
 title: Database Design
 status: review
-version: 2.3
+version: 2.4
 updated: 2026-09-15
 depends_on: [05_architecture.md]
 blocks: [07_api_contracts.md]
