@@ -59,7 +59,7 @@ Ops reordena grupos e campos (`sort_order`); a lista do admin é a ordem do form
 
 Renderer: um `FieldControl` por tipo em UI compartilhada (`@community/ui` + compostos member). A página de perfil só mapeia binding → estado. Não duplicar `<select>` de availability fora do template `select`. Ops lança as opções em linhas (`options[]`); o textarea `valor|pt|en` não é a UI.
 
-`languages` (núcleo, `storage: person`): tipo `checkbox` com 12 códigos (`pt`, `en`, `es`, `fr`, `de`, `it`, `nl`, `zh`, `ja`, `ko`, `ru`, `ar`). O valor persistido é `[{ code, proficiency }]`. Níveis: `basic`, `intermediate`, `fluent`, `native`. No perfil: lista do que a pessoa já pôs + formulário para inserir (idioma e nível). Editar e remover na linha. Sem grade de 12 checkboxes. Lista canónica em `@community/identity`.
+`languages` (núcleo, `storage: person`): tipo `checkbox` com 12 códigos (`pt`, `en`, `es`, `fr`, `de`, `it`, `nl`, `zh`, `ja`, `ko`, `ru`, `ar`). O valor persistido é `[{ code, proficiency }]`. Níveis: `basic`, `intermediate`, `advanced`, `fluent`, `native`. No perfil: lista do preenchido (borda de campo) + CTA **Adicionar novo idioma** abre `AppDialog` (`sm`) com idioma e nível empilhados como os outros `FieldControl`. O select do diálogo só lista códigos que ainda não estão no perfil. Editar reabre o mesmo diálogo; remover na linha. Lista canónica em `@community/identity`.
 
 ## Plugins default on
 

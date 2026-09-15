@@ -96,9 +96,9 @@ describe('profile forms', () => {
     expect(screen.getByLabelText('Foto')).toBeTruthy();
     expect(screen.getByText('Português')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Remover Português' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Adicionar' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Adicionar novo idioma' })).toBeTruthy();
     expect(screen.queryByRole('checkbox', { name: 'Português' })).toBeNull();
-    expect(screen.queryByLabelText('Headline (pt-BR)')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Salvar' }).closest('.sticky')).toBeTruthy();
   });
 
   it('shows only community fields on the tenant profile', async () => {

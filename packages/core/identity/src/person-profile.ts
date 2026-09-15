@@ -1,7 +1,7 @@
 export const GENDERS = ['woman', 'man', 'non_binary', 'prefer_not'] as const;
 export type Gender = (typeof GENDERS)[number];
 
-export const PROFICIENCIES = ['basic', 'intermediate', 'fluent', 'native'] as const;
+export const PROFICIENCIES = ['basic', 'intermediate', 'advanced', 'fluent', 'native'] as const;
 export type Proficiency = (typeof PROFICIENCIES)[number];
 
 export type SpokenLanguage = {

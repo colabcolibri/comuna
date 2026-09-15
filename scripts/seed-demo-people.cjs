@@ -102,7 +102,7 @@ const NAMED = [
     languages: [
       { code: 'pt', proficiency: 'native' },
       { code: 'en', proficiency: 'fluent' },
-      { code: 'es', proficiency: 'conversational' },
+      { code: 'es', proficiency: 'advanced' },
     ],
     contacts: { linkedin: 'https://linkedin.com/in/demo-sofia' },
     headline: loc('Investigação e política pública', 'Research and public policy'),

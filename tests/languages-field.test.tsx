@@ -29,14 +29,28 @@ describe('languages field', () => {
     expect(screen.getByText('Nenhum idioma ainda.')).toBeTruthy();
   });
 
-  it('loads a row into the insert form for edit', () => {
+  it('opens the add dialog with languages not already on the profile', () => {
+    render(
+      <LocaleProvider initialLocale="pt-BR">
+        <Harness />
+      </LocaleProvider>
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Adicionar novo idioma' }));
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Adicionar idioma' })).toBeTruthy();
+    fireEvent.click(screen.getByLabelText('Idioma'));
+    expect(screen.queryByRole('option', { name: 'Português' })).toBeNull();
+    expect(screen.getByRole('option', { name: 'Italiano' })).toBeTruthy();
+  });
+
+  it('opens the same dialog to edit a row', () => {
     render(
       <LocaleProvider initialLocale="pt-BR">
         <Harness />
       </LocaleProvider>
     );
     fireEvent.click(screen.getByRole('button', { name: 'Editar Português' }));
+    expect(screen.getByRole('heading', { name: 'Editar idioma' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Atualizar' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeTruthy();
   });
 });
