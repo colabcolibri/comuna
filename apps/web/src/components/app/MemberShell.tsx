@@ -33,10 +33,6 @@ export function MemberShell({
   const enabled = useEnabledModules();
   const headerNav = visibleChrome(enabled, 'header', Boolean(sessionEmail));
 
-  if (pathname.startsWith('/ops')) {
-    return <>{children}</>;
-  }
-
   return (
     <SidebarProvider className="h-svh max-h-svh overflow-hidden">
       <AppSidebar email={sessionEmail} />

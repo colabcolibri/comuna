@@ -21,7 +21,9 @@ blocks: []
 | `SMTP_PORT` | SMTP | Sim local | `1025` | Local |
 | `EMAIL_FROM_ADDRESS` | From OTP | Sim | `auth@alumni.org` | All |
 | `NEXT_PUBLIC_APP_URL` | URL membro | Sim | `http://localhost:3014` | All |
-| `OPS_BASE_PATH` | Path ops se mesmo origin | Não | `/ops` | Local |
+| `MEDIA_ROOT` | Pasta local do ObjectStore | Não (default `storage`) | `storage` | Local |
+| `MEDIA_DRIVER` | `local` ou `s3` | Não (default `local`) | `local` | All |
+| `OPS_BASE_PATH` | Path ops se mesmo origin | Não | _(removido; ops é `apps/admin`)_ | — |
 | `ALLOW_DEV_OTP` | Se `true`, loga OTP no server **nunca** no JSON de prod | Não | `true` só local | Local |
 
 Busca de cidade: `GET /api/places/cities` chama Nominatim (OpenStreetMap). Sem chave. User-Agent próprio. Mínimo 1 req/s.
@@ -48,7 +50,7 @@ docker compose up -d
 ### Apps (web + admin)
 
 - `apps/web` é o Next de membros (`apps/web/src`). Não há `src/` na raiz.
-- `apps/admin` é um Next mínimo na porta 3015, sem AppNavbar Stitch.
+- `apps/admin` é o Next de ops na porta 3015, sem AppNavbar Stitch. Sessão: cookie `ops_token`.
 
 `pnpm db:migrate` aplica SQL datado em `db/migrations/`. `pnpm db:migrate:status` lista arquivos applied versus pending. Sem Prisma, Drizzle ou Supabase.
 
@@ -74,7 +76,7 @@ psql postgresql://postgres:postgres@localhost:5433/alumni_db
 Cookie de sessão membro: `Secure` só quando `NODE_ENV=production`. Local HTTP usa `Secure=false` de propósito.
 
 - Web (membros): `http://localhost:3014`
-- Admin stub: `http://localhost:3015` (`apps/admin`) — sem Stitch. Ops real nesta release: `http://localhost:3014/ops` com cookie de `super_admin` (seed: `INITIAL_SUPER_ADMIN_EMAIL`, default `admin@example.com`).
+- Admin: `http://localhost:3015` (`apps/admin`) — login OTP + comunidades + módulos + coordenador. Cookie `ops_token`. Seed: `INITIAL_SUPER_ADMIN_EMAIL` (default `admin@example.com`).
 - **Não** usar reset de banco.
 
 ## Seed do super-admin

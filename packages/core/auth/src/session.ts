@@ -2,6 +2,8 @@ import { SignJWT, jwtVerify } from 'jose';
 import { loadRootEnv } from '../../db/src/load-root-env';
 
 const COOKIE = 'auth_token';
+const OPS = 'ops_token';
+export const OPS_AUDIENCE = 'ops';
 
 function secret() {
   loadRootEnv();
@@ -35,4 +37,23 @@ export async function verifyMemberToken(token: string): Promise<MemberClaims> {
   };
 }
 
+export async function signOpsToken(claims: MemberClaims): Promise<string> {
+  return new SignJWT(claims)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setAudience(OPS_AUDIENCE)
+    .setIssuedAt()
+    .setExpirationTime('7d')
+    .sign(secret());
+}
+
+export async function verifyOpsToken(token: string): Promise<MemberClaims> {
+  const { payload } = await jwtVerify(token, secret(), { audience: OPS_AUDIENCE });
+  return {
+    sub: String(payload.sub),
+    email: String(payload.email),
+    global_role: String(payload.global_role),
+  };
+}
+
 export const AUTH_COOKIE = COOKIE;
+export const OPS_COOKIE = OPS;

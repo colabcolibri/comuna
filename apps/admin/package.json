@@ -3,10 +3,22 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3015"
+    "dev": "next dev -p 3015 --turbo",
+    "build": "next build",
+    "start": "next start -p 3015"
   },
   "dependencies": {
+    "@community/auth": "workspace:*",
+    "@community/communities": "workspace:*",
+    "@community/contact-mediated": "workspace:*",
+    "@community/db": "workspace:*",
+    "@community/directory": "workspace:*",
+    "@community/identity": "workspace:*",
+    "@community/memberships": "workspace:*",
+    "@community/module-runtime": "workspace:*",
+    "@community/showcase": "workspace:*",
     "@community/ui": "workspace:*",
+    "@community/ui-admin": "workspace:*",
     "next": "^16.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

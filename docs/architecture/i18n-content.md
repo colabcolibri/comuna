@@ -66,7 +66,7 @@ Ainda fora:
 
 | Superfície | Estado |
 | ---------- | ------ |
-| `apps/admin` | stub com literal |
+| `apps/admin` | login OTP, comunidades, módulos, coordenador (`CONTENT` + pack `core_admin`) |
 | Overlay por comunidade | porta pronta, sem SQL/UI |
 | Mensagens de API na UI | cliente ainda mostra `error.message` do servidor (pt-BR) |
 | ICU / plural | interpolação `{name}` só |

@@ -1,0 +1,16 @@
+@import "tailwindcss";
+@import "../../../packages/ui/primitives/src/styles.css";
+@source "../../../packages/ui/primitives/src";
+@source "../../../packages/ui/admin/src";
+
+@layer base {
+  html,
+  body {
+    min-height: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}

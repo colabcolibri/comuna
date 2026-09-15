@@ -23,7 +23,7 @@ blocks: []
 | Mechanism | Header / Cookie | Consistent with `02_security` |
 | --------- | --------------- | ----------------------------- |
 | Membro / coord | Cookie `auth_token` HttpOnly | Sim |
-| Admin app | Cookie `ops_token` (alvo) | App `apps/admin`, não `/ops` eterno na web |
+| Admin app | Cookie `ops_token` | App `apps/admin` (porta 3015). Sem `/ops` na web. |
 
 ## Error envelope
 
@@ -56,6 +56,7 @@ blocks: []
 | `POST` | `/api/auth/logout` | Encerra sessão membro | Authenticated | `{}` | `200` + cookie vazio |
 | `GET` | `/api/profiles/me` | Perfil-base | Member / coordinator | — | `{ "profile" }` base |
 | `PUT` | `/api/profiles/me` | Atualiza perfil-base | Member / coordinator | identidade + demografia + lugares Nominatim | `{ "profile" }` |
+| `GET` | `/api/media/person/:userId/avatar` | Bytes da foto | Public se o objecto existir | — | image/* |
 | `GET` | `/api/places/cities` | Busca cidade (Nominatim) | Member | `?q=` | `{ "data": GeoPlace[] }` |
 | `PUT` | `/api/memberships/me` | Card do directory | Member; 404 se plugin off | LocalizedText headline/bio, availability, vitrine, `custom_attributes` (só chaves do catálogo) | `{ ok }` |
 | `GET` | `/api/community/modules` | Slugs enabled da comunidade do viewer | Public (comunidade pública) / member | — | `{ "enabled": ["directory", "showcase"] }` |
@@ -71,7 +72,7 @@ blocks: []
 | `PUT` | `/api/admin/communities/:id/modules/:slug` | Liga/desliga plugin | Super-admin | `{ "enabled": true }` | `200` |
 | `POST` | `/api/admin/memberships/:id/role` | Atribui `coordinator` | Super-admin | `{ "network_role" }` | `200` |
 
-`GET /api/profiles` e `/api/ops/*` e `/api/admin/approvals` no código atual são **legado**.
+`GET /api/profiles` e `/api/admin/approvals` no código atual são **legado**. `/api/ops/*` foi removido: mutações de tenant só na origem admin.
 
 ## Pagination / filtering
 

@@ -22,7 +22,7 @@ export default function AppNavbar() {
   const pathname = usePathname();
   const copy = pickContent(CONTENT, useLocale());
   const enabled = useEnabledModules();
-  if (pathname.startsWith('/ops') || pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/admin')) {
     return null;
   }
 
