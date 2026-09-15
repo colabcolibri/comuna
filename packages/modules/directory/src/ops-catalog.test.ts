@@ -6,9 +6,10 @@ vi.mock('@community/db', () => ({
 
 import { query } from '@community/db';
 import { CatalogWriteError, movedSequence, parseCatalogColumns } from './ops-catalog-shared';
-import { createAttributeField, deleteAttributeField, updateCatalogFieldSpan } from './ops-catalog-fields';
+import { createAttributeField, deleteAttributeField, updateCatalogFieldSpan, normalizeOpsChoiceOptions } from './ops-catalog-fields';
 import { listOpsCatalog } from './ops-catalog';
 import { deleteCatalogGroup, updateCatalogGroupColumns } from './ops-catalog-groups';
+import { moveCatalogFieldToGroup } from './ops-catalog-order';
 
 const mockedQuery = vi.mocked(query);
 
@@ -24,9 +25,58 @@ describe('movedSequence', () => {
   });
 });
 
+describe('normalizeOpsChoiceOptions', () => {
+  it('accepts structured option rows and rejects duplicate values', () => {
+    expect(
+      normalizeOpsChoiceOptions({
+        options: [
+          { value: '2014', labelPt: '2014', labelEn: '2014' },
+          { value: '2022', labelPt: '2022', labelEn: '2022' },
+        ],
+      })
+    ).toHaveLength(2);
+    expect(() =>
+      normalizeOpsChoiceOptions({
+        options: [
+          { value: '2014', labelPt: '2014', labelEn: '2014' },
+          { value: '2014', labelPt: 'outra', labelEn: 'other' },
+        ],
+      })
+    ).toThrow(CatalogWriteError);
+  });
+});
+
 describe('ops catalog', () => {
   beforeEach(() => {
     mockedQuery.mockReset();
+  });
+
+  it('rejects choice fields with duplicate option values', async () => {
+    await expect(
+      createAttributeField('c1', {
+        groupId: 'g1',
+        name: 'editions',
+        type: 'checkbox',
+        labelPt: 'Edições',
+        labelEn: 'Editions',
+        optionsText: '2014|2014|2014\n2014|outra|other',
+      })
+    ).rejects.toBeInstanceOf(CatalogWriteError);
+    expect(mockedQuery).not.toHaveBeenCalled();
+  });
+
+  it('rejects choice fields with no options', async () => {
+    await expect(
+      createAttributeField('c1', {
+        groupId: 'g1',
+        name: 'editions',
+        type: 'select',
+        labelPt: 'Edições',
+        labelEn: 'Editions',
+        optionsText: '',
+      })
+    ).rejects.toBeInstanceOf(CatalogWriteError);
+    expect(mockedQuery).not.toHaveBeenCalled();
   });
 
   it('rejects a name that does not slugify', async () => {
@@ -94,11 +144,10 @@ describe('ops catalog', () => {
 
   it('updates columns on a seed group', async () => {
     mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'g1' }] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
     await updateCatalogGroupColumns('c1', 'g1', 3);
-    expect(mockedQuery).toHaveBeenCalledWith(
-      expect.stringContaining('SET columns = $3'),
-      ['g1', 'c1', 3]
-    );
+    expect(mockedQuery.mock.calls[1]?.[1]).toEqual(['g1', 'c1', 3]);
+    expect(String(mockedQuery.mock.calls[1]?.[0])).toContain('SET columns = $3');
   });
 
   it('rejects columns outside 1-3', async () => {
@@ -111,6 +160,20 @@ describe('ops catalog', () => {
     mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
     await updateCatalogFieldSpan('c1', 'f1', 2);
     expect(String(mockedQuery.mock.calls[1]?.[0])).toContain('SET span');
+  });
+
+  it('moves a field to another group in the same community', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ group_id: 'g1' }] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [{ id: 'g2' }] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    await moveCatalogFieldToGroup('c1', 'f1', 'g2');
+    expect(String(mockedQuery.mock.calls[2]?.[0])).toContain('SET group_id');
+  });
+
+  it('rejects moving a field to a group from another tenant', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ group_id: 'g1' }] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    await expect(moveCatalogFieldToGroup('c1', 'f1', 'other')).rejects.toMatchObject({ message: 'NOT_FOUND' });
   });
 });
 

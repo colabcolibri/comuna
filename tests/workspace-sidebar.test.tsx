@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ReactNode } from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { AppSidebar } from '../apps/web/src/components/app/AppSidebar';
 import { LocaleProvider } from '@/components/app/LocaleProvider';
 import { EnabledModulesProvider } from '@/components/app/EnabledModulesProvider';
@@ -9,6 +9,12 @@ import { SidebarProvider } from '@community/ui';
 vi.mock('next/navigation', () => ({
   usePathname: () => '/c/lab/directory',
 }));
+
+if (!HTMLElement.prototype.hasPointerCapture) {
+  HTMLElement.prototype.hasPointerCapture = () => false;
+}
+HTMLElement.prototype.setPointerCapture = () => undefined;
+HTMLElement.prototype.releasePointerCapture = () => undefined;
 
 const alumni = {
   id: 'c1',
@@ -41,16 +47,20 @@ describe('workspace sidebar', () => {
     render(wrap(<AppSidebar email="a@b.c" seats={[alumni]} />));
     expect(screen.getAllByText('Alumni').length).toBeGreaterThan(0);
     expect(screen.queryByRole('link', { name: /Lab/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Fechar menu/ })).toBeNull();
   });
 
   it('marks the community from the URL, not a stale layout current', () => {
     render(wrap(<AppSidebar email="a@b.c" seats={[alumni, lab]} />));
-    expect(screen.getByRole('link', { name: /Lab/ }).getAttribute('aria-current')).toBe('page');
-    expect(screen.getByRole('link', { name: /Alumni/ }).getAttribute('aria-current')).toBeNull();
-    expect(screen.getByRole('link', { name: /Alumni/ }).getAttribute('href')).toBe('/c/alumni/directory');
     expect(screen.getByRole('link', { name: /Perfil nesta comunidade/ }).getAttribute('href')).toBe(
       '/c/lab/profile'
     );
     expect(screen.getByRole('link', { name: /Meu perfil/ }).getAttribute('href')).toBe('/profile');
+    const trigger = screen.getByRole('button', { name: /Lab/ });
+    fireEvent.pointerDown(trigger);
+    fireEvent.click(trigger);
+    expect(screen.getByRole('menuitem', { name: /Lab/ }).getAttribute('aria-current')).toBe('page');
+    expect(screen.getByRole('menuitem', { name: /Alumni/ }).getAttribute('aria-current')).toBeNull();
+    expect(screen.getByRole('menuitem', { name: /Alumni/ }).getAttribute('href')).toBe('/c/alumni/directory');
   });
 });

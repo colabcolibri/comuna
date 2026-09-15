@@ -16,10 +16,10 @@ describe('communities', () => {
 
   it('lists rows from network_core.communities', async () => {
     mockedQuery.mockResolvedValueOnce({
-      rows: [{ id: 'c1', slug: 'demo', name: 'Demo', type: 'alumni' }],
+      rows: [{ id: 'c1', slug: 'demo', name: 'Demo', type: 'alumni', settings: {} }],
     } as never);
     await expect(listCommunities()).resolves.toEqual([
-      { id: 'c1', slug: 'demo', name: 'Demo', type: 'alumni' },
+      { id: 'c1', slug: 'demo', name: 'Demo', type: 'alumni', settings: { description: '', default_locale: 'pt-BR' } },
     ]);
   });
 
@@ -40,12 +40,19 @@ describe('communities', () => {
 
   it('updates name and type for an existing community', async () => {
     mockedQuery.mockResolvedValueOnce({
-      rows: [{ id: 'c1', slug: 'demo', name: 'Nova', type: 'cohort' }],
+      rows: [{ id: 'c1', slug: 'demo', name: 'Demo', type: 'alumni', settings: { description: 'x', default_locale: 'pt-BR' } }],
     } as never);
-    await expect(updateCommunity('c1', { name: 'Nova', type: 'cohort' })).resolves.toMatchObject({
+    mockedQuery.mockResolvedValueOnce({
+      rows: [{ id: 'c1', slug: 'demo', name: 'Nova', type: 'practice_community', settings: { description: 'x', default_locale: 'pt-BR' } }],
+    } as never);
+    await expect(updateCommunity('c1', { name: 'Nova', type: 'practice_community' })).resolves.toMatchObject({
       name: 'Nova',
-      type: 'cohort',
+      type: 'practice_community',
     });
+  });
+
+  it('rejects a type outside the enum', async () => {
+    await expect(updateCommunity('c1', { name: 'Nova', type: 'cohort' })).rejects.toThrow('VALIDATION_ERROR');
   });
 
   it('throws when updating a missing community', async () => {
@@ -55,7 +62,7 @@ describe('communities', () => {
 
   it('loads a community by slug', async () => {
     mockedQuery.mockResolvedValueOnce({
-      rows: [{ id: 'c1', slug: 'demo', name: 'Demo', type: 'alumni' }],
+      rows: [{ id: 'c1', slug: 'demo', name: 'Demo', type: 'alumni', settings: {} }],
     } as never);
     await expect(getCommunityBySlug('Demo')).resolves.toMatchObject({ slug: 'demo' });
     expect(mockedQuery.mock.calls[0]?.[1]).toEqual(['demo']);

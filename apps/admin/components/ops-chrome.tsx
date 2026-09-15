@@ -15,6 +15,8 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   network: 'chrome.network',
   communities: 'chrome.communities',
   people: 'chrome.people',
+  platform: 'chrome.platform',
+  emails: 'chrome.emails',
   here: 'chrome.this_community',
   settings: 'community.settings',
   modules: 'community.modules',
@@ -47,6 +49,8 @@ export function OpsChrome({ children }: { children: ReactNode }) {
       items: [
         { href: '/communities', label: copy.communities, active: pathname === '/communities' },
         { href: '/people', label: copy.people, active: pathname === '/people' || pathname.startsWith('/people/') },
+        { href: '/platform', label: copy.platform, active: pathname === '/platform' || pathname.startsWith('/platform/') },
+        { href: '/emails', label: copy.emails, active: pathname === '/emails' || pathname.startsWith('/emails/') },
       ],
     },
   ];

@@ -1,9 +1,10 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast } from '@community/ui';
+import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
 import { pickLocalizedText } from '@community/identity';
 import { fieldCanFilter, fieldNeedsOptions, type CatalogCopy, type OpsGroup } from './community-fields-types';
+import { CommunityFieldsOptionsEditor, emptyOptionRow, type OptionRow } from './community-fields-options';
 
 export function CommunityFieldsCreateField({
   communityId,
@@ -24,7 +25,7 @@ export function CommunityFieldsCreateField({
   const [type, setType] = useState('boolean');
   const [labelPt, setLabelPt] = useState('');
   const [labelEn, setLabelEn] = useState('');
-  const [optionsText, setOptionsText] = useState('');
+  const [options, setOptions] = useState<OptionRow[]>([emptyOptionRow()]);
   const [filterable, setFilterable] = useState(true);
   const [busy, setBusy] = useState(false);
 
@@ -42,7 +43,7 @@ export function CommunityFieldsCreateField({
         type,
         labelPt,
         labelEn,
-        optionsText,
+        options,
         filterable,
       }),
     });
@@ -58,7 +59,7 @@ export function CommunityFieldsCreateField({
     setName('');
     setLabelPt('');
     setLabelEn('');
-    setOptionsText('');
+    setOptions([emptyOptionRow()]);
     setOpen(false);
     onCreated();
   };
@@ -73,7 +74,7 @@ export function CommunityFieldsCreateField({
         {copy.add}
       </Button>
       {open ? (
-        <form onSubmit={create} className="mt-4 grid max-w-lg gap-4">
+        <form onSubmit={create} className="mt-4 grid max-w-3xl gap-4">
           <div className="space-y-2">
             <Label htmlFor="ops-field-group">{copy.group}</Label>
             <Select value={selectedGroup} onValueChange={setGroupId}>
@@ -95,7 +96,15 @@ export function CommunityFieldsCreateField({
           </div>
           <div className="space-y-2">
             <Label htmlFor="ops-field-type">{copy.type}</Label>
-            <Select value={type} onValueChange={setType}>
+            <Select
+              value={type}
+              onValueChange={(next) => {
+                setType(next);
+                if (fieldNeedsOptions(next) && options.every((row) => !row.value.trim())) {
+                  setOptions([emptyOptionRow()]);
+                }
+              }}
+            >
               <SelectTrigger id="ops-field-type">
                 <SelectValue />
               </SelectTrigger>
@@ -121,17 +130,7 @@ export function CommunityFieldsCreateField({
             <Input id="ops-field-en" value={labelEn} onChange={(ev) => setLabelEn(ev.target.value)} />
           </div>
           {fieldNeedsOptions(type) ? (
-            <div className="space-y-2">
-              <Label htmlFor="ops-field-options">{copy.options}</Label>
-              <Textarea
-                id="ops-field-options"
-                className="min-h-24 w-full font-mono text-sm"
-                value={optionsText}
-                onChange={(ev) => setOptionsText(ev.target.value)}
-                required
-              />
-              <p className="text-xs text-muted-foreground">{copy.optionsHelp}</p>
-            </div>
+            <CommunityFieldsOptionsEditor idPrefix="ops-field-opt" rows={options} onChange={setOptions} copy={copy} />
           ) : null}
           {fieldCanFilter(type) ? (
             <label className="flex items-center gap-2 text-sm">

@@ -25,9 +25,10 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string 
   const body = await req.json();
   const name = typeof body.name === 'string' ? body.name : '';
   const type = typeof body.type === 'string' ? body.type : undefined;
-  const is_public_showcase = typeof body.is_public_showcase === 'boolean' ? body.is_public_showcase : undefined;
-  try {
-    const community = await updateCommunity(id, { name, type, is_public_showcase });
+    const is_public_showcase = typeof body.is_public_showcase === 'boolean' ? body.is_public_showcase : undefined;
+    const settings = body.settings;
+    try {
+      const community = await updateCommunity(id, { name, type, is_public_showcase, settings });
     return NextResponse.json(community);
   } catch (err) {
     if (err instanceof CommunityNotFoundError) {

@@ -20,9 +20,9 @@ Volta: `docs/05_architecture.md`.
 
 - **Users:** `super_admin`.
 - **Visual:** shell denso (`packages/ui/admin`).
-- **Jobs:** comunidades, pessoas da rede (assentos e papéis), coordenadores, **toggle de módulos**, catálogo de campos do tenant.
+- **Jobs:** comunidades, pessoas da rede (assentos, papéis, **criar pessoa**), coordenadores, **toggle de módulos**, catálogo de campos do tenant, **plataforma** (`/platform`), **templates de e-mail**, settings do tenant (tipo enum + `settings` jsonb conhecido).
 - **Cookie:** `ops_token` (alvo).
-- **IA do chrome:** o rail é a rede. Itens globais: **comunidades** e **pessoas**. Ao abrir um tenant: dados, plugins, membros, turmas, campos.
+- **IA do chrome:** o rail é a rede. Itens globais: **comunidades**, **pessoas**, **plataforma**, **e-mails**. Ao abrir um tenant: dados, plugins, membros, turmas, campos.
 - **Adicionar membro:** combobox typeahead (`q` ≥ 2, teto 20). Roster e pessoas da rede paginam de 50; busca no roster/`q` com ≥ 2. Ops muda papel, status (`pending_approval`/`active`/`suspended`), turma e remove membership. **Pedir entrada** é da web (`POST /api/communities/:slug/join`); coordenação delibera na fila do tenant.
 
 ## Same database

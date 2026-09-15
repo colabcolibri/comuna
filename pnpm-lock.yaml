@@ -99,15 +99,15 @@ importers:
       '@community/directory':
         specifier: workspace:*
         version: link:../../packages/modules/directory
-      '@community/identity':
+      '@community/mail':
         specifier: workspace:*
-        version: link:../../packages/core/identity
+        version: link:../../packages/core/mail
       '@community/memberships':
         specifier: workspace:*
         version: link:../../packages/core/memberships
-      '@community/module-runtime':
+      '@community/platform':
         specifier: workspace:*
-        version: link:../../packages/core/module-runtime
+        version: link:../../packages/core/platform
       '@community/showcase':
         specifier: workspace:*
         version: link:../../packages/modules/showcase
@@ -147,9 +147,9 @@ importers:
       '@community/files':
         specifier: workspace:*
         version: link:../../packages/core/files
-      '@community/identity':
+      '@community/mail':
         specifier: workspace:*
-        version: link:../../packages/core/identity
+        version: link:../../packages/core/mail
       '@community/memberships':
         specifier: workspace:*
         version: link:../../packages/core/memberships
@@ -203,6 +203,18 @@ importers:
         specifier: workspace:*
         version: link:../places
 
+  packages/core/mail:
+    dependencies:
+      '@community/auth':
+        specifier: workspace:*
+        version: link:../auth
+      '@community/db':
+        specifier: workspace:*
+        version: link:../db
+      '@community/platform':
+        specifier: workspace:*
+        version: link:../platform
+
   packages/core/memberships:
     dependencies:
       '@community/db':
@@ -212,6 +224,12 @@ importers:
   packages/core/module-runtime: {}
 
   packages/core/places: {}
+
+  packages/core/platform:
+    dependencies:
+      '@community/db':
+        specifier: workspace:*
+        version: link:../db
 
   packages/modules/contact-mediated:
     dependencies:

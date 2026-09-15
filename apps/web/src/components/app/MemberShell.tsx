@@ -2,7 +2,14 @@
 
 import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
-import { ScrollArea, SidebarInset, SidebarProvider, SidebarTrigger, ThemeToggle } from '@community/ui';
+import {
+  ScrollArea,
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+  ThemeToggle,
+  useSidebar,
+} from '@community/ui';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { AppSidebar } from '@/components/app/AppSidebar';
 import { LocaleSwitcher } from '@/components/app/LocaleSwitcher';
@@ -18,10 +25,17 @@ import Link from 'next/link';
 const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   brand: 'chrome.brand',
   showcase: 'chrome.showcase',
-  toggle: 'chrome.open_menu',
+  openMenu: 'chrome.open_menu',
+  closeMenu: 'chrome.close_menu',
   toDark: 'theme.to_dark',
   toLight: 'theme.to_light',
 });
+
+function ShellMenuTrigger({ openLabel, closeLabel }: { openLabel: string; closeLabel: string }) {
+  const { state, isMobile, openMobile } = useSidebar();
+  const expanded = isMobile ? openMobile : state === 'expanded';
+  return <SidebarTrigger className="size-11 shrink-0" aria-label={expanded ? closeLabel : openLabel} />;
+}
 
 export function MemberShell({
   sessionEmail,
@@ -48,7 +62,7 @@ export function MemberShell({
       <SidebarInset className="h-svh max-h-svh min-h-0 overflow-hidden">
         <header className="sticky top-0 z-20 shrink-0 border-b border-border bg-card">
           <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:px-6">
-          <SidebarTrigger className="size-11 shrink-0 md:hidden" aria-label={copy.toggle} />
+          <ShellMenuTrigger openLabel={copy.openMenu} closeLabel={copy.closeMenu} />
           <Link
             href={slug ? communityPath(slug, '/directory') : '/'}
             className="flex min-h-11 min-w-0 items-center gap-2 px-1 text-foreground hover:text-foreground"

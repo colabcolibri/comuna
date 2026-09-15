@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@community/db';
-import { sendSmtpMail } from '@community/auth';
+import { sendKindEmail } from '@community/mail';
 import { contactMediatedContribution } from '@community/contact-mediated';
 import { moduleRuntime } from '@/lib/server/membership';
 
@@ -26,13 +26,22 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ membership
   }
   const host = process.env.SMTP_HOST;
   if (host) {
-    await sendSmtpMail({
-      host,
-      port: Number(process.env.SMTP_PORT || '1026'),
-      from: process.env.EMAIL_FROM_ADDRESS || 'auth@community.local',
+    const community = await query<{ name: string; settings: unknown }>(
+      `SELECT name, settings FROM network_core.communities WHERE id = $1`,
+      [row.community_id]
+    );
+    const settings = community.rows[0]?.settings as { default_locale?: string } | undefined;
+    const locale = settings?.default_locale === 'en' ? 'en' : 'pt-BR';
+    await sendKindEmail({
+      kind: 'contact_notice',
       to,
-      subject: 'Contato mediado',
-      text: `${body.sender_name} <${body.sender_email}>\n\n${body.message}`,
+      locale,
+      vars: {
+        community_name: community.rows[0]?.name || '',
+        sender_name: String(body.sender_name || ''),
+        sender_email: String(body.sender_email || ''),
+        message: String(body.message || ''),
+      },
     });
   }
   return NextResponse.json({ message: 'Mensagem enviada com sucesso' });

@@ -66,7 +66,7 @@ Ainda fora:
 
 | Superfície | Estado |
 | ---------- | ------ |
-| `apps/admin` | login OTP, comunidades, módulos, coordenador (`CONTENT` + pack `core_admin`) |
+| `apps/admin` | login OTP, comunidades, pessoas, plataforma, e-mails, módulos, catálogo (`CONTENT` + pack `core_admin`) |
 | Overlay por comunidade | porta pronta, sem SQL/UI |
 | Mensagens de API na UI | cliente ainda mostra `error.message` do servidor (pt-BR) |
 | ICU / plural | interpolação `{name}` só |
@@ -74,4 +74,4 @@ Ainda fora:
 
 ## Emails
 
-Template no pack `core_web` (`email.otp.*`). Locale do cookie `ui_locale`.
+Defaults no pack `core_mail` (`packages/core/mail`). Overlay e preview no admin. Locale: cookie na web; `preferred_locale` da pessoa no convite; `default_locale` do tenant no contato. Detalhe: `docs/architecture/email.md`.

@@ -29,6 +29,7 @@ flowchart LR
     Web --> PG
     AdminApp --> PG
     Web --> SMTP
+    AdminApp --> SMTP
 
     classDef app fill:#0f766e,stroke:#2dd4bf,color:#ecfeff
     classDef store fill:#065f46,stroke:#34d399,color:#ecfdf5

@@ -10,6 +10,12 @@ import {
   slugifyCatalogName,
 } from './ops-catalog-shared';
 
+export type OpsChoiceOption = {
+  value: string;
+  labelPt: string;
+  labelEn: string;
+};
+
 export type OpsCatalogField = {
   id: string;
   name: string;
@@ -18,15 +24,16 @@ export type OpsCatalogField = {
   locked: boolean;
   filterable: boolean;
   span: 1 | 2 | 3;
+  options: OpsChoiceOption[];
   optionsText: string;
   label: LocalizedText;
 };
 
-export function optionsToText(raw: unknown): string {
+export function storedOptionsToOps(raw: unknown): OpsChoiceOption[] {
   if (!Array.isArray(raw)) {
-    return '';
+    return [];
   }
-  const lines: string[] = [];
+  const out: OpsChoiceOption[] = [];
   for (const item of raw) {
     if (!item || typeof item !== 'object') {
       continue;
@@ -37,11 +44,25 @@ export function optionsToText(raw: unknown): string {
       continue;
     }
     const label = parseLocalized(row.label);
-    const pt = pickLocalizedText(label, 'pt-BR') || value;
-    const en = pickLocalizedText(label, 'en') || pt;
-    lines.push(`${value}|${pt}|${en}`);
+    const labelPt = pickLocalizedText(label, 'pt-BR') || value;
+    const labelEn = pickLocalizedText(label, 'en') || labelPt;
+    out.push({ value, labelPt, labelEn });
   }
-  return lines.join('\n');
+  return out;
+}
+
+export function optionsToText(raw: unknown): string {
+  return storedOptionsToOps(raw)
+    .map((item) => `${item.value}|${item.labelPt}|${item.labelEn}`)
+    .join('\n');
+}
+
+function uniqueChoiceOptions(options: { value: string; label: LocalizedText }[]) {
+  const values = options.map((item) => item.value);
+  if (new Set(values).size !== values.length) {
+    throw new CatalogWriteError('VALIDATION_ERROR');
+  }
+  return options;
 }
 
 function parseSelectOptions(raw: string): { value: string; label: LocalizedText }[] {
@@ -56,7 +77,71 @@ function parseSelectOptions(raw: string): { value: string; label: LocalizedText 
       label: localizedPair(parts[1] || parts[0], parts[2] || parts[1] || parts[0]),
     });
   }
-  return options;
+  return uniqueChoiceOptions(options);
+}
+
+function parseChoiceArray(raw: unknown[]): { value: string; label: LocalizedText }[] {
+  const options: { value: string; label: LocalizedText }[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== 'object') {
+      continue;
+    }
+    const row = item as { value?: unknown; labelPt?: unknown; labelEn?: unknown; label?: unknown };
+    const rawValue = String(row.value || '').trim();
+    const value = slugifyCatalogName(rawValue) || rawValue;
+    if (!value) {
+      continue;
+    }
+    let labelPt = String(row.labelPt || '').trim();
+    let labelEn = String(row.labelEn || '').trim();
+    if (!labelPt && row.label != null) {
+      const localized = parseLocalized(row.label);
+      labelPt = pickLocalizedText(localized, 'pt-BR');
+      labelEn = pickLocalizedText(localized, 'en');
+    }
+    options.push({
+      value,
+      label: localizedPair(labelPt || value, labelEn || labelPt || value),
+    });
+  }
+  return uniqueChoiceOptions(options);
+}
+
+export function normalizeOpsChoiceOptions(input: {
+  options?: unknown;
+  optionsText?: string;
+}): { value: string; label: LocalizedText }[] {
+  if (input.options !== undefined) {
+    if (!Array.isArray(input.options)) {
+      throw new CatalogWriteError('VALIDATION_ERROR');
+    }
+    return parseChoiceArray(input.options);
+  }
+  return parseSelectOptions(input.optionsText || '');
+}
+
+function asOpsField(row: {
+  id: string;
+  name: string;
+  type: string;
+  storage: string;
+  filterable: boolean;
+  span: number;
+  options: unknown;
+  label: unknown;
+}): OpsCatalogField {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    storage: row.storage,
+    locked: isFieldLocked(row.storage),
+    filterable: row.filterable,
+    span: parseCatalogSpan(row.span, 1),
+    options: storedOptionsToOps(row.options),
+    optionsText: optionsToText(row.options),
+    label: parseLocalized(row.label),
+  };
 }
 
 export async function createAttributeField(
@@ -67,6 +152,7 @@ export async function createAttributeField(
     type: string;
     labelPt: string;
     labelEn: string;
+    options?: unknown;
     optionsText?: string;
     filterable?: boolean;
     span?: number;
@@ -87,7 +173,9 @@ export async function createAttributeField(
   if (!labelPt) {
     throw new CatalogWriteError('VALIDATION_ERROR');
   }
-  const options = fieldNeedsOptions(type) ? parseSelectOptions(input.optionsText || '') : [];
+  const options = fieldNeedsOptions(type)
+    ? normalizeOpsChoiceOptions({ options: input.options, optionsText: input.optionsText })
+    : [];
   if (fieldNeedsOptions(type) && options.length === 0) {
     throw new CatalogWriteError('VALIDATION_ERROR');
   }
@@ -140,18 +228,7 @@ export async function createAttributeField(
       span,
     ]
   );
-  const row = inserted.rows[0];
-  return {
-    id: row.id,
-    name: row.name,
-    type: row.type,
-    storage: row.storage,
-    locked: false,
-    filterable: row.filterable,
-    span: parseCatalogSpan(row.span, 1),
-    optionsText: optionsToText(row.options),
-    label: parseLocalized(row.label),
-  };
+  return asOpsField(inserted.rows[0]);
 }
 
 export async function updateCatalogFieldSpan(
@@ -176,7 +253,7 @@ export async function updateCatalogFieldSpan(
 export async function updateOpsField(
   communityId: string,
   fieldId: string,
-  input: { labelPt?: string; labelEn?: string; optionsText?: string; filterable?: boolean }
+  input: { labelPt?: string; labelEn?: string; options?: unknown; optionsText?: string; filterable?: boolean }
 ): Promise<void> {
   const found = await query<{ storage: string; type: string }>(
     `SELECT f.storage, f.type
@@ -196,7 +273,9 @@ export async function updateOpsField(
   if (!labelPt) {
     throw new CatalogWriteError('VALIDATION_ERROR');
   }
-  const options = fieldNeedsOptions(row.type) ? parseSelectOptions(input.optionsText || '') : [];
+  const options = fieldNeedsOptions(row.type)
+    ? normalizeOpsChoiceOptions({ options: input.options, optionsText: input.optionsText })
+    : [];
   if (fieldNeedsOptions(row.type) && options.length === 0) {
     throw new CatalogWriteError('VALIDATION_ERROR');
   }

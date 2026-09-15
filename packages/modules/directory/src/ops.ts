@@ -1,6 +1,6 @@
 export { CatalogWriteError, ATTRIBUTE_FIELD_TYPES, type AttributeFieldType, type MoveDirection } from './ops-catalog-shared';
 export { catalogLabel, ensureCustomGroup, listOpsCatalog, type OpsCatalogGroup } from './ops-catalog';
-export { createCatalogGroup, deleteCatalogGroup, updateCatalogGroupColumns } from './ops-catalog-groups';
-export { createAttributeField, deleteAttributeField, updateCatalogFieldSpan, updateOpsField, type OpsCatalogField } from './ops-catalog-fields';
-export { moveCatalogField, moveCatalogGroup } from './ops-catalog-order';
+export { createCatalogGroup, deleteCatalogGroup, updateCatalogGroup, updateCatalogGroupColumns } from './ops-catalog-groups';
+export { createAttributeField, deleteAttributeField, updateCatalogFieldSpan, updateOpsField, normalizeOpsChoiceOptions, storedOptionsToOps, type OpsCatalogField, type OpsChoiceOption } from './ops-catalog-fields';
+export { moveCatalogField, moveCatalogFieldToGroup, moveCatalogGroup } from './ops-catalog-order';
 export { seedCommunityCatalog } from './seed-community-catalog';

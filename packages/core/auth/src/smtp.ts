@@ -1,5 +1,10 @@
 import net from 'net';
 
+function smtpAddress(from: string): string {
+  const match = from.match(/<([^>]+)>/);
+  return match?.[1] || from;
+}
+
 function lastReply(buffer: string): { code: number; complete: boolean } | null {
   const lines = buffer.split(/\r?\n/).filter((line) => line.length > 0);
   if (!lines.length) {
@@ -20,24 +25,34 @@ export async function sendSmtpMail(opts: {
   to: string;
   subject: string;
   text: string;
+  html?: string;
 }): Promise<void> {
-  const { host, port, from, to, subject, text } = opts;
+  const { host, port, from, to, subject, text, html } = opts;
+  const boundary = `b${Date.now()}`;
+  const mime = html
+    ? [
+        `MIME-Version: 1.0`,
+        `Content-Type: multipart/alternative; boundary="${boundary}"`,
+        ``,
+        `--${boundary}`,
+        `Content-Type: text/plain; charset=utf-8`,
+        ``,
+        text,
+        `--${boundary}`,
+        `Content-Type: text/html; charset=utf-8`,
+        ``,
+        html,
+        `--${boundary}--`,
+      ].join('\r\n')
+    : [`Content-Type: text/plain; charset=utf-8`, ``, text].join('\r\n');
   await new Promise<void>((resolve, reject) => {
     const socket = net.connect({ host, port });
     let buffer = '';
     let step = 0;
-    const payload = [
-      `Subject: ${subject}`,
-      `From: ${from}`,
-      `To: ${to}`,
-      `Content-Type: text/plain; charset=utf-8`,
-      ``,
-      text,
-      `.`,
-    ].join('\r\n');
+    const payload = [`Subject: ${subject}`, `From: ${from}`, `To: ${to}`, ``, mime, `.`].join('\r\n');
     const outbound = [
       'EHLO community.local',
-      `MAIL FROM:<${from}>`,
+      `MAIL FROM:<${smtpAddress(from)}>`,
       `RCPT TO:<${to}>`,
       'DATA',
       payload,

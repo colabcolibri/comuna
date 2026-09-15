@@ -51,19 +51,45 @@ export async function createCatalogGroup(
   }
 }
 
+export async function updateCatalogGroup(
+  communityId: string,
+  groupId: string,
+  input: { columns?: unknown; labelPt?: unknown; labelEn?: unknown }
+): Promise<void> {
+  const patches: string[] = [];
+  const params: unknown[] = [groupId, communityId];
+  if (input.columns !== undefined) {
+    params.push(parseCatalogColumns(input.columns));
+    patches.push(`columns = $${params.length}`);
+  }
+  const labelPt = typeof input.labelPt === 'string' ? input.labelPt.trim() : '';
+  if (labelPt) {
+    const labelEn = typeof input.labelEn === 'string' ? input.labelEn.trim() : labelPt;
+    params.push(JSON.stringify(localizedPair(labelPt, labelEn || labelPt)));
+    patches.push(`label = $${params.length}::jsonb`);
+  }
+  if (!patches.length) {
+    throw new CatalogWriteError('VALIDATION_ERROR');
+  }
+  const found = await query<{ id: string }>(
+    `SELECT id FROM plugin_directory.field_groups WHERE id = $1 AND community_id = $2`,
+    [groupId, communityId]
+  );
+  if (!found.rows[0]) {
+    throw new CatalogWriteError('NOT_FOUND');
+  }
+  await query(
+    `UPDATE plugin_directory.field_groups SET ${patches.join(', ')} WHERE id = $1 AND community_id = $2`,
+    params
+  );
+}
+
 export async function updateCatalogGroupColumns(
   communityId: string,
   groupId: string,
   columns: unknown
 ): Promise<void> {
-  const next = parseCatalogColumns(columns);
-  const updated = await query<{ id: string }>(
-    `UPDATE plugin_directory.field_groups SET columns = $3 WHERE id = $1 AND community_id = $2 RETURNING id`,
-    [groupId, communityId, next]
-  );
-  if (!updated.rows[0]) {
-    throw new CatalogWriteError('NOT_FOUND');
-  }
+  await updateCatalogGroup(communityId, groupId, { columns });
 }
 
 export async function deleteCatalogGroup(communityId: string, groupId: string): Promise<void> {

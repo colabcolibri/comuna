@@ -35,8 +35,8 @@
       "@community/module-runtime": [
         "../../packages/core/module-runtime/src/index.ts"
       ],
-      "@community/auth": [
-        "../../packages/core/auth/src/index.ts"
+      "@community/mail": [
+        "../../packages/core/mail/src/index.ts"
       ],
       "@community/identity": [
         "../../packages/core/identity/src/index.ts"

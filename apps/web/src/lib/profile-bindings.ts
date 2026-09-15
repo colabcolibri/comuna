@@ -22,7 +22,7 @@ export function readFieldValue(field: CatalogField, sources: ProfileSources): un
   const key = field.column_key || field.name;
   const profile = sources.profile || {};
   if (key === 'languages') {
-    return parseLanguages(profile.languages).map((item) => item.code);
+    return parseLanguages(profile.languages);
   }
   if (key.startsWith('contacts.')) {
     const contacts = parseContacts(profile.contacts);
@@ -45,7 +45,6 @@ export function personBodyFromFields(
     github: String(values.github || ''),
     portfolio: String(values.portfolio || ''),
   };
-  const languageCodes = Array.isArray(values.languages) ? (values.languages as string[]) : [];
   return {
     full_name: String(values.full_name || ''),
     avatar_url: values.avatar_url || null,
@@ -53,10 +52,7 @@ export function personBodyFromFields(
     gender: values.gender || null,
     birth_city: (values.birth_city as GeoPlace | null) || null,
     current_city: (values.current_city as GeoPlace | null) || null,
-    languages: languageCodes.map((code) => ({
-      code,
-      proficiency: code === 'pt' ? 'native' : 'fluent',
-    })),
+    languages: parseLanguages(values.languages),
     contacts,
   };
 }

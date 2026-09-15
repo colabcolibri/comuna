@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@community/db';
-import { sendSmtpMail } from '@community/auth';
+import { sendKindEmail } from '@community/mail';
 import { contactMediatedContribution } from '@community/contact-mediated';
 import { moduleRuntime } from '@/lib/server/membership';
 
@@ -69,13 +69,16 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
   }
   const host = process.env.SMTP_HOST;
   if (host) {
-    await sendSmtpMail({
-      host,
-      port: Number(process.env.SMTP_PORT || '1026'),
-      from: process.env.EMAIL_FROM_ADDRESS || 'auth@community.local',
+    await sendKindEmail({
+      kind: 'contact_notice',
       to,
-      subject: 'Contato mediado',
-      text: `${senderName} <${senderEmail}>\n\n${message}`,
+      locale: 'pt-BR',
+      vars: {
+        community_name: '',
+        sender_name: senderName,
+        sender_email: senderEmail,
+        message,
+      },
     });
   }
   return NextResponse.json({ message: 'Mensagem enviada com sucesso' });

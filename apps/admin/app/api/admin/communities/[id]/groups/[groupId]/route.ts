@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { deleteCatalogGroup, updateCatalogGroupColumns } from '@community/directory/ops';
+import { deleteCatalogGroup, updateCatalogGroup } from '@community/directory/ops';
 import { catalogWriteResponse } from '@/lib/catalog-http';
 import { isOpsClaims, requireOps } from '@/lib/require-ops';
 
@@ -11,7 +11,11 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   const { id, groupId } = await ctx.params;
   const body = await req.json();
   try {
-    await updateCatalogGroupColumns(id, groupId, Number(body.columns));
+    await updateCatalogGroup(id, groupId, {
+      columns: Object.prototype.hasOwnProperty.call(body, 'columns') ? body.columns : undefined,
+      labelPt: body.labelPt,
+      labelEn: body.labelEn,
+    });
     return NextResponse.json({ ok: true });
   } catch (err) {
     return catalogWriteResponse(err);

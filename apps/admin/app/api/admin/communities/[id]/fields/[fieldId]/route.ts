@@ -17,6 +17,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       await updateOpsField(id, fieldId, {
         labelPt: typeof body.labelPt === 'string' ? body.labelPt : undefined,
         labelEn: typeof body.labelEn === 'string' ? body.labelEn : undefined,
+        options: Array.isArray(body.options) ? body.options : undefined,
         optionsText: typeof body.optionsText === 'string' ? body.optionsText : undefined,
         filterable: Boolean(body.filterable),
       });

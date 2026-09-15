@@ -13,7 +13,7 @@ blocks: []
 
 - **Surfaces:** `apps/web` (Stitch + plugins). Admin **não** usa o contrato Stitch; usa os mesmos primitives.
 - **Primary UI stack:** `ts-shadcn` — primitives em `packages/ui/primitives` (`@community/ui`). Compostos membro em `packages/ui/member` e `apps/web/src/components/app/`.
-- **Select / Checkbox:** shadcn em `@community/ui` (`SelectTrigger` + portal; `Checkbox` Radix). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`) é que fecham o produto.
+- **Select / Checkbox / menu:** shadcn em `@community/ui` (`SelectTrigger` + portal; `DropdownMenu`; `Checkbox` Radix). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`) é que fecham o produto.
 - **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, espaços aninhados. Workspace (trocar de comunidade) **não** é sidebar de espaços — ver `community-context.md`.
 - **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
@@ -78,7 +78,8 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `AppShowcaseCard` | Cartão da vitrine (foto, headline, chips, Ver perfil) | `packages/ui/member/src/app-showcase-card.tsx` |
 | `Toaster` (Sonner) | Feedback **transitório** (salvar, envio) | `packages/ui/primitives` — `toast` de `@community/ui`. Um `Toaster` no layout. Alerta **inline** = `Alert` de `@community/ui`, não toast. |
 | `MemberShell` | Sidebar + inset + header; páginas rolam com `ScrollArea`; rodapé no chrome (fora do scroll) | `apps/web/.../MemberShell.tsx` |
-| `AppSidebar` | Destinos; rodapé = perfil + Sair | `apps/web/.../AppSidebar.tsx` |
+| `AppSidebar` | Destinos desta comunidade; rodapé = perfil + Sair | `apps/web/.../AppSidebar.tsx` |
+| `CommunitySwitcher` | Troca de tenant no header da sidebar (dropdown se 2+) | `apps/web/.../CommunitySwitcher.tsx` |
 | `AppProfileSection` / `AppProfileStack` | Seções do formulário de perfil (h2 + lede + campos; sem Card) | `packages/ui/member/src/app-profile-section.tsx` |
 | `AppFormDock` | CTA Salvar grudado no fundo **só abaixo de sm** | mesmo ficheiro |
 | `OtpCard` | OTP | `OtpCard.tsx` |
@@ -89,7 +90,7 @@ Não existe rota `/profile/:id`. O detalhe público é o `AppDialog` na vitrine.
 
 ## Screen flows
 
-Navegação nomeada: **sidebar shadcn** no desktop (`collapsible=icon`; fechada = rail de ícones). **Sheet** só abaixo de 768px. Header: marca da **comunidade ativa** (membro no workspace) ou marca da plataforma (visitante) + Vitrine + locale + tema (`max-w-6xl`). Trigger de menu: primeiro item da sidebar no desktop; no header só abaixo de 768px. **Sair** abre `AppAlertDialog`.
+Navegação nomeada: **sidebar shadcn** no desktop (`collapsible=icon`; fechada = rail de ícones). **Sheet** só abaixo de 768px. Header da página: `SidebarTrigger` (abrir/fechar) + marca da **comunidade ativa** (membro no workspace) ou marca da plataforma (visitante) + Vitrine + locale + tema (`max-w-6xl`). **Sair** abre `AppAlertDialog`.
 
 Jobs: ver vitrine, pedir contato, entrar com código, escolher a comunidade, buscar pessoas, editar o próprio perfil, coordenar entrada. Super-admin (`/ops`, app admin) fica **fora** deste chrome.
 
@@ -105,7 +106,7 @@ Jobs: ver vitrine, pedir contato, entrar com código, escolher a comunidade, bus
 | `/c/{slug}/profile` | Card e campos desta comunidade | Membro | Nesta comunidade | Misturado com identidade | Formulário só `storage` ≠ `person` |
 | `/profile` | Editar identidade | Membro | Rodapé: Meu perfil | Path legado `/profile/edit` | Nome, foto, cidade, links |
 | `/c/{slug}/coord/approvals` | Aprovar entrada **deste** tenant | Coordenador neste slug | Pedidos só se coord aqui | Path legado `/coord` | Tabela com Aprovar/Recusar rotulados |
-| Switcher | Trocar de comunidade | Membro com 2+ assentos | Topo da sidebar; mobile = nome no header | LIMIT 1 invisível | Lista curta; sem ícones de servidor |
+| Switcher | Trocar de comunidade | Membro com 2+ assentos | Header da sidebar (`CommunitySwitcher`); trigger de rail no header da página | LIMIT 1 invisível | Dropdown; sem ícones de servidor |
 | `/ops`, admin | Operar tenants | Super-admin | Rail `--primary`; lista = **Rede / comunidades + pessoas**; tenant = + **nesta comunidade** | Um item “comunidades” com capítulos em tabs | App admin |
 
 Estados obrigatórios por tela: loading (skeleton no grid/tabela), vazio (copy + ação), erro recuperável, blocked (403 coord / módulo desligado).
@@ -142,6 +143,10 @@ flowchart TB
 | Tablet | `640–1024px` | Lista de pessoas em uma coluna; filtros em sheet próprio |
 | Desktop | `> 768px` | Sidebar; colapsada = rail de ícones + inicial da comunidade; páginas `max-w-6xl` |
 
+## Email
+
+Transacional, não marketing. Um envelope para todos os kinds (`docs/architecture/email.md`). Tokens **iguais** à tabela Colors, em hex **inline** (clientes de e-mail ignoram CSS da app). Largura 600px; no telemóvel a tabela encolhe (`max-width: 100%`). Código OTP em fonte mono, tamanho ≥ 24px, contraste no cartão `surface`. Sem imagem de fundo. Preview no admin usa o mesmo HTML (iframe `sandbox` sem scripts).
+
 ## Accessibility baseline
 
 WCAG 2.2 AA (AAA em body se possível). Foco 2px. Labels visíveis. Status não só por cor. `prefers-reduced-motion`. Erro ao lado do campo. Privacidade anunciável por leitor de tela. Detalhe: `docs/stitch/DESIGN.md`.
@@ -158,7 +163,7 @@ WCAG 2.2 AA (AAA em body se possível). Foco 2px. Labels visíveis. Status não 
 | Overlay | Porta pronta; SQL/UI ainda não |
 | Switcher | Cookie `ui_locale`; `preferred_locale` no perfil-base |
 | Datas/números | `Intl` com o locale resolvido |
-| E-mail | Pack `core_web` (`email.otp.*`) |
+| E-mail | Pack `core_mail` + overlay ops; chrome da tela de templates em `core_admin` |
 | SEO hreflang | Fora até `12` existir |
 
 ## Showcase catalog

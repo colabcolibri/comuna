@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast } from '@community/ui';
+import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
 import { OpsBadge, OpsMoveButtons } from '@community/ui-admin';
 import { pickLocalizedText } from '@community/identity';
-import { fieldCanFilter, fieldNeedsOptions, type CatalogCopy, type OpsField } from './community-fields-types';
+import { fieldCanFilter, fieldNeedsOptions, type CatalogCopy, type OpsField, type OpsGroup } from './community-fields-types';
+import { CommunityFieldsOptionsEditor, emptyOptionRow } from './community-fields-options';
 
 export function CommunityFieldsField({
   communityId,
@@ -16,6 +17,8 @@ export function CommunityFieldsField({
   onChanged,
   onMove,
   onRemove,
+  groups,
+  currentGroupId,
 }: {
   communityId: string;
   field: OpsField;
@@ -26,14 +29,34 @@ export function CommunityFieldsField({
   onChanged: () => void;
   onMove: (direction: 'up' | 'down') => void;
   onRemove: () => void;
+  groups: OpsGroup[];
+  currentGroupId: string;
 }) {
   const [open, setOpen] = useState(false);
   const [labelPt, setLabelPt] = useState(pickLocalizedText(field.label, 'pt-BR') || field.name);
   const [labelEn, setLabelEn] = useState(pickLocalizedText(field.label, 'en') || '');
-  const [optionsText, setOptionsText] = useState(field.optionsText);
+  const [options, setOptions] = useState(
+    field.options?.length ? field.options : [emptyOptionRow()]
+  );
   const [filterable, setFilterable] = useState(field.filterable);
   const [busy, setBusy] = useState(false);
   const spanId = `ops-field-span-${field.id}`;
+
+  const setGroup = async (groupId: string) => {
+    if (groupId === currentGroupId) {
+      return;
+    }
+    const res = await fetch(`/api/admin/communities/${communityId}/fields/${field.id}/move`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ groupId }),
+    });
+    if (!res.ok) {
+      toast.error(copy.error);
+      return;
+    }
+    onChanged();
+  };
 
   const setSpan = async (span: number) => {
     const res = await fetch(`/api/admin/communities/${communityId}/fields/${field.id}`, {
@@ -56,7 +79,7 @@ export function CommunityFieldsField({
       body: JSON.stringify({
         labelPt,
         labelEn,
-        optionsText,
+        options,
         filterable,
       }),
     });
@@ -84,6 +107,23 @@ export function CommunityFieldsField({
           </p>
         </div>
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
+          <div className="flex min-w-0 items-center gap-2">
+            <Label htmlFor={`ops-field-group-${field.id}`} className="text-xs text-muted-foreground whitespace-nowrap">
+              {copy.moveGroup}
+            </Label>
+            <Select value={currentGroupId} onValueChange={(next) => void setGroup(next)}>
+              <SelectTrigger id={`ops-field-group-${field.id}`} size="sm" className="w-[min(100%,12rem)]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {groups.map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {pickLocalizedText(item.label, locale) || item.slug}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="flex min-w-0 items-center gap-2">
             <Label htmlFor={spanId} className="text-xs text-muted-foreground whitespace-nowrap">
               {copy.span}
@@ -119,7 +159,7 @@ export function CommunityFieldsField({
         </div>
       </div>
       {open && !field.locked ? (
-        <div className="mt-3 grid max-w-lg gap-3 border-t border-border pt-3">
+        <div className="mt-3 grid max-w-3xl gap-3 border-t border-border pt-3">
           <div className="space-y-2">
             <Label htmlFor={`ops-field-pt-${field.id}`}>{copy.labelPt}</Label>
             <Input
@@ -137,15 +177,12 @@ export function CommunityFieldsField({
             />
           </div>
           {fieldNeedsOptions(field.type) ? (
-            <div className="space-y-2">
-              <Label htmlFor={`ops-field-opt-${field.id}`}>{copy.options}</Label>
-              <Textarea
-                id={`ops-field-opt-${field.id}`}
-                className="min-h-24 font-mono text-sm"
-                value={optionsText}
-                onChange={(ev) => setOptionsText(ev.target.value)}
-              />
-            </div>
+            <CommunityFieldsOptionsEditor
+              idPrefix={`ops-field-opt-${field.id}`}
+              rows={options}
+              onChange={setOptions}
+              copy={copy}
+            />
           ) : null}
           {fieldCanFilter(field.type) ? (
             <label className="flex items-center gap-2 text-sm">

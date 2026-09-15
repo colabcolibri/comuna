@@ -37,6 +37,33 @@ describe('directory catalog', () => {
     expect(result.ok).toBe(false);
   });
 
+  it('rejects checkbox values outside the option list', () => {
+    const field = parseField({
+      name: 'editions',
+      type: 'checkbox',
+      storage: 'attributes',
+      options: [
+        { value: '2014', label: [{ locale: 'pt-BR', value: '2014' }] },
+        { value: '2022', label: [{ locale: 'pt-BR', value: '2022' }] },
+      ],
+    });
+    expect(validateCustomAttributes([field!], { editions: ['2014', '1999'] }).ok).toBe(false);
+    expect(validateCustomAttributes([field!], { editions: ['2014', '2022'] })).toEqual({
+      ok: true,
+      value: { editions: ['2014', '2022'] },
+    });
+  });
+
+  it('rejects select values outside the option list', () => {
+    const field = parseField({
+      name: 'track',
+      type: 'select',
+      storage: 'attributes',
+      options: [{ value: 'a', label: [{ locale: 'pt-BR', value: 'A' }] }],
+    });
+    expect(validateCustomAttributes([field!], { track: 'b' }).ok).toBe(false);
+  });
+
   it('accepts boolean attributes', () => {
     const field = parseField({
       name: 'host_at_home',

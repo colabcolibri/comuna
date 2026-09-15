@@ -94,6 +94,8 @@ describe('profile forms', () => {
     });
     expect(screen.getByRole('heading', { name: 'Identidade' })).toBeTruthy();
     expect(screen.getByLabelText('Foto')).toBeTruthy();
+    expect(screen.getByRole('checkbox', { name: 'Português' })).toBeTruthy();
+    expect(screen.getByRole('combobox', { name: 'Proficiência: Português' })).toBeTruthy();
     expect(screen.queryByLabelText('Headline (pt-BR)')).toBeNull();
   });
 

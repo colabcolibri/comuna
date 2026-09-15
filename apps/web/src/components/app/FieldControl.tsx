@@ -6,6 +6,7 @@ import { contentFromCatalog, interpolate, pickContent, pickLocalizedText, type L
 import type { CatalogField } from '@community/directory';
 import type { GeoPlace } from '@community/places';
 import { CitySearchField } from '@/components/app/CitySearchField';
+import { LanguagesField } from '@/components/app/LanguagesField';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { uiCatalog } from '@/lang/catalog';
 
@@ -108,6 +109,16 @@ export function FieldControl({
   }
 
   if (field.type === 'checkbox') {
+    if (field.name === 'languages') {
+      return (
+        <LanguagesField
+          field={field}
+          locale={locale}
+          value={value}
+          onChange={onChange}
+        />
+      );
+    }
     const selected = Array.isArray(value) ? (value as string[]) : [];
     return (
       <fieldset className="space-y-2 min-w-0">
@@ -175,6 +186,95 @@ export function FieldControl({
         {...(field.type === 'textarea' ? { rows: 4 } : {})}
       />
     </div>
+  );
+}
+
+function LanguagesControl({
+  field,
+  locale,
+  value,
+  onChange,
+}: {
+  field: CatalogField;
+  locale: string;
+  value: unknown;
+  onChange: (value: unknown) => void;
+}) {
+  const label = pickLocalizedText(field.label, locale) || field.name;
+  const description = pickLocalizedText(field.description, locale);
+  const copy = pickContent(CONTENT, locale);
+  const selected = parseLanguages(value);
+  const levels: Record<Proficiency, string> = {
+    basic: copy.proficiency_basic,
+    intermediate: copy.proficiency_intermediate,
+    fluent: copy.proficiency_fluent,
+    native: copy.proficiency_native,
+  };
+
+  function setLanguage(code: string, next: SpokenLanguage | null) {
+    if (!next) {
+      onChange(selected.filter((item) => item.code !== code));
+      return;
+    }
+    if (selected.some((item) => item.code === code)) {
+      onChange(selected.map((item) => (item.code === code ? next : item)));
+      return;
+    }
+    onChange([...selected, next]);
+  }
+
+  return (
+    <fieldset className="space-y-2 min-w-0">
+      <legend className="text-sm font-medium">{label}</legend>
+      {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
+      <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {field.options.map((option) => {
+          const name = pickLocalizedText(option.label, locale) || option.value;
+          const current = selected.find((item) => item.code === option.value);
+          const on = Boolean(current);
+          const id = `field-${field.name}-${option.value}`;
+          return (
+            <li key={option.value} className="flex min-w-0 items-center gap-2">
+              <label htmlFor={id} className="flex min-h-11 min-w-0 flex-1 items-center gap-2 text-sm">
+                <Checkbox
+                  id={id}
+                  checked={on}
+                  onCheckedChange={(checked) => {
+                    setLanguage(
+                      option.value,
+                      checked === true ? { code: option.value, proficiency: 'fluent' } : null
+                    );
+                  }}
+                />
+                <span className="min-w-0 truncate">{name}</span>
+              </label>
+              {on && current ? (
+                <Select
+                  value={current.proficiency}
+                  onValueChange={(proficiency) =>
+                    setLanguage(option.value, { code: option.value, proficiency: proficiency as Proficiency })
+                  }
+                >
+                  <SelectTrigger
+                    className="w-[9.5rem] shrink-0 min-h-11"
+                    aria-label={`${copy.proficiency}: ${name}`}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PROFICIENCIES.map((level) => (
+                      <SelectItem key={level} value={level}>
+                        {levels[level]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
+    </fieldset>
   );
 }
 

@@ -71,7 +71,7 @@ export function PersonInspect({
 
   const headline = profile ? pickLocalizedText(profile.headline, locale) : '';
   const bio = profile ? pickLocalizedText(profile.bio, locale) : '';
-  const chips = profile ? profileChips(profile, copy) : [];
+  const chips = profile ? profileChips(profile, copy, locale) : [];
   const city = profile ? displayPlaceLocality(profile.current_city, locale) : '';
 
   return (

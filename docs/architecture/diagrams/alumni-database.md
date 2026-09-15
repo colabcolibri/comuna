@@ -22,6 +22,26 @@ erDiagram
     "plugin_directory.field_groups" ||--O{ "plugin_directory.fields" : "campos"
     "network_core.memberships" ||--O{ "plugin_contact.messages" : "contato mediado"
 
+    "ops_core.platform_settings" {
+        uuid id PK
+        text product_name
+        text from_name
+        text from_address
+        text support_url
+        text logo_url
+        timestamptz updated_at
+    }
+
+    "ops_core.email_templates" {
+        uuid id PK
+        text kind
+        text locale
+        text subject
+        text html_body
+        text text_body
+        timestamptz updated_at
+    }
+
     "public.schema_migrations" {
         text id PK
         timestamptz applied_at
@@ -55,7 +75,7 @@ erDiagram
         text current_country
         jsonb birth_city "GeoPlace ou null"
         jsonb current_city "GeoPlace ou null"
-        jsonb languages "[{code, proficiency}]"
+        jsonb languages "[{code ISO 639-1, proficiency}]"
         jsonb contacts "{linkedin, github, portfolio}"
         timestamptz updated_at
     }

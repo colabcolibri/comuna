@@ -7,7 +7,11 @@ export async function proxy(req: NextRequest) {
     pathname === '/communities' ||
     pathname.startsWith('/communities/') ||
     pathname === '/people' ||
-    pathname.startsWith('/people/');
+    pathname.startsWith('/people/') ||
+    pathname === '/platform' ||
+    pathname.startsWith('/platform/') ||
+    pathname === '/emails' ||
+    pathname.startsWith('/emails/');
   if (!protectedPath) {
     return NextResponse.next();
   }
@@ -27,5 +31,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/communities', '/communities/:path*', '/people', '/people/:path*'],
+  matcher: ['/communities', '/communities/:path*', '/people', '/people/:path*', '/platform', '/platform/:path*', '/emails', '/emails/:path*'],
 };

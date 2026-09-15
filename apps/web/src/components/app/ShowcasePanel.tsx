@@ -72,7 +72,7 @@ export function ShowcasePanel({ rows, lead }: { rows: PersonCard[]; lead?: React
                 headline={headline}
                 summary={summary}
                 city={displayPlaceLocality(profile.current_city, locale)}
-                chips={profileChips(profile, copy)}
+                chips={profileChips(profile, copy, locale)}
                 action={
                   <Button variant="outline" className="min-h-11 w-full" onClick={() => setSelected(profile)}>
                     {copy.view}

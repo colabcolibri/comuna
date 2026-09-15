@@ -183,7 +183,10 @@ function coerceAttribute(
       return { ok: false, message: `${field.name} deve ser lista` };
     }
     const allowed = new Set(field.options.map((item) => item.value));
-    const values = raw.map((item) => String(item)).filter((item) => allowed.has(item));
+    const values = raw.map((item) => String(item));
+    if (values.some((item) => !allowed.has(item))) {
+      return { ok: false, message: `${field.name} opção inválida` };
+    }
     return { ok: true, value: values };
   }
   if (field.type === 'select' || field.type === 'radio') {

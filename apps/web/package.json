@@ -13,7 +13,7 @@
     "@community/db": "workspace:*",
     "@community/directory": "workspace:*",
     "@community/files": "workspace:*",
-    "@community/identity": "workspace:*",
+    "@community/mail": "workspace:*",
     "@community/memberships": "workspace:*",
     "@community/communities": "workspace:*",
     "@community/showcase": "workspace:*",

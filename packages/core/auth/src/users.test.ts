@@ -5,7 +5,7 @@ vi.mock('@community/db', () => ({
 }));
 
 import { query } from '@community/db';
-import { ensureUserByEmail, findUserByEmail, InvalidEmailError, isSuperAdmin } from './users';
+import { createNetworkPerson, DuplicateEmailError, ensureUserByEmail, findUserByEmail, InvalidEmailError, isSuperAdmin } from './users';
 
 const mockedQuery = vi.mocked(query);
 
@@ -45,5 +45,12 @@ describe('ops user lookup', () => {
       rows: [{ id: 'u2', email: 'm@example.com', global_role: 'user' }],
     } as never);
     await expect(ensureUserByEmail('m@example.com')).resolves.toMatchObject({ id: 'u2', global_role: 'user' });
+  });
+
+  it('refuses a second person with the same email', async () => {
+    mockedQuery.mockResolvedValueOnce({
+      rows: [{ id: 'u1', email: 'm@example.com', global_role: 'user' }],
+    } as never);
+    await expect(createNetworkPerson('m@example.com', 'Ada')).rejects.toBeInstanceOf(DuplicateEmailError);
   });
 });

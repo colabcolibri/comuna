@@ -50,9 +50,11 @@ APIs de membro (`/api/directory/*`, `/api/memberships/me`, `/api/coord/*`, `/api
 
 Três camadas, nesta ordem:
 
-1. **Onde estou** — topo da sidebar: nome da comunidade. Uma membership: rótulo, sem lista. Duas ou mais: lista só das `active` da pessoa. Mobile: nome no header.
+1. **Onde estou** — `CommunitySwitcher` no header da sidebar (padrão team switcher): marca + nome + papel. Uma membership: só o rótulo. Duas ou mais: dropdown (Radix) com as `active` da pessoa; item **Outras comunidades** vai para `/`. Sem lista longa no corpo da sidebar. Mobile: o mesmo dropdown abre para baixo.
 2. **O que faço aqui** — destinos prefixados; `listEnabled` **desta** comunidade. Pedidos só se `network_role = coordinator` **neste** tenant.
 3. **Quem eu sou** — rodapé: Meu perfil (`/profile`, identidade global) + Sair. Card e campos da comunidade: **Perfil nesta comunidade** (`/c/{slug}/profile`) no grupo do tenant.
+
+Fechar/abrir o rail: `SidebarTrigger` no header da página (desktop e mobile), não no topo da sidebar. `SidebarRail` continua na borda.
 
 Ao trocar: se o job atual existir no destino (mesmo path canónico e plugin on), permanece. Senão, primeiro destino enabled. Sem rail de ícones tipo Discord. Sem home de “infos da comunidade” neste epic.
 

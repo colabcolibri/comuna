@@ -19,7 +19,7 @@ blocks: []
 | `INITIAL_SUPER_ADMIN_EMAIL` | Seed ops (não promove via login da vitrine) | Sim | `admin@example.com` | Local / Staging |
 | `SMTP_HOST` | SMTP | Sim local | `localhost` | Local |
 | `SMTP_PORT` | SMTP | Sim local | `1025` | Local |
-| `EMAIL_FROM_ADDRESS` | From OTP | Sim | `auth@alumni.org` | All |
+| `EMAIL_FROM_ADDRESS` | Fallback From se a plataforma ainda não tem `from_address` | Sim | `auth@community.local` | All |
 | `NEXT_PUBLIC_APP_URL` | URL membro | Sim | `http://localhost:3014` | All |
 | `MEDIA_ROOT` | Pasta local do ObjectStore | Não (default `storage`) | `storage` | Local |
 | `MEDIA_DRIVER` | `local` ou `s3` | Não (default `local`) | `local` | All |

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { issueOtp, RateLimitError, sendSmtpMail } from '@community/auth';
-import { interpolate, LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
-import { uiCatalog } from '@/lang/catalog';
+import { issueOtp, RateLimitError } from '@community/auth';
+import { sendKindEmail } from '@community/mail';
+import { LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
 
 const ipHits = new Map<string, number[]>();
 
@@ -35,25 +35,14 @@ export async function POST(req: NextRequest) {
     }
 
     const locale = resolveUiLocale(req.cookies.get(LOCALE_COOKIE)?.value);
-    const host = process.env.SMTP_HOST;
-    const port = Number(process.env.SMTP_PORT || '1026');
-    if (host) {
-      try {
-        await sendSmtpMail({
-          host,
-          port,
-          from: process.env.EMAIL_FROM_ADDRESS || 'auth@community.local',
-          to: email,
-          subject: uiCatalog.t('core_web', 'email.otp.subject', locale),
-          text: interpolate(uiCatalog.t('core_web', 'email.otp.text', locale), { code }),
-        });
-      } catch (mailErr) {
-        console.error('[auth] smtp failed', mailErr instanceof Error ? mailErr.message : 'unknown');
-        return NextResponse.json(
-          { error: { code: 'SERVER_ERROR', message: 'Falha ao enviar e-mail' } },
-          { status: 500 }
-        );
-      }
+    try {
+      await sendKindEmail({ kind: 'member_otp', to: email, locale, vars: { code } });
+    } catch (mailErr) {
+      console.error('[auth] smtp failed', mailErr instanceof Error ? mailErr.message : 'unknown');
+      return NextResponse.json(
+        { error: { code: 'SERVER_ERROR', message: 'Falha ao enviar e-mail' } },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ message: 'Código enviado' });

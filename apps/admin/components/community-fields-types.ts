@@ -8,6 +8,7 @@ export type OpsField = {
   locked: boolean;
   filterable: boolean;
   span: 1 | 2 | 3;
+  options: { value: string; labelPt: string; labelEn: string }[];
   optionsText: string;
   label: LocalizedText;
 };
@@ -32,6 +33,9 @@ export type CatalogCopy = {
   labelEn: string;
   options: string;
   optionsHelp: string;
+  optionValue: string;
+  optionAdd: string;
+  optionRemove: string;
   filterable: string;
   create: string;
   createGroup: string;
@@ -59,6 +63,8 @@ export type CatalogCopy = {
   columns2: string;
   columns3: string;
   span: string;
+  groupLabel: string;
+  moveGroup: string;
 };
 
 export function fieldNeedsOptions(type: string): boolean {

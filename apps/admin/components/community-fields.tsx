@@ -23,6 +23,9 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   labelEn: 'community.fields_label_en',
   options: 'community.fields_options',
   optionsHelp: 'community.fields_options_help',
+  optionValue: 'community.fields_option_value',
+  optionAdd: 'community.fields_option_add',
+  optionRemove: 'community.fields_option_remove',
   filterable: 'community.fields_filterable',
   create: 'community.fields_create',
   createGroup: 'community.fields_create_group',
@@ -50,6 +53,8 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   typeLocalized: 'community.fields_type_localized',
   typeRadio: 'community.fields_type_radio',
   typeCheckbox: 'community.fields_type_checkbox',
+  groupLabel: 'community.fields_group_label',
+  moveGroup: 'community.fields_move_group',
 });
 
 export function CommunityFields({ communityId }: { communityId: string }) {
@@ -91,6 +96,7 @@ export function CommunityFields({ communityId }: { communityId: string }) {
               locale={locale}
               copy={copy}
               onChanged={load}
+              groups={groups}
             />
           ))}
         </div>

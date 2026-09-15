@@ -63,3 +63,37 @@ export async function moveCatalogField(
   }
   await persistFieldOrder(next);
 }
+
+export async function moveCatalogFieldToGroup(
+  communityId: string,
+  fieldId: string,
+  groupId: string
+): Promise<void> {
+  const found = await query<{ group_id: string }>(
+    `SELECT f.group_id
+     FROM plugin_directory.fields f
+     JOIN plugin_directory.field_groups g ON g.id = f.group_id
+     WHERE f.id = $1 AND g.community_id = $2`,
+    [fieldId, communityId]
+  );
+  if (!found.rows[0]) {
+    throw new CatalogWriteError('NOT_FOUND');
+  }
+  if (found.rows[0].group_id === groupId) {
+    return;
+  }
+  const dest = await query<{ id: string }>(
+    `SELECT id FROM plugin_directory.field_groups WHERE id = $1 AND community_id = $2`,
+    [groupId, communityId]
+  );
+  if (!dest.rows[0]) {
+    throw new CatalogWriteError('NOT_FOUND');
+  }
+  await query(
+    `UPDATE plugin_directory.fields
+     SET group_id = $2,
+         sort_order = (SELECT coalesce(max(sort_order), 0) + 10 FROM plugin_directory.fields WHERE group_id = $2)
+     WHERE id = $1`,
+    [fieldId, groupId]
+  );
+}

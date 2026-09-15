@@ -22,6 +22,8 @@ blocks: [05_architecture.md]
 | Concern | Canonical path (alvo) | Must not |
 | ------- | ---------------------- | -------- |
 | OTP / JWT | `packages/core/auth` | Duplicar nas duas apps |
+| Envelope e kinds de e-mail | `packages/core/mail` | HTML nas rotas Next; segundo envelope por app |
+| Settings da instalação | `packages/core/platform` | JSON solto no cliente; misturar com `communities.settings` |
 | Pool / SQL | `packages/core/db` | `pg` nas páginas |
 | Perfil-base + chrome i18n | `packages/core/identity` | HTTP de geocoder, skills |
 | Lugar | `packages/core/places` | React, SQL. Adapters atrás de `CityDirectory`. Não é plugin. |

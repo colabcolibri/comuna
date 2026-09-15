@@ -1,7 +1,7 @@
 ---
 title: Database Design
 status: approved
-version: 2.5
+version: 2.6
 updated: 2026-09-15
 depends_on: [05_architecture.md]
 blocks: [07_api_contracts.md]
@@ -57,7 +57,7 @@ erDiagram
         string current_country
         jsonb birth_city "Nominatim place {osm_id, label from geocoder}"
         jsonb current_city "Nominatim place"
-        jsonb languages "[{code, proficiency}]"
+        jsonb languages "[{code ISO 639-1, proficiency basic|intermediate|fluent|native}]"
         jsonb contacts "{linkedin, github, portfolio}"
         timestamp updated_at
     }
@@ -81,8 +81,29 @@ erDiagram
         string name "Nome da Comunidade/Rede"
         string type "alumni | practice_community | incubator | mentor_network"
         boolean is_public_showcase "Se a comunidade possui vitrine externa"
-        jsonb settings "regras especificas da rede"
+        jsonb settings "description, default_locale — ver ops-settings.md"
         timestamp created_at
+    }
+
+    "ops_core.platform_settings" {
+        uuid id PK "singleton"
+        string product_name
+        string from_name
+        string from_address
+        string support_url
+        string logo_url
+        timestamp updated_at
+    }
+
+    "ops_core.email_templates" {
+        uuid id PK
+        string kind "member_otp | ops_otp | person_invite | contact_notice"
+        string locale "pt-BR | en"
+        string subject
+        text html_body
+        text text_body
+        timestamp updated_at
+        unique(kind, locale)
     }
 
     "network_core.cohorts" {
@@ -186,6 +207,7 @@ erDiagram
 1. **`auth_core`**: `users.global_role` (`user | super_admin`) e `verification_tokens`.
 2. **`person_core`**: identidade, demografia, GeoPlace de cidades, languages, contacts.
 3. **`network_core`**: `communities`, `memberships` (`network_role`: `member | coordinator`), `community_modules`, `cohorts` (núcleo de agrupamento; UI extra pode ser plugin depois).
+3b. **`ops_core`**: `platform_settings` (uma row) e `email_templates` (overlay por kind+locale). Não é plugin.
 4. **`plugin_core`**: catálogo `modules`.
 5. **`plugin_directory`**: `cards` (headline/bio LocalizedText, availability, vitrine, `custom_attributes`); `field_groups` e `fields` por `community_id`. Skills no ER legado `network_core.skills` ainda não existem em SQL.
 

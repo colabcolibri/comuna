@@ -21,6 +21,8 @@ packages/
     identity/          # perfil-base + pickContent
     places/            # GeoPlace + CityDirectory (não é plugin)
     files/             # ObjectStore (avatar)
+    mail/              # envelope + kinds + overlay
+    platform/          # singleton ops_core.platform_settings
     communities/
     memberships/
     module-runtime/

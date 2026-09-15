@@ -5,6 +5,8 @@ export {
   ensureBareProfile,
   ensureUserByEmail,
   findUserByEmail,
+  createNetworkPerson,
+  DuplicateEmailError,
   InvalidEmailError,
   isSuperAdmin,
   isValidEmail,

@@ -40,14 +40,14 @@ Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejei
 | --- | --- | --- | --- |
 | `identity` | core (não some) | nome, avatar (`image`) | `person` |
 | `community_copy` | directory | headline, bio | `card_column` |
-| `person` | core | gênero, cidades, idiomas | `person` |
+| `person` | core | gênero, cidades, idiomas (12 códigos + nível) | `person` |
 | `links` | core | linkedin, github, portfólio | `person` |
 | `availability` | directory + showcase | availability (`directory`); `public_showcase` (`showcase`) | `card_column` |
 | (custom) | directory | o que a comunidade pedir | `attributes` |
 
 Hospitalidade (`host_at_home`) **não** é seed de plataforma. Só a comunidade `demo` ganha esse grupo no `db:seed`. Comunidade nova: núcleo + headline/bio/availability + grupo `custom` vazio. Ops cria extras por tenant.
 
-Ops reordena grupos e campos (`sort_order`); a lista do admin é a ordem do formulário de perfil. `locked` não congela ordem nem densidade: só impede apagar grupo seed e campo com `storage` ≠ `attributes`. Cria grupo novo e campo `attributes` em qualquer grupo (tipos do contrato). Edita label/opções/filtro dos extras. `span` (1–3) é largura no grid, na linha do campo — sem abrir editar, inclusive núcleo. Grupo da comunidade só some se estiver vazio. Comunidade nova recebe o seed de `scripts/seed-directory-catalog.cjs` mais o grupo `custom`.
+Ops reordena grupos e campos (`sort_order`); a lista do admin é a ordem do formulário de perfil. `locked` não congela ordem nem densidade: só impede apagar grupo seed e campo com `storage` ≠ `attributes`. Cria grupo novo e campo `attributes` em qualquer grupo (tipos do contrato). Edita label/opções/filtro dos extras **e o rótulo LocalizedText de qualquer grupo** (slug do grupo não muda). Move campo entre grupos do mesmo tenant. `span` (1–3) é largura no grid, na linha do campo — sem abrir editar, inclusive núcleo. Grupo da comunidade só some se estiver vazio. Comunidade nova recebe o seed de `scripts/seed-directory-catalog.cjs` mais o grupo `custom`.
 
 `columns` no grupo (1–3) é **campos por linha no perfil** em tela larga — não coluna de banco. Ops altera em qualquer grupo, inclusive seed, com rótulos (“um embaixo do outro” / lado a lado). `span` no campo (1–3) ocupa o grid. Mobile: sempre empilha. Sem overflow horizontal. Lista fechada: `Select` shadcn (`SelectTrigger` / `SelectContent` / `SelectItem` em `@community/ui`). Combobox de busca continua `OpsCombobox`. Ordem na UI: setas com rótulo acessível. Sem pin de `identity` nesta versão.
 
@@ -55,7 +55,11 @@ Ops reordena grupos e campos (`sort_order`); a lista do admin é a ordem do form
 
 `text`, `textarea`, `localized_text`, `select`, `radio`, `checkbox`, `boolean`, `city`, `url`.
 
-Renderer: um `FieldControl` por tipo em UI compartilhada (`@community/ui` + compostos member). A página de perfil só mapeia binding → estado. Não duplicar `<select>` de availability fora do template `select`.
+`select`, `radio` e `checkbox` são **lista fechada**: cada opção tem `value` único (slug) e label LocalizedText. Catálogo ops recusa lista vazia ou `value` repetido. Write do membro (`custom_attributes`) recusa valor fora de `fields.options` — inclusive checkbox (não descarta em silêncio). `text` / `textarea` / `boolean` / `url` / `city` / `localized_text` / `image` não usam `options`.
+
+Renderer: um `FieldControl` por tipo em UI compartilhada (`@community/ui` + compostos member). A página de perfil só mapeia binding → estado. Não duplicar `<select>` de availability fora do template `select`. Ops lança as opções em linhas (`options[]`); o textarea `valor|pt|en` não é a UI.
+
+`languages` (núcleo, `storage: person`): tipo `checkbox` com 12 códigos (`pt`, `en`, `es`, `fr`, `de`, `it`, `nl`, `zh`, `ja`, `ko`, `ru`, `ar`). O valor persistido é `[{ code, proficiency }]`. Níveis: `basic`, `intermediate`, `fluent`, `native`. No perfil: lista do que a pessoa já pôs + formulário para inserir (idioma e nível). Editar e remover na linha. Sem grade de 12 checkboxes. Lista canónica em `@community/identity`.
 
 ## Plugins default on
 

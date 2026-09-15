@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Button, Input } from '@community/ui';
+import { Button, Input, Label, toast } from '@community/ui';
 import { OpsBadge, OpsPageTemplate } from '@community/ui-admin';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from './locale-provider';
@@ -23,6 +23,13 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   statusPending: 'community.status_pending_approval',
   statusActive: 'community.status_active',
   statusSuspended: 'community.status_suspended',
+  create: 'people.create',
+  createHelp: 'people.create_help',
+  fullName: 'people.full_name',
+  email: 'people.email',
+  created: 'people.created',
+  duplicate: 'people.duplicate',
+  error: 'community.save_error',
 });
 
 type Seat = {
@@ -51,6 +58,9 @@ export function PeoplePanel() {
   const [rows, setRows] = useState<Person[]>([]);
   const [query, setQuery] = useState('');
   const [hasMore, setHasMore] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [newName, setNewName] = useState('');
+  const [creating, setCreating] = useState(false);
 
   const load = (offset: number, q: string) => {
     fetch(`/api/admin/people?q=${encodeURIComponent(q)}&offset=${offset}`).then(async (res) => {
@@ -82,8 +92,50 @@ export function PeoplePanel() {
     return copy.statusActive;
   };
 
+  const createPerson = async () => {
+    setCreating(true);
+    const res = await fetch('/api/admin/people', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: newEmail, full_name: newName }),
+    });
+    setCreating(false);
+    if (res.status === 409) {
+      toast.error(copy.duplicate);
+      return;
+    }
+    if (!res.ok) {
+      toast.error(copy.error);
+      return;
+    }
+    toast.success(copy.created);
+    setNewEmail('');
+    setNewName('');
+    load(0, query.trim());
+  };
+
   return (
     <OpsPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
+      <form
+        className="mb-8 grid max-w-lg gap-3 rounded-xl border border-border p-4"
+        onSubmit={(ev) => {
+          ev.preventDefault();
+          void createPerson();
+        }}
+      >
+        <p className="text-sm text-muted-foreground">{copy.createHelp}</p>
+        <div className="space-y-2">
+          <Label htmlFor="ops-person-name">{copy.fullName}</Label>
+          <Input id="ops-person-name" value={newName} onChange={(ev) => setNewName(ev.target.value)} required />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="ops-person-email">{copy.email}</Label>
+          <Input id="ops-person-email" type="email" value={newEmail} onChange={(ev) => setNewEmail(ev.target.value)} required />
+        </div>
+        <Button type="submit" disabled={creating}>
+          {copy.create}
+        </Button>
+      </form>
       <div className="mb-6 max-w-lg">
         <Input value={query} onChange={(ev) => setQuery(ev.target.value)} placeholder={copy.search} />
       </div>

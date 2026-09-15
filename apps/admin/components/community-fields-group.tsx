@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
+import { useState } from 'react';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
 import { OpsBadge, OpsMoveButtons } from '@community/ui-admin';
 import { pickLocalizedText } from '@community/identity';
 import { CommunityFieldsField } from './community-fields-field';
@@ -9,6 +10,7 @@ import type { CatalogCopy, OpsGroup } from './community-fields-types';
 export function CommunityFieldsGroup({
   communityId,
   group,
+  groups,
   index,
   total,
   locale,
@@ -17,6 +19,7 @@ export function CommunityFieldsGroup({
 }: {
   communityId: string;
   group: OpsGroup;
+  groups: OpsGroup[];
   index: number;
   total: number;
   locale: string | undefined;
@@ -24,6 +27,20 @@ export function CommunityFieldsGroup({
   onChanged: () => void;
 }) {
   const title = pickLocalizedText(group.label, locale) || group.slug;
+  const [labelPt, setLabelPt] = useState(pickLocalizedText(group.label, 'pt-BR') || group.slug);
+  const [labelEn, setLabelEn] = useState(pickLocalizedText(group.label, 'en') || '');
+  const saveLabel = async () => {
+    const res = await fetch(`/api/admin/communities/${communityId}/groups/${group.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ labelPt, labelEn }),
+    });
+    if (!res.ok) {
+      toast.error(copy.error);
+      return;
+    }
+    onChanged();
+  };
   const moveGroup = async (direction: 'up' | 'down') => {
     const res = await fetch(`/api/admin/communities/${communityId}/groups/${group.id}/move`, {
       method: 'POST',
@@ -91,6 +108,27 @@ export function CommunityFieldsGroup({
             {group.locked ? <OpsBadge>{copy.locked}</OpsBadge> : null}
           </div>
           <p className="font-mono text-xs text-muted-foreground break-all">{group.slug}</p>
+          <div className="mt-3 grid max-w-md gap-3">
+            <div className="space-y-2">
+              <Label htmlFor={`ops-group-pt-${group.id}`}>{copy.groupLabel}</Label>
+              <Input
+                id={`ops-group-pt-${group.id}`}
+                value={labelPt}
+                onChange={(ev) => setLabelPt(ev.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor={`ops-group-en-${group.id}`}>{copy.labelEn}</Label>
+              <Input
+                id={`ops-group-en-${group.id}`}
+                value={labelEn}
+                onChange={(ev) => setLabelEn(ev.target.value)}
+              />
+            </div>
+            <Button type="button" size="sm" variant="outline" onClick={() => void saveLabel()}>
+              {copy.save}
+            </Button>
+          </div>
         </div>
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
           <OpsMoveButtons
@@ -135,7 +173,10 @@ export function CommunityFieldsGroup({
               locale={locale}
               copy={copy}
               onChanged={onChanged}
+              groups={groups}
+              currentGroupId={group.id}
               onMove={(direction) => void moveField(field.id, direction)}
+              groups={groups}
               onRemove={() => void removeField(field.id)}
             />
           ))

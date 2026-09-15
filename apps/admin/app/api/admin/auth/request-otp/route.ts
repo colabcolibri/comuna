@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findUserByEmail, isSuperAdmin, issueOtp, RateLimitError, sendSmtpMail } from '@community/auth';
-import { interpolate, LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
+import { findUserByEmail, isSuperAdmin, issueOtp, RateLimitError } from '@community/auth';
+import { sendKindEmail } from '@community/mail';
 import { jsonError } from '@/lib/http';
-import { uiCatalog } from '@/lang/catalog';
 
 const ipHits = new Map<string, number[]>();
 
@@ -31,21 +30,10 @@ export async function POST(req: NextRequest) {
       console.log(`[OTP ops] queued for ${user.email} (not in JSON)`);
     }
     const locale = resolveUiLocale(req.cookies.get(LOCALE_COOKIE)?.value);
-    const host = process.env.SMTP_HOST;
-    const port = Number(process.env.SMTP_PORT || '1026');
-    if (host) {
-      try {
-        await sendSmtpMail({
-          host,
-          port,
-          from: process.env.EMAIL_FROM_ADDRESS || 'auth@community.local',
-          to: user.email,
-          subject: uiCatalog.t('core_admin', 'email.otp.subject', locale),
-          text: interpolate(uiCatalog.t('core_admin', 'email.otp.text', locale), { code }),
-        });
-      } catch {
-        return jsonError('SERVER_ERROR', 'Falha ao enviar e-mail', 500);
-      }
+    try {
+      await sendKindEmail({ kind: 'ops_otp', to: user.email, locale, vars: { code } });
+    } catch {
+      return jsonError('SERVER_ERROR', 'Falha ao enviar e-mail', 500);
     }
     return NextResponse.json({ message: 'Código enviado' });
   } catch (err: unknown) {

@@ -1,3 +1,4 @@
+import { SPOKEN_LANGUAGES } from '@community/identity';
 import { nestCatalog, type CatalogGroup } from './catalog';
 
 const loc = (pt: string, en: string) => [
@@ -85,12 +86,10 @@ export function coreCatalog(): CatalogGroup[] {
       storage: 'person',
       column_key: 'languages',
       span: 2,
-      options: [
-        { value: 'pt', label: loc('Português', 'Portuguese') },
-        { value: 'en', label: loc('English', 'English') },
-        { value: 'es', label: loc('Espanhol', 'Spanish') },
-        { value: 'fr', label: loc('Francês', 'French') },
-      ],
+      options: SPOKEN_LANGUAGES.map((item) => ({
+        value: item.value,
+        label: [...item.label],
+      })),
     },
     {
       group_slug: 'links',

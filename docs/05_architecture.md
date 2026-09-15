@@ -1,7 +1,7 @@
 ---
 title: System Architecture
 status: approved
-version: 1.11
+version: 1.12
 updated: 2026-09-15
 depends_on: [00_scope.md, 01_tech_stack.md, 02_security.md, 03_user_types.md, 04_principles.md]
 blocks: [06_database.md, 07_api_contracts.md, 08_environments.md]
@@ -30,6 +30,7 @@ flowchart TD
         Mem[memberships]
         Runtime[module-runtime]
         Files[files ObjectStore]
+        Mail[mail envelope]
         Db[db]
     end
 
@@ -52,6 +53,8 @@ flowchart TD
     Ident --> Places
     Ident --> Files
     Files --> Db
+    Auth --> Mail
+    Mail --> Db
     Auth --> Db
     Ident --> Db
     Comm --> Db
@@ -83,12 +86,14 @@ flowchart TD
 | `docs/architecture/showcase-public.md` | O que a vitrine pode mostrar |
 | `docs/architecture/data-access.md` | SQL → domínio → HTTP → UI; sem ORM; Query só no último hop |
 | `docs/architecture/community-context.md` | Workspace: URL `/c/{slug}`, cookie, chrome; sem LIMIT 1 |
+| `docs/architecture/email.md` | Envelope HTML, kinds, overlay de templates, SMTP |
+| `docs/architecture/ops-settings.md` | Plataforma vs tenant; criar pessoa; catálogo extra |
 
 ## System modules (core)
 
 ### Auth
 
-OTP + JWT. Sem papel por e-mail.
+OTP + JWT. Sem papel por e-mail. Corpo do e-mail: `docs/architecture/email.md` — envelope único + kinds; rotas não interpolam HTML.
 
 ### Identity (perfil-base)
 
@@ -108,7 +113,7 @@ Montagem: **registry de contribuições** (rotas, chrome, slots) filtrado por `l
 
 ### Operations (admin app)
 
-Criar comunidade, pessoas da rede, membership (papel, status, turma, remover), **ligar/desligar módulos**, catálogo de campos.
+Criar comunidade, pessoas da rede (listar **e criar** conta por e-mail), membership (papel, status, turma, remover), **ligar/desligar módulos**, catálogo de campos, **configuração da plataforma**, **configuração do tenant**, **templates de e-mail** (preview + overlay). Detalhe: `docs/architecture/ops-settings.md`.
 
 ## First-party plugins (v2)
 

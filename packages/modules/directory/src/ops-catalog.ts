@@ -1,7 +1,7 @@
 import { query } from '@community/db';
 import { localizedPair, parseLocalized, pickLocalizedText, type LocalizedText } from '@community/identity';
 import { isFieldLocked, isSeedGroup, parseCatalogSpan } from './ops-catalog-shared';
-import { optionsToText, type OpsCatalogField } from './ops-catalog-fields';
+import { optionsToText, storedOptionsToOps, type OpsCatalogField } from './ops-catalog-fields';
 
 export type OpsCatalogGroup = {
   id: string;
@@ -60,6 +60,7 @@ export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGro
       locked: isFieldLocked(row.storage),
       filterable: Boolean(row.filterable),
       span: parseCatalogSpan(row.span, 1),
+      options: storedOptionsToOps(row.options),
       optionsText: optionsToText(row.options),
       label: parseLocalized(row.label),
     });
