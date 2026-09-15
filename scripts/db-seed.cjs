@@ -3,6 +3,7 @@
 
 const { Client } = require('pg');
 const { loadRootEnv } = require('./load-root-env.cjs');
+const { pgSsl } = require('./pg-ssl.cjs');
 
 const { seedDirectoryCatalog } = require('./seed-directory-catalog.cjs');
 const { DEMO_MEMBER_COUNT, demoMemberEmails, demoPeople, emailFor } = require('./seed-demo-people.cjs');
@@ -105,7 +106,7 @@ async function upsertProfile(client, userId, person) {
 }
 
 async function seed(url, email) {
-  const client = new Client({ connectionString: url });
+  const client = new Client({ connectionString: url, ssl: pgSsl(url) });
   await client.connect();
   try {
     await ensureModules(client);

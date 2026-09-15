@@ -1,0 +1,9 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "pnpm start"
+healthcheckPath = "/showcase"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+releaseCommand = "pnpm db:migrate"

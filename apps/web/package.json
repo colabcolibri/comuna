@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -p 3014 --turbo",
     "build": "next build",
-    "start": "next start -p 3014"
+    "start": "next start --hostname 0.0.0.0 --port ${PORT:-3014}"
   },
   "dependencies": {
     "@community/auth": "workspace:*",

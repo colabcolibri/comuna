@@ -1,8 +1,8 @@
 ---
 title: Environments and Setup
 status: review
-version: 1.7
-updated: 2026-09-15
+version: 1.9
+updated: 2026-09-16
 depends_on: [01_tech_stack.md, 05_architecture.md]
 blocks: []
 ---
@@ -28,6 +28,8 @@ blocks: []
 | `MEDIA_DRIVER` | `local` ou `s3` | Não (default `local`) | `local` | All |
 | `OPS_BASE_PATH` | Path ops se mesmo origin | Não | _(removido; ops é `apps/admin`)_ | — |
 | `ALLOW_DEV_OTP` | Se `true`, loga OTP no server **nunca** no JSON de prod | Não | `true` só local | Local |
+| `DATABASE_READ_ONLY` | Sessão da app em transação só de leitura (`SET default_transaction_read_only`). Writes (OTP, contacto, join) falham no Postgres | Não | `1` na demo Railway | Demo |
+| `PGSSL` | Força SSL do `pg` (`1`) ou desliga (`0`) | Não | vazio; Railway liga sozinho | Demo / staging |
 
 Busca de cidade: `GET /api/places/cities` chama Nominatim (OpenStreetMap). Sem chave. User-Agent próprio. Mínimo 1 req/s.
 
@@ -99,6 +101,62 @@ Casas do seed local:
 | `saude-territorio` | Prática em saúde e território | `practice_community` | sim | ocupação / SUS / território |
 
 Trezentas pessoas (`member01@demo.example` … `member99@demo.example`, depois `member100` … `member300`). A mesma conta pode ter membership em mais de uma casa (cartão, turma e atributos por comunidade). As primeiras quarenta têm nomes e bios escritos à mão; o restante é gerado com ofício e cidade variados. Turmas (`cohorts`) entram no seed com código estável.
+
+## Instância demo
+
+A demo pública é **o mesmo app** (`apps/web`) com **o mesmo Postgres** (schema, RLS, seed). Não há flag `DEMO`, snapshot JSON, SQLite no GitHub Pages nem overlay no browser. GitHub Pages não serve: é estático e não corre Route Handlers.
+
+O visitante usa `/showcase` e `/c/{slug}/showcase` — já são públicos (`docs/architecture/showcase-public.md`). O diretório continua a exigir membership. Não publicar no README contas de ops, coordenação, `JWT_SECRET`, SMTP de produção nem `INITIAL_SUPER_ADMIN_EMAIL`.
+
+Criar o projecto no host e colar secrets é **HAR**. Este runbook fecha a receita; o URL no ar é o humano.
+
+### Peças
+
+1. Postgres gerido (Neon, Railway Postgres, ou equivalente). SSL na `DATABASE_URL` como o fornecedor indicar.
+2. Host Node para Next (Vercel, Railway, ou equivalente). Root do monorepo; app `@community/web`.
+3. As **mesmas** variáveis da matriz acima. Na demo: `SMTP_HOST` pode ficar vazio (contacto falha como já falha sem mail; não se especializa a rota). `ALLOW_DEV_OTP` fica desligado. `NEXT_PUBLIC_APP_URL` é o domínio público da demo.
+4. Na máquina com o repo (ou num job único de release), com `DATABASE_URL` apontado à base remota:
+
+```bash
+pnpm install
+pnpm db:migrate
+pnpm db:seed
+```
+
+O seed faz upsert por e-mail/slug; não é `db reset`. Não o ponha em loop a cada cold start. Migrate em cada deploy; seed na primeira vez (ou quando quiserem refrescar o conteúdo de demonstração).
+
+### Vercel (web)
+
+- Root directory: repositório (não só `apps/web`, por causa dos workspace packages).
+- Install: `pnpm install`
+- Build: `pnpm --filter @community/web build`
+- Output / app: `apps/web`
+- Env: copiar a matriz; `DATABASE_URL` do Postgres gerido; `JWT_SECRET` só no painel, nunca no git.
+
+Não é obrigatório publicar `apps/admin` neste URL. Ops fica fora da demo pública.
+
+### Railway (web + Postgres)
+
+1. Projecto novo: plugin **PostgreSQL** + serviço a partir deste repo (root do monorepo). `railway.toml` / `nixpacks.toml` já definem build Nixpacks, `pnpm start`, healthcheck em `/showcase` e `releaseCommand` = `pnpm db:migrate`.
+2. Variáveis no serviço da **app** (além das que o plugin injeta): `JWT_SECRET`, `NEXT_PUBLIC_APP_URL` (URL pública Railway), `EMAIL_FROM_ADDRESS`, `DATABASE_READ_ONLY=1`. `SMTP_HOST` vazio. Não coloques `ALLOW_DEV_OTP`. `PORT` o Railway define.
+3. `DATABASE_URL` vem do Postgres. SSL: o pool liga SSL quando `RAILWAY_ENVIRONMENT` existe. Migrate no release **não** usa `DATABASE_READ_ONLY` (script `Client` à parte) — o seed do catálogo e das pessoas continua a escrever.
+4. Seed **uma vez**, na tua máquina ou num one-off **sem** `DATABASE_READ_ONLY` (ou o seed falha):
+
+```bash
+DATABASE_URL='postgresql://...railway...' pnpm db:seed
+```
+
+Na app, `DATABASE_READ_ONLY=1` impede INSERT/UPDATE/DELETE na sessão Node. A vitrine (SELECT) segue. Login, contacto e pedido de membership rebentam no banco de propósito — o seed não apodrece. Isso não é um segundo modo no UI.
+
+Generate a strong `JWT_SECRET`. Não publiques o e-mail do super-admin no README da demo.
+
+### O que o visitante vê
+
+Abrir `https://{domínio}/showcase`. Com uma só comunidade pública no seed, a vitrine dessa casa; com várias, a lista para escolher. Sem login. Mensagem mediada só funciona se houver SMTP; senão o gesto falha como no produto sem mail.
+
+### Fora deste caminho
+
+SQLite/PGlite no repo, GitHub Pages, `isDemoMode`, dump JSON e “guardar pessoas no navegador” só na demo.
 
 ## CI
 

@@ -2,7 +2,7 @@
 title: Database Design
 status: review
 version: 2.8
-updated: 2026-09-15
+updated: 2026-09-16
 depends_on: [05_architecture.md]
 blocks: [07_api_contracts.md]
 ---
@@ -15,7 +15,7 @@ blocks: [07_api_contracts.md]
 - **Access:** driver `pg` em `packages/core/db` (alvo). Sem ORM nesta versão.
 - **Migrations:** `db/migrations/YYYYMMDDHHMMSS_*.sql` — uma alteração por arquivo. Aplicar com runner documentado na US de persistência. **Proibido** reset/drop de banco como rotina.
 - **Tenancy:** toda query de rede filtra `memberships.community_id`. `super_admin` não usa `community_id` para “ver tudo na vitrine”; ops lista comunidades, não o diretório de talentos.
-- **Who writes:** app usa `SET LOCAL ROLE community_app` (NOBYPASSRLS) e `set_config` de `app.user_id` / `app.community_id` nas queries de perfil e membership. Copy bilingue digitado: só headline/bio. Cidade: objeto Nominatim. Migrate/seed na role dona do banco. Sem ORM.
+- **Who writes:** app usa `SET LOCAL ROLE community_app` (NOBYPASSRLS) e `set_config` de `app.user_id` / `app.community_id` nas queries de perfil e membership. Copy bilingue digitado: só headline/bio. Cidade: objeto Nominatim. Migrate/seed na role dona do banco. Sem ORM. Instância demo no host: `DATABASE_READ_ONLY=1` no **pool da app** (`default_transaction_read_only`); migrate/seed usam `Client` sem essa opção, na mesma `DATABASE_URL`.
 - **Backup:** dump Postgres no host de prod (procedimento no `08` quando houver prod). Sem `db reset`.
 
 O ER abaixo é o contrato. Migrações em `db/migrations/` aplicam o núcleo e os plugins first-party.

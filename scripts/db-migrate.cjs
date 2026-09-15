@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { Client } = require('pg');
 const { loadRootEnv } = require('./load-root-env.cjs');
+const { pgSsl } = require('./pg-ssl.cjs');
 
 const dir = path.resolve(__dirname, '../db/migrations');
 
@@ -25,7 +26,7 @@ function classifyMigrations(fileIds, appliedIds) {
 }
 
 async function readAppliedIds(connectionString) {
-  const client = new Client({ connectionString });
+  const client = new Client({ connectionString, ssl: pgSsl(connectionString) });
   await client.connect();
   try {
     await client.query(`
@@ -44,7 +45,7 @@ async function readAppliedIds(connectionString) {
 async function applyMigrations(connectionString) {
   const fileIds = listMigrationIds(dir);
   const appliedNow = [];
-  const client = new Client({ connectionString });
+  const client = new Client({ connectionString, ssl: pgSsl(connectionString) });
   await client.connect();
   try {
     await client.query(`
