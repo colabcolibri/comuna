@@ -1,6 +1,6 @@
 ---
 title: System Architecture
-status: review
+status: approved
 version: 1.6
 updated: 2026-09-15
 depends_on: [00_scope.md, 01_tech_stack.md, 02_security.md, 03_user_types.md, 04_principles.md]
@@ -113,4 +113,4 @@ Criar comunidade, atribuir coordenador, **ligar/desligar módulos**.
 
 ## Gate
 
-`review` até o manager aprovar o modelo plugin + monorepo.
+`approved` — manager aprovou o modelo plugin + monorepo (2026-09-15).
