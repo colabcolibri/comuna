@@ -29,6 +29,7 @@ export default async function CommunityShowcasePage({
       communityLede={hero.lede || undefined}
       rows={listed.data}
       facets={listed.facets}
+      listFields={listed.listFields}
       search={query.get('search') || ''}
       facetValues={facetsFromSearchParams(query)}
       status={query.get('status') || ''}

@@ -3,20 +3,22 @@
 import { useState, type FormEvent } from 'react';
 import { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader, AppSheet, personInitials } from '@community/ui-member';
 import { Button, DialogTitle, Input, Label, Textarea, toast } from '@community/ui';
-import { pickLocalizedText } from '@community/identity';
+import { projectPersonView, type ListField } from '@community/directory';
 import { displayPlaceLocality } from '@community/places';
-import { profileChips } from '@/lib/people/chips';
+import { availabilityLabel } from '@/lib/people/availability';
 import { sendPersonContact } from '@/lib/api/contact';
 import type { PersonCard } from '@/lib/people/person-card';
 
 export function PersonInspect({
   profile,
+  listFields,
   copy,
   locale,
   canContact,
   onClose,
 }: {
   profile: PersonCard | null;
+  listFields: ListField[];
   copy: Record<string, string>;
   locale: string;
   canContact: boolean;
@@ -61,57 +63,77 @@ export function PersonInspect({
     setContactOpen(false);
   };
 
-  const headline = profile ? pickLocalizedText(profile.headline, locale) : '';
-  const bio = profile ? pickLocalizedText(profile.bio, locale) : '';
-  const chips = profile ? profileChips(profile, copy, locale) : [];
-  const city = profile ? displayPlaceLocality(profile.current_city, locale) : '';
+  const view = profile
+    ? projectPersonView({
+        profile,
+        fields: listFields,
+        density: 'detail',
+        locale,
+        cityLabel: displayPlaceLocality(profile.current_city, locale),
+        availabilityLabel: availabilityLabel(profile.availability_status, copy),
+      })
+    : null;
 
   return (
     <AppDialog open={!!profile} onClose={closeAll} size="lg">
       <AppDialogHeader>
-        {profile ? (
+        {profile && view ? (
           <div className="flex min-w-0 items-start gap-4">
-            {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="size-14 shrink-0 rounded-full object-cover" />
+            {view.photoUrl ? (
+              <img src={view.photoUrl} alt="" className="size-14 shrink-0 rounded-full object-cover" />
             ) : (
               <div
                 className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground"
                 aria-hidden
               >
-                {personInitials(profile.full_name)}
+                {personInitials(view.name)}
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <DialogTitle className="tracking-tight text-foreground">{profile.full_name}</DialogTitle>
-              {city ? <p className="mt-1 text-base text-muted-foreground">{city}</p> : null}
+              <DialogTitle className="tracking-tight text-foreground">{view.name}</DialogTitle>
+              {view.city ? <p className="mt-1 text-base text-muted-foreground">{view.city}</p> : null}
             </div>
           </div>
         ) : null}
       </AppDialogHeader>
       <AppDialogBody>
-        {profile ? (
+        {view ? (
           <div className="space-y-6">
-            {headline ? <p className="text-base font-medium text-foreground">{headline}</p> : null}
-            {bio ? <p className="text-base leading-relaxed text-foreground">{bio}</p> : null}
-            <ul className="flex flex-wrap gap-2">
-              {chips.map((chip) => (
-                <li key={chip} className="rounded-md border border-border bg-secondary px-2.5 py-1 text-sm">
-                  {chip}
-                </li>
-              ))}
-              {profile.custom_attributes.host_at_home ? (
-                <li className="rounded-md border border-border bg-secondary px-2.5 py-1 text-sm">{copy.host}</li>
-              ) : null}
-            </ul>
-            <ul className="flex flex-col gap-2 text-sm">
-              {Object.entries(profile.contacts).map(([key, href]) => (
-                <li key={key}>
-                  <a href={href} className="underline" rel="noreferrer" target="_blank">
-                    {key === 'linkedin' ? copy.linkedin : key === 'github' ? copy.github : copy.portfolio}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {view.headline ? <p className="text-base font-medium text-foreground">{view.headline}</p> : null}
+            {view.summary ? <p className="text-base leading-relaxed text-foreground">{view.summary}</p> : null}
+            {view.languages.length > 0 ? (
+              <section className="min-w-0 space-y-2">
+                <h3 className="text-sm font-medium text-foreground">{copy.languages}</h3>
+                <ul className="flex flex-wrap gap-2">
+                  {view.languages.map((item) => (
+                    <li key={item.code} className="rounded-md border border-border bg-secondary px-2.5 py-1 text-sm">
+                      {item.label}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+            {view.availability ? <p className="text-sm text-foreground">{view.availability}</p> : null}
+            {view.facts.length > 0 ? (
+              <ul className="flex flex-wrap gap-2">
+                {view.facts.map((item) => (
+                  <li key={item.name} className="rounded-md border border-border bg-secondary px-2.5 py-1 text-sm">
+                    {item.value}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {view.links.length > 0 ? (
+              <ul className="flex flex-col gap-2 text-sm">
+                {view.links.map((item) => (
+                  <li key={item.key}>
+                    <a href={item.href} className="underline" rel="noreferrer" target="_blank">
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
         ) : null}
       </AppDialogBody>

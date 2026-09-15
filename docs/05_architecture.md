@@ -81,6 +81,7 @@ flowchart TD
 | `docs/architecture/monorepo.md` | Árvore de pastas |
 | `docs/architecture/modules.md` | Contrato de plugin, perfil-base vs extra |
 | `docs/architecture/profile-fields.md` | Catálogo de grupos/campos, templates, jsonb + GIN |
+| `docs/architecture/list-surfaces.md` | Política de lista (diretório e vitrine): filtro e placement |
 | `docs/architecture/plugin-surfaces.md` | Contribuições (registry + `module_id`); off = filtro genérico |
 | `docs/architecture/media.md` | Avatar: store + chave; Postgres só URL |
 | `docs/architecture/showcase-public.md` | O que a vitrine pode mostrar |
@@ -113,7 +114,7 @@ Montagem: **registry de contribuições** (rotas, chrome, slots) filtrado por `l
 
 ### Operations (admin app)
 
-Criar comunidade, pessoas da rede (listar **e criar** conta por e-mail), membership (papel, status, turma, remover), **ligar/desligar módulos**, catálogo de campos, **configuração da plataforma**, **configuração do tenant**, **e-mails** (um template + copy por kind). Detalhe: `docs/architecture/ops-settings.md`.
+Criar comunidade, pessoas da rede (listar **e criar** conta por e-mail), membership (papel, status, turma, remover), **ligar/desligar módulos**, catálogo de campos, **listas** (filtro e placement do diretório e da vitrine), **configuração da plataforma**, **configuração do tenant**, **e-mails** (um template + copy por kind). Detalhe: `docs/architecture/ops-settings.md`.
 
 ## First-party plugins (v2)
 
@@ -125,7 +126,7 @@ Criar comunidade, pessoas da rede (listar **e criar** conta por e-mail), members
 
 ## Profile field catalog
 
-Detalhe: `docs/architecture/profile-fields.md`. Resumo: definições em tabela (`field_groups`, `fields`); valores custom em `cards.custom_attributes` (escalares, GIN); built-ins via `storage` `person` ou `card_column`; UI só orquestra grupos e `FieldControl` por tipo.
+Detalhe: `docs/architecture/profile-fields.md` e `docs/architecture/list-surfaces.md`. Resumo: definições em `field_groups` / `fields`; política de cada lista em `list_fields`; valores custom em `cards.custom_attributes` (escalares, GIN); built-ins via `storage` `person` ou `card_column`; UI de perfil só orquestra grupos e `FieldControl` por tipo.
 
 ## Component boundary
 

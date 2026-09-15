@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { LOCALE_COOKIE, contentFromCatalog, pickContent, resolveUiLocale } from '@community/identity';
 import { listPublicCommunities, publicShowcaseHero } from '@community/communities';
-import { AppShowcasePortal } from '@community/ui-member';
+import { AppShowcaseEmpty, AppShowcasePortal } from '@community/ui-member';
 import { ShowcasePanel } from '@/components/app/ShowcasePanel';
 import { CommunityJoinBar } from '@/components/app/CommunityJoinBar';
 import { listPublicProfiles } from '@/lib/server/public-profiles';
@@ -15,6 +15,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'plugin_showcase', {
   title: 'page.title',
   pick: 'page.pick',
   pickSubtitle: 'page.pick_subtitle',
+  emptyTitle: 'page.empty_title',
   empty: 'page.empty',
 });
 
@@ -40,6 +41,7 @@ export default async function ShowcasePage({
         communityLede={hero.lede || undefined}
         rows={listed.data}
         facets={listed.facets}
+        listFields={listed.listFields}
         search={query.get('search') || ''}
         facetValues={facetsFromSearchParams(query)}
         status={query.get('status') || ''}
@@ -53,7 +55,7 @@ export default async function ShowcasePage({
   if (communities.length === 0) {
     return (
       <AppShowcasePortal title={copy.title} lede={copy.pickSubtitle}>
-        <p className="text-muted-foreground">{copy.empty}</p>
+        <AppShowcaseEmpty title={copy.emptyTitle} body={copy.empty} />
       </AppShowcasePortal>
     );
   }

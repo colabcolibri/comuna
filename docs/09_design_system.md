@@ -1,7 +1,7 @@
 ---
 title: Design System
 status: review
-version: 1.24
+version: 1.25
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
@@ -72,7 +72,7 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `OpsSubnav` | Tabs horizontais de **rota** (legado / uso pontual; capítulos do tenant vão no rail) | `packages/ui/admin/src/ops-subnav.tsx` |
 | `OpsTabs` | Tabs shadcn de **estado** (ex.: kinds de e-mail). Horizontal por padrão: irmãos do mesmo formulário, sem segundo rail. Vertical só se a lista for longa e o conteúdo for um só painel. | `packages/ui/admin/src/ops-tabs.tsx` |
 | `OpsAccordion` | Item colapsável (shadcn `Accordion` `single` + `collapsible`). Fecha por padrão. Título no gatilho; ações (botões) **fora** do gatilho para não aninhar botão. **Uma** caixa (`rounded-lg border`); aberto = linha sob o cabeçalho. Sem card dentro do card. | `packages/ui/admin/src/ops-accordion.tsx` |
-| `OpsCheckboxFrame` | Checkbox sozinho (ex.: filtrar no diretório) no mesmo recorte de `SelectTrigger`: borda, `h-9`, controle no centro | `packages/ui/admin/src/ops-checkbox-frame.tsx` |
+| `OpsCheckboxFrame` | Checkbox sozinho (ex.: filtrar numa lista) no mesmo recorte de `SelectTrigger`: borda, `h-9`, controle no centro | `packages/ui/admin/src/ops-checkbox-frame.tsx` |
 | `OpsHtmlPreview` | Iframe de HTML (e-mail). Atualiza `head`/`body` no documento já aberto; não troca `srcDoc` a cada tecla. | `packages/ui/admin/src/ops-html-preview.tsx` |
 | `OpsDialog` | Overlay de detalhe (mesmo contrato de `AppDialog`). Admin **não** importa `@community/ui-member`. Prévia de campos abre aqui. | `packages/ui/admin/src/ops-dialog.tsx` |
 | `OpsSheet` | Mesmo contrato de `AppSheet` (`SheetTrigger` + `SheetContent` + `SheetClose`). Corpo com scroll. Editar campo do catálogo abre à direita. Admin **não** importa `@community/ui-member`. | `packages/ui/admin/src/ops-sheet.tsx` |
@@ -84,14 +84,14 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `OpsCombobox` | Typeahead (listbox). Hits vêm do servidor; o componente não recebe 10k opções | `packages/ui/admin/src/ops-combobox.tsx` |
 | `OpsTable` | Tabela densa ops | `packages/ui/admin/src/ops-table.tsx` |
 | `AppAuthFrame` | Login centrado com kicker | `packages/ui/member/src/app-auth-frame.tsx` |
-| `AppIndexList` / `AppPersonRow` | Índice de pessoas (não grid de cards) | `packages/ui/member/src/app-person-row.tsx` |
+| `AppIndexList` / `AppPersonRow` | Índice de pessoas (não grid de cards); row pode mostrar idiomas se a lista directory marcar `card` | `packages/ui/member/src/app-person-row.tsx` |
 | `AppAlertDialog` | Confirmação (cancelar / confirmar) | `packages/ui/member/src/app-alert-dialog.tsx` |
 | `AppDialog` | Perfil / detalhe: envolve o `Dialog` shadcn (tamanho, header, body com `ScrollArea`) | `packages/ui/member/src/app-dialog.tsx` |
 | `AppSheet` | Sheet shadcn: `SheetTrigger` + `SheetContent` + `SheetClose`. Corpo `grid flex-1 auto-rows-min gap-6 px-4`. Filtros e enviar mensagem usam este template. | `packages/ui/member/src/app-sheet.tsx` |
 | `AppFilterSheet` | `AppSheet` com trigger na página, limpar e fechar no rodapé | `packages/ui/member/src/app-filter-sheet.tsx` |
 | `AppPublicChrome` | Página pública da vitrine: header sem sidebar, documento rola | `packages/ui/member/src/app-public-chrome.tsx` |
 | `AppShowcasePortal` / `AppShowcasePager` | Herói do portal público + paginação | `packages/ui/member/src/app-showcase-portal.tsx` |
-| `AppShowcaseCard` | Cartão da vitrine (foto 80px, cartão inteiro abre o perfil) | `packages/ui/member/src/app-showcase-card.tsx` |
+| `AppShowcaseCard` | Cartão da vitrine (foto 80px; slot de idiomas separado de availability/facts; cartão inteiro abre o perfil) | `packages/ui/member/src/app-showcase-card.tsx` |
 | `Toaster` (Sonner) | Feedback **transitório** (salvar, envio) | `packages/ui/primitives` — `toast` de `@community/ui`. Um `Toaster` no layout. Alerta **inline** = `Alert` de `@community/ui`, não toast. |
 | `MemberShell` | Sidebar + inset + header; páginas rolam com `ScrollArea`; rodapé no chrome (fora do scroll) | `apps/web/.../MemberShell.tsx` |
 | `AppSidebar` | Destinos desta comunidade; rodapé = perfil + Sair | `apps/web/.../AppSidebar.tsx` |
@@ -168,6 +168,7 @@ Voz institucional, curta, em sentence case. **Kicker, título e subtítulo são 
 | Subtítulo | Uma frase de contexto; na vitrine = `settings.showcase_description` | Tutorial, schema, “para quem ainda não é membro” |
 | Campo | Rótulo + obrigatório/opcional | Lede que ensina schema |
 | Ajuda | Uma frase se o controlo for ambíguo | Env vars, papéis internos |
+| Empty | Vitrine sem cartões: título + uma frase (`AppShowcaseEmpty`). Casa sem opt-in ≠ busca/filtro sem resultado | “Carregando…”, grelha vazia, uma linha miúda no canto |
 | Privacidade | No login, no diretório e no envio de mensagem — curta | Ensaio em todo header |
 
 Proibido na UI (docs e logs podem): intermediado, tenant, membership, schema, demografia, headline, `super_admin`, `SMTP_HOST`, Mailpit, “no banco”, slug como aula. Ops pode ver **identificador na URL**. Membro e visitante: o produto. Ops: a operação, ainda humano.

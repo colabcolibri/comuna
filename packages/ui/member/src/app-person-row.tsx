@@ -19,12 +19,14 @@ export function AppPersonRow({
   headline,
   status,
   photo,
+  languages,
   action,
 }: {
   name: string;
   headline?: string | null;
   status?: string | null;
   photo?: string | null;
+  languages?: string[];
   action?: ReactNode;
 }) {
   return (
@@ -42,6 +44,9 @@ export function AppPersonRow({
       <div className="min-w-0 flex-1">
         <h2 className="font-semibold text-foreground truncate">{name}</h2>
         {headline ? <p className="text-base text-muted-foreground mt-0.5 line-clamp-2">{headline}</p> : null}
+        {languages && languages.length > 0 ? (
+          <p className="mt-1 text-sm text-muted-foreground wrap-break-word">{languages.join(' · ')}</p>
+        ) : null}
       </div>
       {status ? (
         <span className="inline-flex w-fit text-sm px-2.5 py-1 rounded-md border border-border bg-secondary text-foreground">

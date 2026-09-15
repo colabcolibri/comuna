@@ -45,3 +45,5 @@ Ops cria `auth_core.users` + `person_core.profiles` por e-mail + nome (`POST /ap
 ## Catálogo (complemento)
 
 Além de ordem/span/colunas já entregues: PATCH de **rótulo** do grupo (seed incluso; slug imutável); mover campo **entre grupos** do mesmo tenant (`PATCH`/`POST` com `groupId`). Continua proibido apagar seed e campo não-`attributes`. Select/radio/checkbox: opções estruturadas (`options[]`) no GET/POST/PATCH; UI de linhas no admin.
+
+Filtro e o que aparece na lista **não** ficam no editor de campo. Tela **Listas**: `/communities/:id/lists/directory` e `/lists/showcase`. Contrato: `docs/architecture/list-surfaces.md`.

@@ -1,7 +1,5 @@
 'use strict';
 
-const DEMO_MEMBER_COUNT = 40;
-
 function loc(pt, en) {
   return [
     { locale: 'pt-BR', value: pt },
@@ -41,6 +39,208 @@ const BARCELONA = place('Barcelona', 'Barcelona', 347950, '41.3874', '2.1686', '
 const LONDRES = place('Londres', 'London', 65606, '51.5074', '-0.1278', 'GB');
 const TORONTO = place('Toronto', 'Toronto', 324211, '43.6532', '-79.3832', 'CA');
 const BUENOS_AIRES = place('Buenos Aires', 'Buenos Aires', 1224652, '-34.6037', '-58.3816', 'AR');
+const MANAUS = place('Manaus', 'Manaus', 332087, '-3.1190', '-60.0217', 'BR');
+const BELEM = place('Belém', 'Belem', 185590, '-1.4558', '-48.4902', 'BR');
+const GOIANIA = place('Goiânia', 'Goiania', 334443, '-16.6869', '-49.2648', 'BR');
+const PALMAS = place('Palmas', 'Palmas', 332176, '-10.1840', '-48.3336', 'BR');
+const CUIABA = place('Cuiabá', 'Cuiaba', 332060, '-15.6014', '-56.0979', 'BR');
+const SAO_LUIS = place('São Luís', 'Sao Luis', 332070, '-2.5307', '-44.2825', 'BR');
+const NATAL = place('Natal', 'Natal', 303815, '-5.7945', '-35.2110', 'BR');
+const JOAO_PESSOA = place('João Pessoa', 'Joao Pessoa', 303658, '-7.1195', '-34.8450', 'BR');
+const FLORIANOPOLIS = place('Florianópolis', 'Florianopolis', 296584, '-27.5954', '-48.5480', 'BR');
+const VITORIA = place('Vitória', 'Vitoria', 296939, '-20.3155', '-40.3128', 'BR');
+const RIO_BRANCO = place('Rio Branco', 'Rio Branco', 332088, '-9.9754', '-67.8249', 'BR');
+const BOA_VISTA = place('Boa Vista', 'Boa Vista', 332117, '2.8195', '-60.6714', 'BR');
+const MACEIO = place('Maceió', 'Maceio', 303781, '-9.6498', '-35.7089', 'BR');
+const TERESINA = place('Teresina', 'Teresina', 332116, '-5.0892', '-42.8019', 'BR');
+
+const CITIES = [
+  SAO_PAULO,
+  RIO,
+  RECIFE,
+  BH,
+  POA,
+  CURITIBA,
+  SALVADOR,
+  FORTALEZA,
+  BRASILIA,
+  CAMPINAS,
+  BARBACENA,
+  LISBOA,
+  PORTO,
+  BERLIM,
+  PARIS,
+  AMSTERDA,
+  BARCELONA,
+  LONDRES,
+  TORONTO,
+  BUENOS_AIRES,
+  MANAUS,
+  BELEM,
+  GOIANIA,
+  PALMAS,
+  CUIABA,
+  SAO_LUIS,
+  NATAL,
+  JOAO_PESSOA,
+  FLORIANOPOLIS,
+  VITORIA,
+  RIO_BRANCO,
+  BOA_VISTA,
+  MACEIO,
+  TERESINA,
+];
+
+const FIRST_WOMAN = [
+  'Helena',
+  'Sofia',
+  'Camila',
+  'Beatriz',
+  'Lívia',
+  'Isabela',
+  'Fernanda',
+  'Juliana',
+  'Renata',
+  'Patrícia',
+  'Carolina',
+  'Mariana',
+  'Tatiane',
+  'Amanda',
+  'Natália',
+  'Simone',
+  'Daniela',
+  'Larissa',
+  'Elisa',
+  'Aline',
+  'Priscila',
+  'Letícia',
+  'Rafaela',
+  'Bruna',
+  'Adriana',
+  'Cláudia',
+  'Mônica',
+  'Sabrina',
+  'Vanessa',
+  'Cíntia',
+  'Iara',
+  'Jéssica',
+  'Luana',
+  'Marina',
+  'Olívia',
+  'Paula',
+  'Quésia',
+  'Suelen',
+  'Tainá',
+  'Úrsula',
+  'Vera',
+  'Yasmin',
+  'Zélia',
+  'Emília',
+  'Gisele',
+  'Heloísa',
+];
+
+const FIRST_MAN = [
+  'João',
+  'Rafael',
+  'Thiago',
+  'Diego',
+  'Marcelo',
+  'Pedro',
+  'Lucas',
+  'André',
+  'Felipe',
+  'Bruno',
+  'Eduardo',
+  'Ricardo',
+  'Henrique',
+  'Vinícius',
+  'Otávio',
+  'Igor',
+  'Caio',
+  'Gustavo',
+  'Leandro',
+  'Márcio',
+  'Nelson',
+  'Oscar',
+  'Paulo',
+  'Renato',
+  'Sérgio',
+  'Tiago',
+  'Ubirajara',
+  'Vitor',
+  'Wagner',
+  'Xavier',
+  'Yuri',
+  'Zeca',
+  'Arthur',
+  'Bento',
+  'César',
+  'Davi',
+  'Enzo',
+  'Fabiano',
+  'Heitor',
+  'Ícaro',
+  'Jorge',
+  'Kleber',
+  'Luan',
+  'Murilo',
+];
+
+const FIRST_NB = ['Alex', 'Dani', 'Kai', 'Nico', 'Ari', 'Sam', 'Indi', 'Robin'];
+
+const LAST_NAMES = [
+  'Albuquerque',
+  'Barros',
+  'Cardoso',
+  'Dantas',
+  'Esteves',
+  'Farias',
+  'Guedes',
+  'Henriques',
+  'Inácio',
+  'Justino',
+  'Kehl',
+  'Leal',
+  'Macedo',
+  'Nascimento',
+  'Ottoni',
+  'Peixoto',
+  'Queiroz',
+  'Rezende',
+  'Sampaio',
+  'Tavares',
+  'Uchoa',
+  'Vasconcelos',
+  'Werneck',
+  'Xavier',
+  'Amaral',
+  'Bittencourt',
+  'Cavalcanti',
+  'Drummond',
+  'Espíndola',
+  'Freire',
+  'Guimarães',
+  'Lacerda',
+  'Medeiros',
+  'Neves',
+  'Oliveira',
+  'Pimentel',
+  'Rabelo',
+  'Siqueira',
+  'Teodoro',
+  'Valente',
+  'Andrade',
+  'Borges',
+  'Cunha',
+  'Furtado',
+  'Lopes',
+  'Moura',
+  'Nogueira',
+  'Pacheco',
+  'Ribeiro',
+  'Santana',
+];
 
 const PEOPLE = [
   {
@@ -61,8 +261,8 @@ const PEOPLE = [
     },
     headline: loc('Produto para redes profissionais', 'Product for professional networks'),
     bio: loc(
-      'Desenha o caminho de quem entra numa comunidade e precisa achar gente, não feed. Mentora de quem está mudando de carreira depois dos 30.',
-      'Designs the path for people who join a community to find people, not a feed. Mentors career switchers after 30.'
+      'Desenha o caminho de quem entra numa comunidade e precisa achar gente, não feed. Mentora de quem está mudando de carreira depois dos 30. Mora em São Paulo, ainda indica turma do Instituto e recusa o tom de palco: se a pergunta for sincera, responde; se for networking de evento, deixa quieto.',
+      'Designs the path for people who join a community to find people, not a feed. Mentors career switchers after 30. Lives in Sao Paulo, still points people to the Instituto cohort, and refuses conference-stage tone: honest questions get an answer; event networking does not.'
     ),
     availability: 'mentor',
     public_showcase: true,
@@ -854,24 +1054,112 @@ const PEOPLE = [
   },
 ];
 
-if (PEOPLE.length !== DEMO_MEMBER_COUNT) {
-  throw new Error(`demo people must be ${DEMO_MEMBER_COUNT}, got ${PEOPLE.length}`);
+const CORE_COUNT = PEOPLE.length;
+
+if (CORE_COUNT !== 40) {
+  throw new Error(`core demo people must be 40, got ${CORE_COUNT}`);
+}
+
+const DEMO_MEMBER_COUNT = 300;
+const RESERVED_NAMES = new Set(PEOPLE.map((person) => person.full_name));
+
+function generatedName(n) {
+  const i = n - 41;
+  const bucket = i % 11;
+  let first;
+  let gender;
+  if (bucket === 10) {
+    first = FIRST_NB[i % FIRST_NB.length];
+    gender = bucket % 2 === 0 ? 'non_binary' : 'prefer_not';
+  } else if (bucket % 2 === 0) {
+    first = FIRST_WOMAN[i % FIRST_WOMAN.length];
+    gender = 'woman';
+  } else {
+    first = FIRST_MAN[i % FIRST_MAN.length];
+    gender = 'man';
+  }
+  const last = LAST_NAMES[Math.floor(i / 3) % LAST_NAMES.length];
+  const second = LAST_NAMES[(i + 17) % LAST_NAMES.length];
+  let full_name = `${first} ${last}`;
+  if (RESERVED_NAMES.has(full_name) || second === last) {
+    full_name = `${first} ${last} ${second}`;
+  }
+  if (RESERVED_NAMES.has(full_name)) {
+    full_name = `${first} ${second} ${last} ${n}`;
+  }
+  RESERVED_NAMES.add(full_name);
+  return { full_name, gender };
+}
+
+function generatedLanguages(n) {
+  const extra = [
+    [],
+    [{ code: 'en', proficiency: 'fluent' }],
+    [{ code: 'en', proficiency: 'advanced' }],
+    [{ code: 'en', proficiency: 'fluent' }, { code: 'es', proficiency: 'basic' }],
+    [{ code: 'en', proficiency: 'fluent' }, { code: 'fr', proficiency: 'basic' }],
+    [{ code: 'es', proficiency: 'advanced' }],
+    [{ code: 'en', proficiency: 'fluent' }, { code: 'de', proficiency: 'basic' }],
+  ][n % 7];
+  return [{ code: 'pt', proficiency: 'native' }, ...extra];
+}
+
+function generatedContacts(n, slug) {
+  const handle = `pessoa${String(n).padStart(3, '0')}`;
+  if (n % 5 === 0) return {};
+  const contacts = { linkedin: `https://linkedin.com/in/${slug}` };
+  if (n % 2 === 0) contacts.github = `https://github.com/${handle}`;
+  if (n % 3 === 0) contacts.portfolio = `https://${handle}.example`;
+  return contacts;
+}
+
+function generatedPerson(n) {
+  const { full_name, gender } = generatedName(n);
+  const slug = full_name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '')
+    .slice(0, 24);
+  const birth_city = CITIES[n % CITIES.length];
+  const current_city = CITIES[(n * 3) % CITIES.length];
+  return {
+    n,
+    full_name,
+    gender,
+    preferred_locale: n % 11 === 0 ? 'en' : 'pt-BR',
+    birth_city,
+    current_city,
+    languages: generatedLanguages(n),
+    contacts: generatedContacts(n, slug || `pessoa${n}`),
+    availability: ['available_for_hire', 'project_partner', 'mentor', 'unavailable'][n % 4],
+    public_showcase: n % 6 !== 0,
+    host_at_home: n % 3 === 0,
+  };
 }
 
 function demoPeople() {
-  return PEOPLE;
-}
-
-function demoMemberEmails(count = DEMO_MEMBER_COUNT) {
-  return Array.from({ length: count }, (_, i) => `member${String(i + 1).padStart(2, '0')}@demo.example`);
+  RESERVED_NAMES.clear();
+  for (const person of PEOPLE) RESERVED_NAMES.add(person.full_name);
+  const rest = [];
+  for (let n = CORE_COUNT + 1; n <= DEMO_MEMBER_COUNT; n += 1) {
+    rest.push(generatedPerson(n));
+  }
+  return [...PEOPLE, ...rest];
 }
 
 function emailFor(person) {
-  return `member${String(person.n).padStart(2, '0')}@demo.example`;
+  const width = person.n < 100 ? 2 : 3;
+  return `member${String(person.n).padStart(width, '0')}@demo.example`;
+}
+
+function demoMemberEmails(count = DEMO_MEMBER_COUNT) {
+  return Array.from({ length: count }, (_, i) => emailFor({ n: i + 1 }));
 }
 
 module.exports = {
   DEMO_MEMBER_COUNT,
+  CORE_COUNT,
   demoMemberEmails,
   demoPeople,
   emailFor,

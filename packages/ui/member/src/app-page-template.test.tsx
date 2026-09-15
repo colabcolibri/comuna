@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { AppPageTemplate } from './app-page-template';
 import { AppIndexList, AppPersonRow } from './app-person-row';
 import { AppProfileSection, AppProfileStack } from './app-profile-section';
-import { AppShowcasePortal } from './app-showcase-portal';
+import { AppShowcaseEmpty, AppShowcasePortal } from './app-showcase-portal';
 
 describe('AppPageTemplate', () => {
   it('renders kicker, title, lede and actions', () => {
@@ -29,6 +29,13 @@ describe('AppShowcasePortal', () => {
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Pessoas da rede');
     expect(screen.getByText('Quem optou por aparecer.')).toBeTruthy();
     expect(screen.getByText('grelha')).toBeTruthy();
+  });
+
+  it('renders a visible empty state, not a blank grid', () => {
+    render(<AppShowcaseEmpty title="Ninguém nesta vitrine" body="Ninguém optou." />);
+    expect(screen.getByRole('status')).toBeTruthy();
+    expect(screen.getByRole('heading', { level: 2 }).textContent).toBe('Ninguém nesta vitrine');
+    expect(screen.getByText('Ninguém optou.')).toBeTruthy();
   });
 });
 

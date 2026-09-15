@@ -6,7 +6,8 @@ vi.mock('@community/db', () => ({
 
 import { query } from '@community/db';
 import { CatalogWriteError, movedSequence, parseCatalogColumns } from './ops-catalog-shared';
-import { createAttributeField, deleteAttributeField, updateCatalogFieldDescription, updateCatalogFieldFilterable, updateCatalogFieldRequired, updateCatalogFieldSpan, normalizeOpsChoiceOptions } from './ops-catalog-fields';
+import { createAttributeField, deleteAttributeField, updateCatalogFieldDescription, updateCatalogFieldRequired, updateCatalogFieldSpan, normalizeOpsChoiceOptions } from './ops-catalog-fields';
+import { saveOpsListFields } from './ops-list-fields';
 import { listOpsCatalog } from './ops-catalog';
 import { deleteCatalogGroup, updateCatalogGroupColumns } from './ops-catalog-groups';
 import { moveCatalogFieldToGroup, resetCatalogOrder } from './ops-catalog-order';
@@ -136,7 +137,6 @@ describe('ops catalog', () => {
           name: 'host_at_home',
           type: 'boolean',
           storage: 'attributes',
-          filterable: true,
           label: [{ locale: 'pt-BR', value: 'Casa' }],
         },
       ],
@@ -159,7 +159,6 @@ describe('ops catalog', () => {
           name: 'full_name',
           type: 'text',
           storage: 'person',
-          filterable: false,
           label: [{ locale: 'pt-BR', value: 'Nome' }],
         },
       ],
@@ -201,11 +200,60 @@ describe('ops catalog', () => {
     expect(String(mockedQuery.mock.calls[1]?.[0])).toContain('SET required');
   });
 
-  it('updates filterable on a locked field without touching label', async () => {
-    mockedQuery.mockResolvedValueOnce({ rows: [{ type: 'boolean' }] } as never);
+  it('creates an extra field without a filter column and seeds both lists', async () => {
+    mockedQuery
+      .mockResolvedValueOnce({ rows: [{ id: 'g1' }] } as never)
+      .mockResolvedValueOnce({ rows: [{ n: 0 }] } as never)
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            id: 'f1',
+            name: 'host',
+            type: 'boolean',
+            storage: 'attributes',
+            span: 1,
+            required: false,
+            enabled: true,
+            options: [],
+            label: [{ locale: 'pt-BR', value: 'Casa' }],
+            description: [{ locale: 'pt-BR', value: 'Ajuda' }],
+          },
+        ],
+      } as never)
+      .mockResolvedValueOnce({ rows: [] } as never);
+    await createAttributeField('c1', {
+      groupId: 'g1',
+      name: 'host',
+      type: 'boolean',
+      labelPt: 'Casa',
+      labelEn: 'Home',
+      descriptionPt: 'Ajuda',
+      descriptionEn: 'Help',
+    });
+    expect(String(mockedQuery.mock.calls[2]?.[0])).toContain('INSERT INTO plugin_directory.fields');
+    expect(String(mockedQuery.mock.calls[2]?.[0])).not.toMatch(/filterable/);
+    expect(String(mockedQuery.mock.calls[3]?.[0])).toContain('list_fields');
+    expect(String(mockedQuery.mock.calls[3]?.[0])).toContain("'directory'");
+    expect(String(mockedQuery.mock.calls[3]?.[0])).toContain("'showcase'");
+  });
+
+  it('saves list placement without touching field copy', async () => {
+    mockedQuery.mockResolvedValueOnce({
+      rows: [{ id: 'f1', name: 'host_at_home', type: 'boolean', column_key: null }],
+    } as never);
     mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
-    await updateCatalogFieldFilterable('c1', 'f1', false);
-    expect(String(mockedQuery.mock.calls[1]?.[0])).toContain('SET filterable');
+    await saveOpsListFields('c1', 'showcase', [{ fieldId: 'f1', filterable: true, placement: 'detail' }]);
+    expect(String(mockedQuery.mock.calls[1]?.[0])).toContain('list_fields');
+    expect(mockedQuery.mock.calls[1]?.[1]).toEqual(['f1', 'showcase', true, 'detail']);
+  });
+
+  it('keeps showcase PII off even if ops asks for card and filter', async () => {
+    mockedQuery.mockResolvedValueOnce({
+      rows: [{ id: 'f1', name: 'gender', type: 'select', column_key: 'gender' }],
+    } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    await saveOpsListFields('c1', 'showcase', [{ fieldId: 'f1', filterable: true, placement: 'card' }]);
+    expect(mockedQuery.mock.calls[1]?.[1]).toEqual(['f1', 'showcase', false, 'off']);
   });
 
   it('moves a field to another group in the same community', async () => {

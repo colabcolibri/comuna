@@ -5,10 +5,9 @@ import { AppSidebar } from '../apps/web/src/components/app/AppSidebar';
 import { LocaleProvider } from '@/components/app/LocaleProvider';
 import { EnabledModulesProvider } from '@/components/app/EnabledModulesProvider';
 import { SidebarProvider } from '@community/ui';
+import { usePathname } from 'next/navigation';
 
-vi.mock('next/navigation', () => ({
-  usePathname: () => '/c/lab/directory',
-}));
+vi.mocked(usePathname).mockReturnValue('/c/lab/directory');
 
 if (!HTMLElement.prototype.hasPointerCapture) {
   HTMLElement.prototype.hasPointerCapture = () => false;

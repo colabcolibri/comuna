@@ -5,14 +5,15 @@ import { useEffect, useState } from 'react';
 import {
   AppFilterSheet,
   AppShowcaseCard,
+  AppShowcaseEmpty,
   AppShowcaseGrid,
   AppShowcasePager,
   AppShowcasePortal,
 } from '@community/ui-member';
 import { Button, Input } from '@community/ui';
-import { contentFromCatalog, interpolate, mergeContent, pickContent, pickLocalizedText } from '@community/identity';
+import { contentFromCatalog, interpolate, mergeContent, pickContent } from '@community/identity';
 import { displayPlaceLocality } from '@community/places';
-import { SHOWCASE_PAGE_SIZE, SHOWCASE_PAGE_SIZES, type CatalogField } from '@community/directory';
+import { SHOWCASE_PAGE_SIZE, SHOWCASE_PAGE_SIZES, availabilityIsFilterable, projectPersonView, type CatalogField, type ListField } from '@community/directory';
 import { ListFilter, Search } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale } from '@/components/app/LocaleProvider';
@@ -22,7 +23,7 @@ import { PersonInspect } from '@/components/app/PersonInspect';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
 import { uiCatalog } from '@/lang/catalog';
 import { slotOn } from '@/modules/registry';
-import { profileChips } from '@/lib/people/chips';
+import { availabilityLabel } from '@/lib/people/availability';
 import { activeFilterCount, directoryQueryString } from '@/lib/people/directory-query';
 import type { PersonCard } from '@/lib/people/person-card';
 import { useDebouncedValue } from '@/lib/people/use-debounced-value';
@@ -31,13 +32,15 @@ const CONTENT = mergeContent(
   contentFromCatalog(uiCatalog, 'plugin_showcase', {
     title: 'page.title',
     subtitle: 'page.subtitle',
+    emptyTitle: 'page.empty_title',
     empty: 'page.empty',
+    emptyFilteredTitle: 'page.empty_filtered_title',
+    emptyFiltered: 'page.empty_filtered',
     view: 'page.view',
     close: 'page.close',
     privacy: 'page.privacy',
     search: 'page.search',
     searchHint: 'page.search_hint',
-    count: 'page.count',
     range: 'page.range',
     prev: 'page.prev',
     next: 'page.next',
@@ -45,6 +48,7 @@ const CONTENT = mergeContent(
     filters: 'page.filters',
     filtersClear: 'page.filters_clear',
     filtersHint: 'page.filters_hint',
+    languages: 'page.languages',
     all: 'page.all',
     availability: 'page.availability',
     langPt: 'lang.pt',
@@ -76,6 +80,7 @@ export function ShowcasePanel({
   communityName,
   communityLede,
   facets = [],
+  listFields = [],
   search = '',
   facetValues = {},
   status = '',
@@ -88,6 +93,7 @@ export function ShowcasePanel({
   communityName?: string;
   communityLede?: string;
   facets?: CatalogField[];
+  listFields?: ListField[];
   search?: string;
   facetValues?: Record<string, string>;
   status?: string;
@@ -104,6 +110,7 @@ export function ShowcasePanel({
   const [selected, setSelected] = useState<PersonCard | null>(null);
   const [term, setTerm] = useState(search);
   const debounced = useDebouncedValue(term, 300);
+  const canFilter = facets.length > 0 || availabilityIsFilterable(listFields);
   const count = activeFilterCount(facetValues, [status]);
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
@@ -155,6 +162,7 @@ export function ShowcasePanel({
                 />
               </div>
             </div>
+            {canFilter ? (
             <AppFilterSheet
               trigger={
                 <Button type="button" variant="outline" className="min-h-12 w-full shrink-0 sm:w-auto">
@@ -175,8 +183,8 @@ export function ShowcasePanel({
                 facets={facets}
                 facetValues={facetValues}
                 onFacets={(next) => go(search, next, status)}
-                status={status}
-                onStatus={(next) => go(search, facetValues, next)}
+                status={availabilityIsFilterable(listFields) ? status : undefined}
+                onStatus={availabilityIsFilterable(listFields) ? (next) => go(search, facetValues, next) : undefined}
                 statusLabel={copy.availability}
                 statusOptions={[
                   { value: 'available_for_hire', label: copy.hire },
@@ -186,13 +194,16 @@ export function ShowcasePanel({
                 ]}
               />
             </AppFilterSheet>
+            ) : null}
           </div>
-          <p className="text-sm font-medium text-foreground">{interpolate(copy.count, { n: String(total) })}</p>
         </div>
       }
     >
       {rows.length === 0 ? (
-        <p className="text-muted-foreground">{copy.empty}</p>
+        <AppShowcaseEmpty
+          title={search || count ? copy.emptyFilteredTitle : copy.emptyTitle}
+          body={search || count ? copy.emptyFiltered : copy.empty}
+        />
       ) : (
         <>
           <AppShowcasePager
@@ -210,17 +221,26 @@ export function ShowcasePanel({
           />
           <AppShowcaseGrid>
             {rows.map((profile) => {
-              const headline = pickLocalizedText(profile.headline, locale);
-              const summary = pickLocalizedText(profile.bio, locale);
+              const view = projectPersonView({
+                profile,
+                fields: listFields,
+                density: 'card',
+                locale,
+                cityLabel: displayPlaceLocality(profile.current_city, locale),
+                availabilityLabel: availabilityLabel(profile.availability_status, copy),
+              });
               return (
                 <AppShowcaseCard
                   key={profile.id}
-                  name={profile.full_name}
-                  photoUrl={profile.avatar_url}
-                  headline={headline}
-                  summary={summary}
-                  city={displayPlaceLocality(profile.current_city, locale)}
-                  chips={profileChips(profile, copy, locale)}
+                  name={view.name}
+                  photoUrl={view.photoUrl}
+                  headline={view.headline}
+                  summary={view.summary}
+                  city={view.city}
+                  languagesLabel={copy.languages}
+                  languages={view.languages.map((item) => item.label)}
+                  availability={view.availability}
+                  facts={view.facts.map((item) => item.value)}
                   actionLabel={copy.view}
                   onOpen={() => setSelected(profile)}
                 />
@@ -244,6 +264,7 @@ export function ShowcasePanel({
       )}
       <PersonInspect
         profile={selected}
+        listFields={listFields}
         copy={copy}
         locale={locale}
         canContact={canContact}

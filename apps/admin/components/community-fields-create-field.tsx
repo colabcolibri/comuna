@@ -4,7 +4,7 @@ import { FormEvent, useState } from 'react';
 import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast } from '@community/ui';
 import { OpsCheckboxFrame, OpsIconButton, OpsSheet } from '@community/ui-admin';
 import { Plus } from 'lucide-react';
-import { fieldCanFilter, fieldNeedsOptions, type CatalogCopy } from './community-fields-types';
+import { fieldNeedsOptions, type CatalogCopy } from './community-fields-types';
 import { CommunityFieldsOptionsEditor, emptyOptionRow, type OptionRow } from './community-fields-options';
 
 export function CommunityFieldsCreateField({
@@ -26,7 +26,6 @@ export function CommunityFieldsCreateField({
   const [descriptionPt, setDescriptionPt] = useState('');
   const [descriptionEn, setDescriptionEn] = useState('');
   const [options, setOptions] = useState<OptionRow[]>([emptyOptionRow()]);
-  const [filterable, setFilterable] = useState(true);
   const [required, setRequired] = useState(false);
   const [busy, setBusy] = useState(false);
   const idPrefix = `ops-new-field-${groupId}`;
@@ -39,7 +38,6 @@ export function CommunityFieldsCreateField({
     setDescriptionPt('');
     setDescriptionEn('');
     setOptions([emptyOptionRow()]);
-    setFilterable(true);
     setRequired(false);
   };
 
@@ -58,7 +56,6 @@ export function CommunityFieldsCreateField({
         descriptionPt,
         descriptionEn,
         options,
-        filterable,
         required,
       }),
     });
@@ -161,18 +158,6 @@ export function CommunityFieldsCreateField({
             />
             <p className="text-xs text-muted-foreground">{copy.nameHelp}</p>
           </div>
-          {fieldCanFilter(type) ? (
-            <div className="min-w-0 space-y-2">
-              <Label htmlFor={`${idPrefix}-filter`}>{copy.filterable}</Label>
-              <OpsCheckboxFrame htmlFor={`${idPrefix}-filter`}>
-                <Checkbox
-                  id={`${idPrefix}-filter`}
-                  checked={filterable}
-                  onCheckedChange={(checked) => setFilterable(checked === true)}
-                />
-              </OpsCheckboxFrame>
-            </div>
-          ) : null}
           <div className="min-w-0 space-y-2">
             <Label htmlFor={`${idPrefix}-required`}>{copy.requirement}</Label>
             <OpsCheckboxFrame htmlFor={`${idPrefix}-required`}>

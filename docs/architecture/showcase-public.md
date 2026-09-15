@@ -16,36 +16,32 @@ Só entra quem optou. Sem e-mail, WhatsApp, gênero, cidade de nascimento. Mensa
 
 ## Lista
 
-| Campo | Origem |
+O cartão e o diálogo **projetam** `list_fields` com `list_key = showcase` (`docs/architecture/list-surfaces.md`). Seed: nome, foto, cidade, idiomas, headline e availability no card; bio no card (clamp); links só no diálogo; `host_at_home` (demo) no diálogo e no filtro.
+
+| Slot | Origem |
 | ----- | ------ |
 | `id` | `memberships.id` (contato mediado usa isto) |
-| `full_name` | `person_core.profiles` |
-| `avatar_url` | ponteiro; bytes em `GET /api/media/person/:userId/avatar` |
-| `headline` | LocalizedText do card — o que a pessoa faz |
-| `bio` | LocalizedText — `line-clamp-3` no cartão; completa no diálogo |
+| identidade | `full_name`, `avatar_url` (sempre card) |
+| `headline` / `bio` | LocalizedText do card se placement permitir |
 | `current_city` | GeoPlace — cidade + país (`displayPlaceLocality`) |
-| `availability_status` | card |
-| `languages` | códigos; chips (máx. 3 no cartão) |
+| `languages` | slot próprio (não mistura com availability) |
+| `availability_status` | status, não chip de idioma |
+| facts | `custom_attributes` com placement ≠ `off`; label do catálogo |
+| links | `linkedin` / `github` / `portfolio` se `https://` e placement no detalhe |
 
-Query: `search` (nome, headline, bio), `status`, `attr.*`, `page`, `size`. Página padrão **24**; `size` só 24, 48 ou 96. `{ data, meta: { page, pageSize, total } }`. A página Server Component chama `listPublicProfiles`; o cliente só muda a URL e abre o diálogo.
+Query: `search` (nome, headline, bio), `status` (só se availability for filtrável na vitrine), `attr.*` (só `list_fields.filterable` da vitrine), `page`, `size`. Página padrão **24**; `size` só 24, 48 ou 96. `{ data, meta: { page, pageSize, total } }`. A página Server Component chama `listPublicProfiles`; o cliente só muda a URL e abre o diálogo.
 
 ## UI
 
 Rotas no grupo `(public)`: `/showcase`, `/c/{slug}/showcase`. Workspace fica em `(workspace)` com `MemberShell`.
 
-Hero: `AppShowcasePortal` (título + texto do admin). Cartões: `AppShowcaseCard`. Busca rotulada; filtros no `AppFilterSheet`. Paginação acima e abaixo da grelha; seletor 24 / 48 / 96.
+Hero: `AppShowcasePortal` (título + texto do admin). Cartões: `AppShowcaseCard`. Busca rotulada; filtros no `AppFilterSheet`. Paginação acima e abaixo da grelha; seletor 24, 48 ou 96. **Lista vazia** (ninguém optou, ou o recorte não devolveu ninguém): `AppShowcaseEmpty` — título + frase, `role="status"`. Não é grelha em branco nem uma linha miúda. Casa sem opt-in e busca sem resultado usam copy diferente (`page.empty` vs `page.empty_filtered`).
 
 UI do diálogo: `AppDialog`. **Enviar mensagem** no footer abre `AppSheet`.
 
 ## Diálogo (perfil público)
 
-Cartão **mais**:
-
-| Campo | Origem |
-| ----- | ------ |
-| `bio` | LocalizedText |
-| `contacts` | só `linkedin` / `github` / `portfolio` se `https://` |
-| `custom_attributes` | só chaves `filterable` do catálogo (ex. `host_at_home`) |
+Mesmos slots na densidade `detail` (card + detail). Bio completa. Idiomas em seção rotulada. Sem `host_at_home` hardcoded.
 
 ## Fora
 

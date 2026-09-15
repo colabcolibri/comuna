@@ -100,8 +100,10 @@ blocks: []
 | `POST` | `/api/admin/memberships/:id/cohort` | Liga ou tira turma | Super-admin | `{ "cohortId": uuid \| null }` | `{ ok }` |
 | `DELETE` | `/api/admin/memberships/:id` | Remove a membership | Super-admin | — | `{ ok }` |
 | `GET` | `/api/admin/communities/:id/fields` | Catálogo ops (grupos na ordem do perfil; `locked` no grupo seed e no campo se `storage` ≠ `attributes`) | Super-admin | — | `{ "data": OpsCatalogGroup[] }` com `fields[].description` LocalizedText e `fields[].options: [{ value, labelPt, labelEn }]` |
-| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` (tipos do catálogo; `span` 1–3; `required` default false) | Super-admin | `{ groupId, name, type, labelPt, labelEn, descriptionPt, descriptionEn?, options?, optionsText?, filterable?, span?, required? }` — `select`/`radio`/`checkbox` exigem `options[]` (ou `optionsText` legado); `descriptionPt` obrigatório | `{ 201, OpsCatalogField }` |
-| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | Sem `labelPt`: `descriptionPt`, `enabled`, `required` ou `span` (núcleo incluso). Com `labelPt`: label/descrição/opções/filtro se `storage=attributes` | Super-admin | `{ "enabled": true\|false }` ou `{ "required": true\|false }` ou `{ "span": 1\|2\|3 }` ou `{ descriptionPt, descriptionEn? }` ou `{ labelPt, labelEn?, descriptionPt, descriptionEn?, options?, optionsText?, filterable? }` | `{ ok }` |
+| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` (tipos do catálogo; `span` 1–3; `required` default false). Listas: diretório `detail`, vitrine `off` | Super-admin | `{ groupId, name, type, labelPt, labelEn, descriptionPt, descriptionEn?, options?, optionsText?, span?, required? }` — `select`/`radio`/`checkbox` exigem `options[]` (ou `optionsText` legado); `descriptionPt` obrigatório | `{ 201, OpsCatalogField }` |
+| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | Sem `labelPt`: `descriptionPt`, `enabled`, `required` ou `span` (núcleo incluso). Com `labelPt`: label/descrição/opções se `storage=attributes` | Super-admin | `{ "enabled": true\|false }` ou `{ "required": true\|false }` ou `{ "span": 1\|2\|3 }` ou `{ descriptionPt, descriptionEn? }` ou `{ labelPt, labelEn?, descriptionPt, descriptionEn?, options?, optionsText? }` | `{ ok }` |
+| `GET` | `/api/admin/communities/:id/lists/:listKey` | Política da lista (`directory` \| `showcase`) | Super-admin | — | `{ "data": OpsListField[] }` (`fieldId`, label, type, `canFilter`, `filterable`, `placement`, travas) |
+| `PUT` | `/api/admin/communities/:id/lists/:listKey` | Grava filtro e placement em lote | Super-admin | `{ "fields": [{ "fieldId", "filterable", "placement": "off"\|"detail"\|"card" }] }` | `{ ok }` |
 | `DELETE` | `/api/admin/communities/:id/fields/:fieldId` | Apaga `storage=attributes` **só se** `enabled=false` | Super-admin | — | `{ ok }`; ainda ligado = 409 |
 | `POST` | `/api/admin/communities/:id/fields/reset-order` | Restaura ordem seed de grupos e campos; extras ficam no fim da seção; não muda `group_id` | Super-admin | — | `{ ok }` |
 | `POST` | `/api/admin/communities/:id/fields/:fieldId/move` | Sobe/desce **ou** muda de grupo no mesmo tenant | Super-admin | `{ "direction": "up"\|"down" }` ou `{ "groupId" }` | `{ ok }` |
@@ -114,7 +116,7 @@ APIs de membro de rede (`/api/directory/*`, `/api/memberships/me`, `/api/coord/*
 
 `GET /api/profiles` (lista legado) e `/admin/approvals` foram removidos. `/api/ops/*` não existe: mutações de tenant só na origem admin.
 
-Rotas UI admin do tenant: `/communities/:id/settings|modules|members|cohorts|fields` (índice redireciona para `settings`). Em `fields`, criar grupo é ação da página; criar campo é ação do cabeçalho do grupo (`groupId` fixo no POST, `OpsSheet`). Globais: `/communities`, `/people`, `/platform`, `/emails`. Comunidade nova faz seed do catálogo (núcleo + directory + grupo `custom`).
+Rotas UI admin do tenant: `/communities/:id/settings|modules|members|cohorts|fields|lists/{directory\|showcase}` (índice redireciona para `settings`). Em `fields`, criar grupo é ação da página; criar campo é ação do cabeçalho do grupo (`groupId` fixo no POST, `OpsSheet`). Globais: `/communities`, `/people`, `/platform`, `/emails`. Comunidade nova faz seed do catálogo (núcleo + directory + grupo `custom`).
 
 ## Pagination / filtering
 
@@ -125,7 +127,7 @@ Rotas UI admin do tenant: `/communities/:id/settings|modules|members|cohorts|fie
 | `search` | String | `""` | `100` | Nome ou headline (`ILIKE`) |
 | `cohort` | UUID | — | — | Diretório: `memberships.cohort_id` |
 | `status` | Enum | — | — | Vitrine: `availability_status` allowlist |
-| `attr.<name>` | Scalar | — | — | Facet: só campos `filterable`; `custom_attributes @>` (GIN). AND entre facets, sem JOIN extra |
+| `attr.<name>` | Scalar | — | — | Facet: só `list_fields.filterable` daquela lista; `custom_attributes @>` (GIN). AND entre facets, sem JOIN extra |
 
 ## Rate limits
 

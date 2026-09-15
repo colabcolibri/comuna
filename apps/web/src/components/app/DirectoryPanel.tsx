@@ -10,8 +10,9 @@ import { activeFilterCount, directoryQueryString } from '@/lib/people/directory-
 import type { PersonCard } from '@/lib/people/person-card';
 import { useDebouncedValue } from '@/lib/people/use-debounced-value';
 import { slotOn } from '@/modules/registry';
-import type { CatalogField } from '@community/directory';
-import { contentFromCatalog, mergeContent, pickContent, pickLocalizedText } from '@community/identity';
+import type { CatalogField, ListField } from '@community/directory';
+import { availabilityIsFilterable, projectPersonView } from '@community/directory';
+import { contentFromCatalog, mergeContent, pickContent } from '@community/identity';
 import { displayPlaceLocality } from '@community/places';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
 import { Button, Input } from '@community/ui';
@@ -30,15 +31,18 @@ const CONTENT = mergeContent(
       empty: 'page.empty',
       privacy: 'page.privacy',
       view: 'page.view',
+      close: 'page.close',
       filters: 'page.filters',
       filtersClear: 'page.filters_clear',
       filtersHint: 'page.filters_hint',
+      languages: 'page.languages',
       all: 'page.all',
       cohort: 'page.cohort',
       hire: 'card.hire',
       partner: 'card.partner',
       mentor: 'card.mentor',
       unavailable: 'card.unavailable',
+      availability: 'card.availability',
     }),
     contentFromCatalog(uiCatalog, 'plugin_showcase', {
       close: 'page.close',
@@ -65,17 +69,21 @@ const CONTENT = mergeContent(
 export function DirectoryPanel({
   rows,
   facets,
+  listFields = [],
   search,
   facetValues,
   cohorts,
   cohort,
+  status = '',
 }: {
   rows: PersonCard[];
   facets: CatalogField[];
+  listFields?: ListField[];
   search: string;
   facetValues: Record<string, string>;
   cohorts: { id: string; name: string }[];
   cohort: string;
+  status?: string;
 }) {
   const locale = useLocale();
   const copy = pickContent(CONTENT, locale);
@@ -86,26 +94,26 @@ export function DirectoryPanel({
   const [selected, setSelected] = useState<PersonCard | null>(null);
   const [term, setTerm] = useState(search);
   const debounced = useDebouncedValue(term, 300);
-  const count = activeFilterCount(facetValues);
-  const canFilter = facets.length > 0;
+  const count = activeFilterCount(facetValues, [status]);
+  const canFilter = facets.length > 0 || availabilityIsFilterable(listFields);
 
   useEffect(() => {
     setTerm(search);
   }, [search]);
 
   useEffect(() => {
-    const query = directoryQueryString(debounced, facetValues, cohort);
+    const query = directoryQueryString(debounced, facetValues, cohort, status);
     const next = query ? `${pathname}?${query}` : pathname;
-    const committed = directoryQueryString(search, facetValues, cohort);
+    const committed = directoryQueryString(search, facetValues, cohort, status);
     const committedPath = committed ? `${pathname}?${committed}` : pathname;
     if (next === committedPath) {
       return;
     }
     router.replace(next, { scroll: false });
-  }, [debounced, facetValues, cohort, pathname, search, router]);
+  }, [debounced, facetValues, cohort, status, pathname, search, router]);
 
-  function go(nextSearch: string, nextFacets: Record<string, string>, nextCohort = cohort) {
-    const query = directoryQueryString(nextSearch, nextFacets, nextCohort);
+  function go(nextSearch: string, nextFacets: Record<string, string>, nextCohort = cohort, nextStatus = status) {
+    const query = directoryQueryString(nextSearch, nextFacets, nextCohort, nextStatus);
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
 
@@ -139,7 +147,7 @@ export function DirectoryPanel({
             description={copy.filtersHint}
             clearLabel={copy.filtersClear}
             closeLabel={copy.close}
-            onClear={() => go(search, {}, cohort)}
+            onClear={() => go(search, {}, cohort, '')}
           >
             <PeopleFilters
               locale={locale}
@@ -147,6 +155,15 @@ export function DirectoryPanel({
               facets={facets}
               facetValues={facetValues}
               onFacets={(next) => go(search, next, cohort)}
+              status={availabilityIsFilterable(listFields) ? status : undefined}
+              onStatus={availabilityIsFilterable(listFields) ? (next) => go(search, facetValues, cohort, next) : undefined}
+              statusLabel={copy.availability}
+              statusOptions={[
+                { value: 'available_for_hire', label: copy.hire },
+                { value: 'project_partner', label: copy.partner },
+                { value: 'mentor', label: copy.mentor },
+                { value: 'unavailable', label: copy.unavailable },
+              ]}
             />
           </AppFilterSheet>
         ) : null}
@@ -156,15 +173,22 @@ export function DirectoryPanel({
       {rows.length > 0 && (
         <AppIndexList>
           {rows.map((profile) => {
-            const headline = pickLocalizedText(profile.headline, locale);
-            const city = displayPlaceLocality(profile.current_city, locale);
+            const view = projectPersonView({
+              profile,
+              fields: listFields,
+              density: 'card',
+              locale,
+              cityLabel: displayPlaceLocality(profile.current_city, locale),
+              availabilityLabel: availabilityLabel(profile.availability_status, copy),
+            });
             return (
               <AppPersonRow
                 key={profile.id}
-                name={profile.full_name}
-                photo={profile.avatar_url}
-                headline={[headline, city].filter(Boolean).join(' · ')}
-                status={availabilityLabel(profile.availability_status, copy)}
+                name={view.name}
+                photo={view.photoUrl}
+                headline={[view.headline, view.city].filter(Boolean).join(' · ')}
+                languages={view.languages.map((item) => item.label)}
+                status={view.availability}
                 action={
                   <Button variant="outline" className="min-h-11 w-full sm:w-auto" onClick={() => setSelected(profile)}>
                     {copy.view}
@@ -177,6 +201,7 @@ export function DirectoryPanel({
       )}
       <PersonInspect
         profile={selected}
+        listFields={listFields}
         copy={copy}
         locale={locale}
         canContact={canContact}

@@ -161,7 +161,14 @@ erDiagram
         string storage "person | card_column | attributes"
         string column_key "opcional: full_name, availability_status, …"
         uuid module_id FK "null = núcleo; senão plugin_core.modules"
+    }
+
+    "plugin_directory.list_fields" {
+        uuid field_id FK
+        string list_key "directory | showcase"
         boolean filterable
+        string placement "off | detail | card"
+        primary_key(field_id, list_key)
     }
 
     "network_core.skills" {
@@ -213,7 +220,7 @@ erDiagram
 3. **`network_core`**: `communities`, `memberships` (`network_role`: `member | coordinator`), `community_modules`, `cohorts` (núcleo de agrupamento; UI extra pode ser plugin depois).
 3b. **`ops_core`**: `platform_settings` (uma row) e `email_templates` (overlay por kind+locale). Não é plugin.
 4. **`plugin_core`**: catálogo `modules`.
-5. **`plugin_directory`**: `cards` (headline/bio LocalizedText, availability, vitrine, `custom_attributes`); `field_groups` e `fields` por `community_id`. Skills no ER legado `network_core.skills` ainda não existem em SQL.
+5. **`plugin_directory`**: `cards` (headline/bio LocalizedText, availability, vitrine, `custom_attributes`); `field_groups` e `fields` por `community_id`; `list_fields` (filtro e placement por lista). Skills no ER legado `network_core.skills` ainda não existem em SQL.
 
 `community_admin` fora da v2.0.0.
 

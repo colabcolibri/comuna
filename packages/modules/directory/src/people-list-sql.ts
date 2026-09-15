@@ -1,5 +1,5 @@
-import type { CatalogField } from './catalog';
 import { parseAttrFilters } from './catalog';
+import { availabilityIsFilterable, type ListField } from './list-fields';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const AVAILABILITY = new Set(['available_for_hire', 'project_partner', 'mentor', 'unavailable']);
@@ -30,7 +30,7 @@ export type PeopleListQuery = {
 export function peopleListQuery(input: {
   communityId: string;
   searchParams: URLSearchParams;
-  fields: CatalogField[];
+  fields: ListField[];
   scope: PeopleListScope;
 }): PeopleListQuery | { ok: false; message: string } {
   const parsed = parseAttrFilters(input.searchParams, input.fields);
@@ -61,12 +61,11 @@ export function peopleListQuery(input: {
       params.push(cohort);
       clauses.push(`m.cohort_id = $${params.length}`);
     }
-  } else {
-    const status = input.searchParams.get('status')?.trim() || '';
-    if (AVAILABILITY.has(status)) {
-      params.push(status);
-      clauses.push(`c.availability_status = $${params.length}`);
-    }
+  }
+  const status = input.searchParams.get('status')?.trim() || '';
+  if (AVAILABILITY.has(status) && availabilityIsFilterable(input.fields)) {
+    params.push(status);
+    clauses.push(`c.availability_status = $${params.length}`);
   }
   const where = `${FROM} WHERE ${clauses.join(' AND ')}`;
   if (input.scope !== 'showcase') {

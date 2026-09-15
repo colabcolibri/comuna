@@ -26,14 +26,16 @@ describe('AppDialog', () => {
 });
 
 describe('AppShowcaseCard', () => {
-  it('shows name, headline and chips', () => {
+  it('shows name, headline and a languages block', () => {
     render(
       <AppShowcaseCard
         name="Marina Silva"
         headline="Produto"
         summary="Desenha produtos para redes profissionais."
         city="São Paulo, Brasil"
-        chips={['Mentoria', 'Português']}
+        languagesLabel="Idiomas"
+        languages={['Português', 'Inglês']}
+        availability="Mentoria"
         actionLabel="Ver perfil"
         onOpen={() => undefined}
       />
@@ -45,6 +47,10 @@ describe('AppShowcaseCard', () => {
     expect(screen.getByText('Produto').compareDocumentPosition(screen.getByText('Desenha produtos para redes profissionais.'))).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     );
+    expect(screen.getByText('Idiomas')).toBeTruthy();
+    expect(screen.getByText('Português')).toBeTruthy();
+    expect(screen.getByText('Inglês')).toBeTruthy();
+    expect(screen.getByText('Mentoria')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Ver perfil: Marina Silva' })).toBeTruthy();
   });
 });

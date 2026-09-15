@@ -39,6 +39,18 @@ export function AppShowcasePortal({
   );
 }
 
+export function AppShowcaseEmpty({ title, body }: { title: string; body: string }) {
+  return (
+    <div
+      role="status"
+      className="rounded-2xl border border-border bg-card px-5 py-10 sm:px-8 sm:py-14"
+    >
+      <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{title}</h2>
+      <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">{body}</p>
+    </div>
+  );
+}
+
 export function AppShowcasePager({
   page,
   pageSize,

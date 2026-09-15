@@ -154,7 +154,13 @@ erDiagram
         integer sort_order
         text storage
         text column_key
+    }
+
+    "plugin_directory.list_fields" {
+        uuid field_id FK
+        text list_key
         boolean filterable
+        text placement
     }
 
     "plugin_contact.messages" {

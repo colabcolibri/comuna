@@ -11,7 +11,10 @@ export function AppShowcaseCard({
   headline,
   city,
   summary,
-  chips,
+  languagesLabel,
+  languages,
+  availability,
+  facts,
   actionLabel,
   onOpen,
 }: {
@@ -20,7 +23,10 @@ export function AppShowcaseCard({
   headline?: string | null;
   city?: string | null;
   summary?: string | null;
-  chips?: string[];
+  languagesLabel?: string;
+  languages?: string[];
+  availability?: string | null;
+  facts?: string[];
   actionLabel: string;
   onOpen: () => void;
 }) {
@@ -60,14 +66,32 @@ export function AppShowcaseCard({
           {summary ? (
             <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">{summary}</p>
           ) : null}
-          {chips && chips.length > 0 ? (
+          {languages && languages.length > 0 ? (
+            <div className="min-w-0">
+              {languagesLabel ? <p className="mb-2 text-sm font-medium text-foreground">{languagesLabel}</p> : null}
+              <ul className="flex flex-wrap gap-2">
+                {languages.map((item) => (
+                  <li
+                    key={item}
+                    className="inline-flex rounded-md border border-border bg-secondary px-2.5 py-1 text-sm text-foreground"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+          {availability ? (
+            <p className="text-sm text-foreground">{availability}</p>
+          ) : null}
+          {facts && facts.length > 0 ? (
             <ul className="flex flex-wrap gap-2">
-              {chips.slice(0, 3).map((chip) => (
+              {facts.map((item) => (
                 <li
-                  key={chip}
+                  key={item}
                   className="inline-flex rounded-md border border-border bg-secondary px-2.5 py-1 text-sm text-foreground"
                 >
-                  {chip}
+                  {item}
                 </li>
               ))}
             </ul>

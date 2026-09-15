@@ -20,7 +20,7 @@ Plataforma genérica de comunidades (diretório + plugins). Alumni é um tipo de
 | [stitch/](stitch/README.md) | reference | HTML (ainda com copy alumni) |
 | [10_test_strategy.md](10_test_strategy.md) | approved | Vitest |
 | [11_decisions.md](11_decisions.md) | approved | Índice SQLite |
-| [inventory/as-is.md](inventory/as-is.md) | draft | Código atual (transicional) |
+| [inventory/as-is.md](inventory/as-is.md) | draft | Código atual (refresh 2026-09-15: Postgres, OTP+JWT, duas apps) |
 
 ## How to work
 

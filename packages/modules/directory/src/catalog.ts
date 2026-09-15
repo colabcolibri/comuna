@@ -15,6 +15,8 @@ export const FIELD_TYPES = [
 
 export type FieldType = (typeof FIELD_TYPES)[number];
 
+type CoerceResult = { ok: true; value?: unknown } | { ok: false; message: string };
+
 export const STORAGE_KINDS = ['person', 'card_column', 'attributes'] as const;
 export type StorageKind = (typeof STORAGE_KINDS)[number];
 
@@ -34,7 +36,6 @@ export type CatalogField = {
   sort_order: number;
   storage: StorageKind;
   column_key: string | null;
-  filterable: boolean;
   enabled: boolean;
   module_slug: string | null;
 };
@@ -113,7 +114,6 @@ export function parseField(row: Record<string, unknown>): CatalogField | null {
     sort_order: Number(row.sort_order) || 0,
     storage: storage as StorageKind,
     column_key: columnKey,
-    filterable: Boolean(row.filterable),
     enabled: row.enabled !== false,
     module_slug: moduleSlug,
   };
@@ -165,7 +165,7 @@ export function validateCustomAttributes(
       continue;
     }
     const parsed = coerceAttribute(field, input[field.name]);
-    if (!parsed.ok) {
+    if (parsed.ok === false) {
       return { ok: false, message: parsed.message };
     }
     if (parsed.value !== undefined) {
@@ -175,10 +175,7 @@ export function validateCustomAttributes(
   return { ok: true, value };
 }
 
-function coerceAttribute(
-  field: CatalogField,
-  raw: unknown
-): { ok: true; value?: unknown } | { ok: false; message: string } {
+function coerceAttribute(field: CatalogField, raw: unknown): CoerceResult {
   if (field.type === 'boolean') {
     if (raw === true || raw === false) {
       return { ok: true, value: raw };
@@ -215,7 +212,7 @@ function coerceAttribute(
 
 export function parseAttrFilters(
   params: URLSearchParams,
-  fields: CatalogField[]
+  fields: Array<CatalogField & { filterable: boolean }>
 ): { ok: true; filters: Record<string, unknown>[] } | { ok: false; message: string } {
   const filterable = new Map(
     fields.filter((field) => field.storage === 'attributes' && field.filterable).map((field) => [field.name, field])
@@ -234,7 +231,7 @@ export function parseAttrFilters(
       field,
       field.type === 'boolean' ? raw === 'true' : field.type === 'checkbox' ? raw.split(',').filter(Boolean) : raw
     );
-    if (!coerced.ok) {
+    if (coerced.ok === false) {
       return { ok: false, message: coerced.message };
     }
     if (coerced.value === undefined) {
@@ -274,7 +271,7 @@ export function missingRequiredFields(fields: CatalogField[], values: Record<str
   return fields.filter((field) => field.required && fieldValueIsBlank(field, values[field.name]));
 }
 
-export function filterableAttributeNames(fields: CatalogField[]): string[] {
+export function filterableAttributeNames(fields: Array<CatalogField & { filterable: boolean }>): string[] {
   return fields.filter((field) => field.storage === 'attributes' && field.filterable).map((field) => field.name);
 }
 

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
+import { parseListField } from '@community/directory';
 import { DirectoryPanel } from '../apps/web/src/components/app/DirectoryPanel';
 import { LocaleProvider } from '@/components/app/LocaleProvider';
 import { EnabledModulesProvider } from '@/components/app/EnabledModulesProvider';
@@ -17,10 +18,24 @@ const marina = {
   custom_attributes: {},
 };
 
-vi.mock('next/navigation', () => ({
-  usePathname: () => '/c/alumni/directory',
-  useRouter: () => ({ replace: vi.fn() }),
-}));
+const listFields = [
+  parseListField({ name: 'full_name', type: 'text', storage: 'person', column_key: 'full_name', placement: 'card' })!,
+  parseListField({
+    name: 'headline',
+    type: 'localized_text',
+    storage: 'card_column',
+    column_key: 'headline',
+    placement: 'card',
+  })!,
+  parseListField({ name: 'bio', type: 'localized_text', storage: 'card_column', column_key: 'bio', placement: 'detail' })!,
+  parseListField({
+    name: 'languages',
+    type: 'checkbox',
+    storage: 'person',
+    column_key: 'languages',
+    placement: 'card',
+  })!,
+];
 
 describe('directory panel', () => {
   beforeEach(() => {
@@ -43,7 +58,15 @@ describe('directory panel', () => {
     render(
       <LocaleProvider initialLocale="pt-BR">
         <EnabledModulesProvider enabled={['directory', 'contact-mediated']}>
-          <DirectoryPanel rows={[marina]} facets={[]} search="" facetValues={{}} cohorts={[]} cohort="" />
+          <DirectoryPanel
+            rows={[marina]}
+            facets={[]}
+            listFields={listFields}
+            search=""
+            facetValues={{}}
+            cohorts={[]}
+            cohort=""
+          />
         </EnabledModulesProvider>
       </LocaleProvider>
     );
@@ -55,7 +78,15 @@ describe('directory panel', () => {
     render(
       <LocaleProvider initialLocale="pt-BR">
         <EnabledModulesProvider enabled={['directory', 'contact-mediated']}>
-          <DirectoryPanel rows={[marina]} facets={[]} search="" facetValues={{}} cohorts={[]} cohort="" />
+          <DirectoryPanel
+            rows={[marina]}
+            facets={[]}
+            listFields={listFields}
+            search=""
+            facetValues={{}}
+            cohorts={[]}
+            cohort=""
+          />
         </EnabledModulesProvider>
       </LocaleProvider>
     );

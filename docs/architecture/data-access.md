@@ -46,7 +46,7 @@ TanStack em cima de SQL é o anti-padrão. ORM + `useEffect` sem Route Handler t
 
 1. Escrever a query e a projeção numa função Node.
 2. O Route Handler só autentica e devolve JSON.
-3. Filtro/busca: **URL** (`?search=`, `attr.*`, `cohort`, `status`). Um construtor SQL (`peopleListQuery`): dois JOINs fixos e predicados AND. Facets em `custom_attributes` usam `@>` (GIN), não JOIN por facet. Sem filtro de lista no cliente.
+3. Filtro/busca: **URL** (`?search=`, `attr.*`, `cohort`, `status`). Um construtor SQL (`peopleListQuery`): dois JOINs fixos e predicados AND. Facets em `custom_attributes` usam `@>` (GIN) só para chaves `list_fields.filterable` daquela lista. Sem filtro de lista no cliente.
 4. Cliente só para o que o servidor não faz: teclado, upload, diálogo, sheet.
 
 O diretório e a vitrine **não** carregam a lista num `useEffect`. A página (Server Component) chama a função de domínio; o painel cliente só muda a URL e abre o diálogo. A vitrine pagina no SQL (`LIMIT` 12 + `count(*)`).
@@ -55,7 +55,7 @@ O diretório e a vitrine **não** carregam a lista num `useEffect`. A página (S
 
 ```txt
 lib/server/     query + RLS + projeção (Node)
-lib/people/     PersonCard, query string, chips (puro)
+lib/people/     PersonCard, query string, projetor de lista (puro)
 lib/api/        fetch de gesto (contato, OTP, upload)
 app/api/**      Route Handler fino
 app/c/[slug]/   Server Component do workspace: auth + tenant + searchParams

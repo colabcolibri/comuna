@@ -1,5 +1,13 @@
 import { queryAsMember } from '@community/db';
-import { directoryContribution, filterableAttributeNames, parseField, peopleListQuery } from '@community/directory';
+import {
+  LIST_FIELDS_SQL,
+  availabilityIsFilterable,
+  directoryContribution,
+  listedAttributeNames,
+  parseListField,
+  peopleListQuery,
+  type ListField,
+} from '@community/directory';
 import type { AppQueryCtx } from '@/lib/server/app-ctx';
 import { toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
@@ -9,29 +17,28 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
   if (!on) {
     return { status: 404 as const, body: { error: { code: 'NOT_FOUND', message: 'Módulo desligado' } } };
   }
-  const catalog = await queryAsMember(
-    ctx,
-    'SELECT f.name, f.type, f.options, f.storage, f.column_key, f.filterable, f.required, f.span, f.sort_order, f.label FROM plugin_directory.fields f JOIN plugin_directory.field_groups g ON g.id = f.group_id WHERE g.community_id = $1 AND g.enabled AND f.enabled',
-    [ctx.communityId]
-  );
-  const fields = catalog.rows
-    .map((row) => parseField(row as Record<string, unknown>))
-    .filter((field): field is NonNullable<typeof field> => Boolean(field));
+  const catalog = await queryAsMember(ctx, LIST_FIELDS_SQL, [ctx.communityId, 'directory']);
+  const listFields = catalog.rows
+    .map((row) => parseListField(row as Record<string, unknown>))
+    .filter((field): field is ListField => Boolean(field));
   const built = peopleListQuery({
     communityId: ctx.communityId,
     searchParams,
-    fields,
+    fields: listFields,
     scope: 'directory',
   });
   if (built.ok === false) {
     return { status: 400 as const, body: { error: { code: 'VALIDATION_ERROR', message: built.message } } };
   }
   const result = await queryAsMember(ctx, built.text, built.params);
-  const attributeKeys = filterableAttributeNames(fields);
+  const facets = listFields.filter((field) => field.filterable && field.storage === 'attributes');
   return {
     status: 200 as const,
     body: {
-      data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, attributeKeys)),
+      data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, listedAttributeNames(listFields))),
+      facets,
+      listFields,
+      availabilityFilter: availabilityIsFilterable(listFields),
       meta: { page: 1 },
     },
   };

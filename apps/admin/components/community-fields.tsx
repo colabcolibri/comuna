@@ -32,7 +32,6 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   optionValue: 'community.fields_option_value',
   optionAdd: 'community.fields_option_add',
   optionRemove: 'community.fields_option_remove',
-  filterable: 'community.fields_filterable',
   create: 'community.fields_create',
   createGroup: 'community.fields_create_group',
   locked: 'community.fields_locked',

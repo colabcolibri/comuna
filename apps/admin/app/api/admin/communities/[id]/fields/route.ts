@@ -31,7 +31,6 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       descriptionEn: String(body.descriptionEn || ''),
       optionsText: typeof body.optionsText === 'string' ? body.optionsText : undefined,
       options: Array.isArray(body.options) ? body.options : undefined,
-      filterable: Boolean(body.filterable),
       span: Number(body.span || 1),
       required: Boolean(body.required),
     });

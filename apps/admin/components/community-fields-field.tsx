@@ -1,20 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast } from '@community/ui';
-import { OpsAlertDialog, OpsBadge, OpsCheckboxFrame, OpsIconButton, OpsMoveButtons, OpsSheet } from '@community/ui-admin';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast } from '@community/ui';
+import { OpsAlertDialog, OpsBadge, OpsIconButton, OpsMoveButtons, OpsSheet } from '@community/ui-admin';
 import { pickLocalizedText } from '@community/identity';
 import { Eye, EyeOff, Pencil, Trash2 } from 'lucide-react';
-import {
-  clampFieldSpan,
-  fieldCanFilter,
-  fieldNeedsOptions,
-  fieldSpanChoices,
-  fieldTypeLabel,
-  type CatalogCopy,
-  type OpsField,
-  type OpsGroup,
-} from './community-fields-types';
+import { clampFieldSpan, fieldNeedsOptions, fieldSpanChoices, fieldTypeLabel, type CatalogCopy, type OpsField, type OpsGroup } from './community-fields-types';
 import { CommunityFieldsOptionsEditor, emptyOptionRow } from './community-fields-options';
 
 export function CommunityFieldsField({
@@ -50,7 +41,6 @@ export function CommunityFieldsField({
   const [descriptionPt, setDescriptionPt] = useState(pickLocalizedText(field.description, 'pt-BR'));
   const [descriptionEn, setDescriptionEn] = useState(pickLocalizedText(field.description, 'en'));
   const [options, setOptions] = useState(field.options?.length ? field.options : [emptyOptionRow()]);
-  const [filterable, setFilterable] = useState(field.filterable);
   const [required, setRequired] = useState(field.required);
   const [span, setSpan] = useState(clampFieldSpan(field.span, groupColumns));
   const [busy, setBusy] = useState(false);
@@ -67,7 +57,6 @@ export function CommunityFieldsField({
     setDescriptionPt(pickLocalizedText(field.description, 'pt-BR'));
     setDescriptionEn(pickLocalizedText(field.description, 'en'));
     setOptions(field.options?.length ? field.options : [emptyOptionRow()]);
-    setFilterable(field.filterable);
     setRequired(field.required);
     setSpan(clampFieldSpan(field.span, groupColumns));
   }, [field, groupColumns]);
@@ -99,7 +88,6 @@ export function CommunityFieldsField({
 
   const save = async () => {
     setBusy(true);
-    const canFilter = fieldCanFilter(field.type);
     const nextSpan = clampFieldSpan(span, groupColumns);
     let ok = true;
     if (!field.locked) {
@@ -109,13 +97,9 @@ export function CommunityFieldsField({
         descriptionPt,
         descriptionEn,
         options,
-        filterable: canFilter ? filterable : false,
       });
     } else {
       ok = await patchField({ descriptionPt, descriptionEn });
-      if (ok && canFilter) {
-        ok = await patchField({ filterable });
-      }
     }
     if (ok && required !== field.required) {
       ok = await patchField({ required });
@@ -146,9 +130,6 @@ export function CommunityFieldsField({
     toast.success(copy.saved);
     onChanged();
   };
-
-  const canFilter = fieldCanFilter(field.type);
-  const filterId = `ops-field-filter-${field.id}`;
 
   return (
     <li className="min-w-0 py-3">
@@ -252,18 +233,6 @@ export function CommunityFieldsField({
                   </SelectContent>
                 </Select>
               </div>
-              {canFilter ? (
-                <div className="min-w-0 space-y-2">
-                  <Label htmlFor={filterId}>{copy.filterable}</Label>
-                  <OpsCheckboxFrame htmlFor={filterId}>
-                    <Checkbox
-                      id={filterId}
-                      checked={filterable}
-                      onCheckedChange={(checked) => setFilterable(checked === true)}
-                    />
-                  </OpsCheckboxFrame>
-                </div>
-              ) : null}
               {showSpan ? (
                 <div className="min-w-0 space-y-2 sm:col-span-2">
                   <Label htmlFor={spanId}>{copy.span}</Label>

@@ -40,6 +40,7 @@ export default defineConfig({
       { find: '@community/ui', replacement: path.resolve(__dirname, './packages/ui/primitives/src/index.ts') },
       { find: '@community/ui-member', replacement: path.resolve(__dirname, './packages/ui/member/src/index.ts') },
       { find: '@community/ui-admin', replacement: path.resolve(__dirname, './packages/ui/admin/src/index.ts') },
+      { find: 'next/navigation', replacement: path.resolve(__dirname, './tests/mocks/next-navigation.ts') },
     ],
   },
 });

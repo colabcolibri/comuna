@@ -24,7 +24,6 @@ export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGro
     name: string | null;
     type: string | null;
     storage: string | null;
-    filterable: boolean | null;
     span: number | null;
     required: boolean | null;
     enabled: boolean | null;
@@ -34,7 +33,7 @@ export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGro
   }>(
     `SELECT g.id AS group_id, g.slug AS group_slug, g.label AS group_label, g.columns AS group_columns,
             g.enabled AS group_enabled,
-            f.id AS field_id, f.name, f.type, f.storage, f.filterable, f.span, f.required, f.enabled, f.options, f.label, f.description
+            f.id AS field_id, f.name, f.type, f.storage, f.span, f.required, f.enabled, f.options, f.label, f.description
      FROM plugin_directory.field_groups g
      LEFT JOIN plugin_directory.fields f ON f.group_id = g.id
      WHERE g.community_id = $1
@@ -65,7 +64,6 @@ export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGro
       type: row.type,
       storage: row.storage,
       locked: isFieldLocked(row.storage),
-      filterable: Boolean(row.filterable),
       span: parseCatalogSpan(row.span, 1),
       required: Boolean(row.required),
       enabled: row.enabled !== false,

@@ -18,7 +18,6 @@ describe('directory catalog', () => {
         name: 'host_at_home',
         type: 'boolean',
         storage: 'attributes',
-        filterable: true,
         label: [{ locale: 'pt-BR', value: 'Recebe em casa' }],
       },
     ]);
@@ -31,7 +30,6 @@ describe('directory catalog', () => {
       name: 'host_at_home',
       type: 'boolean',
       storage: 'attributes',
-      filterable: true,
     });
     const result = validateCustomAttributes([field!], { extra: true });
     expect(result.ok).toBe(false);
@@ -69,7 +67,6 @@ describe('directory catalog', () => {
       name: 'host_at_home',
       type: 'boolean',
       storage: 'attributes',
-      filterable: true,
     });
     const result = validateCustomAttributes([field!], { host_at_home: true });
     expect(result).toEqual({ ok: true, value: { host_at_home: true } });
@@ -80,11 +77,10 @@ describe('directory catalog', () => {
       name: 'host_at_home',
       type: 'boolean',
       storage: 'attributes',
-      filterable: true,
     });
-    const ok = parseAttrFilters(new URLSearchParams('attr.host_at_home=true'), [field!]);
+    const ok = parseAttrFilters(new URLSearchParams('attr.host_at_home=true'), [{ ...field!, filterable: true }]);
     expect(ok).toEqual({ ok: true, filters: [{ host_at_home: true }] });
-    const bad = parseAttrFilters(new URLSearchParams('attr.unknown=1'), [field!]);
+    const bad = parseAttrFilters(new URLSearchParams('attr.unknown=1'), [{ ...field!, filterable: true }]);
     expect(bad.ok).toBe(false);
   });
 

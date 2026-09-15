@@ -6,7 +6,6 @@ export type OpsField = {
   type: string;
   storage: string;
   locked: boolean;
-  filterable: boolean;
   span: 1 | 2 | 3;
   required: boolean;
   enabled: boolean;
@@ -45,7 +44,6 @@ export type CatalogCopy = {
   optionValue: string;
   optionAdd: string;
   optionRemove: string;
-  filterable: string;
   create: string;
   createGroup: string;
   locked: string;
@@ -102,10 +100,6 @@ export type CatalogCopy = {
 
 export function fieldNeedsOptions(type: string): boolean {
   return type === 'select' || type === 'radio' || type === 'checkbox';
-}
-
-export function fieldCanFilter(type: string): boolean {
-  return type === 'boolean' || fieldNeedsOptions(type);
 }
 
 export function catalogColumns(columns: number): 1 | 2 | 3 {

@@ -16,7 +16,10 @@ async function seedDirectoryCatalog(client, communityId) {
     {
       slug: 'identity',
       label: loc('Nome e foto', 'Name and photo'),
-      description: loc('', ''),
+      description: loc(
+        'Como a pessoa aparece no diretório desta casa. Vale para todas as comunidades em que ela entra.',
+        'How the person appears in this house directory. It follows them into every community they join.'
+      ),
       sort: 10,
       columns: 1,
       fields: [
@@ -24,7 +27,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'full_name',
           type: 'text',
           label: loc('Nome completo', 'Full name'),
-          description: loc('Como você aparece na comunidade.', 'How you appear in the community.'),
+          description: loc(
+            'O nome que a rede usa para te achar. Pode ser o nome social; não precisa ser o do documento.',
+            'The name the network uses to find you. It can be the name you use; it does not have to match a document.'
+          ),
           span: 1,
           storage: 'person',
           column_key: 'full_name',
@@ -35,7 +41,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'avatar_url',
           type: 'image',
           label: loc('Foto', 'Photo'),
-          description: loc('Uma foto nítida, de preferência só você.', 'A clear photo, preferably just you.'),
+          description: loc(
+            'Rosto nítido, de preferência só você, em luz comum. Evite logo, recorte de evento e foto de grupo.',
+            'A clear face, preferably just you, in ordinary light. Avoid logos, event crops, and group photos.'
+          ),
           span: 1,
           storage: 'person',
           column_key: 'avatar_url',
@@ -46,7 +55,10 @@ async function seedDirectoryCatalog(client, communityId) {
     {
       slug: 'person',
       label: loc('Sobre você', 'About you'),
-      description: loc('', ''),
+      description: loc(
+        'Identidade e lugar. Cidade vem do mapa, não de texto livre, para o filtro do diretório não quebrar.',
+        'Identity and place. City comes from the map, not free text, so directory filters stay coherent.'
+      ),
       sort: 30,
       columns: 2,
       fields: [
@@ -54,7 +66,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'gender',
           type: 'select',
           label: loc('Gênero', 'Gender'),
-          description: loc('Como você se identifica.', 'How you identify.'),
+          description: loc(
+            'Como você quer aparecer nesta rede. Prefiro não dizer também é resposta.',
+            'How you want to appear in this network. Prefer not to say is a valid answer.'
+          ),
           span: 2,
           storage: 'person',
           column_key: 'gender',
@@ -70,7 +85,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'birth_city',
           type: 'city',
           label: loc('Cidade de nascimento', 'City of birth'),
-          description: loc('Onde você nasceu.', 'Where you were born.'),
+          description: loc(
+            'Cidade em que você nasceu, se quiser contar. Usada para filtro e para quem procura gente da mesma origem.',
+            'The city you were born in, if you want to share it. Used for filters and for people looking for the same origin.'
+          ),
           span: 1,
           storage: 'person',
           column_key: 'birth_city',
@@ -80,7 +98,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'current_city',
           type: 'city',
           label: loc('Cidade onde mora', 'City of residence'),
-          description: loc('Onde você mora agora.', 'Where you live now.'),
+          description: loc(
+            'Onde você mora agora. Se está em trânsito, use a cidade em que passa a maior parte do mês.',
+            'Where you live now. If you are in transit, use the city where you spend most of the month.'
+          ),
           span: 1,
           storage: 'person',
           column_key: 'current_city',
@@ -90,7 +111,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'languages',
           type: 'checkbox',
           label: loc('Idiomas que fala', 'Languages spoken'),
-          description: loc('Os idiomas que você usa.', 'Languages you use.'),
+          description: loc(
+            'Idiomas que você usa de verdade, com o nível. Não precisa listar o que já esqueceu.',
+            'Languages you actually use, with a level. Skip the ones you already forgot.'
+          ),
           span: 2,
           storage: 'person',
           column_key: 'languages',
@@ -115,7 +139,10 @@ async function seedDirectoryCatalog(client, communityId) {
     {
       slug: 'links',
       label: loc('Links', 'Links'),
-      description: loc('', ''),
+      description: loc(
+        'Endereços públicos. Nenhum é obrigatório. E-mail da conta não entra aqui de propósito.',
+        'Public URLs. None are required. The account email stays out of this group on purpose.'
+      ),
       sort: 35,
       columns: 1,
       fields: [
@@ -123,7 +150,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'linkedin',
           type: 'url',
           label: loc('LinkedIn', 'LinkedIn'),
-          description: loc('Cole o endereço do seu perfil.', 'Paste the URL of your profile.'),
+          description: loc(
+            'Cole o endereço completo do perfil, não o nome de usuário sozinho.',
+            'Paste the full profile URL, not the username alone.'
+          ),
           span: 1,
           storage: 'person',
           column_key: 'contacts.linkedin',
@@ -133,7 +163,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'github',
           type: 'url',
           label: loc('GitHub', 'GitHub'),
-          description: loc('Cole o endereço do seu perfil.', 'Paste the URL of your profile.'),
+          description: loc(
+            'Perfil público. Se o repositório que importa é da organização, ainda assim use o seu usuário.',
+            'A public profile. If the repo that matters belongs to an org, still use your own user.'
+          ),
           span: 1,
           storage: 'person',
           column_key: 'contacts.github',
@@ -143,7 +176,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'portfolio',
           type: 'url',
           label: loc('Portfólio', 'Portfolio'),
-          description: loc('Site ou página com o seu trabalho.', 'A site or page with your work.'),
+          description: loc(
+            'Site, Notion público, Behance ou página da pesquisa. Evite login obrigatório.',
+            'A site, public Notion, Behance, or a research page. Avoid anything behind a login.'
+          ),
           span: 1,
           storage: 'person',
           column_key: 'contacts.portfolio',
@@ -154,7 +190,10 @@ async function seedDirectoryCatalog(client, communityId) {
     {
       slug: 'community_copy',
       label: loc('Nesta comunidade', 'This community'),
-      description: loc('', ''),
+      description: loc(
+        'Texto desta casa. A mesma pessoa pode se apresentar de outro jeito na incubadora e no alumni.',
+        'Copy for this house. The same person can introduce themselves differently in the incubator and the alumni network.'
+      ),
       sort: 20,
       columns: 1,
       fields: [
@@ -162,7 +201,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'headline',
           type: 'localized_text',
           label: loc('Título', 'Title'),
-          description: loc('Uma linha sobre o que você faz.', 'One line about what you do.'),
+          description: loc(
+            'Uma linha, no tom desta comunidade. Diga o ofício, não o slogan da empresa.',
+            'One line, in the tone of this community. Name the craft, not the company slogan.'
+          ),
           span: 1,
           storage: 'card_column',
           column_key: 'headline',
@@ -173,7 +215,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'bio',
           type: 'localized_text',
           label: loc('Apresentação', 'About'),
-          description: loc('Um texto curto para a comunidade.', 'A short note for the community.'),
+          description: loc(
+            'Duas ou três frases: o que você faz, para quem, e como a rede pode te procurar. Sem currículo colado.',
+            'Two or three sentences: what you do, for whom, and how the network can reach you. Not a pasted CV.'
+          ),
           span: 1,
           storage: 'card_column',
           column_key: 'bio',
@@ -185,7 +230,10 @@ async function seedDirectoryCatalog(client, communityId) {
     {
       slug: 'availability',
       label: loc('Disponibilidade', 'Availability'),
-      description: loc('', ''),
+      description: loc(
+        'Como a pessoa quer ser procurada nesta comunidade, e se o cartão entra na vitrine pública.',
+        'How this person wants to be approached in this community, and whether the card appears on the public showcase.'
+      ),
       sort: 40,
       columns: 1,
       fields: [
@@ -193,7 +241,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'availability_status',
           type: 'select',
           label: loc('Disponibilidade', 'Availability'),
-          description: loc('Como as pessoas podem te procurar.', 'How people can reach out.'),
+          description: loc(
+            'O convite desta casa. Indisponível não esconde o cartão; só diz que agora não é hora de pauta nova.',
+            'The ask in this house. Unavailable does not hide the card; it only says now is not the time for a new brief.'
+          ),
           span: 1,
           storage: 'card_column',
           column_key: 'availability_status',
@@ -210,7 +261,10 @@ async function seedDirectoryCatalog(client, communityId) {
           name: 'public_showcase',
           type: 'boolean',
           label: loc('Mostrar na vitrine pública', 'Show on the public showcase'),
-          description: loc('Se o seu cartão entra na vitrine pública.', 'Whether your card appears on the public showcase.'),
+          description: loc(
+            'Se esta comunidade tem vitrine, o cartão só entra com o seu sim. Desligado, você continua no diretório interno.',
+            'If this community has a showcase, the card only appears with your yes. When off, you still stay in the internal directory.'
+          ),
           span: 1,
           storage: 'card_column',
           column_key: 'public_showcase',
@@ -240,28 +294,63 @@ async function seedDirectoryCatalog(client, communityId) {
 }
 
 async function seedDemoCatalogExtras(client, communityId) {
-  await upsertCatalogGroups(client, communityId, [
-    {
-      slug: 'hospitality',
-      label: loc('Hospitalidade', 'Hospitality'),
-      description: loc('', ''),
-      sort: 50,
-      columns: 1,
-      fields: [
-        {
-          name: 'host_at_home',
-          type: 'boolean',
-          label: loc('Topa receber pessoas na sua casa?', 'Would you host people at your home?'),
-          description: loc('Se você topa receber visitas da comunidade.', 'Whether you would host people from the community.'),
-          span: 1,
-          storage: 'attributes',
-          filterable: true,
-          sort: 10,
-          module_slug: 'directory',
-        },
-      ],
-    },
-  ]);
+  const { SEED_COMMUNITIES, seedTenantExtras } = require('./seed-communities.cjs');
+  const demo = SEED_COMMUNITIES.find((community) => community.slug === 'demo');
+  await seedTenantExtras(client, communityId, demo.extras);
+}
+
+function listsFor(field) {
+  if (field.lists) {
+    return field.lists;
+  }
+  const hidden = { filterable: false, placement: 'off' };
+  const card = { filterable: false, placement: 'card' };
+  const detail = { filterable: false, placement: 'detail' };
+  switch (field.name) {
+    case 'full_name':
+    case 'avatar_url':
+    case 'current_city':
+    case 'languages':
+    case 'headline':
+      return { directory: card, showcase: card };
+    case 'gender':
+    case 'birth_city':
+    case 'public_showcase':
+      return { directory: hidden, showcase: hidden };
+    case 'bio':
+      return { directory: detail, showcase: { filterable: false, placement: 'card' } };
+    case 'availability_status':
+      return {
+        directory: { filterable: false, placement: 'card' },
+        showcase: { filterable: true, placement: 'card' },
+      };
+    case 'linkedin':
+    case 'github':
+    case 'portfolio':
+      return { directory: detail, showcase: detail };
+    default:
+      if (field.filterable) {
+        return {
+          directory: { filterable: true, placement: 'detail' },
+          showcase: { filterable: true, placement: 'detail' },
+        };
+      }
+      return { directory: detail, showcase: hidden };
+  }
+}
+
+async function upsertListFields(client, fieldId, lists) {
+  for (const listKey of ['directory', 'showcase']) {
+    const spec = lists[listKey] || { filterable: false, placement: 'off' };
+    await client.query(
+      `INSERT INTO plugin_directory.list_fields (field_id, list_key, filterable, placement)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (field_id, list_key) DO UPDATE SET
+         filterable = EXCLUDED.filterable,
+         placement = EXCLUDED.placement`,
+      [fieldId, listKey, Boolean(spec.filterable), spec.placement || 'off']
+    );
+  }
 }
 
 async function upsertCatalogGroups(client, communityId, groups) {
@@ -280,13 +369,13 @@ async function upsertCatalogGroups(client, communityId, groups) {
     );
     const groupId = inserted.rows[0].id;
     for (const field of group.fields) {
-      await client.query(
+      const row = await client.query(
         `INSERT INTO plugin_directory.fields (
            group_id, name, type, label, description, options, span, required, sort_order,
-           storage, column_key, filterable, module_id
+           storage, column_key, module_id
          ) VALUES (
-           $1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8, $9, $10, $11, $12,
-           (SELECT id FROM plugin_core.modules WHERE slug = $13)
+           $1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8, $9, $10, $11,
+           (SELECT id FROM plugin_core.modules WHERE slug = $12)
          )
          ON CONFLICT (group_id, name) DO UPDATE SET
            type = EXCLUDED.type,
@@ -298,8 +387,8 @@ async function upsertCatalogGroups(client, communityId, groups) {
            sort_order = EXCLUDED.sort_order,
            storage = EXCLUDED.storage,
            column_key = EXCLUDED.column_key,
-           filterable = EXCLUDED.filterable,
-           module_id = EXCLUDED.module_id`,
+           module_id = EXCLUDED.module_id
+         RETURNING id`,
         [
           groupId,
           field.name,
@@ -312,13 +401,13 @@ async function upsertCatalogGroups(client, communityId, groups) {
           field.sort,
           field.storage,
           field.column_key || null,
-          Boolean(field.filterable),
           field.module_slug || null,
         ]
       );
+      await upsertListFields(client, row.rows[0].id, listsFor(field));
     }
   }
 }
 
-module.exports = { seedDirectoryCatalog, seedDemoCatalogExtras };
+module.exports = { seedDirectoryCatalog, seedDemoCatalogExtras, upsertCatalogGroups, loc, opt, listsFor };
 

@@ -30,7 +30,6 @@ const catalogGroups = [
         sort_order: 10,
         storage: 'card_column',
         column_key: 'headline',
-        filterable: false,
       },
     ],
   },

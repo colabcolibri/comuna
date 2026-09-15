@@ -13,7 +13,7 @@ export async function listDirectoryCatalog(ctx: AppQueryCtx) {
     `SELECT g.slug AS group_slug, g.label AS group_label, g.description AS group_description,
             g.sort_order AS group_sort_order, g.columns, g.enabled AS group_enabled,
             f.name, f.type, f.label, f.description, f.options, f.span, f.required, f.enabled,
-            f.sort_order, f.storage, f.column_key, f.filterable, m.slug AS module_slug
+            f.sort_order, f.storage, f.column_key, m.slug AS module_slug
      FROM plugin_directory.field_groups g
      LEFT JOIN plugin_directory.fields f ON f.group_id = g.id
      LEFT JOIN plugin_core.modules m ON m.id = f.module_id

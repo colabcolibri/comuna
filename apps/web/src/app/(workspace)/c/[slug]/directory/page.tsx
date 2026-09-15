@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation';
-import type { CatalogField } from '@community/directory';
 import { listCohorts } from '@community/memberships';
 import { DirectoryPanel } from '@/components/app/DirectoryPanel';
 import { MemberAccessNotice } from '@/components/app/MemberAccessNotice';
@@ -32,16 +31,15 @@ export default async function DirectoryPage({
   if (listed.status !== 200) {
     return <MemberAccessNotice kind="loadError" />;
   }
-  const facets = (catalog.body.groups || []).flatMap((group) => group.fields || []).filter(
-    (field: CatalogField) => field.filterable && field.storage === 'attributes'
-  );
   const cohorts = await listCohorts(member.ctx.communityId);
   return (
     <DirectoryPanel
       rows={listed.body.data}
-      facets={facets}
+      facets={listed.body.facets}
+      listFields={listed.body.listFields}
       search={query.get('search') || ''}
       facetValues={facetsFromSearchParams(query)}
+      status={query.get('status') || ''}
       cohorts={cohorts}
       cohort={query.get('cohort') || ''}
     />

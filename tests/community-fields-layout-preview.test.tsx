@@ -7,7 +7,6 @@ function field(partial: Partial<OpsField> & Pick<OpsField, 'id' | 'name' | 'type
   return {
     storage: 'person',
     locked: true,
-    filterable: false,
     span: 1,
     required: false,
     enabled: true,

@@ -1,7 +1,7 @@
 ---
 title: Environments and Setup
 status: review
-version: 1.6
+version: 1.7
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 05_architecture.md]
 blocks: []
@@ -85,7 +85,20 @@ Cookie de sessão membro: `Secure` só quando `NODE_ENV=production`. Local HTTP 
 
 ## Seed do super-admin
 
-Script de seed (US EPIC-11) insere `global_role = super_admin` para `INITIAL_SUPER_ADMIN_EMAIL`. O mesmo utilizador entra na comunidade `demo` como `coordinator` ativo — senão a web (`/directory`) responde vazio: a listagem exige membership, a vitrine não. Login ops **não** é “digitar o e-mail na tela Stitch e virar admin”. Comunidade `demo` chama-se Alumni Instituto Atlântico. Quarenta pessoas com nomes e bios reais; e-mails estáveis `member01@demo.example` … `member40@demo.example`.
+Script de seed (US EPIC-11) insere `global_role = super_admin` para `INITIAL_SUPER_ADMIN_EMAIL`. O mesmo utilizador entra nas **seis** comunidades de demo como `coordinator` ativo — senão a web (`/directory`) responde vazio: a listagem exige membership, a vitrine não. Login ops **não** é “digitar o e-mail na tela Stitch e virar admin”.
+
+Casas do seed local:
+
+| slug | Nome | `type` | Vitrine pública | Extra de catálogo |
+| ---- | ---- | ------ | --------------- | ----------------- |
+| `demo` | Alumni Instituto Atlântico | `alumni` | sim | hospitalidade (`host_at_home`) |
+| `cerrado-lab` | Incubadora Cerrado Lab | `incubator` | sim | estágio / pedido / setor |
+| `pratica-dados` | Prática em dados públicos | `practice_community` | sim | domínio / ênfase / office hours |
+| `mentoria-norte` | Rede de mentoria Amazônia-Norte | `mentor_network` | sim (vazia de propósito) | lado / tema / vaga |
+| `conservatorio-litoral` | Alumni Conservatório do Litoral | `alumni` | sim | meio / ensina / circulação |
+| `saude-territorio` | Prática em saúde e território | `practice_community` | sim | ocupação / SUS / território |
+
+Trezentas pessoas (`member01@demo.example` … `member99@demo.example`, depois `member100` … `member300`). A mesma conta pode ter membership em mais de uma casa (cartão, turma e atributos por comunidade). As primeiras quarenta têm nomes e bios escritos à mão; o restante é gerado com ofício e cidade variados. Turmas (`cohorts`) entram no seed com código estável.
 
 ## CI
 

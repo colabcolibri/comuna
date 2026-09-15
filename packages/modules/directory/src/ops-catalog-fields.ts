@@ -3,7 +3,6 @@ import { localizedPair, parseLocalized, pickLocalizedText, type LocalizedText } 
 import {
   ATTRIBUTE_FIELD_TYPES,
   CatalogWriteError,
-  fieldCanFilter,
   fieldNeedsOptions,
   isFieldLocked,
   parseCatalogSpan,
@@ -22,7 +21,6 @@ export type OpsCatalogField = {
   type: string;
   storage: string;
   locked: boolean;
-  filterable: boolean;
   span: 1 | 2 | 3;
   required: boolean;
   enabled: boolean;
@@ -136,7 +134,6 @@ function asOpsField(row: {
   name: string;
   type: string;
   storage: string;
-  filterable: boolean;
   span: number;
   required: boolean;
   enabled: boolean;
@@ -150,7 +147,6 @@ function asOpsField(row: {
     type: row.type,
     storage: row.storage,
     locked: isFieldLocked(row.storage),
-    filterable: row.filterable,
     span: parseCatalogSpan(row.span, 1),
     required: Boolean(row.required),
     enabled: row.enabled !== false,
@@ -173,7 +169,6 @@ export async function createAttributeField(
     descriptionEn: string;
     options?: unknown;
     optionsText?: string;
-    filterable?: boolean;
     span?: number;
     required?: boolean;
   }
@@ -217,14 +212,12 @@ export async function createAttributeField(
   if ((clash.rows[0]?.n ?? 0) > 0) {
     throw new CatalogWriteError('DUPLICATE_FIELD');
   }
-  const filterable = fieldCanFilter(type) ? Boolean(input.filterable) : false;
   const span = parseCatalogSpan(input.span, 1);
   const inserted = await query<{
     id: string;
     name: string;
     type: string;
     storage: string;
-    filterable: boolean;
     span: number;
     required: boolean;
     enabled: boolean;
@@ -234,14 +227,14 @@ export async function createAttributeField(
   }>(
     `INSERT INTO plugin_directory.fields (
        group_id, name, type, label, description, options, span, required, sort_order,
-       storage, column_key, filterable, module_id
+       storage, column_key, module_id
      ) VALUES (
        $1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8,
        (SELECT coalesce(max(sort_order), 0) + 10 FROM plugin_directory.fields WHERE group_id = $1),
-       'attributes', null, $9,
+       'attributes', null,
        (SELECT id FROM plugin_core.modules WHERE slug = 'directory')
      )
-     RETURNING id, name, type, storage, filterable, span, required, enabled, options, label, description`,
+     RETURNING id, name, type, storage, span, required, enabled, options, label, description`,
     [
       input.groupId,
       name,
@@ -251,10 +244,16 @@ export async function createAttributeField(
       JSON.stringify(options),
       span,
       Boolean(input.required),
-      filterable,
     ]
   );
-  return asOpsField(inserted.rows[0]);
+  const field = inserted.rows[0];
+  await query(
+    `INSERT INTO plugin_directory.list_fields (field_id, list_key, filterable, placement)
+     VALUES ($1, 'directory', false, 'detail'), ($1, 'showcase', false, 'off')
+     ON CONFLICT (field_id, list_key) DO NOTHING`,
+    [field.id]
+  );
+  return asOpsField(field);
 }
 
 export async function updateCatalogFieldSpan(
@@ -295,31 +294,6 @@ export async function updateCatalogFieldRequired(
     throw new CatalogWriteError('NOT_FOUND');
   }
   await query(`UPDATE plugin_directory.fields SET required = $2 WHERE id = $1`, [fieldId, required]);
-}
-
-export async function updateCatalogFieldFilterable(
-  communityId: string,
-  fieldId: string,
-  filterable: unknown
-): Promise<void> {
-  if (typeof filterable !== 'boolean') {
-    throw new CatalogWriteError('VALIDATION_ERROR');
-  }
-  const found = await query<{ type: string }>(
-    `SELECT f.type
-     FROM plugin_directory.fields f
-     JOIN plugin_directory.field_groups g ON g.id = f.group_id
-     WHERE f.id = $1 AND g.community_id = $2`,
-    [fieldId, communityId]
-  );
-  const row = found.rows[0];
-  if (!row) {
-    throw new CatalogWriteError('NOT_FOUND');
-  }
-  if (!fieldCanFilter(row.type)) {
-    throw new CatalogWriteError('VALIDATION_ERROR');
-  }
-  await query(`UPDATE plugin_directory.fields SET filterable = $2 WHERE id = $1`, [fieldId, filterable]);
 }
 
 export async function updateCatalogFieldEnabled(
@@ -375,7 +349,6 @@ export async function updateOpsField(
     descriptionEn?: string;
     options?: unknown;
     optionsText?: string;
-    filterable?: boolean;
   }
 ): Promise<void> {
   const found = await query<{ storage: string; type: string }>(
@@ -403,17 +376,15 @@ export async function updateOpsField(
   if (fieldNeedsOptions(row.type) && options.length === 0) {
     throw new CatalogWriteError('VALIDATION_ERROR');
   }
-  const filterable = fieldCanFilter(row.type) ? Boolean(input.filterable) : false;
   await query(
     `UPDATE plugin_directory.fields
-     SET label = $2::jsonb, description = $3::jsonb, options = $4::jsonb, filterable = $5
+     SET label = $2::jsonb, description = $3::jsonb, options = $4::jsonb
      WHERE id = $1`,
     [
       fieldId,
       JSON.stringify(localizedPair(labelPt, (input.labelEn || '').trim() || labelPt)),
       JSON.stringify(description),
       JSON.stringify(options),
-      filterable,
     ]
   );
 }

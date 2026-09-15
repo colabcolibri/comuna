@@ -1,12 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { parseField } from './catalog';
+import { parseListField } from './list-fields';
 import { peopleListQuery } from './people-list-sql';
 
-const host = parseField({
+const host = parseListField({
   name: 'host_at_home',
   type: 'boolean',
   storage: 'attributes',
   filterable: true,
+  placement: 'detail',
+})!;
+
+const availability = parseListField({
+  name: 'availability_status',
+  type: 'select',
+  storage: 'card_column',
+  column_key: 'availability_status',
+  filterable: true,
+  placement: 'card',
 })!;
 
 describe('peopleListQuery', () => {
@@ -33,7 +43,7 @@ describe('peopleListQuery', () => {
     const built = peopleListQuery({
       communityId: 'c1',
       searchParams: new URLSearchParams('status=mentor&cohort=not-a-uuid'),
-      fields: [host],
+      fields: [host, availability],
       scope: 'showcase',
     });
     expect(built.ok).toBe(true);
@@ -80,5 +90,33 @@ describe('peopleListQuery', () => {
     });
     expect(allowed.ok && allowed.pageSize).toBe(48);
     expect(rejected.ok && rejected.pageSize).toBe(24);
+  });
+
+  it('ignores showcase status when availability is not filterable', () => {
+    const built = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams('status=mentor'),
+      fields: [host],
+      scope: 'showcase',
+    });
+    expect(built.ok).toBe(true);
+    if (built.ok === false) {
+      return;
+    }
+    expect(built.text).not.toContain('availability_status =');
+  });
+
+  it('applies directory status when availability is filterable on that list', () => {
+    const built = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams('status=mentor'),
+      fields: [availability],
+      scope: 'directory',
+    });
+    expect(built.ok).toBe(true);
+    if (built.ok === false) {
+      return;
+    }
+    expect(built.text).toContain('c.availability_status = $');
   });
 });
