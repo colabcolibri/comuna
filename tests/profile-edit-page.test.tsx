@@ -94,8 +94,10 @@ describe('profile forms', () => {
     });
     expect(screen.getByRole('heading', { name: 'Identidade' })).toBeTruthy();
     expect(screen.getByLabelText('Foto')).toBeTruthy();
-    expect(screen.getByRole('checkbox', { name: 'Português' })).toBeTruthy();
-    expect(screen.getByRole('combobox', { name: 'Proficiência: Português' })).toBeTruthy();
+    expect(screen.getByText('Português')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Remover Português' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Adicionar' })).toBeTruthy();
+    expect(screen.queryByRole('checkbox', { name: 'Português' })).toBeNull();
     expect(screen.queryByLabelText('Headline (pt-BR)')).toBeNull();
   });
 

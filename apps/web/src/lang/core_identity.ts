@@ -32,7 +32,7 @@ export const coreIdentityPack = definePack({
     'profile.language': 'Idioma',
     'profile.languages_empty': 'Nenhum idioma ainda.',
     'profile.languages_add': 'Adicionar',
-    'profile.languages_save_item': 'Guardar',
+    'profile.languages_save_item': 'Atualizar',
     'profile.languages_cancel': 'Cancelar',
     'profile.languages_remove': 'Remover {name}',
     'profile.languages_edit': 'Editar {name}',

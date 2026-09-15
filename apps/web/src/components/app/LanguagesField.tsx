@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
-import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@community/ui';
+import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, cn } from '@community/ui';
 import {
   contentFromCatalog,
   interpolate,
@@ -94,7 +94,13 @@ export function LanguagesField({
           {selected.map((item) => {
             const name = nameOf(item.code);
             return (
-              <li key={item.code} className="flex min-w-0 items-center gap-3 px-3 py-2.5 sm:px-4">
+              <li
+                key={item.code}
+                className={cn(
+                  'flex min-w-0 items-center gap-3 px-3 py-2.5 sm:px-4',
+                  editing === item.code && 'bg-secondary/60'
+                )}
+              >
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-foreground">{name}</p>
                   <p className="truncate text-sm text-muted-foreground">{levels[item.proficiency]}</p>
@@ -143,7 +149,7 @@ export function LanguagesField({
           <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end">
             <div className="min-w-0 flex-1 space-y-2">
               <Label htmlFor={`${field.name}-code`}>{copy.language}</Label>
-              <Select value={draftCode || undefined} onValueChange={setDraftCode}>
+              <Select key={editing ?? 'add'} value={draftCode || undefined} onValueChange={setDraftCode}>
                 <SelectTrigger id={`${field.name}-code`} className="w-full min-h-11">
                   <SelectValue placeholder={copy.pick} />
                 </SelectTrigger>
