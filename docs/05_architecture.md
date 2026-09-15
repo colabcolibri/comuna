@@ -1,8 +1,8 @@
 ---
 title: System Architecture
-status: approved
-version: 1.5
-updated: 2026-09-14
+status: review
+version: 1.6
+updated: 2026-09-15
 depends_on: [00_scope.md, 01_tech_stack.md, 02_security.md, 03_user_types.md, 04_principles.md]
 blocks: [06_database.md, 07_api_contracts.md, 08_environments.md]
 ---
@@ -13,7 +13,7 @@ blocks: [06_database.md, 07_api_contracts.md, 08_environments.md]
 
 **Community Platform** é server-first, multi-tenant, **plugin-first**. O núcleo não é “alumni”. É identidade + comunidades + membership + perfil-base. Features de diretório rico, vitrine e contato são módulos com manifest, schema próprio e flag por `community_id` (BuddyBoss/Moodle: componente instalado, enabled no contexto).
 
-Duas apps Next no monorepo (`apps/web`, `apps/admin`), um Postgres. Código atual na raiz é legado até a US de scaffold.
+Duas apps Next no monorepo (`apps/web`, `apps/admin`), um Postgres. O Next de membros vive em `apps/web`.
 
 ```mermaid
 flowchart TD
@@ -24,7 +24,8 @@ flowchart TD
 
     subgraph Core["packages/core"]
         Auth[auth]
-        Ident[identity perfil-base]
+        Ident[identity perfil-base e chrome i18n]
+        Places[places CityDirectory]
         Comm[communities]
         Mem[memberships]
         Runtime[module-runtime]
@@ -46,6 +47,8 @@ flowchart TD
     Runtime --> Ident
     Runtime --> Comm
     Runtime --> Mem
+    Web --> Places
+    Ident --> Places
     Auth --> Db
     Ident --> Db
     Comm --> Db
@@ -80,7 +83,7 @@ OTP + JWT. Sem papel por e-mail.
 
 ### Identity (perfil-base)
 
-Só o que toda comunidade precisa para *existir uma pessoa*: `full_name`, `avatar_url`, `preferred_locale`. Sem skills, headline, bio, disponibilidade, gênero, cidade — isso é plugin (proposta no `00`; manager pode puxar campos para o base).
+Pessoa (`person_core`) e helpers de chrome (`pickContent`, cookie). Cidade é `GeoPlace` via `packages/core/places` (infraestrutura, **não** plugin). Headline e bio no plugin `directory` são os únicos textos que o membro preenche em pt-BR e en.
 
 ### Communities e memberships
 

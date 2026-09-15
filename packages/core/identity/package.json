@@ -1,5 +1,8 @@
 {
   "name": "@community/identity",
   "version": "0.0.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@community/places": "workspace:*"
+  }
 }

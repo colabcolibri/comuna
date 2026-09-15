@@ -6,20 +6,20 @@ export function LocaleSwitcher() {
   const locale = useLocale();
   const setLocale = useSetLocale();
   return (
-    <div className="flex items-center gap-1" role="group" aria-label="Idioma">
+    <div className="flex items-center rounded-lg border border-border p-0.5" role="group" aria-label="Idioma">
       <button
         type="button"
-        className={`min-h-11 px-2 text-sm rounded-lg ${locale === 'pt-BR' ? 'font-semibold border border-border' : 'text-muted-foreground'}`}
+        className={`min-h-11 px-3 text-sm rounded-md ${locale === 'pt-BR' ? 'bg-secondary font-medium text-foreground' : 'text-muted-foreground'}`}
         onClick={() => setLocale('pt-BR')}
       >
-        pt-BR
+        PT
       </button>
       <button
         type="button"
-        className={`min-h-11 px-2 text-sm rounded-lg ${locale === 'en' ? 'font-semibold border border-border' : 'text-muted-foreground'}`}
+        className={`min-h-11 px-3 text-sm rounded-md ${locale === 'en' ? 'bg-secondary font-medium text-foreground' : 'text-muted-foreground'}`}
         onClick={() => setLocale('en')}
       >
-        en
+        EN
       </button>
     </div>
   );

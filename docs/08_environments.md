@@ -1,8 +1,8 @@
 ---
 title: Environments and Setup
-status: approved
-version: 1.3
-updated: 2026-09-14
+status: review
+version: 1.4
+updated: 2026-09-15
 depends_on: [01_tech_stack.md, 05_architecture.md]
 blocks: []
 ---
@@ -23,6 +23,8 @@ blocks: []
 | `NEXT_PUBLIC_APP_URL` | URL membro | Sim | `http://localhost:3014` | All |
 | `OPS_BASE_PATH` | Path ops se mesmo origin | Não | `/ops` | Local |
 | `ALLOW_DEV_OTP` | Se `true`, loga OTP no server **nunca** no JSON de prod | Não | `true` só local | Local |
+
+Busca de cidade: `GET /api/places/cities` chama Nominatim (OpenStreetMap). Sem chave. User-Agent próprio. Mínimo 1 req/s.
 
 `INITIAL_ADMIN_EMAIL` legado: tratar como alias depreado de `INITIAL_SUPER_ADMIN_EMAIL`.
 

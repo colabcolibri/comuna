@@ -1,24 +1,18 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { cookies } from 'next/headers';
-import { Atkinson_Hyperlegible, Inter } from 'next/font/google';
+import { IBM_Plex_Sans } from 'next/font/google';
 import { ThemeProvider } from '@community/ui';
 import { LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
-import MemberHeader from '@/components/app/MemberHeader';
-import MemberFooter from '@/components/app/MemberFooter';
+import { MemberShell } from '@/components/app/MemberShell';
 import { LocaleProvider } from '@/components/app/LocaleProvider';
 import { getMemberSession } from '@/lib/server/member-session';
 import './globals.css';
 
-const atkinson = Atkinson_Hyperlegible({
+const ibmPlex = IBM_Plex_Sans({
   subsets: ['latin'],
-  weight: ['400', '700'],
-  variable: '--font-atkinson',
-});
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
+  weight: ['400', '500', '600'],
+  variable: '--font-ibm-plex-sans',
 });
 
 export const metadata: Metadata = {
@@ -30,13 +24,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const session = await getMemberSession();
   const locale = resolveUiLocale((await cookies()).get(LOCALE_COOKIE)?.value);
   return (
-    <html lang={locale === 'en' ? 'en' : 'pt-BR'} className={`${atkinson.variable} ${inter.variable} h-full`} suppressHydrationWarning>
-      <body className={`${atkinson.className} min-h-full flex flex-col antialiased bg-background text-foreground`}>
+    <html lang={locale === 'en' ? 'en' : 'pt-BR'} className={`${ibmPlex.variable} h-full`} suppressHydrationWarning>
+      <body className={`${ibmPlex.className} min-h-full antialiased bg-background text-foreground`}>
         <ThemeProvider>
           <LocaleProvider initialLocale={locale}>
-            <MemberHeader sessionEmail={session?.email ?? null} />
-            {children}
-            <MemberFooter />
+            <MemberShell sessionEmail={session?.email ?? null}>{children}</MemberShell>
           </LocaleProvider>
         </ThemeProvider>
       </body>

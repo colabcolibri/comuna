@@ -30,15 +30,15 @@ erDiagram
         uuid id PK
         uuid user_id FK, UK
         string full_name
-        string gender "female | male | non_binary | prefer_not_to_say | custom"
+        string gender "woman | man | non_binary | prefer_not"
         string avatar_url
-        string birth_city
+        jsonb birth_city "LocalizedText"
         string birth_country
-        string current_city
+        jsonb current_city "LocalizedText"
         string current_country
-        jsonb contacts "linkedin, github, whatsapp, portfolio"
-        jsonb languages "lista de idiomas com proficiencia"
-        jsonb metadata "timezone, preferencias"
+        jsonb contacts "linkedin, github, portfolio"
+        jsonb languages "[{code, proficiency}]"
+        string preferred_locale
         timestamp updated_at
     }
 
@@ -62,15 +62,11 @@ erDiagram
 
     "network_core.memberships" {
         uuid id PK
-        uuid community_id FK "ISOLAMENTO MULTI-TENANT"
+        uuid community_id FK
         uuid user_id FK
-        uuid cohort_id FK "Opcional: Cohort/Turma dentro da comunidade"
-        string headline "Cargo/Titulo do membro nesta rede"
-        text bio "Apresentacao especifica para esta comunidade"
-        string availability_status "available_for_hire | project_partner | mentor | unavailable"
-        string network_role "member | coordinator | community_admin"
+        uuid cohort_id FK
+        string network_role "member | coordinator"
         string network_status "pending_approval | active | suspended"
-        jsonb custom_attributes "campos especificos da comunidade (ex: ano formatura, projetos)"
         timestamp joined_at
     }
 

@@ -18,7 +18,8 @@ packages/
   core/
     auth/
     db/
-    identity/          # perfil-base
+    identity/          # perfil-base + pickContent
+    places/            # GeoPlace + CityDirectory (não é plugin)
     communities/
     memberships/
     module-runtime/

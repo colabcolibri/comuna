@@ -7,6 +7,7 @@ import { useLocale } from '@/components/app/LocaleProvider';
 
 const CONTENT = {
   'pt-BR': {
+    kicker: 'Coordenação',
     title: 'Pedidos de entrada',
     subtitle: 'Delibere solicitações de novos membros desta comunidade.',
     empty: 'Fila vazia.',
@@ -16,6 +17,7 @@ const CONTENT = {
     notice: 'Aprovar dá acesso intermediado ao diretório. Contato permanece protegido.',
   },
   en: {
+    kicker: 'Coordination',
     title: 'Join requests',
     subtitle: 'Review requests for this community.',
     empty: 'Queue is empty.',
@@ -58,7 +60,7 @@ export default function CoordApprovalsPage() {
   };
 
   return (
-    <AppPageTemplate title={copy.title} subtitle={copy.subtitle} className="max-w-5xl py-8 md:py-10">
+    <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
       <aside className="mb-6 rounded-lg bg-background border border-border p-4 text-sm text-muted-foreground">{copy.notice}</aside>
       {forbidden && <p>{copy.forbidden}</p>}
       <div className="bg-surface border border-border rounded-lg overflow-hidden">

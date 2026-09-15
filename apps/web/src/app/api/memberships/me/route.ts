@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { memberFromRequest } from '@community/auth';
 import { queryAsMember } from '@community/db';
+import { parseLocalized } from '@community/identity';
 import { activeMembership, moduleRuntime } from '@/lib/server/membership';
 
 export async function GET(req: NextRequest) {
@@ -44,11 +45,13 @@ export async function PUT(req: NextRequest) {
       { status: 403 }
     );
   }
+  const headline = parseLocalized(body.headline);
+  const bio = parseLocalized(body.bio);
   await queryAsMember(
     { userId: member.sub, communityId: membership.community_id },
     `INSERT INTO plugin_directory.cards (
        membership_id, headline, bio, availability_status, public_showcase, custom_attributes
-     ) VALUES ($1, $2, $3, $4, $5, $6)
+     ) VALUES ($1, $2::jsonb, $3::jsonb, $4, $5, $6::jsonb)
      ON CONFLICT (membership_id) DO UPDATE SET
        headline = EXCLUDED.headline,
        bio = EXCLUDED.bio,
@@ -57,8 +60,8 @@ export async function PUT(req: NextRequest) {
        custom_attributes = EXCLUDED.custom_attributes`,
     [
       membership.id,
-      body.headline ?? null,
-      body.bio ?? null,
+      JSON.stringify(headline),
+      JSON.stringify(bio),
       body.availability_status ?? null,
       Boolean(body.public_showcase),
       JSON.stringify(body.custom_attributes || {}),

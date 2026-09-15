@@ -1,8 +1,8 @@
 ---
 title: Scope
-status: approved
-version: 1.3
-updated: 2026-09-14
+status: review
+version: 1.4
+updated: 2026-09-15
 depends_on: []
 blocks: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 ---
@@ -75,7 +75,7 @@ Duas apps no monorepo: **web** (membros, visitantes, coordenadores) e **admin** 
 | # | Question | Owner | Target |
 | - | -------- | ----- | ------ |
 | 1 | Provedor de e-mail em produção? | manager | S2 |
-| 2 | Gênero e cidade atual: base ou plugin `person-demographics` / `person-location`? Proposta: **plugin** (perfil-base só nome, avatar, locale). | manager | S1 |
+| 2 | Gênero e cidades em **person_core**. Cidade = Nominatim (`osm_id`). Só headline/bio são copy bilingue digitado. | manager | fechado 2026-09-15 |
 | 3 | Admin em subdomínio vs porta local distinta? | manager | S1 monorepo |
 
 ## Gate

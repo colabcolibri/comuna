@@ -39,7 +39,10 @@
         "../../packages/core/auth/src/index.ts"
       ],
       "@community/identity": [
-        "../../packages/core/identity/src/pick-content.ts"
+        "../../packages/core/identity/src/index.ts"
+      ],
+      "@community/places": [
+        "../../packages/core/places/src/index.ts"
       ],
       "@community/ui-member": [
         "../../packages/ui/member/src/index.ts"

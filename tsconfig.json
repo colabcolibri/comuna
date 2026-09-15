@@ -18,7 +18,8 @@
       "@community/db": ["./packages/core/db/src/index.ts"],
       "@community/module-runtime": ["./packages/core/module-runtime/src/is-enabled.ts"],
       "@community/auth": ["./packages/core/auth/src/index.ts"],
-      "@community/identity": ["./packages/core/identity/src/pick-content.ts"],
+      "@community/identity": ["./packages/core/identity/src/index.ts"],
+      "@community/places": ["./packages/core/places/src/index.ts"],
       "vitest": ["./node_modules/vitest"]
     }
   },

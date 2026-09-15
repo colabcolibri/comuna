@@ -38,9 +38,11 @@ const nextConfig: NextConfig = {
     '@community/auth',
     '@community/db',
     '@community/identity',
+    '@community/places',
     '@community/module-runtime',
     '@community/ui',
     '@community/ui-member',
+    'cn',
   ],
 };
 

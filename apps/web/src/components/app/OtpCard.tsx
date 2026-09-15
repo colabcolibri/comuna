@@ -102,6 +102,7 @@ export default function OtpCard() {
         throw new Error(data.error?.message || copy.invalid);
       }
       setDone({ email: data.user.email, role: data.user.global_role });
+      window.location.href = '/directory';
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : copy.invalid);
     } finally {

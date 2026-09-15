@@ -11,8 +11,7 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "cn": ["./src/lib/utils.ts"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"]

@@ -10,6 +10,7 @@
     "start": "pnpm --filter @community/web start",
     "lint": "pnpm --filter @community/web exec next lint",
     "test": "vitest run",
+    "ui:add": "npx --yes shadcn@latest add --cwd packages/ui/primitives",
     "db:migrate": "node scripts/db-migrate.cjs",
     "db:migrate:status": "node scripts/db-migrate.cjs --status",
     "db:seed": "node scripts/db-seed.cjs"

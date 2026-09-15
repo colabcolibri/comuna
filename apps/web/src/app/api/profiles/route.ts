@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
   }
   const result = await query(
-    `SELECT m.id, p.full_name, c.headline, c.bio, c.availability_status
+    `SELECT m.id, p.full_name, p.current_city, p.languages, c.headline, c.bio, c.availability_status
      FROM network_core.memberships m
      JOIN person_core.profiles p ON p.user_id = m.user_id
      LEFT JOIN plugin_directory.cards c ON c.membership_id = m.id

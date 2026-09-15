@@ -10,14 +10,15 @@ apps/web                 rotas membro
 apps/admin               rotas ops
 ```
 
-Instalar componente:
+Instalar componente (na raiz do monorepo):
 
 ```bash
-cd packages/ui/primitives
-pnpm dlx shadcn@latest add <nome> --yes
+npx --yes shadcn@latest add sidebar --yes --cwd packages/ui/primitives
+# ou
+pnpm ui:add sidebar --yes
 ```
 
-Depois do CLI, se o import vier `from "cn"`, apontar para `src/lib/utils.ts`.
+O registry do shadcn importa `from "cn"`. Neste monorepo isso é o pacote workspace `packages/ui/cn`, não o npm público. O `.npmrc` aponta `store-dir` para `.pnpm-store` do repo — senão o `pnpm add` do CLI usa o store global e quebra.
 
 Tema: `src/styles.css` — Tailwind 4 (`@theme inline` + `:root` / `.dark`). Apps só importam o CSS.
 

@@ -1,8 +1,8 @@
 ---
 title: Database Design
-status: approved
-version: 2.2
-updated: 2026-09-14
+status: review
+version: 2.3
+updated: 2026-09-15
 depends_on: [05_architecture.md]
 blocks: [07_api_contracts.md]
 ---
@@ -15,10 +15,10 @@ blocks: [07_api_contracts.md]
 - **Access:** driver `pg` em `packages/core/db` (alvo). Sem ORM nesta versão.
 - **Migrations:** `db/migrations/YYYYMMDDHHMMSS_*.sql` — uma alteração por arquivo. Aplicar com runner documentado na US de persistência. **Proibido** reset/drop de banco como rotina.
 - **Tenancy:** toda query de rede filtra `memberships.community_id`. `super_admin` não usa `community_id` para “ver tudo na vitrine”; ops lista comunidades, não o diretório de talentos.
-- **Who writes:** app usa `SET LOCAL ROLE community_app` (NOBYPASSRLS) e `set_config` de `app.user_id` / `app.community_id` nas queries de perfil e membership. Migrate/seed continuam na role dona do banco. Sem ORM.
+- **Who writes:** app usa `SET LOCAL ROLE community_app` (NOBYPASSRLS) e `set_config` de `app.user_id` / `app.community_id` nas queries de perfil e membership. Copy bilingue digitado: só headline/bio. Cidade: objeto Nominatim. Migrate/seed na role dona do banco. Sem ORM.
 - **Backup:** dump Postgres no host de prod (procedimento no `08` quando houver prod). Sem `db reset`.
 
-O ER abaixo é o contrato. **Não está aplicado** no repositório (inventário as-is).
+O ER abaixo é o contrato. Migrações em `db/migrations/` aplicam o núcleo e os plugins first-party.
 
 ## Modelagem Multi-Tenant / Multi-Comunidade (Cohorts & Networks)
 
@@ -33,7 +33,7 @@ erDiagram
     "plugin_core.modules" ||--O{ "network_core.community_modules" : "catalogo"
     "network_core.communities" ||--O{ "network_core.cohorts" : "possui turmas/grupos"
     "network_core.cohorts" ||--O{ "network_core.memberships" : "associa membro a cohort"
-    "network_core.memberships" ||--O{ "network_core.member_skills" : "possesses"
+    "network_core.memberships" ||--o| "plugin_directory.cards" : "card desta comunidade"
     "network_core.skills" ||--O{ "network_core.member_skills" : "tagged in"
 
     "auth_core.users" {
@@ -50,6 +50,13 @@ erDiagram
         string full_name
         string avatar_url
         string preferred_locale "pt-BR | en"
+        string gender "woman | man | non_binary | prefer_not"
+        string birth_country "ISO 3166-1 alpha-2"
+        string current_country
+        jsonb birth_city "Nominatim place {osm_id, label from geocoder}"
+        jsonb current_city "Nominatim place"
+        jsonb languages "[{code, proficiency}]"
+        jsonb contacts "{linkedin, github, portfolio}"
         timestamp updated_at
     }
 
@@ -89,13 +96,18 @@ erDiagram
         uuid community_id FK "ISOLAMENTO MULTI-TENANT"
         uuid user_id FK
         uuid cohort_id FK "Opcional: Cohort/Turma dentro da comunidade"
-        string headline "Cargo/Titulo do membro nesta rede"
-        text bio "Apresentacao especifica para esta comunidade"
-        string availability_status "available_for_hire | project_partner | mentor | unavailable"
-        string network_role "member | coordinator | community_admin"
+        string network_role "member | coordinator"
         string network_status "pending_approval | active | suspended"
-        jsonb custom_attributes "campos especificos da comunidade (ex: ano formatura, projetos)"
         timestamp joined_at
+    }
+
+    "plugin_directory.cards" {
+        uuid membership_id PK, FK
+        jsonb headline "LocalizedText"
+        jsonb bio "LocalizedText"
+        string availability_status "available_for_hire | project_partner | mentor | unavailable"
+        boolean public_showcase
+        jsonb custom_attributes
     }
 
     "network_core.skills" {
@@ -126,9 +138,9 @@ erDiagram
 ## Como Funciona o Isolamento Multi-Tenant & Cohorts
 
 ### 1. Uma Pessoa (perfil-base), Múltiplas Comunidades (`memberships`)
-- Uma conta `users` + perfil-base (`full_name`, `avatar_url`, `preferred_locale`).
+- Uma conta `users` + perfil-base (identidade + demografia + cidades geocodificadas).
 - A mesma pessoa pode ser `member` numa comunidade e `coordinator` noutra.
-- Skills, headline, bio, vitrine: tabelas do plugin `directory` / `showcase`, não `person_core`.
+- Headline, bio, vitrine, availability: `plugin_directory.cards`. Skills ainda não têm tabela; `custom_attributes` não substitui LocalizedText.
 
 ### 2. Isolamento por `community_id` (Tenant ID)
 - Todas as consultas, buscas no diretório e ações administrativas filtram obrigatoriamente pelo `community_id`.
@@ -143,10 +155,10 @@ erDiagram
 ## Padrão de schemas PostgreSQL
 
 1. **`auth_core`**: `users.global_role` (`user | super_admin`) e `verification_tokens`.
-2. **`person_core`**: perfil-base apenas.
+2. **`person_core`**: identidade, demografia, GeoPlace de cidades, languages, contacts.
 3. **`network_core`**: `communities`, `memberships` (`network_role`: `member | coordinator`), `community_modules`, `cohorts` (núcleo de agrupamento; UI extra pode ser plugin depois).
 4. **`plugin_core`**: catálogo `modules`.
-5. **`plugin_directory`** (SQL do pacote directory): skills, headline, bio, availability — **só se o módulo estiver no catálogo**. O ER acima ainda mostra `network_core.skills` como dívida visual; a migração da US de directory **move** isso para schema do plugin.
+5. **`plugin_directory`**: `cards` com headline/bio LocalizedText, availability, vitrine. Skills no ER legado `network_core.skills` ainda não existem em SQL.
 
 `community_admin` fora da v2.0.0.
 

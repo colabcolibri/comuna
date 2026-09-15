@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
   }
   const result = await queryAsMember(
     { userId: member.sub, communityId: membership.community_id },
-    `SELECT m.id, p.full_name, c.headline, c.bio, c.availability_status
+    `SELECT m.id, p.full_name, p.current_city, p.languages, c.headline, c.bio, c.availability_status
      FROM network_core.memberships m
      JOIN person_core.profiles p ON p.user_id = m.user_id
      LEFT JOIN plugin_directory.cards c ON c.membership_id = m.id

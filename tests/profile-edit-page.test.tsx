@@ -26,9 +26,13 @@ describe('profile edit fields', () => {
     );
     expect(screen.getByLabelText('Nome completo')).toBeTruthy();
     expect(screen.getByLabelText('URL do avatar')).toBeTruthy();
-    expect(screen.getByLabelText('Idioma preferido')).toBeTruthy();
-    expect(screen.getByLabelText('Headline')).toBeTruthy();
-    expect(screen.getByLabelText('Bio')).toBeTruthy();
+    expect(screen.getByLabelText('Gênero')).toBeTruthy();
+    expect(screen.getByLabelText('Cidade de nascimento')).toBeTruthy();
+    expect(screen.getByLabelText('Cidade onde mora')).toBeTruthy();
+    expect(screen.getByLabelText('Headline (pt-BR)')).toBeTruthy();
+    expect(screen.getByLabelText('Headline (en)')).toBeTruthy();
+    expect(screen.getByLabelText('Bio (pt-BR)')).toBeTruthy();
+    expect(screen.getByLabelText('Bio (en)')).toBeTruthy();
     expect(screen.getByLabelText('Disponibilidade')).toBeTruthy();
   });
 });

@@ -36,11 +36,9 @@ Não existe `if (community.type === 'alumni')` no core. Tipo de comunidade é da
 
 ## Perfil-base vs extra
 
-**Base (`packages/core/identity`):** `full_name`, `avatar_url`, `preferred_locale`.
+**Base (`packages/core/identity`):** `full_name`, `avatar_url`, `preferred_locale`, `gender`, cidades via Nominatim (`osm_id`), `languages`, `contacts`. País derivado do lugar.
 
-**Não-base (exemplos de plugin):** headline, bio, skills, disponibilidade, vitrine pública, LinkedIn, gênero, cidades, cohort year.
-
-Se o manager puxar gênero/cidade para o base, isso muda `06` e esta tabela — não se espalha no directory plugin por default.
+**Não-base (plugin directory):** headline/bio LocalizedText (único copy bilingue digitado), availability, vitrine.
 
 ## Coordination
 

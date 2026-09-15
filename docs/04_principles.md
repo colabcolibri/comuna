@@ -1,8 +1,8 @@
 ---
 title: Engineering Principles
-status: approved
-version: 1.2
-updated: 2026-09-14
+status: review
+version: 1.3
+updated: 2026-09-15
 depends_on: [00_scope.md]
 blocks: [05_architecture.md]
 ---
@@ -23,12 +23,13 @@ blocks: [05_architecture.md]
 | ------- | ---------------------- | -------- |
 | OTP / JWT | `packages/core/auth` | Duplicar nas duas apps |
 | Pool / SQL | `packages/core/db` | `pg` nas páginas |
-| Perfil-base | `packages/core/identity` | Skills aqui |
+| Perfil-base + chrome i18n | `packages/core/identity` | HTTP de geocoder, skills |
+| Lugar | `packages/core/places` | React, SQL. Adapters atrás de `CityDirectory`. Não é plugin. |
 | Comunidades / membership | `packages/core/communities`, `memberships` | |
 | Module runtime | `packages/core/module-runtime` | `if (community.slug === 'alumni')` |
 | Directory plugin | `packages/modules/directory` | Tabelas no person_core |
 | Showcase / contact | `packages/modules/showcase`, `contact-mediated` | |
-| UI strings | `CONTENT` no próprio arquivo | `src/lib/i18n/translations.ts` como dump |
+| UI strings | `CONTENT` no próprio arquivo | Dump central `translations.ts` |
 | Member UI | `packages/ui/member` | Tokens da vitrine no admin |
 | Admin UI | `packages/ui/admin` | Stitch obrigatório |
 | shadcn primitives | `packages/ui/primitives` | Copiar `components/ui` nas apps |

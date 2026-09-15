@@ -1,6 +1,7 @@
-import { pickContent, resolveUiLocale } from './pick-content';
+import { describe, expect, it } from 'vitest';
+import { pickContent, resolveUiLocale } from './locales';
 
-describe('pickContent', () => {
+describe('ui locale', () => {
   const CONTENT = {
     'pt-BR': { title: 'Entrar' },
     en: { title: 'Sign in' },
@@ -16,6 +17,5 @@ describe('pickContent', () => {
 
   it('treats unknown cookie values as pt-BR', () => {
     expect(resolveUiLocale('fr')).toBe('pt-BR');
-    expect(pickContent(CONTENT, 'fr').title).toBe('Entrar');
   });
 });

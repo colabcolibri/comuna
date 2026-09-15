@@ -15,13 +15,13 @@ export async function proxy(req: NextRequest) {
   }
   const token = req.cookies.get(AUTH_COOKIE)?.value;
   if (!token) {
-    return NextResponse.redirect(new URL('/', req.url));
+    return NextResponse.redirect(new URL('/login', req.url));
   }
   try {
     await verifyMemberToken(token);
     return NextResponse.next();
   } catch {
-    return NextResponse.redirect(new URL('/', req.url));
+    return NextResponse.redirect(new URL('/login', req.url));
   }
 }
 

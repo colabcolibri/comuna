@@ -1,8 +1,8 @@
 ---
 title: API Contracts
-status: approved
-version: 1.2
-updated: 2026-09-14
+status: review
+version: 1.3
+updated: 2026-09-15
 depends_on: [05_architecture.md, 06_database.md]
 blocks: []
 ---
@@ -55,7 +55,9 @@ blocks: []
 | `POST` | `/api/auth/verify-otp` | Sessão membro | Public | `{ "email", "code" }` | `200` + `Set-Cookie` `auth_token` |
 | `POST` | `/api/auth/logout` | Encerra sessão membro | Authenticated | `{}` | `200` + cookie vazio |
 | `GET` | `/api/profiles/me` | Perfil-base | Member / coordinator | — | `{ "profile" }` base |
-| `PUT` | `/api/profiles/me` | Atualiza perfil-base | Member / coordinator | `{ "full_name", "avatar_url", "preferred_locale" }` | `{ "profile" }` |
+| `PUT` | `/api/profiles/me` | Atualiza perfil-base | Member / coordinator | identidade + demografia + lugares Nominatim | `{ "profile" }` |
+| `GET` | `/api/places/cities` | Busca cidade (Nominatim) | Member | `?q=` | `{ "data": GeoPlace[] }` |
+| `PUT` | `/api/memberships/me` | Card do directory | Member; 404 se plugin off | `{ headline, bio }` LocalizedText, availability, vitrine | `{ ok }` |
 | `GET` | `/api/directory/members` | Diretório rico | Member; **404 se plugin off** | query | `{ "data", "meta" }` |
 | `GET` | `/api/showcase/profiles` | Vitrine | Public; **404 se plugin off** | query | dados públicos |
 | `POST` | `/api/contact/:membershipId` | Contato mediado | Public; **404 se plugin off** | nome, e-mail, mensagem | `200` sem e-mail |

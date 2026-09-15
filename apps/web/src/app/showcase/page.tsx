@@ -1,16 +1,18 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { AppCardTemplate } from '@/components/templates/AppCardTemplate';
-import { AppDialogTemplate } from '@/components/templates/AppDialogTemplate';
-import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
+import { AppIndexList, AppPageTemplate, AppPersonRow } from '@community/ui-member';
 import { Button } from '@community/ui';
 import { pickContent } from '@community/identity';
-import { AppPageTemplate } from '@community/ui-member';
+import { pickLocalizedText } from '@community/identity';
+import { displayPlace } from '@community/places';
+import { AppDialogTemplate } from '@/components/templates/AppDialogTemplate';
+import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
 import { useLocale } from '@/components/app/LocaleProvider';
 
 const CONTENT = {
   'pt-BR': {
+    kicker: 'Público',
     title: 'Vitrine pública',
     subtitle: 'Campos públicos. Sem e-mail do membro.',
     contact: 'Enviar mensagem',
@@ -22,6 +24,7 @@ const CONTENT = {
     off: 'Módulo de vitrine desligado.',
   },
   en: {
+    kicker: 'Public',
     title: 'Public showcase',
     subtitle: 'Public fields only. No member email.',
     contact: 'Send message',
@@ -34,10 +37,11 @@ const CONTENT = {
   },
 } as const;
 
-type Row = { id: string; full_name: string; headline: string | null };
+type Row = { id: string; full_name: string; headline: unknown; current_city: unknown };
 
 export default function ShowcasePage() {
-  const copy = pickContent(CONTENT, useLocale());
+  const locale = useLocale();
+  const copy = pickContent(CONTENT, locale);
   const [rows, setRows] = useState<Row[]>([]);
   const [selected, setSelected] = useState<Row | null>(null);
   const [senderEmail, setSenderEmail] = useState('');
@@ -87,22 +91,29 @@ export default function ShowcasePage() {
   };
 
   return (
-    <AppPageTemplate title={copy.title} subtitle={copy.subtitle} className="max-w-[1000px] my-8">
+    <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
       {off && <p>{copy.off}</p>}
-      <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 320px), 1fr))' }}>
-        {rows.map((profile) => (
-          <AppCardTemplate
-            key={profile.id}
-            title={profile.full_name}
-            subtitle={profile.headline || ''}
-            footer={
-              <Button className="w-full" onClick={() => setSelected(profile)}>
-                {copy.contact}
-              </Button>
-            }
-          />
-        ))}
-      </div>
+      {!off && (
+        <AppIndexList>
+          {rows.map((profile) => (
+            <AppPersonRow
+              key={profile.id}
+              name={profile.full_name}
+              headline={[
+                pickLocalizedText(profile.headline, locale),
+                displayPlace(profile.current_city, locale),
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+              action={
+                <Button variant="outline" onClick={() => setSelected(profile)}>
+                  {copy.contact}
+                </Button>
+              }
+            />
+          ))}
+        </AppIndexList>
+      )}
       <AppDialogTemplate
         isOpen={!!selected}
         onClose={() => setSelected(null)}
@@ -113,7 +124,7 @@ export default function ShowcasePage() {
             <AppAlertTemplate variant="success" title={copy.success} message={copy.success} />
           ) : (
             <form id="contact-form" onSubmit={handleSendMessage} className="flex flex-col gap-4">
-              {fieldError && <p style={{ color: '#b91c1c' }}>{fieldError}</p>}
+              {fieldError && <p className="text-destructive">{fieldError}</p>}
               <label className="text-sm">
                 {copy.email}
                 <input

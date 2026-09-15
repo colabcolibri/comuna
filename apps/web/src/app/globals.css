@@ -1,10 +1,11 @@
 @import "tailwindcss";
 @import "../../../../packages/ui/primitives/src/styles.css";
 @source "../../../../packages/ui/primitives/src";
+@source "../../../../packages/ui/member/src";
 
 @theme {
-  --font-headline: Inter, sans-serif;
-  --font-body: "Atkinson Hyperlegible Next", sans-serif;
+  --font-headline: var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
+  --font-body: var(--font-ibm-plex-sans), "IBM Plex Sans", sans-serif;
 }
 
 @layer base {
@@ -30,17 +31,4 @@
   * {
     border-color: var(--border);
   }
-}
-
-[data-slot="input"]:focus,
-[data-slot="input"]:focus-visible,
-textarea:focus,
-textarea:focus-visible,
-select:focus,
-select:focus-visible,
-[data-slot="input-otp-slot"][data-active="true"] {
-  outline: none;
-  --tw-ring-shadow: 0 0 #0000;
-  --tw-ring-offset-shadow: 0 0 #0000;
-  box-shadow: none;
 }

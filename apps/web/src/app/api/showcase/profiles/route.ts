@@ -15,7 +15,7 @@ export async function GET() {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
   }
   const result = await query(
-    `SELECT p.full_name, c.headline
+    `SELECT p.full_name, p.current_city, c.headline
      FROM plugin_directory.cards c
      JOIN network_core.memberships m ON m.id = c.membership_id
      JOIN person_core.profiles p ON p.user_id = m.user_id

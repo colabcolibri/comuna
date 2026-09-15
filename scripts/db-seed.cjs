@@ -61,10 +61,40 @@ async function seed(url, email) {
       const memberId = member.rows[0].id;
       const n = memberEmail.match(/member(\d+)/)[1];
       await client.query(
-        `INSERT INTO person_core.profiles (user_id, full_name, preferred_locale)
-         VALUES ($1, $2, 'pt-BR')
-         ON CONFLICT (user_id) DO NOTHING`,
-        [memberId, `Demo Member ${n}`]
+        `INSERT INTO person_core.profiles (
+           user_id, full_name, preferred_locale, gender, birth_country, current_country,
+           birth_city, current_city, languages
+         ) VALUES ($1, $2, 'pt-BR', 'prefer_not', 'BR', 'BR', $3::jsonb, $4::jsonb, $5::jsonb)
+         ON CONFLICT (user_id) DO UPDATE SET
+           birth_city = EXCLUDED.birth_city,
+           current_city = EXCLUDED.current_city,
+           languages = EXCLUDED.languages`,
+        [
+          memberId,
+          `Demo Member ${n}`,
+          JSON.stringify({
+            provider: 'nominatim',
+            osm_id: 298285,
+            osm_type: 'relation',
+            lat: '-23.5505',
+            lon: '-46.6333',
+            country_code: 'BR',
+            label: { 'pt-BR': 'São Paulo', en: 'Sao Paulo' },
+          }),
+          JSON.stringify({
+            provider: 'nominatim',
+            osm_id: 298285,
+            osm_type: 'relation',
+            lat: '-23.5505',
+            lon: '-46.6333',
+            country_code: 'BR',
+            label: { 'pt-BR': 'São Paulo', en: 'Sao Paulo' },
+          }),
+          JSON.stringify([
+            { code: 'pt', proficiency: 'native' },
+            { code: 'en', proficiency: 'fluent' },
+          ]),
+        ]
       );
       const membership = await client.query(
         `INSERT INTO network_core.memberships (community_id, user_id, network_role, network_status)
@@ -74,10 +104,23 @@ async function seed(url, email) {
         [communityId, memberId]
       );
       await client.query(
-        `INSERT INTO plugin_directory.cards (membership_id, headline, bio, availability_status, public_showcase)
-         VALUES ($1, $2, $3, 'available_for_hire', true)
-         ON CONFLICT (membership_id) DO NOTHING`,
-        [membership.rows[0].id, `Headline ${n}`, `Bio sintética ${n}`]
+        `INSERT INTO plugin_directory.cards (
+           membership_id, headline, bio, availability_status, public_showcase
+         ) VALUES ($1, $2::jsonb, $3::jsonb, 'available_for_hire', true)
+         ON CONFLICT (membership_id) DO UPDATE SET
+           headline = EXCLUDED.headline,
+           bio = EXCLUDED.bio`,
+        [
+          membership.rows[0].id,
+          JSON.stringify([
+            { locale: 'pt-BR', value: `Headline ${n}` },
+            { locale: 'en', value: `Member headline ${n}` },
+          ]),
+          JSON.stringify([
+            { locale: 'pt-BR', value: `Bio sintética ${n}` },
+            { locale: 'en', value: `Synthetic bio ${n}` },
+          ]),
+        ]
       );
     }
     console.log(`seed ok user=${userId} community=${communityId} demo_members=${DEMO_MEMBER_COUNT}`);

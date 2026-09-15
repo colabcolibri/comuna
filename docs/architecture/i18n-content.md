@@ -25,7 +25,7 @@ const CONTENT = {
 } as const
 ```
 
-O componente resolve `CONTENT[locale]` (helper `pickContent(CONTENT, locale)` em `packages/core` ou `packages/ui`). **Proibido:** literal em JSX (`<h1>Diretório</h1>`), dump central `translations.ts` como fonte, chave mágica espalhada sem o objeto no arquivo.
+O componente resolve `CONTENT[locale]` com `pickContent` de `@community/identity`. **Proibido:** literal em JSX (`<h1>Diretório</h1>`), dump central de traduções.
 
 ## Locales
 
@@ -40,7 +40,7 @@ RTL: `_n/a_` nesta versão.
 
 - `className`, tokens, slugs, IDs.
 - Logs de servidor (não são UI).
-- Códigos de erro de API (`INVALID_OTP`) — mensagem humana pode viver no handler com `CONTENT` no topo do route se o JSON `message` for visível.
+- Dados de membro **não** são `CONTENT`. Headline/bio: LocalizedText preenchido. Cidade: objeto geocodificado; o rótulo vem do Nominatim e a UI só escolhe `placeLabel` com o locale da chrome.
 
 ## Emails
 
@@ -48,4 +48,4 @@ Mesma regra no arquivo que monta o HTML do e-mail.
 
 ## Legacy
 
-`src/lib/i18n/translations.ts` é dívida. US de i18n apaga o dump e converte telas para `CONTENT`.
+Dump `translations.ts` / `I18nContext` foi removido. Chrome usa `CONTENT` + `pickContent`.
