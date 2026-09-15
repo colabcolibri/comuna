@@ -37,7 +37,7 @@ A vitrine e o diretório **projetam a mesma** `PersonCard`. A diferença é o pr
 | SQL + `pg` | persistência | Agora. Queries explícitas, RLS, tenant. |
 | ORM (Prisma/Drizzle) | ainda persistência | Só se o SQL virar um fardo. Não substitui o contrato HTTP nem o cache de UI. |
 | Server Component + `searchParams` | UI de lista/filtro | Lista, busca, facets. Estado na URL. Sem `useEffect` para o GET inicial. |
-| `fetch` no cliente | gesto | Formulário, OTP, upload, debounce de cidade. Uma função por endpoint (`lib/…`), não fetch solto na página. |
+| `fetch` no cliente | gesto | Formulário, OTP, upload, debounce. Uma função por endpoint (`lib/…`), não fetch solto na página. Admin: `apps/admin/lib/` (ex.: busca de pessoas para adicionar membro). |
 | TanStack Query | cache do **último** hop | Quando o mesmo `GET /api/…` é lido em vários ecrãs ou o voltar-atrás fica caro. Não fala com Postgres. |
 
 TanStack em cima de SQL é o anti-padrão. ORM + `useEffect` sem Route Handler também.

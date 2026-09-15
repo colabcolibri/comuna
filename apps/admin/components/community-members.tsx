@@ -7,6 +7,7 @@ import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from './locale-provider';
 import { uiCatalog } from '@/lang/catalog';
 import { CommunityMembershipActions } from './community-membership-actions';
+import { listPeopleOutsideCommunity, type CommunityPersonHit } from '@/lib/community-people';
 
 const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   title: 'community.members',
@@ -55,14 +56,13 @@ type Membership = {
   cohort_name?: string | null;
 };
 
-type Person = { id: string; email: string; full_name: string };
 type Cohort = { id: string; name: string };
 
 export function CommunityMembers({ communityId }: { communityId: string }) {
   const copy = pickContent(CONTENT, useLocale());
   const [rows, setRows] = useState<Membership[]>([]);
   const [cohorts, setCohorts] = useState<Cohort[]>([]);
-  const [hits, setHits] = useState<Person[]>([]);
+  const [hits, setHits] = useState<CommunityPersonHit[]>([]);
   const [query, setQuery] = useState('');
   const [rosterQuery, setRosterQuery] = useState('');
   const [hasMore, setHasMore] = useState(false);
@@ -104,23 +104,26 @@ export function CommunityMembers({ communityId }: { communityId: string }) {
       setHits([]);
       return;
     }
-    const ac = new AbortController();
+    let ignore = false;
     const timer = window.setTimeout(() => {
-      fetch(`/api/admin/communities/${communityId}/people?q=${encodeURIComponent(needle)}`, { signal: ac.signal }).then(
-        async (res) => {
-          if (!res.ok) {
-            return;
+      void listPeopleOutsideCommunity(communityId, needle).then(
+        (people) => {
+          if (!ignore) {
+            setHits(people);
           }
-          const json = await res.json();
-          setHits(json.data || []);
+        },
+        () => {
+          if (!ignore) {
+            toast.error(copy.error);
+          }
         }
       );
     }, 250);
     return () => {
+      ignore = true;
       window.clearTimeout(timer);
-      ac.abort();
     };
-  }, [communityId, query]);
+  }, [communityId, query, copy.error]);
 
   const setRole = async (id: string, network_role: 'member' | 'coordinator') => {
     setSaving(id);
