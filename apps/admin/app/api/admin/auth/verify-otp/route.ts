@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   consumeOtp,
+  findUserByEmail,
   InvalidOtpError,
+  isSuperAdmin,
   OPS_COOKIE,
   opsAuthCookieOptions,
   signOpsToken,
@@ -15,9 +17,13 @@ export async function POST(req: NextRequest) {
     if (!email || !code) {
       return jsonError('VALIDATION_ERROR', 'E-mail e código são obrigatórios.', 400);
     }
-    const user = await consumeOtp(email, String(code));
-    if (user.global_role !== 'super_admin') {
-      return jsonError('FORBIDDEN', 'Ops only', 403);
+    const existing = await findUserByEmail(String(email));
+    if (!existing || !isSuperAdmin(existing.global_role)) {
+      return jsonError('INVALID_OTP', 'Código de verificação incorreto ou expirado', 400);
+    }
+    const user = await consumeOtp(existing.email, String(code));
+    if (!isSuperAdmin(user.global_role)) {
+      return jsonError('INVALID_OTP', 'Código de verificação incorreto ou expirado', 400);
     }
     const token = await signOpsToken({
       sub: user.id,

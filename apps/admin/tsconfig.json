@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
@@ -12,21 +16,49 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "plugins": [{ "name": "next" }],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "target": "ES2017",
     "paths": {
-      "@/*": ["./*"],
-      "cn": ["../../packages/ui/primitives/src/lib/utils.ts"],
-      "@community/db": ["../../packages/core/db/src/index.ts"],
-      "@community/module-runtime": ["../../packages/core/module-runtime/src/index.ts"],
-      "@community/auth": ["../../packages/core/auth/src/index.ts"],
-      "@community/identity": ["../../packages/core/identity/src/index.ts"],
-      "@community/communities": ["../../packages/core/communities/src/index.ts"],
-      "@community/memberships": ["../../packages/core/memberships/src/index.ts"],
-      "@community/directory": ["../../packages/modules/directory/src/index.ts"],
-      "@community/showcase": ["../../packages/modules/showcase/src/index.ts"],
-      "@community/contact-mediated": ["../../packages/modules/contact-mediated/src/index.ts"],
-      "@community/ui-admin": ["../../packages/ui/admin/src/index.ts"]
+      "@/*": [
+        "./*"
+      ],
+      "cn": [
+        "../../packages/ui/primitives/src/lib/utils.ts"
+      ],
+      "@community/db": [
+        "../../packages/core/db/src/index.ts"
+      ],
+      "@community/module-runtime": [
+        "../../packages/core/module-runtime/src/index.ts"
+      ],
+      "@community/auth": [
+        "../../packages/core/auth/src/index.ts"
+      ],
+      "@community/identity": [
+        "../../packages/core/identity/src/index.ts"
+      ],
+      "@community/communities": [
+        "../../packages/core/communities/src/index.ts"
+      ],
+      "@community/memberships": [
+        "../../packages/core/memberships/src/index.ts"
+      ],
+      "@community/directory": [
+        "../../packages/modules/directory/src/index.ts"
+      ],
+      "@community/showcase": [
+        "../../packages/modules/showcase/src/index.ts"
+      ],
+      "@community/contact-mediated": [
+        "../../packages/modules/contact-mediated/src/index.ts"
+      ],
+      "@community/ui-admin": [
+        "../../packages/ui/admin/src/index.ts"
+      ]
     }
   },
   "include": [
@@ -34,7 +66,10 @@
     "next.config.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

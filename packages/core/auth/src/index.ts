@@ -1,6 +1,7 @@
 export { generateOtp, hashOtp, verifyOtpHash } from './otp';
 export { issueOtp, RateLimitError } from './issue-otp';
 export { consumeOtp, InvalidOtpError } from './consume-otp';
+export { findUserByEmail, isSuperAdmin, type AuthUser } from './users';
 export { sendSmtpMail } from './smtp';
 export {
   signMemberToken,

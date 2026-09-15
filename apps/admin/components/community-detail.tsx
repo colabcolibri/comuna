@@ -9,12 +9,17 @@ import { uiCatalog } from '@/lang/catalog';
 
 const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   modules: 'community.modules',
+  modulesHelp: 'community.modules_help',
+  on: 'community.on',
+  off: 'community.off',
   coordinator: 'community.coordinator',
+  coordinatorHelp: 'community.coordinator_help',
   email: 'community.email',
   lookup: 'community.lookup',
   promote: 'community.promote',
   notMember: 'community.not_member',
   back: 'community.back',
+  roleCoordinator: 'community.role_coordinator',
 });
 
 type ModuleState = { slug: string; enabled: boolean };
@@ -34,6 +39,7 @@ export function CommunityDetail({
   const [email, setEmail] = useState('');
   const [found, setFound] = useState<Membership | null>(null);
   const [lookupError, setLookupError] = useState('');
+  const [saving, setSaving] = useState<string | null>(null);
 
   const loadModules = () => {
     fetch(`/api/admin/communities/${communityId}/modules`).then(async (res) => {
@@ -50,11 +56,13 @@ export function CommunityDetail({
   }, [communityId]);
 
   const toggle = async (moduleSlug: string, enabled: boolean) => {
+    setSaving(moduleSlug);
     await fetch(`/api/admin/communities/${communityId}/modules/${moduleSlug}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ enabled }),
     });
+    setSaving(null);
     loadModules();
   };
 
@@ -90,66 +98,73 @@ export function CommunityDetail({
   };
 
   return (
-    <div className="space-y-8 max-w-3xl min-w-0">
-      <Link href="/communities" className="text-sm underline min-h-11 inline-flex items-center">
-        {copy.back}
-      </Link>
-      <div>
-        <h1 className="text-xl font-semibold break-words">{name}</h1>
-        <p className="font-mono text-sm text-muted-foreground break-all">{slug}</p>
-      </div>
-      <section className="space-y-3">
-        <h2 className="text-base font-medium">{copy.modules}</h2>
-        <ul className="space-y-2">
-          {modules.map((mod) => (
-            <li key={mod.slug} className="flex items-center gap-3 min-h-11">
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={mod.enabled}
-                  onChange={(ev) => {
-                    void toggle(mod.slug, ev.target.checked);
-                  }}
-                />
-                <span className="font-mono">{mod.slug}</span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section className="space-y-3">
-        <h2 className="text-base font-medium">{copy.coordinator}</h2>
-        <form onSubmit={lookup} className="flex flex-col sm:flex-row gap-2">
-          <div className="flex-1 space-y-1 min-w-0">
-            <Label htmlFor="member-email">{copy.email}</Label>
-            <Input
-              id="member-email"
-              type="email"
-              value={email}
-              onChange={(ev) => setEmail(ev.target.value)}
-              required
-            />
+    <div className="mx-auto w-full max-w-6xl min-w-0 space-y-6">
+      <header className="space-y-1">
+        <Link href="/communities" className="inline-block text-sm leading-none text-muted-foreground hover:text-foreground">
+          {copy.back}
+        </Link>
+        <h1 className="text-2xl font-semibold leading-tight tracking-tight break-words">{name}</h1>
+        <p className="font-mono text-sm leading-none text-muted-foreground break-all">{slug}</p>
+      </header>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <section className="lg:col-span-2 rounded-xl border border-border bg-card p-6 shadow-sm space-y-4">
+          <div className="space-y-1">
+            <h2 className="font-semibold leading-tight">{copy.modules}</h2>
+            <p className="text-sm leading-snug text-muted-foreground">{copy.modulesHelp}</p>
           </div>
-          <div className="flex items-end">
-            <Button type="submit" variant="secondary" className="min-h-11 w-full sm:w-auto">
+          <ul className="divide-y divide-border">
+            {modules.map((mod) => (
+              <li key={mod.slug} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                <span className="font-mono text-sm leading-none">{mod.slug}</span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={mod.enabled ? 'default' : 'secondary'}
+                  disabled={saving === mod.slug}
+                  onClick={() => void toggle(mod.slug, !mod.enabled)}
+                >
+                  {mod.enabled ? copy.on : copy.off}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section className="rounded-xl border border-border bg-card p-6 shadow-sm h-fit space-y-4">
+          <div className="space-y-1">
+            <h2 className="font-semibold leading-tight">{copy.coordinator}</h2>
+            <p className="text-sm leading-snug text-muted-foreground">{copy.coordinatorHelp}</p>
+          </div>
+          <form onSubmit={lookup} className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="member-email">{copy.email}</Label>
+              <Input
+                id="member-email"
+                type="email"
+                value={email}
+                onChange={(ev) => setEmail(ev.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" variant="outline">
               {copy.lookup}
             </Button>
-          </div>
-        </form>
-        {lookupError ? <p className="text-sm text-destructive">{lookupError}</p> : null}
-        {found ? (
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm">
-            <span className="break-all">
-              {found.email} · {found.network_role}
-            </span>
-            {found.network_role !== 'coordinator' ? (
-              <Button type="button" className="min-h-11" onClick={() => void promote()}>
-                {copy.promote}
-              </Button>
-            ) : null}
-          </div>
-        ) : null}
-      </section>
+          </form>
+          {lookupError ? <p className="text-sm text-destructive">{lookupError}</p> : null}
+          {found ? (
+            <div className="space-y-2 text-sm">
+              <p className="break-all">
+                {found.email}
+                {found.network_role === 'coordinator' ? ` · ${copy.roleCoordinator}` : ''}
+              </p>
+              {found.network_role !== 'coordinator' ? (
+                <Button type="button" onClick={() => void promote()}>
+                  {copy.promote}
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
+        </section>
+      </div>
     </div>
   );
 }

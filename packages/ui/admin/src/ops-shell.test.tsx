@@ -4,7 +4,13 @@ import { OpsShell } from './ops-shell';
 describe('OpsShell', () => {
   it('renders communities nav and sign out without member chrome copy', () => {
     render(
-      <OpsShell brand="Ops" communitiesLabel="Comunidades" signOutLabel="Sair" onSignOut={() => undefined}>
+      <OpsShell
+        brand="Ops"
+        communitiesLabel="Comunidades"
+        signOutLabel="Sair"
+        menuLabel="Abrir menu"
+        onSignOut={() => undefined}
+      >
         <p>workspace</p>
       </OpsShell>
     );

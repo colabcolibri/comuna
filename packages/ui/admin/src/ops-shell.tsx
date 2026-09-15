@@ -1,44 +1,79 @@
+'use client';
+
 import type { ReactNode } from 'react';
+import {
+  Button,
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@community/ui';
 
 export function OpsShell({
   brand,
   communitiesLabel,
+  communitiesHref = '/communities',
+  communitiesActive = false,
   signOutLabel,
+  menuLabel,
   localeSlot,
+  themeSlot,
   onSignOut,
   children,
 }: {
   brand: string;
   communitiesLabel: string;
+  communitiesHref?: string;
+  communitiesActive?: boolean;
   signOutLabel: string;
+  menuLabel: string;
   localeSlot?: ReactNode;
+  themeSlot?: ReactNode;
   onSignOut: () => void;
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-dvh flex flex-col md:flex-row bg-background text-foreground">
-      <aside className="w-full md:w-56 shrink-0 border-b md:border-b-0 md:border-r border-border p-4 flex flex-col gap-4">
-        <p className="text-sm font-semibold tracking-tight">{brand}</p>
-        <nav className="flex flex-row md:flex-col gap-2 flex-wrap">
-          <a
-            href="/communities"
-            className="min-h-11 inline-flex items-center px-3 rounded-md text-sm bg-secondary text-secondary-foreground"
-          >
-            {communitiesLabel}
-          </a>
-        </nav>
-        <div className="mt-auto flex flex-col gap-3">
-          {localeSlot}
-          <button
-            type="button"
-            className="min-h-11 text-left text-sm px-3 rounded-md border border-border"
-            onClick={onSignOut}
-          >
-            {signOutLabel}
-          </button>
-        </div>
-      </aside>
-      <div className="flex-1 min-w-0 p-4 md:p-6 overflow-x-hidden">{children}</div>
-    </div>
+    <SidebarProvider className="h-svh min-h-svh overflow-hidden">
+      <Sidebar collapsible="offcanvas">
+        <SidebarHeader className="h-14 justify-center border-b border-sidebar-border px-3">
+          <p className="px-2 text-sm font-semibold leading-none tracking-tight">{brand}</p>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup className="px-2 py-3">
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={communitiesActive}>
+                    <a href={communitiesHref}>
+                      <span>{communitiesLabel}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset className="min-h-0 overflow-hidden bg-background">
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-card px-4">
+          <SidebarTrigger className="size-9 md:hidden" aria-label={menuLabel} />
+          <div className="ml-auto flex h-9 min-w-0 items-center gap-2">
+            {localeSlot}
+            {themeSlot}
+            <Button type="button" onClick={onSignOut}>
+              {signOutLabel}
+            </Button>
+          </div>
+        </header>
+        <div className="min-h-0 flex-1 overflow-auto p-4 md:p-6">{children}</div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { issueOtp, RateLimitError, sendSmtpMail } from '@community/auth';
+import { findUserByEmail, isSuperAdmin, issueOtp, RateLimitError, sendSmtpMail } from '@community/auth';
 import { interpolate, LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
 import { jsonError } from '@/lib/http';
 import { uiCatalog } from '@/lang/catalog';
@@ -21,9 +21,14 @@ export async function POST(req: NextRequest) {
     recentIp.push(Date.now());
     ipHits.set(ip, recentIp);
 
-    const code = await issueOtp(email);
+    const user = await findUserByEmail(email);
+    if (!user || !isSuperAdmin(user.global_role)) {
+      return NextResponse.json({ message: 'Código enviado' });
+    }
+
+    const code = await issueOtp(user.email);
     if (process.env.ALLOW_DEV_OTP === 'true') {
-      console.log(`[OTP ops] queued for ${email} (not in JSON)`);
+      console.log(`[OTP ops] queued for ${user.email} (not in JSON)`);
     }
     const locale = resolveUiLocale(req.cookies.get(LOCALE_COOKIE)?.value);
     const host = process.env.SMTP_HOST;
@@ -34,7 +39,7 @@ export async function POST(req: NextRequest) {
           host,
           port,
           from: process.env.EMAIL_FROM_ADDRESS || 'auth@community.local',
-          to: email,
+          to: user.email,
           subject: uiCatalog.t('core_admin', 'email.otp.subject', locale),
           text: interpolate(uiCatalog.t('core_admin', 'email.otp.text', locale), { code }),
         });

@@ -1,11 +1,18 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { cookies } from 'next/headers';
+import { IBM_Plex_Sans } from 'next/font/google';
 import { ThemeProvider } from '@community/ui';
 import { LOCALE_COOKIE, contentFromCatalog, pickContent, resolveUiLocale } from '@community/identity';
 import { LocaleProvider } from '@/components/locale-provider';
 import { uiCatalog } from '@/lang/catalog';
 import './globals.css';
+
+const ibmPlex = IBM_Plex_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-ibm-plex-sans',
+});
 
 const META = contentFromCatalog(uiCatalog, 'core_admin', {
   title: 'meta.title',
@@ -21,8 +28,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const locale = resolveUiLocale((await cookies()).get(LOCALE_COOKIE)?.value);
   return (
-    <html lang={locale === 'en' ? 'en' : 'pt-BR'} suppressHydrationWarning>
-      <body className="min-h-full antialiased bg-background text-foreground">
+    <html lang={locale === 'en' ? 'en' : 'pt-BR'} className={`${ibmPlex.variable} h-full`} suppressHydrationWarning>
+      <body className={`${ibmPlex.className} min-h-full antialiased bg-background text-foreground`}>
         <ThemeProvider>
           <LocaleProvider initialLocale={locale}>{children}</LocaleProvider>
         </ThemeProvider>
