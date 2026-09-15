@@ -59,8 +59,26 @@ describe('peopleListQuery', () => {
     expect(built.text).toContain('c.bio::text ILIKE');
     expect(built.text).toContain('LIMIT $');
     expect(built.page).toBe(2);
-    expect(built.pageSize).toBe(12);
-    expect(built.params.at(-1)).toBe(12);
+    expect(built.pageSize).toBe(24);
+    expect(built.params.at(-2)).toBe(24);
+    expect(built.params.at(-1)).toBe(24);
     expect(built.countText).toContain('count(*)');
+  });
+
+  it('accepts showcase size 48 and rejects 12', () => {
+    const allowed = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams('size=48'),
+      fields: [host],
+      scope: 'showcase',
+    });
+    const rejected = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams('size=12'),
+      fields: [host],
+      scope: 'showcase',
+    });
+    expect(allowed.ok && allowed.pageSize).toBe(48);
+    expect(rejected.ok && rejected.pageSize).toBe(24);
   });
 });

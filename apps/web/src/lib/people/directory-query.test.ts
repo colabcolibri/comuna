@@ -8,6 +8,7 @@ describe('directory query string', () => {
     );
     expect(directoryQueryString('ana', { host_at_home: 'true' }, '', 'mentor')).toContain('status=mentor');
     expect(directoryQueryString('', {}, '', '', 3)).toBe('page=3');
+    expect(directoryQueryString('', {}, '', '', 1, 48)).toBe('size=48');
     const parsed = facetsFromSearchParams(new URLSearchParams('search=ana&attr.host_at_home=true'));
     expect(parsed).toEqual({ host_at_home: 'true' });
   });

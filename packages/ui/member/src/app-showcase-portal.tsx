@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Button } from '@community/ui';
+import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@community/ui';
 
 export function AppShowcasePortal({
   title,
@@ -46,7 +46,11 @@ export function AppShowcasePager({
   prevLabel,
   nextLabel,
   summary,
+  sizeLabel,
+  sizes,
   onPage,
+  onPageSize,
+  className,
 }: {
   page: number;
   pageSize: number;
@@ -54,16 +58,33 @@ export function AppShowcasePager({
   prevLabel: string;
   nextLabel: string;
   summary: string;
+  sizeLabel: string;
+  sizes: readonly number[];
   onPage: (page: number) => void;
+  onPageSize: (size: number) => void;
+  className?: string;
 }) {
   const pages = Math.max(1, Math.ceil(total / pageSize));
-  if (total <= pageSize) {
+  if (total === 0) {
     return null;
   }
   return (
-    <nav className="mt-10 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" aria-label={summary}>
+    <nav className={`flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ${className ?? ''}`} aria-label={summary}>
       <p className="text-sm text-muted-foreground">{summary}</p>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex min-w-0 flex-wrap items-center gap-2">
+        <Label className="sr-only">{sizeLabel}</Label>
+        <Select value={String(pageSize)} onValueChange={(next) => onPageSize(Number(next))}>
+          <SelectTrigger className="min-h-11 w-auto min-w-28" aria-label={sizeLabel}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {sizes.map((size) => (
+              <SelectItem key={size} value={String(size)}>
+                {size}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button type="button" variant="outline" className="min-h-11" disabled={page <= 1} onClick={() => onPage(page - 1)}>
           {prevLabel}
         </Button>

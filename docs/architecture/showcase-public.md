@@ -27,13 +27,13 @@ Só entra quem optou. Sem e-mail, WhatsApp, gênero, cidade de nascimento. Mensa
 | `availability_status` | card |
 | `languages` | códigos; chips (máx. 3 no cartão) |
 
-Query: `search` (nome, headline, bio), `status`, `attr.*`, `page`. Página de **12**. `{ data, meta: { page, pageSize, total } }`. A página Server Component chama `listPublicProfiles`; o cliente só muda a URL e abre o diálogo.
+Query: `search` (nome, headline, bio), `status`, `attr.*`, `page`, `size`. Página padrão **24**; `size` só 24, 48 ou 96. `{ data, meta: { page, pageSize, total } }`. A página Server Component chama `listPublicProfiles`; o cliente só muda a URL e abre o diálogo.
 
 ## UI
 
 Rotas no grupo `(public)`: `/showcase`, `/c/{slug}/showcase`. Workspace fica em `(workspace)` com `MemberShell`.
 
-Hero: `AppShowcasePortal` (título + texto do admin). Cartões: `AppShowcaseCard`. Busca rotulada; filtros no `AppFilterSheet`. Paginação abaixo da grelha.
+Hero: `AppShowcasePortal` (título + texto do admin). Cartões: `AppShowcaseCard`. Busca rotulada; filtros no `AppFilterSheet`. Paginação acima e abaixo da grelha; seletor 24 / 48 / 96.
 
 UI do diálogo: `AppDialog`. **Enviar mensagem** no footer abre `AppSheet`.
 

@@ -1,9 +1,12 @@
+import { SHOWCASE_PAGE_SIZE } from '@community/directory';
+
 export function directoryQueryString(
   search: string,
   facets: Record<string, string>,
   cohort = '',
   status = '',
-  page = 1
+  page = 1,
+  size = SHOWCASE_PAGE_SIZE
 ) {
   const params = new URLSearchParams();
   const term = search.trim();
@@ -23,6 +26,9 @@ export function directoryQueryString(
   }
   if (page > 1) {
     params.set('page', String(page));
+  }
+  if (size !== SHOWCASE_PAGE_SIZE) {
+    params.set('size', String(size));
   }
   return params.toString();
 }

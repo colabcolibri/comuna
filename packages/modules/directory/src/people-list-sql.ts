@@ -4,7 +4,13 @@ import { parseAttrFilters } from './catalog';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const AVAILABILITY = new Set(['available_for_hire', 'project_partner', 'mentor', 'unavailable']);
 
-export const SHOWCASE_PAGE_SIZE = 12;
+export const SHOWCASE_PAGE_SIZES = [24, 48, 96] as const;
+export const SHOWCASE_PAGE_SIZE = 24;
+
+function parseShowcasePageSize(raw: string | null) {
+  const n = Number.parseInt(raw || '', 10);
+  return (SHOWCASE_PAGE_SIZES as readonly number[]).includes(n) ? n : SHOWCASE_PAGE_SIZE;
+}
 
 const SELECT = `SELECT m.id, p.full_name, p.avatar_url, p.current_city, p.languages, p.contacts, c.headline, c.bio, c.availability_status, c.custom_attributes`;
 const FROM = `FROM network_core.memberships m JOIN person_core.profiles p ON p.user_id = m.user_id JOIN plugin_directory.cards c ON c.membership_id = m.id`;
@@ -67,14 +73,15 @@ export function peopleListQuery(input: {
     return { ok: true, text: `${SELECT} ${where} ORDER BY p.full_name`, params, page: 1, pageSize: 0 };
   }
   const page = Math.max(1, Number.parseInt(input.searchParams.get('page') || '1', 10) || 1);
-  const offset = (page - 1) * SHOWCASE_PAGE_SIZE;
+  const pageSize = parseShowcasePageSize(input.searchParams.get('size'));
+  const offset = (page - 1) * pageSize;
   return {
     ok: true,
     text: `${SELECT} ${where} ORDER BY p.full_name LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
-    params: [...params, SHOWCASE_PAGE_SIZE, offset],
+    params: [...params, pageSize, offset],
     countText: `SELECT count(*)::int AS total ${where}`,
     countParams: params,
     page,
-    pageSize: SHOWCASE_PAGE_SIZE,
+    pageSize,
   };
 }

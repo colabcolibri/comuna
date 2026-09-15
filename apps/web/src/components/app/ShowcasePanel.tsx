@@ -12,7 +12,7 @@ import {
 import { Button, Input } from '@community/ui';
 import { contentFromCatalog, interpolate, mergeContent, pickContent, pickLocalizedText } from '@community/identity';
 import { displayPlaceLocality } from '@community/places';
-import type { CatalogField } from '@community/directory';
+import { SHOWCASE_PAGE_SIZE, SHOWCASE_PAGE_SIZES, type CatalogField } from '@community/directory';
 import { ListFilter, Search } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale } from '@/components/app/LocaleProvider';
@@ -41,6 +41,7 @@ const CONTENT = mergeContent(
     range: 'page.range',
     prev: 'page.prev',
     next: 'page.next',
+    size: 'page.size',
     filters: 'page.filters',
     filtersClear: 'page.filters_clear',
     filtersHint: 'page.filters_hint',
@@ -79,7 +80,7 @@ export function ShowcasePanel({
   facetValues = {},
   status = '',
   page = 1,
-  pageSize = 12,
+  pageSize = SHOWCASE_PAGE_SIZE,
   total = 0,
 }: {
   rows: PersonCard[];
@@ -115,13 +116,19 @@ export function ShowcasePanel({
     if (debounced === search) {
       return;
     }
-    const query = directoryQueryString(debounced, facetValues, '', status, 1);
+    const query = directoryQueryString(debounced, facetValues, '', status, 1, pageSize);
     const next = query ? `${pathname}?${query}` : pathname;
     router.replace(next, { scroll: false });
-  }, [debounced, facetValues, status, pathname, search, router]);
+  }, [debounced, facetValues, status, pathname, search, router, pageSize]);
 
-  function go(nextSearch: string, nextFacets: Record<string, string>, nextStatus = status, nextPage = 1) {
-    const query = directoryQueryString(nextSearch, nextFacets, '', nextStatus, nextPage);
+  function go(
+    nextSearch: string,
+    nextFacets: Record<string, string>,
+    nextStatus = status,
+    nextPage = 1,
+    nextSize = pageSize
+  ) {
+    const query = directoryQueryString(nextSearch, nextFacets, '', nextStatus, nextPage, nextSize);
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
 
@@ -187,35 +194,54 @@ export function ShowcasePanel({
       {rows.length === 0 ? (
         <p className="text-muted-foreground">{copy.empty}</p>
       ) : (
-        <AppShowcaseGrid>
-          {rows.map((profile) => {
-            const headline = pickLocalizedText(profile.headline, locale);
-            const summary = pickLocalizedText(profile.bio, locale);
-            return (
-              <AppShowcaseCard
-                key={profile.id}
-                name={profile.full_name}
-                photoUrl={profile.avatar_url}
-                headline={headline}
-                summary={summary}
-                city={displayPlaceLocality(profile.current_city, locale)}
-                chips={profileChips(profile, copy, locale)}
-                actionLabel={copy.view}
-                onOpen={() => setSelected(profile)}
-              />
-            );
-          })}
-        </AppShowcaseGrid>
+        <>
+          <AppShowcasePager
+            className="mb-6"
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            prevLabel={copy.prev}
+            nextLabel={copy.next}
+            sizeLabel={copy.size}
+            sizes={SHOWCASE_PAGE_SIZES}
+            summary={interpolate(copy.range, { from: String(from), to: String(to), total: String(total) })}
+            onPage={(next) => go(search, facetValues, status, next)}
+            onPageSize={(next) => go(search, facetValues, status, 1, next)}
+          />
+          <AppShowcaseGrid>
+            {rows.map((profile) => {
+              const headline = pickLocalizedText(profile.headline, locale);
+              const summary = pickLocalizedText(profile.bio, locale);
+              return (
+                <AppShowcaseCard
+                  key={profile.id}
+                  name={profile.full_name}
+                  photoUrl={profile.avatar_url}
+                  headline={headline}
+                  summary={summary}
+                  city={displayPlaceLocality(profile.current_city, locale)}
+                  chips={profileChips(profile, copy, locale)}
+                  actionLabel={copy.view}
+                  onOpen={() => setSelected(profile)}
+                />
+              );
+            })}
+          </AppShowcaseGrid>
+          <AppShowcasePager
+            className="mt-10"
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            prevLabel={copy.prev}
+            nextLabel={copy.next}
+            sizeLabel={copy.size}
+            sizes={SHOWCASE_PAGE_SIZES}
+            summary={interpolate(copy.range, { from: String(from), to: String(to), total: String(total) })}
+            onPage={(next) => go(search, facetValues, status, next)}
+            onPageSize={(next) => go(search, facetValues, status, 1, next)}
+          />
+        </>
       )}
-      <AppShowcasePager
-        page={page}
-        pageSize={pageSize}
-        total={total}
-        prevLabel={copy.prev}
-        nextLabel={copy.next}
-        summary={interpolate(copy.range, { from: String(from), to: String(to), total: String(total) })}
-        onPage={(next) => go(search, facetValues, status, next)}
-      />
       <PersonInspect
         profile={selected}
         copy={copy}

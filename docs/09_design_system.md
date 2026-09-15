@@ -18,7 +18,7 @@ blocks: []
 - **Copy:** ver secção Copy. Formulário: grupo = título. Campo = rótulo + **Obrigatório** ou **Opcional** (os dois estados, sempre), no mesmo eixo do nome.
 - **Catálogo (ops):** o grupo é o único card (`OpsAccordion`). Campos e opções = linhas, não caixa dentro de caixa. **Adicionar campo** e **editar campo** abrem `OpsSheet` à direita (mesmo contrato de `AppSheet`); adicionar fica no cabeçalho do grupo. Ações do grupo e da linha são `OpsIconButton` (`icon-sm` + tooltip no hover + `aria-label`). Não expande a linha. Checkbox avulso (`OpsCheckboxFrame`) usa o mesmo recorte do select.
 - **Motion:** sidebar desktop = `transition-[width]`. Overlay shadcn (`Sheet`, dialog, select) via `@import "tw-animate-css"` no `globals.css` das apps.
-- **Filtros (diretório e vitrine):** busca na página; turma do diretório ao lado da busca; afinadores (`attr.*`, disponibilidade na vitrine) num `AppFilterSheet` à **direita**. Sem filtro de lista no cliente. Vitrine pagina no servidor (12).
+- **Filtros (diretório e vitrine):** busca na página; turma do diretório ao lado da busca; afinadores (`attr.*`, disponibilidade na vitrine) num `AppFilterSheet` à **direita**. Sem filtro de lista no cliente. Vitrine pagina no servidor (24, 48 ou 96).
 - **Prévia de campos (ops):** botão **Como fica** no grupo; a silhueta abre num `OpsDialog` (tela larga). Não fica inline no cartão. `localized_text` = dois controles com legenda de locale, não dois campos.
 - **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
