@@ -34,6 +34,7 @@
       "@community/ui-member": ["./packages/ui/member/src/index.ts"],
       "@community/ui-admin": ["./packages/ui/admin/src/index.ts"],
       "cn": ["./packages/ui/primitives/src/lib/utils.ts"],
+      "next/navigation": ["./tests/mocks/next-navigation.ts"],
       "vitest": ["./node_modules/vitest"]
     }
   },

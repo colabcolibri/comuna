@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { missingRequiredFields, nestCatalog, parseAttrFilters, parseField, validateCustomAttributes, visibleCatalog } from './catalog';
 import { parseListField } from './list-fields';
 

@@ -175,7 +175,7 @@ export function validateCustomAttributes(
   return { ok: true, value };
 }
 
-function coerceAttribute(field: CatalogField, raw: unknown): CoerceResult {
+function coerceAttribute(field: Pick<CatalogField, 'name' | 'type' | 'options'>, raw: unknown): CoerceResult {
   if (field.type === 'boolean') {
     if (raw === true || raw === false) {
       return { ok: true, value: raw };

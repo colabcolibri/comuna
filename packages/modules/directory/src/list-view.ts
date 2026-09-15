@@ -67,12 +67,10 @@ export function projectPersonView(input: {
 }): PersonView {
   const { profile, fields, density, locale } = input;
   const languages = fieldVisible(fields, 'languages', density)
-    ? parseLanguages(profile.languages)
-        .map((item) => {
-          const label = spokenLanguageLabel(item.code, locale);
-          return label ? { ...item, label } : null;
-        })
-        .filter((item): item is { code: string; proficiency: string; label: string } => Boolean(item))
+    ? parseLanguages(profile.languages).flatMap((item) => {
+        const label = spokenLanguageLabel(item.code, locale);
+        return label ? [{ ...item, label }] : [];
+      })
     : [];
   const facts: PersonView['facts'] = [];
   const links: PersonView['links'] = [];

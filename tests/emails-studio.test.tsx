@@ -69,7 +69,7 @@ describe('emails studio', () => {
     );
     await waitFor(() => expect(screen.getByRole('button', { name: '{{product_name}}' })).toBeTruthy());
     expect(screen.queryByRole('button', { name: '{{code}}' })).toBeNull();
-    const frame = screen.getByTitle('Pré-visualização');
+    const frame = screen.getByTitle('Pré-visualização') as HTMLIFrameElement;
     expect(frame.getAttribute('sandbox')).toBeNull();
     await waitFor(() => {
       const html =
