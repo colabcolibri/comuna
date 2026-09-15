@@ -3,10 +3,11 @@ import type { ReactNode } from 'react';
 import { cookies } from 'next/headers';
 import { IBM_Plex_Sans } from 'next/font/google';
 import { ThemeProvider } from '@community/ui';
-import { LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
+import { LOCALE_COOKIE, contentFromCatalog, pickContent, resolveUiLocale } from '@community/identity';
 import { MemberShell } from '@/components/app/MemberShell';
 import { LocaleProvider } from '@/components/app/LocaleProvider';
 import { getMemberSession } from '@/lib/server/member-session';
+import { uiCatalog } from '@/lang/catalog';
 import './globals.css';
 
 const ibmPlex = IBM_Plex_Sans({
@@ -15,10 +16,16 @@ const ibmPlex = IBM_Plex_Sans({
   variable: '--font-ibm-plex-sans',
 });
 
-export const metadata: Metadata = {
-  title: 'Community',
-  description: 'Diretório profissional de comunidades',
-};
+const META = contentFromCatalog(uiCatalog, 'core_web', {
+  title: 'meta.title',
+  description: 'meta.description',
+});
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = resolveUiLocale((await cookies()).get(LOCALE_COOKIE)?.value);
+  const copy = pickContent(META, locale);
+  return { title: copy.title, description: copy.description };
+}
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const session = await getMemberSession();

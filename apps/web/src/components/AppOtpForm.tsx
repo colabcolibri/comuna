@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { contentFromCatalog, pickContent } from '@community/identity';
+import { contentFromCatalog, interpolate, pickContent } from '@community/identity';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { uiCatalog } from '@/lang/catalog';
 
@@ -12,8 +12,21 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   sending: 'otp_form.sending',
   codeLabel: 'otp_form.code_label',
   validate: 'otp_form.validate',
+  validating: 'otp_form.validating',
   success: 'otp_form.success',
   exit: 'otp_form.exit',
+  requestFail: 'otp_form.request_fail',
+  invalid: 'otp_form.invalid',
+  loginOk: 'otp_form.login_ok',
+  authenticated: 'otp_form.authenticated',
+  emailWord: 'otp_form.email_word',
+  role: 'otp_form.role',
+  otherLogin: 'otp_form.other_login',
+  emailPrompt: 'otp_form.email_prompt',
+  emailPlaceholder: 'otp_form.email_placeholder',
+  codePrompt: 'otp_form.code_prompt',
+  backEmail: 'otp_form.back_email',
+  mailpit: 'otp_form.mailpit',
 });
 
 export default function AppOtpForm() {
@@ -36,17 +49,17 @@ export default function AppOtpForm() {
       const res = await fetch('/api/auth/request-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
       });
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error?.message || 'Falha ao solicitar código');
+        throw new Error(data.error?.message || copy.requestFail);
       }
 
       setMessage(data.message);
       if (data.dev_otp) {
-        setOtpCode(data.dev_otp); // Preenche automaticamente para testes locais acelerados
+        setOtpCode(data.dev_otp);
       }
       setStep('verify');
     } catch (err: any) {
@@ -66,15 +79,15 @@ export default function AppOtpForm() {
       const res = await fetch('/api/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code: otpCode })
+        body: JSON.stringify({ email, code: otpCode }),
       });
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error?.message || 'Código inválido');
+        throw new Error(data.error?.message || copy.invalid);
       }
 
-      setMessage('🎉 Login realizado com sucesso! Cookie HttpOnly emitido.');
+      setMessage(copy.loginOk);
       setAuthenticatedUser(data.user);
     } catch (err: any) {
       setError(err.message);
@@ -86,14 +99,22 @@ export default function AppOtpForm() {
   if (authenticatedUser) {
     return (
       <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '1.5rem', borderRadius: '8px', color: '#166534' }}>
-        <h3 style={{ marginTop: 0 }}>✅ Você está autenticado!</h3>
-        <p><strong>E-mail:</strong> {authenticatedUser.email}</p>
-        <p><strong>Cargo na Rede:</strong> <span style={{ background: '#dcfce7', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{authenticatedUser.role}</span></p>
+        <h3 style={{ marginTop: 0 }}>{copy.authenticated}</h3>
+        <p>
+          <strong>{copy.emailWord}:</strong> {authenticatedUser.email}
+        </p>
+        <p>
+          <strong>{copy.role}:</strong>{' '}
+          <span style={{ background: '#dcfce7', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{authenticatedUser.role}</span>
+        </p>
         <button
-          onClick={() => { setAuthenticatedUser(null); setStep('request'); }}
+          onClick={() => {
+            setAuthenticatedUser(null);
+            setStep('request');
+          }}
           style={{ background: '#166534', color: '#fff', border: 'none', padding: '0.5rem 1rem', borderRadius: '4px', cursor: 'pointer', marginTop: '1rem' }}
         >
-          Sair / Fazer outro Login
+          {copy.otherLogin}
         </button>
       </div>
     );
@@ -105,25 +126,25 @@ export default function AppOtpForm() {
 
       {error && (
         <div style={{ background: '#fef2f2', color: '#991b1b', padding: '0.75rem', borderRadius: '4px', marginBottom: '1rem', fontSize: '0.875rem' }}>
-          ⚠️ {error}
+          {error}
         </div>
       )}
 
       {message && (
         <div style={{ background: '#f0f9ff', color: '#0369a1', padding: '0.75rem', borderRadius: '4px', marginBottom: '1rem', fontSize: '0.875rem' }}>
-          ℹ️ {message}
+          {message}
         </div>
       )}
 
       {step === 'request' ? (
         <form onSubmit={handleRequestOtp}>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.875rem', color: '#334155', marginBottom: '0.5rem' }}>Digite seu e-mail para receber o OTP:</label>
+            <label style={{ display: 'block', fontSize: '0.875rem', color: '#334155', marginBottom: '0.5rem' }}>{copy.emailPrompt}</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ex: admin@example.com"
+              placeholder={copy.emailPlaceholder}
               required
               style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #94a3b8', fontSize: '1rem', boxSizing: 'border-box' }}
             />
@@ -133,18 +154,20 @@ export default function AppOtpForm() {
             disabled={loading}
             style={{ background: '#0f172a', color: '#ffffff', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '4px', fontSize: '1rem', cursor: 'pointer', width: '100%' }}
           >
-            {loading ? 'Enviando...' : 'Enviar Código por E-mail'}
+            {loading ? copy.sending : copy.send}
           </button>
         </form>
       ) : (
         <form onSubmit={handleVerifyOtp}>
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.875rem', color: '#334155', marginBottom: '0.5rem' }}>Digite o Código de 6 dígitos enviado para <strong>{email}</strong>:</label>
+            <label style={{ display: 'block', fontSize: '0.875rem', color: '#334155', marginBottom: '0.5rem' }}>
+              {interpolate(copy.codePrompt, { email })}
+            </label>
             <input
               type="text"
               value={otpCode}
               onChange={(e) => setOtpCode(e.target.value)}
-              placeholder="123456"
+              placeholder={copy.codeLabel}
               maxLength={6}
               required
               style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #94a3b8', fontSize: '1.25rem', letterSpacing: '4px', textAlign: 'center', boxSizing: 'border-box' }}
@@ -155,21 +178,19 @@ export default function AppOtpForm() {
             disabled={loading}
             style={{ background: '#2563eb', color: '#ffffff', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '4px', fontSize: '1rem', cursor: 'pointer', width: '100%', marginBottom: '0.5rem' }}
           >
-            {loading ? 'Validando...' : 'Validar Código e Fazer Login'}
+            {loading ? copy.validating : copy.validate}
           </button>
           <button
             type="button"
             onClick={() => setStep('request')}
             style={{ background: 'transparent', color: '#64748b', border: 'none', cursor: 'pointer', width: '100%', fontSize: '0.875rem' }}
           >
-            ← Digitar outro e-mail
+            {copy.backEmail}
           </button>
         </form>
       )}
 
-      <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0', fontSize: '0.8125rem', color: '#64748b' }}>
-        💡 <strong>Dica de Teste:</strong> Abra o Mailpit no navegador em <a href="http://localhost:8026" target="_blank" rel="noreferrer" style={{ color: '#2563eb' }}>http://localhost:8026</a> para ver o e-mail capturado!
-      </div>
+      <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0', fontSize: '0.8125rem', color: '#64748b' }}>{copy.mailpit}</div>
     </div>
   );
 }

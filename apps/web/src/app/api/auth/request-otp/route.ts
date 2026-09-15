@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { issueOtp, RateLimitError, sendSmtpMail } from '@community/auth';
+import { interpolate, LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
+import { uiCatalog } from '@/lang/catalog';
 
 const ipHits = new Map<string, number[]>();
 
@@ -32,6 +34,7 @@ export async function POST(req: NextRequest) {
       console.log(`[OTP] queued for ${email} (not in JSON)`);
     }
 
+    const locale = resolveUiLocale(req.cookies.get(LOCALE_COOKIE)?.value);
     const host = process.env.SMTP_HOST;
     const port = Number(process.env.SMTP_PORT || '1026');
     if (host) {
@@ -41,8 +44,8 @@ export async function POST(req: NextRequest) {
           port,
           from: process.env.EMAIL_FROM_ADDRESS || 'auth@community.local',
           to: email,
-          subject: 'Seu código',
-          text: `Código: ${code}`,
+          subject: uiCatalog.t('core_web', 'email.otp.subject', locale),
+          text: interpolate(uiCatalog.t('core_web', 'email.otp.text', locale), { code }),
         });
       } catch (mailErr) {
         console.error('[auth] smtp failed', mailErr instanceof Error ? mailErr.message : 'unknown');

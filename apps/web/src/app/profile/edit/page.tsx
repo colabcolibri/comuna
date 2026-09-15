@@ -5,7 +5,7 @@ import { AppCardTemplate } from '@/components/templates/AppCardTemplate';
 import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
 import { AppPageTemplate } from '@community/ui-member';
 import { Button, Checkbox, Input, Label, Textarea } from '@community/ui';
-import { contentFromCatalog, mergeContent, pickContent } from '@community/identity';
+import { contentFromCatalog, interpolate, mergeContent, pickContent } from '@community/identity';
 import {
   localizedPair,
   parseContacts,
@@ -45,6 +45,8 @@ const CONTENT = mergeContent(
     linkedin: 'profile.linkedin',
     github: 'profile.github',
     portfolio: 'profile.portfolio',
+    pairPt: 'profile.pair_pt',
+    pairEn: 'profile.pair_en',
   }),
   contentFromCatalog(uiCatalog, 'plugin_directory', {
     directory: 'card.section',
@@ -67,6 +69,8 @@ function LocalizedPairFields({
   en,
   onPt,
   onEn,
+  pairPt,
+  pairEn,
   multiline,
 }: {
   id: string;
@@ -75,6 +79,8 @@ function LocalizedPairFields({
   en: string;
   onPt: (value: string) => void;
   onEn: (value: string) => void;
+  pairPt: string;
+  pairEn: string;
   multiline?: boolean;
 }) {
   const Field = multiline ? Textarea : Input;
@@ -82,11 +88,11 @@ function LocalizedPairFields({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="space-y-2 min-w-0">
-        <Label htmlFor={`${id}-pt`}>{label} (pt-BR)</Label>
+        <Label htmlFor={`${id}-pt`}>{interpolate(pairPt, { label })}</Label>
         <Field id={`${id}-pt`} value={pt} onChange={(e) => onPt(e.target.value)} {...extra} />
       </div>
       <div className="space-y-2 min-w-0">
-        <Label htmlFor={`${id}-en`}>{label} (en)</Label>
+        <Label htmlFor={`${id}-en`}>{interpolate(pairEn, { label })}</Label>
         <Field id={`${id}-en`} value={en} onChange={(e) => onEn(e.target.value)} {...extra} />
       </div>
     </div>
@@ -281,6 +287,8 @@ export default function ProfileEditPage() {
                 en={headlineEn}
                 onPt={setHeadlinePt}
                 onEn={setHeadlineEn}
+                pairPt={copy.pairPt}
+                pairEn={copy.pairEn}
               />
               <LocalizedPairFields
                 id="bio"
@@ -289,6 +297,8 @@ export default function ProfileEditPage() {
                 en={bioEn}
                 onPt={setBioPt}
                 onEn={setBioEn}
+                pairPt={copy.pairPt}
+                pairEn={copy.pairEn}
                 multiline
               />
               <div className="space-y-2">

@@ -14,7 +14,7 @@ blocks: [05_architecture.md]
 1. **Núcleo estreito:** pessoa + comunidade + membership. Extensão = módulo.
 2. **Plugin board:** UI e SQL de feature extra não entram no core “por enquanto”.
 3. **Duas apps:** web ≠ admin.
-4. **Copy local:** `CONTENT` no topo do arquivo de UI; sem string crua no JSX.
+4. **Copy de interface:** pack por componente; `CONTENT` no topo do arquivo de UI; sem string crua no JSX.
 5. **Documentação precede código.**
 
 ## DRY — where logic lives
@@ -29,7 +29,7 @@ blocks: [05_architecture.md]
 | Module runtime | `packages/core/module-runtime` | `if (community.slug === 'alumni')` |
 | Directory plugin | `packages/modules/directory` | Tabelas no person_core |
 | Showcase / contact | `packages/modules/showcase`, `contact-mediated` | |
-| UI strings | `CONTENT` no próprio arquivo | Dump central `translations.ts` |
+| UI strings | Pack + `CONTENT` no arquivo de UI | Dump central `translations.ts` |
 | Member UI | `packages/ui/member` | Tokens da vitrine no admin |
 | Admin UI | `packages/ui/admin` | Stitch obrigatório |
 | shadcn primitives | `packages/ui/primitives` | Copiar `components/ui` nas apps |

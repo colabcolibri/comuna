@@ -25,6 +25,8 @@ export const coreIdentityPack = definePack({
     'profile.linkedin': 'LinkedIn',
     'profile.github': 'GitHub',
     'profile.portfolio': 'Portfólio',
+    'profile.pair_pt': '{label} (pt-BR)',
+    'profile.pair_en': '{label} (en)',
   },
   en: {
     'profile.kicker': 'Profile',
@@ -50,5 +52,7 @@ export const coreIdentityPack = definePack({
     'profile.linkedin': 'LinkedIn',
     'profile.github': 'GitHub',
     'profile.portfolio': 'Portfolio',
+    'profile.pair_pt': '{label} (pt-BR)',
+    'profile.pair_en': '{label} (en)',
   },
 });

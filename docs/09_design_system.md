@@ -128,11 +128,13 @@ WCAG 2.2 AA (AAA em body se possível). Foco 2px. Labels visíveis. Status não 
 | ----- | -------- |
 | Locales | `pt-BR` default e fallback; `en` segundo |
 | RTL | _n/a_ nesta versão |
-| Fonte das strings | Objeto `CONTENT` no **topo** de cada arquivo de UI — `docs/architecture/i18n-content.md` |
-| Dump central | Proibido. Chrome = `CONTENT` + `pickContent` |
-| Switcher | Persistido em `preferred_locale` no perfil-base; cookie/header na sessão |
+| Fonte das strings | Pack por componente + `CONTENT` no topo do arquivo — `docs/architecture/i18n-content.md` |
+| Dump central | Proibido |
+| Runtime | `createUiCatalog` em identity; não next-intl |
+| Overlay | Porta pronta; SQL/UI ainda não |
+| Switcher | Cookie `ui_locale`; `preferred_locale` no perfil-base |
 | Datas/números | `Intl` com o locale resolvido |
-| E-mail | `CONTENT` no arquivo do template |
+| E-mail | Pack `core_web` (`email.otp.*`) |
 | SEO hreflang | Fora até `12` existir |
 
 ## Showcase catalog

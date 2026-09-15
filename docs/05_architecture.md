@@ -73,7 +73,7 @@ flowchart TD
 | `docs/architecture/surfaces.md` | web vs admin |
 | `docs/architecture/monorepo.md` | Árvore de pastas |
 | `docs/architecture/modules.md` | Contrato de plugin, perfil-base vs extra |
-| `docs/architecture/i18n-content.md` | Convenção `CONTENT` |
+| `docs/architecture/i18n-content.md` | Packs + `CONTENT` no arquivo |
 
 ## System modules (core)
 
