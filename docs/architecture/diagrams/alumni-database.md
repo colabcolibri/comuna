@@ -37,6 +37,8 @@ erDiagram
         text kind
         text locale
         text subject
+        text heading
+        text body
         text html_body
         text text_body
         timestamptz updated_at

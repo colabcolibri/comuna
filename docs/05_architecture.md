@@ -86,7 +86,7 @@ flowchart TD
 | `docs/architecture/showcase-public.md` | O que a vitrine pode mostrar |
 | `docs/architecture/data-access.md` | SQL → domínio → HTTP → UI; sem ORM; Query só no último hop |
 | `docs/architecture/community-context.md` | Workspace: URL `/c/{slug}`, cookie, chrome; sem LIMIT 1 |
-| `docs/architecture/email.md` | Envelope HTML, kinds, overlay de templates, SMTP |
+| `docs/architecture/email.md` | Template HTML único, slots, copy overlay, SMTP |
 | `docs/architecture/ops-settings.md` | Plataforma vs tenant; criar pessoa; catálogo extra |
 
 ## System modules (core)
@@ -113,7 +113,7 @@ Montagem: **registry de contribuições** (rotas, chrome, slots) filtrado por `l
 
 ### Operations (admin app)
 
-Criar comunidade, pessoas da rede (listar **e criar** conta por e-mail), membership (papel, status, turma, remover), **ligar/desligar módulos**, catálogo de campos, **configuração da plataforma**, **configuração do tenant**, **templates de e-mail** (preview + overlay). Detalhe: `docs/architecture/ops-settings.md`.
+Criar comunidade, pessoas da rede (listar **e criar** conta por e-mail), membership (papel, status, turma, remover), **ligar/desligar módulos**, catálogo de campos, **configuração da plataforma**, **configuração do tenant**, **e-mails** (um template + copy por kind). Detalhe: `docs/architecture/ops-settings.md`.
 
 ## First-party plugins (v2)
 

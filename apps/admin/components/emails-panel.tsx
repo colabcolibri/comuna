@@ -1,9 +1,10 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
-import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast } from '@community/ui';
-import { OpsPageTemplate } from '@community/ui-admin';
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Button, Input, Label, Textarea, toast } from '@community/ui';
+import { OpsPageTemplate, OpsTabs, OpsHtmlPreview } from '@community/ui-admin';
 import { contentFromCatalog, pickContent } from '@community/identity';
+import { composeMail, defaultCopy, KIND_SLOT, KIND_VARIABLES, previewVarsFor, type EmailKind } from '@community/mail/compose';
 import { useLocale } from './locale-provider';
 import { uiCatalog } from '@/lang/catalog';
 
@@ -14,14 +15,24 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   kind: 'emails.kind',
   locale: 'emails.locale',
   subject: 'emails.subject',
-  html: 'emails.html',
-  text: 'emails.text',
+  heading: 'emails.heading',
+  body: 'emails.body',
+  bodyHelp: 'emails.body_help',
   preview: 'emails.preview',
+  previewHelp: 'emails.preview_help',
+  variables: 'emails.variables',
+  variablesHelp: 'emails.variables_help',
+  slotVars: 'emails.slot_vars',
+  slotOtp: 'emails.slot_otp',
+  slotCta: 'emails.slot_cta',
+  slotQuote: 'emails.slot_quote',
+  envelopeNote: 'emails.envelope_note',
   save: 'emails.save',
   reset: 'emails.reset',
   saved: 'emails.saved',
   resetOk: 'emails.reset_ok',
   error: 'community.save_error',
+  loadError: 'emails.load_error',
   member: 'emails.kind_member_otp',
   ops: 'emails.kind_ops_otp',
   invite: 'emails.kind_person_invite',
@@ -29,53 +40,144 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
 });
 
 const KINDS = ['member_otp', 'ops_otp', 'person_invite', 'contact_notice'] as const;
+const FALLBACK_ENVELOPE = {
+  product_name: 'Community',
+  from_name: 'Community',
+  from_address: '',
+  support_url: '',
+  logo_url: '',
+};
+
+type FieldKey = 'subject' | 'heading' | 'body';
+
+function insertAtCursor(
+  el: HTMLInputElement | HTMLTextAreaElement | null,
+  current: string,
+  token: string,
+  setValue: (next: string) => void
+) {
+  if (!el) {
+    setValue(`${current}${token}`);
+    return;
+  }
+  const start = el.selectionStart ?? current.length;
+  const end = el.selectionEnd ?? start;
+  const next = `${current.slice(0, start)}${token}${current.slice(end)}`;
+  setValue(next);
+  requestAnimationFrame(() => {
+    el.focus();
+    const pos = start + token.length;
+    el.setSelectionRange(pos, pos);
+  });
+}
+
+function applyCopy(
+  kind: EmailKind,
+  locale: 'pt-BR' | 'en',
+  setSubject: (value: string) => void,
+  setHeading: (value: string) => void,
+  setBody: (value: string) => void
+) {
+  const next = defaultCopy(kind, locale);
+  setSubject(next.subject);
+  setHeading(next.heading);
+  setBody(next.body);
+}
 
 export function EmailsPanel() {
   const copy = pickContent(CONTENT, useLocale());
-  const [kind, setKind] = useState<(typeof KINDS)[number]>('member_otp');
+  const initial = defaultCopy('member_otp', 'pt-BR');
+  const [kind, setKind] = useState<EmailKind>('member_otp');
   const [locale, setLocale] = useState<'pt-BR' | 'en'>('pt-BR');
-  const [subject, setSubject] = useState('');
-  const [htmlBody, setHtmlBody] = useState('');
-  const [textBody, setTextBody] = useState('');
-  const [previewHtml, setPreviewHtml] = useState('');
-  const kindLabel: Record<(typeof KINDS)[number], string> = {
-    member_otp: copy.member,
-    ops_otp: copy.ops,
-    person_invite: copy.invite,
-    contact_notice: copy.contact,
-  };
+  const [subject, setSubject] = useState(initial.subject);
+  const [heading, setHeading] = useState(initial.heading);
+  const [body, setBody] = useState(initial.body);
+  const [envelope, setEnvelope] = useState(FALLBACK_ENVELOPE);
+  const [lastField, setLastField] = useState<FieldKey>('body');
+  const subjectRef = useRef<HTMLInputElement>(null);
+  const headingRef = useRef<HTMLInputElement>(null);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const kindItems = [
+    { value: 'member_otp', label: copy.member },
+    { value: 'ops_otp', label: copy.ops },
+    { value: 'person_invite', label: copy.invite },
+    { value: 'contact_notice', label: copy.contact },
+  ];
+  const localeItems = [
+    { value: 'pt-BR', label: 'pt-BR' },
+    { value: 'en', label: 'en' },
+  ];
+  const slotNote = {
+    otp: copy.slotOtp,
+    cta: copy.slotCta,
+    quote: copy.slotQuote,
+  }[KIND_SLOT[kind]];
+  const copyVars = KIND_VARIABLES[kind].filter((item) => !item.slot);
+  const slotVars = KIND_VARIABLES[kind].filter((item) => item.slot);
 
-  const load = (nextKind = kind, nextLocale = locale) => {
-    fetch(`/api/admin/email-templates?kind=${nextKind}&locale=${nextLocale}`).then(async (res) => {
+  const load = useCallback(
+    async (nextKind: EmailKind, nextLocale: 'pt-BR' | 'en') => {
+      const res = await fetch(`/api/admin/email-templates?kind=${nextKind}&locale=${nextLocale}`);
       if (!res.ok) {
+        toast.error(copy.loadError);
         return;
       }
       const json = await res.json();
       const data = json.data;
       setSubject(data.subject);
-      setHtmlBody(data.html_body);
-      setTextBody(data.text_body);
-      setPreviewHtml(data.previewHtml);
-    });
-  };
+      setHeading(data.heading);
+      setBody(data.body);
+      if (data.envelope) {
+        setEnvelope(data.envelope);
+      }
+    },
+    [copy.loadError]
+  );
 
   useEffect(() => {
-    load(kind, locale);
-  }, [kind, locale]);
+    void load(kind, locale);
+  }, [kind, locale, load]);
+
+  const previewHtml = useMemo(() => {
+    try {
+      return composeMail({
+        kind,
+        locale,
+        vars: previewVarsFor(kind, envelope),
+        settings: envelope,
+        overlay: { subject, heading, body },
+      }).html;
+    } catch {
+      return '';
+    }
+  }, [kind, locale, subject, heading, body, envelope]);
+
+  const insertVariable = (name: string) => {
+    const token = `{{${name}}}`;
+    if (lastField === 'subject') {
+      insertAtCursor(subjectRef.current, subject, token, setSubject);
+      return;
+    }
+    if (lastField === 'heading') {
+      insertAtCursor(headingRef.current, heading, token, setHeading);
+      return;
+    }
+    insertAtCursor(bodyRef.current, body, token, setBody);
+  };
 
   const save = async (e: FormEvent) => {
     e.preventDefault();
     const res = await fetch(`/api/admin/email-templates/${kind}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ locale, subject, html_body: htmlBody, text_body: textBody }),
+      body: JSON.stringify({ locale, subject, heading, body }),
     });
     if (!res.ok) {
       toast.error(copy.error);
       return;
     }
     toast.success(copy.saved);
-    load();
+    await load(kind, locale);
   };
 
   const reset = async () => {
@@ -85,53 +187,93 @@ export function EmailsPanel() {
       return;
     }
     toast.success(copy.resetOk);
-    load();
+    applyCopy(kind, locale, setSubject, setHeading, setBody);
+    await load(kind, locale);
+  };
+
+  const changeKind = (next: string) => {
+    const value = next as EmailKind;
+    setKind(value);
+    applyCopy(value, locale, setSubject, setHeading, setBody);
+  };
+
+  const changeLocale = (next: string) => {
+    const value = next === 'en' ? 'en' : 'pt-BR';
+    setLocale(value);
+    applyCopy(kind, value, setSubject, setHeading, setBody);
   };
 
   return (
-    <OpsPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
+    <OpsPageTemplate
+      kicker={copy.kicker}
+      title={copy.title}
+      subtitle={copy.subtitle}
+      nav={
+        <div className="mb-6 min-w-0 space-y-3">
+          <OpsTabs ariaLabel={copy.kind} value={kind} onValueChange={changeKind} items={kindItems} />
+          <OpsTabs ariaLabel={copy.locale} value={locale} onValueChange={changeLocale} items={localeItems} />
+        </div>
+      }
+    >
       <form onSubmit={(ev) => void save(ev)} className="grid gap-6 lg:grid-cols-2">
         <div className="grid min-w-0 gap-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="ops-email-kind">{copy.kind}</Label>
-              <Select value={kind} onValueChange={(next) => setKind(next as (typeof KINDS)[number])}>
-                <SelectTrigger id="ops-email-kind">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {KINDS.map((item) => (
-                    <SelectItem key={item} value={item}>
-                      {kindLabel[item]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="ops-email-locale">{copy.locale}</Label>
-              <Select value={locale} onValueChange={(next) => setLocale(next === 'en' ? 'en' : 'pt-BR')}>
-                <SelectTrigger id="ops-email-locale">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pt-BR">pt-BR</SelectItem>
-                  <SelectItem value="en">en</SelectItem>
-                </SelectContent>
-              </Select>
+          <p className="text-sm text-muted-foreground">{copy.envelopeNote}</p>
+          <p className="text-sm text-muted-foreground">{slotNote}</p>
+          {slotVars.length > 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {copy.slotVars} {slotVars.map((item) => `{{${item.name}}}`).join(', ')}
+            </p>
+          ) : null}
+          <div className="space-y-2">
+            <Label>{copy.variables}</Label>
+            <p className="text-sm text-muted-foreground">{copy.variablesHelp}</p>
+            <div className="flex flex-wrap gap-2">
+              {copyVars.map((item) => (
+                <Button
+                  key={item.name}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="max-w-full font-mono text-xs"
+                  title={item.sample}
+                  onClick={() => insertVariable(item.name)}
+                >
+                  {`{{${item.name}}}`}
+                </Button>
+              ))}
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="ops-email-subject">{copy.subject}</Label>
-            <Textarea id="ops-email-subject" className="min-h-16" value={subject} onChange={(ev) => setSubject(ev.target.value)} />
+            <Input
+              ref={subjectRef}
+              id="ops-email-subject"
+              value={subject}
+              onFocus={() => setLastField('subject')}
+              onChange={(ev) => setSubject(ev.target.value)}
+            />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="ops-email-html">{copy.html}</Label>
-            <Textarea id="ops-email-html" className="min-h-40 font-mono text-sm" value={htmlBody} onChange={(ev) => setHtmlBody(ev.target.value)} />
+            <Label htmlFor="ops-email-heading">{copy.heading}</Label>
+            <Input
+              ref={headingRef}
+              id="ops-email-heading"
+              value={heading}
+              onFocus={() => setLastField('heading')}
+              onChange={(ev) => setHeading(ev.target.value)}
+            />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="ops-email-text">{copy.text}</Label>
-            <Textarea id="ops-email-text" className="min-h-24 font-mono text-sm" value={textBody} onChange={(ev) => setTextBody(ev.target.value)} />
+            <Label htmlFor="ops-email-body">{copy.body}</Label>
+            <p className="text-sm text-muted-foreground">{copy.bodyHelp}</p>
+            <Textarea
+              ref={bodyRef}
+              id="ops-email-body"
+              className="min-h-32 max-h-56 resize-y overflow-auto whitespace-pre-wrap break-words text-sm leading-relaxed"
+              value={body}
+              onFocus={() => setLastField('body')}
+              onChange={(ev) => setBody(ev.target.value)}
+            />
           </div>
           <div className="flex flex-wrap gap-2">
             <Button type="submit">{copy.save}</Button>
@@ -142,12 +284,8 @@ export function EmailsPanel() {
         </div>
         <div className="min-w-0 space-y-2">
           <Label>{copy.preview}</Label>
-          <iframe
-            title={copy.preview}
-            sandbox=""
-            className="h-[32rem] w-full rounded-md border border-border bg-background"
-            srcDoc={previewHtml}
-          />
+          <p className="text-sm text-muted-foreground">{copy.previewHelp}</p>
+          <OpsHtmlPreview title={copy.preview} html={previewHtml} />
         </div>
       </form>
     </OpsPageTemplate>

@@ -1,7 +1,7 @@
 ---
 title: Design System
 status: review
-version: 1.10
+version: 1.13
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
@@ -13,7 +13,7 @@ blocks: []
 
 - **Surfaces:** `apps/web` (Stitch + plugins). Admin **não** usa o contrato Stitch; usa os mesmos primitives.
 - **Primary UI stack:** `ts-shadcn` — primitives em `packages/ui/primitives` (`@community/ui`). Compostos membro em `packages/ui/member` e `apps/web/src/components/app/`.
-- **Select / Checkbox / menu:** shadcn em `@community/ui` (`SelectTrigger` + portal; `DropdownMenu`; `Checkbox` Radix). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`) é que fecham o produto.
+- **Select / Checkbox / menu:** shadcn em `@community/ui` (`SelectTrigger` + portal; `DropdownMenu`; `Checkbox` Radix; `Tabs`). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`, `OpsTabs`, `OpsHtmlPreview`) é que fecham o produto.
 - **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, espaços aninhados. Workspace (trocar de comunidade) **não** é sidebar de espaços — ver `community-context.md`.
 - **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
@@ -63,8 +63,10 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `AppPageHeader` | Kicker + h1 + lede + actions | `packages/ui/member/src/app-page-header.tsx` |
 | `AppPageTemplate` | Main + page header | `packages/ui/member/src/app-page-template.tsx` |
 | `OpsPageHeader` / `OpsPageTemplate` | Mesmo contrato (kicker, h1, lede, actions, `nav`) no admin — **não** importa `@community/ui-member` | `packages/ui/admin/src/ops-page-*.tsx` |
-| `OpsShell` | Rail contextual: rede = comunidades + pessoas; tenant = capítulos | `packages/ui/admin/src/ops-shell.tsx` |
-| `OpsSubnav` | Tabs horizontais (legado / uso pontual; capítulos do tenant vão no rail) | `packages/ui/admin/src/ops-subnav.tsx` |
+| `OpsShell` | Rail contextual: rede = comunidades + pessoas; tenant = capítulos; páginas rolam com `ScrollArea` (header fora do scroll) | `packages/ui/admin/src/ops-shell.tsx` |
+| `OpsSubnav` | Tabs horizontais de **rota** (legado / uso pontual; capítulos do tenant vão no rail) | `packages/ui/admin/src/ops-subnav.tsx` |
+| `OpsTabs` | Tabs shadcn de **estado** (ex.: kinds de e-mail). Horizontal por padrão: irmãos do mesmo formulário, sem segundo rail. Vertical só se a lista for longa e o conteúdo for um só painel. | `packages/ui/admin/src/ops-tabs.tsx` |
+| `OpsHtmlPreview` | Iframe de HTML (e-mail). Atualiza `head`/`body` no documento já aberto; não troca `srcDoc` a cada tecla. | `packages/ui/admin/src/ops-html-preview.tsx` |
 | `OpsSection` | Bloco h2 + lede dentro do workspace | `packages/ui/admin/src/ops-section.tsx` |
 | `OpsBadge` | Rótulo curto (ex.: super-admin). Não cola no nome | `packages/ui/admin/src/ops-badge.tsx` |
 | `OpsMoveButtons` | Ordem: `Button` `icon-sm` + seta, `aria-label` i18n. Sem “subir/descer” em texto. Desabilitado no extremo (não some). | `packages/ui/admin/src/ops-move-buttons.tsx` |
@@ -145,7 +147,7 @@ flowchart TB
 
 ## Email
 
-Transacional, não marketing. Um envelope para todos os kinds (`docs/architecture/email.md`). Tokens **iguais** à tabela Colors, em hex **inline** (clientes de e-mail ignoram CSS da app). Largura 600px; no telemóvel a tabela encolhe (`max-width: 100%`). Código OTP em fonte mono, tamanho ≥ 24px, contraste no cartão `surface`. Sem imagem de fundo. Preview no admin usa o mesmo HTML (iframe `sandbox` sem scripts).
+Transacional, não marketing. **Um** template para todos os kinds (`docs/architecture/email.md`, `layout.ts`). Tokens **iguais** à tabela Colors, em hex **inline**. Tipografia: **IBM Plex Sans** no `font-family` inline, fallback Helvetica Neue / Arial (clientes de e-mail raramente carregam Google Fonts). Título e corpo **centrados**; recado alinhado à esquerda num bloco estreito. Largura 600px; no telemóvel a tabela encolhe (`max-width: 100%`). Código OTP em cartão `#f7f6f2`, mono ≥ 24px. CTA em `primary` (`#1f3d38` / `#f7f6f2`). Sem imagem de fundo. Admin: `OpsTabs` horizontais por kind (não Select); copy default já no formulário.
 
 ## Accessibility baseline
 
@@ -163,7 +165,7 @@ WCAG 2.2 AA (AAA em body se possível). Foco 2px. Labels visíveis. Status não 
 | Overlay | Porta pronta; SQL/UI ainda não |
 | Switcher | Cookie `ui_locale`; `preferred_locale` no perfil-base |
 | Datas/números | `Intl` com o locale resolvido |
-| E-mail | Pack `core_mail` + overlay ops; chrome da tela de templates em `core_admin` |
+| E-mail | Template único (`layout.ts`) + copy overlay; chrome da tela em `core_admin` |
 | SEO hreflang | Fora até `12` existir |
 
 ## Showcase catalog

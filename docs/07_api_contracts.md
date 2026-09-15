@@ -75,8 +75,8 @@ blocks: []
 | `POST` | `/api/admin/auth/verify-otp` | Sessão admin | Public, `super_admin` | OTP | cookie `ops_token` |
 | `GET` | `/api/admin/platform` | Settings da instalação | Super-admin | — | `{ product_name, from_name, from_address, support_url, logo_url }` |
 | `PUT` | `/api/admin/platform` | Grava settings da instalação | Super-admin | mesmos campos | objeto |
-| `GET` | `/api/admin/email-templates` | Defaults + overlay por kind/locale | Super-admin | `?kind=&locale=` | `{ data: TemplateView[] }` + `previewHtml` no item quando pedido |
-| `PUT` | `/api/admin/email-templates/:kind` | Overlay subject/html/text | Super-admin | `{ locale, subject, html_body, text_body }` | `{ ok }` |
+| `GET` | `/api/admin/email-templates` | Copy default ou overlay + envelope + slot | Super-admin | `?kind=&locale=` | `{ data: TemplateView }` com `subject`, `heading`, `body`, `slot`, `variables`, `envelope`, `previewHtml` |
+| `PUT` | `/api/admin/email-templates/:kind` | Overlay de copy | Super-admin | `{ locale, subject, heading, body }` | `{ ok }` |
 | `DELETE` | `/api/admin/email-templates/:kind` | Volta ao default | Super-admin | `?locale=` | `{ ok }` |
 | `GET` | `/api/admin/people` | Pessoas da rede + assentos. Página de 50. `q` com ≥2 filtra. | Super-admin | `?q=&offset=` | `{ "data", "meta.hasMore" }` |
 | `POST` | `/api/admin/people` | Cria user+perfil; envia `person_invite` | Super-admin | `{ "email", "full_name" }` | `201` pessoa; e-mail existente = 409 `DUPLICATE_EMAIL` |

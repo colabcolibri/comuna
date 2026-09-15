@@ -8,3 +8,5 @@ export { OpsMoveButtons } from './ops-move-buttons';
 export { OpsCombobox, type OpsComboboxOption } from './ops-combobox';
 export { OpsTable } from './ops-table';
 export { OpsSubnav } from './ops-subnav';
+export { OpsTabs, type OpsTabItem } from './ops-tabs';
+export { OpsHtmlPreview } from './ops-html-preview';

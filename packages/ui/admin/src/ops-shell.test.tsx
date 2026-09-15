@@ -18,6 +18,7 @@ describe('OpsShell', () => {
     expect(screen.getByRole('link', { name: 'Comunidades' }).getAttribute('href')).toBe('/communities');
     expect(screen.getByRole('button', { name: 'Sair' })).toBeTruthy();
     expect(screen.getByText('workspace')).toBeTruthy();
+    expect(document.querySelector('[data-slot="scroll-area"]')).toBeTruthy();
     expect(screen.queryByText('Community')).toBeNull();
     expect(screen.queryByText('Dados')).toBeNull();
   });

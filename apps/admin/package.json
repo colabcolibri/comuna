@@ -19,7 +19,10 @@
     "@community/showcase": "workspace:*",
     "@community/ui": "workspace:*",
     "@community/ui-admin": "workspace:*",
+    "@tailwindcss/postcss": "^4.3.3",
     "next": "^16.3.5",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^4.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   }

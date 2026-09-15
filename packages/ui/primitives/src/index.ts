@@ -17,6 +17,7 @@ export * from './components/ui/sheet';
 export * from './components/ui/separator';
 export * from './components/ui/sidebar';
 export * from './components/ui/skeleton';
+export * from './components/ui/tabs';
 export * from './components/ui/textarea';
 export * from './components/ui/tooltip';
 export { Toaster } from './components/ui/sonner';

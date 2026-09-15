@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { DefaultOpsLink, type OpsLinkComponent } from './ops-link';
 import {
   Button,
+  ScrollArea,
   Sidebar,
   SidebarContent,
   SidebarGroup,
@@ -51,7 +52,7 @@ export function OpsShell({
   children: ReactNode;
 }) {
   return (
-    <SidebarProvider className="h-svh min-h-svh overflow-hidden">
+    <SidebarProvider className="h-svh max-h-svh overflow-hidden">
       <Sidebar collapsible="offcanvas">
         <SidebarHeader className="h-14 justify-center border-b border-sidebar-border px-3">
           <p className="px-2 text-sm font-semibold leading-none tracking-tight">{brand}</p>
@@ -77,7 +78,7 @@ export function OpsShell({
           ))}
         </SidebarContent>
       </Sidebar>
-      <SidebarInset className="min-h-0 min-w-0 overflow-hidden bg-background">
+      <SidebarInset className="h-svh max-h-svh min-h-0 min-w-0 overflow-hidden bg-background">
         <header className="flex min-h-14 shrink-0 flex-wrap items-center gap-2 border-b border-border bg-card px-4 py-2">
           <SidebarTrigger className="size-9 shrink-0 md:hidden" aria-label={menuLabel} />
           <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
@@ -88,7 +89,9 @@ export function OpsShell({
             </Button>
           </div>
         </header>
-        <div className="min-h-0 flex-1 overflow-auto">{children}</div>
+        <ScrollArea type="always" className="ops-page-scroll min-h-0 flex-1">
+          {children}
+        </ScrollArea>
       </SidebarInset>
     </SidebarProvider>
   );

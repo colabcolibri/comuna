@@ -20,8 +20,8 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ kind: strin
   try {
     await upsertEmailOverlay(kind, locale, {
       subject: String(body.subject || ''),
-      html_body: String(body.html_body || ''),
-      text_body: String(body.text_body || ''),
+      heading: String(body.heading || ''),
+      body: String(body.body || ''),
     });
     return NextResponse.json({ ok: true });
   } catch (err) {

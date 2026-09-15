@@ -34,6 +34,9 @@ applyEnvFile(path.join(monorepoRoot, '.env'));
 applyEnvFile(path.join(monorepoRoot, '.env.local'));
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: monorepoRoot,
+  },
   transpilePackages: [
     '@community/auth',
     '@community/db',

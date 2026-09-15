@@ -57,7 +57,7 @@ erDiagram
         string current_country
         jsonb birth_city "Nominatim place {osm_id, label from geocoder}"
         jsonb current_city "Nominatim place"
-        jsonb languages "[{code ISO 639-1, proficiency basic|intermediate|fluent|native}]"
+        jsonb languages "[{code ISO 639-1, proficiency basic|intermediate|advanced|fluent|native}]"
         jsonb contacts "{linkedin, github, portfolio}"
         timestamp updated_at
     }
@@ -100,8 +100,10 @@ erDiagram
         string kind "member_otp | ops_otp | person_invite | contact_notice"
         string locale "pt-BR | en"
         string subject
-        text html_body
-        text text_body
+        string heading
+        text body
+        text html_body "snapshot gerado"
+        text text_body "snapshot gerado"
         timestamp updated_at
         unique(kind, locale)
     }

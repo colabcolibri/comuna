@@ -1,6 +1,6 @@
 import { query } from '@community/db';
-import { composeMail, defaultBodies, type MailBodies } from './compose';
-import { isEmailKind, isEmailLocale, type EmailKind, type EmailLocale } from './tokens';
+import { composeMail, defaultCopy, type MailCopy } from './compose';
+import { isEmailKind, isEmailLocale, KIND_SLOT, KIND_VARIABLES, previewVarsFor, type EmailKind, type EmailLocale, type EmailSlot, type EmailVariable } from './tokens';
 import { getPlatformSettings, type PlatformSettings } from '@community/platform';
 import { sendSmtpMail } from '@community/auth';
 import { formatFromHeader } from '@community/platform';
@@ -12,34 +12,51 @@ export class MailValidationError extends Error {
   }
 }
 
-export async function getEmailOverlay(kind: EmailKind, locale: EmailLocale): Promise<MailBodies | null> {
-  const result = await query<MailBodies>(
-    `SELECT subject, html_body AS html, text_body AS text
+type OverlayRow = {
+  subject: string;
+  heading: string;
+  body: string;
+};
+
+export async function getEmailOverlay(kind: EmailKind, locale: EmailLocale): Promise<MailCopy | null> {
+  const result = await query<OverlayRow>(
+    `SELECT subject, heading, body
      FROM ops_core.email_templates
      WHERE kind = $1 AND locale = $2`,
     [kind, locale]
   );
   const row = result.rows[0];
-  return row ? { subject: row.subject, html: row.html, text: row.text } : null;
+  if (!row) {
+    return null;
+  }
+  if (!row.heading.trim() && !row.body.trim()) {
+    return null;
+  }
+  return { subject: row.subject, heading: row.heading, body: row.body };
 }
 
-export async function upsertEmailOverlay(
-  kind: EmailKind,
-  locale: EmailLocale,
-  body: { subject: string; html_body: string; text_body: string }
-): Promise<void> {
-  const subject = body.subject.trim();
-  const html_body = body.html_body.trim();
-  const text_body = body.text_body.trim();
-  if (!subject || !html_body || !text_body) {
+export async function upsertEmailOverlay(kind: EmailKind, locale: EmailLocale, copy: MailCopy): Promise<void> {
+  const subject = copy.subject.trim();
+  const heading = copy.heading.trim();
+  const body = copy.body.trim();
+  if (!subject || !heading || !body) {
     throw new MailValidationError();
   }
+  const overlay = { subject, heading, body };
+  const settings = await getPlatformSettings();
+  const vars = previewVarsFor(kind, settings);
+  if (kind === 'person_invite') {
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3014';
+    vars.login_url = `${origin.replace(/\/$/, '')}/login`;
+  }
+  const rendered = composeMail({ kind, locale, vars, settings, overlay });
   await query(
-    `INSERT INTO ops_core.email_templates (kind, locale, subject, html_body, text_body)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO ops_core.email_templates (kind, locale, subject, heading, body, html_body, text_body)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
      ON CONFLICT (kind, locale)
-     DO UPDATE SET subject = excluded.subject, html_body = excluded.html_body, text_body = excluded.text_body, updated_at = now()`,
-    [kind, locale, subject, html_body, text_body]
+     DO UPDATE SET subject = excluded.subject, heading = excluded.heading, body = excluded.body,
+       html_body = excluded.html_body, text_body = excluded.text_body, updated_at = now()`,
+    [kind, locale, overlay.subject, overlay.heading, overlay.body, rendered.html, rendered.text]
   );
 }
 
@@ -62,10 +79,13 @@ export type TemplateView = {
   kind: EmailKind;
   locale: EmailLocale;
   subject: string;
-  html_body: string;
-  text_body: string;
+  heading: string;
+  body: string;
   overlay: boolean;
   previewHtml: string;
+  slot: EmailSlot;
+  variables: EmailVariable[];
+  envelope: PlatformSettings;
 };
 
 export async function listEmailTemplates(kind: string, locale: string): Promise<TemplateView> {
@@ -74,29 +94,30 @@ export async function listEmailTemplates(kind: string, locale: string): Promise<
   }
   const settings = await getPlatformSettings();
   const overlay = await getEmailOverlay(kind, locale);
-  const base = overlay ?? defaultBodies(kind, locale);
+  const copy = overlay ?? defaultCopy(kind, locale);
+  const vars = previewVarsFor(kind, settings);
+  if (kind === 'person_invite') {
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3014';
+    vars.login_url = `${origin.replace(/\/$/, '')}/login`;
+  }
   const preview = composeMail({
     kind,
     locale,
-    vars: {
-      code: '123456',
-      login_url: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/login` : 'http://localhost:3014/login',
-      community_name: 'Demo',
-      sender_name: 'Ada',
-      sender_email: 'ada@example.com',
-      message: 'Olá',
-    },
+    vars,
     settings,
     overlay,
   });
   return {
     kind,
     locale,
-    subject: base.subject,
-    html_body: base.html,
-    text_body: base.text,
+    subject: copy.subject,
+    heading: copy.heading,
+    body: copy.body,
     overlay: Boolean(overlay),
     previewHtml: preview.html,
+    slot: KIND_SLOT[kind],
+    variables: KIND_VARIABLES[kind],
+    envelope: settings,
   };
 }
 

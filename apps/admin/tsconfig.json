@@ -38,6 +38,9 @@
       "@community/mail": [
         "../../packages/core/mail/src/index.ts"
       ],
+      "@community/mail/compose": [
+        "../../packages/core/mail/src/compose.ts"
+      ],
       "@community/identity": [
         "../../packages/core/identity/src/index.ts"
       ],

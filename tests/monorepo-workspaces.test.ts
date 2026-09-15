@@ -75,4 +75,11 @@ describe('monorepo workspaces', () => {
     expect(source).toMatch(/export async function proxy/);
     expect(source).toMatch(/packages\/core\/auth\/src\/session/);
   });
+
+  it('keeps the email studio off the Node mail barrel', () => {
+    const source = fs.readFileSync(path.join(ROOT, 'apps/admin/components/emails-panel.tsx'), 'utf8');
+    expect(source).toMatch(/from ['"]@community\/mail\/compose['"]/);
+    expect(source).not.toMatch(/from ['"]@community\/mail['"]/);
+    expect(source).not.toMatch(/from ['"]@community\/platform['"]/);
+  });
 });

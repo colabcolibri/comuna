@@ -1,5 +1,6 @@
-export { EMAIL_KINDS, escapeHtml, interpolateMustache, interpolateMustacheHtml, isEmailKind, isEmailLocale, type EmailKind, type EmailLocale } from './tokens';
-export { composeMail, defaultBodies, wrapEnvelope, PREVIEW_VARS, type MailBodies } from './compose';
+export { EMAIL_KINDS, escapeHtml, interpolateMustache, interpolateMustacheHtml, isEmailKind, isEmailLocale, KIND_SLOT, KIND_VARIABLES, previewVarsFor, type EmailKind, type EmailLocale, type EmailSlot, type EmailVariable, type MailEnvelope } from './tokens';
+export { composeMail, defaultCopy, type MailCopy } from './compose';
+export { renderMailHtml, renderMailText } from './layout';
 export {
   MailValidationError,
   deleteEmailOverlay,
