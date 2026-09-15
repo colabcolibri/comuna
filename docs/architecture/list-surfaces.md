@@ -30,6 +30,10 @@ Vitrine: `gender`, `birth_city`, `public_showcase` ficam `off` / filtro false. N
 
 ## Projeção
 
-`projectPersonView` (domínio directory) monta slots: identidade, headline, bio, idiomas, availability, facts (label do catálogo), links. UI só desenha. Idiomas nunca misturam com availability.
+`projectPersonView` (domínio directory) monta slots: identidade, headline, bio, idiomas, availability, facts (label do catálogo), links. UI só desenha. Idiomas nunca misturam com availability. Slots built-in: `PERSON_VIEW_SLOTS` + `contacts.*`. Extra de `attributes` vai para `facts`.
 
 Densidade `card`: só `placement = card`. Densidade `detail`: `card` ou `detail`.
+
+Load: `LIST_FIELDS_SQL` + `parseListFields`. Facets: `attributeFacets`. Filtro `attr.*`: `parseAttrFilters` lê `ListField.filterable`, não o catálogo do perfil.
+
+Seed de extra: `listFilterable: true` no JS vira duas rows em `list_fields`. Não é coluna de `fields`.

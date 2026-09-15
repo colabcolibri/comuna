@@ -31,7 +31,7 @@ export function OpsTable<T>({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={rowKey(row)} className="border-t border-border align-top hover:bg-secondary/40">
+            <tr key={rowKey(row)} className="border-t border-border hover:bg-secondary/40">
               {columns.map((column) => (
                 <td key={column.id} className={`px-4 py-3.5 min-w-0 ${column.className ?? ''}`}>
                   {column.cell(row)}

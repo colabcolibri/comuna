@@ -4,8 +4,9 @@ import {
   SHOWCASE_PAGE_SIZE,
   availabilityIsFilterable,
   listedAttributeNames,
-  parseListField,
+  parseListFields,
   peopleListQuery,
+  attributeFacets,
   type ListField,
 } from '@community/directory';
 import { showcaseContribution } from '@community/showcase';
@@ -14,9 +15,7 @@ import { moduleRuntime } from '@/lib/server/membership';
 
 export async function listPublicListFields(communityId: string): Promise<ListField[]> {
   const result = await query(LIST_FIELDS_SQL, [communityId, 'showcase']);
-  return result.rows
-    .map((row) => parseListField(row as Record<string, unknown>))
-    .filter((field): field is ListField => Boolean(field));
+  return parseListFields(result.rows);
 }
 
 export async function listPublicProfiles(communityId: string, searchParams: URLSearchParams = new URLSearchParams()) {
@@ -26,7 +25,8 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
     return { status: 404 as const, data: [], facets: [], listFields: [] as ListField[], meta: emptyMeta };
   }
   const listFields = await listPublicListFields(communityId);
-  const facets = listFields.filter((field) => field.filterable && field.storage === 'attributes');
+  const facets = attributeFacets(listFields);
+  const keys = listedAttributeNames(listFields);
   const built = peopleListQuery({
     communityId,
     searchParams,
@@ -50,7 +50,7 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
   const result = await query(built.text, built.params);
   return {
     status: 200 as const,
-    data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, listedAttributeNames(listFields))),
+    data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, keys)),
     facets,
     listFields,
     availabilityFilter: availabilityIsFilterable(listFields),

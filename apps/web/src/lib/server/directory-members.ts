@@ -4,9 +4,9 @@ import {
   availabilityIsFilterable,
   directoryContribution,
   listedAttributeNames,
-  parseListField,
+  parseListFields,
   peopleListQuery,
-  type ListField,
+  attributeFacets,
 } from '@community/directory';
 import type { AppQueryCtx } from '@/lib/server/app-ctx';
 import { toPersonCard } from '@/lib/people/person-card';
@@ -18,9 +18,7 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
     return { status: 404 as const, body: { error: { code: 'NOT_FOUND', message: 'Módulo desligado' } } };
   }
   const catalog = await queryAsMember(ctx, LIST_FIELDS_SQL, [ctx.communityId, 'directory']);
-  const listFields = catalog.rows
-    .map((row) => parseListField(row as Record<string, unknown>))
-    .filter((field): field is ListField => Boolean(field));
+  const listFields = parseListFields(catalog.rows);
   const built = peopleListQuery({
     communityId: ctx.communityId,
     searchParams,
@@ -31,12 +29,12 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
     return { status: 400 as const, body: { error: { code: 'VALIDATION_ERROR', message: built.message } } };
   }
   const result = await queryAsMember(ctx, built.text, built.params);
-  const facets = listFields.filter((field) => field.filterable && field.storage === 'attributes');
+  const keys = listedAttributeNames(listFields);
   return {
     status: 200 as const,
     body: {
-      data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, listedAttributeNames(listFields))),
-      facets,
+      data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, keys)),
+      facets: attributeFacets(listFields),
       listFields,
       availabilityFilter: availabilityIsFilterable(listFields),
       meta: { page: 1 },

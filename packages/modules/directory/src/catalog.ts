@@ -210,9 +210,13 @@ function coerceAttribute(field: CatalogField, raw: unknown): CoerceResult {
   return { ok: false, message: `${field.name} tipo inválido` };
 }
 
+export type AttrFilterField = Pick<CatalogField, 'name' | 'type' | 'storage' | 'options'> & {
+  filterable: boolean;
+};
+
 export function parseAttrFilters(
   params: URLSearchParams,
-  fields: Array<CatalogField & { filterable: boolean }>
+  fields: AttrFilterField[]
 ): { ok: true; filters: Record<string, unknown>[] } | { ok: false; message: string } {
   const filterable = new Map(
     fields.filter((field) => field.storage === 'attributes' && field.filterable).map((field) => [field.name, field])
@@ -269,10 +273,6 @@ export function fieldValueIsBlank(field: CatalogField, value: unknown): boolean 
 
 export function missingRequiredFields(fields: CatalogField[], values: Record<string, unknown>): CatalogField[] {
   return fields.filter((field) => field.required && fieldValueIsBlank(field, values[field.name]));
-}
-
-export function filterableAttributeNames(fields: Array<CatalogField & { filterable: boolean }>): string[] {
-  return fields.filter((field) => field.storage === 'attributes' && field.filterable).map((field) => field.name);
 }
 
 export const CORE_GROUP_SLUGS = ['identity', 'person'] as const;

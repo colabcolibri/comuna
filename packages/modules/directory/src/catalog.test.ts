@@ -1,4 +1,5 @@
 import { missingRequiredFields, nestCatalog, parseAttrFilters, parseField, validateCustomAttributes, visibleCatalog } from './catalog';
+import { parseListField } from './list-fields';
 
 describe('directory catalog', () => {
   it('rejects unknown field types', () => {
@@ -73,14 +74,16 @@ describe('directory catalog', () => {
   });
 
   it('builds jsonb filters only for filterable names', () => {
-    const field = parseField({
+    const field = parseListField({
       name: 'host_at_home',
       type: 'boolean',
       storage: 'attributes',
+      filterable: true,
+      placement: 'detail',
     });
-    const ok = parseAttrFilters(new URLSearchParams('attr.host_at_home=true'), [{ ...field!, filterable: true }]);
+    const ok = parseAttrFilters(new URLSearchParams('attr.host_at_home=true'), [field!]);
     expect(ok).toEqual({ ok: true, filters: [{ host_at_home: true }] });
-    const bad = parseAttrFilters(new URLSearchParams('attr.unknown=1'), [{ ...field!, filterable: true }]);
+    const bad = parseAttrFilters(new URLSearchParams('attr.unknown=1'), [field!]);
     expect(bad.ok).toBe(false);
   });
 

@@ -303,6 +303,7 @@ function listsFor(field) {
   if (field.lists) {
     return field.lists;
   }
+  // Extra fields: `listFilterable` (legacy `filterable`) is DSL for list_fields, not a SQL column on fields.
   const hidden = { filterable: false, placement: 'off' };
   const card = { filterable: false, placement: 'card' };
   const detail = { filterable: false, placement: 'detail' };
@@ -329,7 +330,7 @@ function listsFor(field) {
     case 'portfolio':
       return { directory: detail, showcase: detail };
     default:
-      if (field.filterable) {
+      if (field.listFilterable || field.filterable) {
         return {
           directory: { filterable: true, placement: 'detail' },
           showcase: { filterable: true, placement: 'detail' },

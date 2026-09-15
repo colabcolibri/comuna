@@ -38,6 +38,12 @@ export function parseListField(row: Record<string, unknown>): ListField | null {
   };
 }
 
+export function parseListFields(rows: unknown[]): ListField[] {
+  return rows
+    .map((row) => (row && typeof row === 'object' ? parseListField(row as Record<string, unknown>) : null))
+    .filter((field): field is ListField => Boolean(field));
+}
+
 export function visibleOn(placement: ListPlacement, density: ListDensity): boolean {
   if (placement === 'off') {
     return false;
@@ -50,6 +56,26 @@ export function visibleOn(placement: ListPlacement, density: ListDensity): boole
 
 export function listedAttributeNames(fields: ListField[]): string[] {
   return fields.filter((field) => field.storage === 'attributes' && field.placement !== 'off').map((field) => field.name);
+}
+
+export function attributeFacets(fields: ListField[]): ListField[] {
+  return fields.filter((field) => field.filterable && field.storage === 'attributes');
+}
+
+export const PERSON_VIEW_SLOTS = new Set([
+  'full_name',
+  'avatar_url',
+  'current_city',
+  'languages',
+  'headline',
+  'bio',
+  'availability_status',
+  'public_showcase',
+]);
+
+export function isPersonViewSlot(field: { name: string; column_key: string | null }): boolean {
+  const key = field.column_key || field.name;
+  return PERSON_VIEW_SLOTS.has(key) || key.startsWith('contacts.');
 }
 
 export function availabilityIsFilterable(fields: ListField[]): boolean {

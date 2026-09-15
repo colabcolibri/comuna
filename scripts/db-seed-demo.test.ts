@@ -100,6 +100,8 @@ describe('demo member seed list', () => {
     expect(catalog).toMatch(/O nome que a rede usa para te achar/);
     expect((platform.match(/description: loc\('', ''\)/g) || []).length).toBe(0);
     expect(tenants).toContain("name: 'host_at_home'");
+    expect(tenants).toContain('listFilterable');
+    expect(tenants).not.toMatch(/name: 'host_at_home'[\s\S]{0,400}filterable: true/);
     expect(tenants).toContain('startup_stage');
     expect(tenants).toContain('mentorship_side');
     expect(tenants).toContain("name: 'medium'");

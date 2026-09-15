@@ -1,6 +1,6 @@
 import { parseLanguages, pickLocalizedText, spokenLanguageLabel } from '@community/identity';
 import type { ListDensity, ListField } from './list-fields';
-import { visibleOn } from './list-fields';
+import { isPersonViewSlot, visibleOn } from './list-fields';
 
 export type PersonViewProfile = {
   full_name: string;
@@ -57,21 +57,6 @@ function factValue(field: ListField, raw: unknown, locale: string): string | nul
   return null;
 }
 
-function isSlotField(field: ListField) {
-  const key = field.column_key || field.name;
-  return (
-    key === 'full_name' ||
-    key === 'avatar_url' ||
-    key === 'current_city' ||
-    key === 'languages' ||
-    key === 'headline' ||
-    key === 'bio' ||
-    key === 'availability_status' ||
-    key === 'public_showcase' ||
-    key.startsWith('contacts.')
-  );
-}
-
 export function projectPersonView(input: {
   profile: PersonViewProfile;
   fields: ListField[];
@@ -92,7 +77,7 @@ export function projectPersonView(input: {
   const facts: PersonView['facts'] = [];
   const links: PersonView['links'] = [];
   for (const field of fields) {
-    if (!visibleOn(field.placement, density) || isSlotField(field)) {
+    if (!visibleOn(field.placement, density) || isPersonViewSlot(field)) {
       continue;
     }
     if (field.storage === 'attributes') {

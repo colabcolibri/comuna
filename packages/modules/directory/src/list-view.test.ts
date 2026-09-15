@@ -4,6 +4,8 @@ import {
   parseListField,
   showcaseFieldForbidden,
   visibleOn,
+  isPersonViewSlot,
+  attributeFacets,
 } from './list-fields';
 import { projectPersonView } from './list-view';
 
@@ -32,6 +34,14 @@ describe('list fields', () => {
 
   it('lists only placed attributes for the payload', () => {
     expect(listedAttributeNames([host, { ...host, name: 'hidden', placement: 'off' }])).toEqual(['host_at_home']);
+  });
+
+  it('keeps extras out of identity slots', () => {
+    expect(isPersonViewSlot(host)).toBe(false);
+    expect(isPersonViewSlot({ name: 'languages', column_key: 'languages' })).toBe(true);
+    expect(attributeFacets([host, { ...host, name: 'hidden', filterable: false }]).map((item) => item.name)).toEqual([
+      'host_at_home',
+    ]);
   });
 });
 
