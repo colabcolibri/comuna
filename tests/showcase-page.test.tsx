@@ -88,12 +88,12 @@ describe('showcase panel', () => {
     expect(dialog.querySelector('[data-slot="scroll-area"]')?.textContent).toContain('Produto e comunidades');
     expect(dialog.querySelector('[data-slot="scroll-area"]')?.textContent).toContain('Mentora.');
     expect(screen.getByRole('button', { name: 'Enviar mensagem' })).toBeTruthy();
-    expect(screen.queryByLabelText('Seu e-mail')).toBeNull();
+    expect(screen.queryByLabelText('E-mail')).toBeNull();
     screen.getByRole('button', { name: 'Enviar mensagem' }).click();
     await waitFor(() => {
-      expect(screen.getByLabelText('Seu e-mail')).toBeTruthy();
+      expect(screen.getByLabelText('E-mail')).toBeTruthy();
     });
-    expect(screen.getByLabelText('Seu nome')).toBeTruthy();
+    expect(screen.getByLabelText('Nome')).toBeTruthy();
     expect(screen.getByLabelText('Telefone')).toBeTruthy();
   });
 
@@ -118,10 +118,13 @@ describe('showcase panel', () => {
     screen.getByRole('button', { name: 'Ver perfil: Marina Silva' }).click();
     await waitFor(() => expect(screen.getByRole('button', { name: 'Enviar mensagem' })).toBeTruthy());
     screen.getByRole('button', { name: 'Enviar mensagem' }).click();
-    await waitFor(() => expect(screen.getByLabelText('Seu e-mail')).toBeTruthy());
-    fireEvent.change(screen.getByLabelText('Seu e-mail'), { target: { value: 'ada@example.com' } });
+    await waitFor(() => expect(screen.getByLabelText('E-mail')).toBeTruthy());
+    fireEvent.change(screen.getByLabelText('Nome'), { target: { value: 'Ada' } });
+    fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: 'ada@example.com' } });
     fireEvent.change(screen.getByLabelText('Telefone'), { target: { value: '+55 11 99999-0000' } });
-    fireEvent.change(screen.getByLabelText('Mensagem'), { target: { value: 'Oi' } });
+    fireEvent.change(screen.getByLabelText('Mensagem'), {
+      target: { value: 'Gostaria de conversar sobre mentoria na comunidade.' },
+    });
     screen.getByRole('button', { name: 'Enviar' }).click();
     await waitFor(() => expect(screen.getByRole('button', { name: 'Enviando…' })).toBeTruthy());
     expect((screen.getByRole('button', { name: 'Enviando…' }) as HTMLButtonElement).disabled).toBe(true);

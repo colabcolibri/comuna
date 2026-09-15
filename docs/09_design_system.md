@@ -1,7 +1,7 @@
 ---
 title: Design System
 status: review
-version: 1.25
+version: 1.26
 updated: 2026-09-15
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
@@ -101,20 +101,20 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `AppFormDock` | CTA Salvar grudado no fundo **só abaixo de sm** | mesmo ficheiro |
 | `OtpCard` | OTP | `OtpCard.tsx` |
 
-Chrome: **Workspace** = `MemberShell` + `AppSidebar`. **Vitrine** = `AppPublicChrome` (sem sidebar). Sem barra ciano “Community”.
+Chrome: **Workspace** = `MemberShell` + `AppSidebar`. Header do workspace: menu + marca da comunidade + locale + tema; a barra de links fica vazia por agora (vitrine só na sidebar). **Vitrine** pública = `AppPublicChrome` (sem sidebar). Sem barra ciano “Community”.
 
 Não existe rota `/profile/:id`. O detalhe público é o `AppDialog` na vitrine.
 
 ## Screen flows
 
-Navegação do **workspace**: sidebar shadcn no desktop. **Vitrine**: sem menu hamburger; header com marca + Entrar ou Comunidade + locale + tema.
+Navegação do **workspace**: sidebar shadcn no desktop; header sem destinos de plugin por agora. **Vitrine**: sem menu hamburger; header com marca + Entrar ou Comunidade + locale + tema.
 
 | Tela (rota hoje) | Job | Quem | Chrome | Problema atual | Alvo visual (Stitch) |
 | ----------------- | --- | ---- | ------ | -------------- | --------------------- |
 | `/showcase` | Portal público | Visitante / membro | `AppPublicChrome` | Sidebar no visitante | Herói admin + cartões; CTA Entrar |
 | `/c/{slug}/showcase` | Homepage pública desta comunidade | Visitante / membro | `AppPublicChrome` | Página interna | Título/texto do admin; sem sidebar |
 | Perfil público | Ler perfil sanitizado | Visitante | `AppDialog` + `ScrollArea` | — | Nome no header; tagline + bio no body; extras na coluna |
-| Contato | Pedir contato mediado | Visitante | `AppSheet` (mesmo template dos filtros) | Form no `AppDialog` | Trigger **Enviar mensagem**; sheet com e-mail e mensagem obrigatórios, nome e telefone opcionais; CTA **Enviar** passa a **Enviando…** e fica `disabled` até a resposta |
+| Contato | Pedir contato mediado | Visitante | `AppSheet` (mesmo template dos filtros) | Form no `AppDialog` | Trigger **Enviar mensagem**; sheet com nome, e-mail e mensagem obrigatórios (mensagem ≥ 40), telefone opcional; CTA **Enviar** passa a **Enviando…** e fica `disabled` até a resposta |
 | `/` | Ver assentos e comunidades públicas | Visitante / membro | Header da plataforma | — | Lista de tenants; OTP fica em `/login` |
 | `/login` | Entrar com OTP | Visitante | `AppPublicChrome` | Sidebar no OTP | OTP centrado, um CTA |
 | `/c/{slug}/directory` | Buscar membros **desta** comunidade | Membro | Sidebar: comunidade + Diretório | Path legado `/directory` | Lista em linhas; `Ver perfil` abre o mesmo diálogo da vitrine |
@@ -143,7 +143,7 @@ flowchart LR
 
 ```mermaid
 flowchart TB
-    H[Header: comunidade ou marca / Vitrine / locale / tema]
+    H[Header: comunidade ou marca / locale / tema]
     H -->|abre| SH[Sheet esquerda]
     SH --> SW[Onde estou]
     SH --> N[Destinos deste tenant]
@@ -154,7 +154,7 @@ flowchart TB
 
 | Breakpoint | Width | Behavior |
 | ---------- | ----- | -------- |
-| Mobile | `< 640px` | Uma coluna; header só Vitrine + locale + tema + menu; sheet 100% largura; hit 44px; sem overflow-x |
+| Mobile | `< 640px` | Uma coluna; header = menu + marca + locale + tema (sem links); sheet 100% largura; hit 44px; sem overflow-x |
 | Tablet | `640–1024px` | Lista de pessoas em uma coluna; filtros no `AppFilterSheet` à direita |
 | Desktop | `> 768px` | Sidebar; colapsada = rail de ícones + inicial da comunidade; páginas `max-w-6xl`; filtros continuam no sheet à direita (não rail esquerdo) |
 

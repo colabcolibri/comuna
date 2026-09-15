@@ -46,7 +46,16 @@ describe('demo member seed list', () => {
     expect(CORE_COUNT).toBe(40);
     const helena = people[0];
     expect(helena.full_name).toBe('Helena Prado');
-    expect(helena.contacts.linkedin).toMatch(/^https:\/\//);
+    expect(helena.contacts.linkedin).toBe('https://example.com/linkedin/member01');
+    expect(helena.contacts.github).toBe('https://example.com/github/member01');
+    expect(helena.contacts.portfolio).toBe('https://example.com/portfolio/member01');
+    const realHost = /linkedin\.com|github\.com|https:\/\/(?!example\.com\/)/;
+    for (const person of people) {
+      for (const href of Object.values(person.contacts || {})) {
+        expect(String(href), person.full_name).toMatch(/^https:\/\/example\.com\//);
+        expect(realHost.test(String(href)), String(href)).toBe(false);
+      }
+    }
     expect(helena.headline[0].locale).toBe('pt-BR');
     expect(helena.public_showcase).toBe(true);
     expect(people.some((person) => person.public_showcase === false)).toBe(true);
@@ -75,25 +84,36 @@ describe('demo member seed list', () => {
     const demoCard = membershipCard('demo', helena);
     expect(demoCard.attributes.host_at_home).toBe(true);
     expect(demoCard.bio[0].value.length).toBeGreaterThan(80);
-    const labCard = membershipCard('cerrado-lab', helena);
+    const farmer = people.find((person) => person.n === 44);
+    const labCard = membershipCard('cerrado-lab', farmer);
     expect(labCard.attributes.startup_stage).toBeTruthy();
-    expect(labCard.bio[0].value.length).toBeGreaterThan(120);
+    expect(labCard.bio[0].value.length).toBeGreaterThan(80);
+    expect(labCard.headline[0].value.length).toBeGreaterThan(12);
     expect(labCard.headline[0].value).not.toBe(demoCard.headline[0].value);
-    const north = membershipCard('mentoria-norte', helena);
-    expect(north.public_showcase).toBe(false);
+    const mentor = people.find((person) => communitySlugsFor(person.n).includes('mentoria-norte'));
+    expect(membershipCard('mentoria-norte', mentor).public_showcase).toBe(false);
   });
 
-  it('does not clone the same headline across a community list', () => {
+  it('gives every membership a real paragraph, never a two-word stub or a name', () => {
     const people = demoPeople();
+    expect(people.every((person) => person.headline && person.bio[0].value.length > 80)).toBe(true);
+    const stamp = /Quem procurar|Vive em |laboratório da prefeitura|ofício, não slogan/;
     for (const slug of SEED_COMMUNITIES.map((row) => row.slug)) {
-      const headlines = people.map((person) => membershipCard(slug, person).headline[0].value);
-      expect(new Set(headlines).size, slug).toBe(headlines.length);
-      const bios = people.map((person) => membershipCard(slug, person).bio[0].value);
+      const members = people.filter((person) => communitySlugsFor(person.n).includes(slug));
+      const cards = members.map((person) => membershipCard(slug, person));
+      const bios = cards.map((card) => card.bio[0].value);
       expect(new Set(bios).size, slug).toBe(bios.length);
+      for (let i = 0; i < members.length; i += 1) {
+        const person = members[i];
+        const headline = cards[i].headline[0].value;
+        const bio = cards[i].bio[0].value;
+        expect(bio.length, person.full_name).toBeGreaterThan(80);
+        expect(headline.length, headline).toBeGreaterThan(12);
+        expect(headline.includes(person.full_name)).toBe(false);
+        expect(bio.includes(person.full_name)).toBe(false);
+        expect(stamp.test(headline + bio)).toBe(false);
+      }
     }
-    const helena = people[0];
-    const titles = SEED_COMMUNITIES.map((row) => membershipCard(row.slug, helena).headline[0].value);
-    expect(new Set(titles).size).toBe(titles.length);
   });
 
   it('keeps hospitality off the platform catalog', () => {

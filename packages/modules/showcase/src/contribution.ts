@@ -9,7 +9,6 @@ export const showcaseContribution: ModuleContribution = {
   routes: [{ path: '/showcase' }],
   chrome: [
     { slot: 'sidebar', href: '/showcase', copyKey: 'showcase', icon: 'layoutGrid' },
-    { slot: 'header', href: '/showcase', copyKey: 'showcase' },
     { slot: 'home', href: '/showcase', copyKey: 'showcase' },
   ],
   slots: [],

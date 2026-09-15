@@ -74,6 +74,8 @@ const CONTENT = mergeContent(
     email: 'form.email',
     phone: 'form.phone',
     message: 'form.message',
+    requiredMissing: 'form.required_missing',
+    messageMin: 'form.message_min',
     privacy: 'form.privacy',
   })
 );

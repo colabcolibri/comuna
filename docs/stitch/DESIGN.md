@@ -94,7 +94,7 @@ Left to right:
 
 1. **Menu trigger** — icon button 44×44, hamburger, `aria-label` “Abrir menu”. Opens a **left Sheet** (shadcn Sheet, side=left). Not a permanent sidebar.
 2. Wordmark **Alumni** (semibold). Not a dump of links.
-3. **Only one destination in the header:** text link **Vitrine** (`/showcase`). Active: 2px underline in primary. No Diretório, Perfil, Pedidos, Entrar, e-mail, or Sair in the top bar.
+3. **No destinations in the header for now.** The links bar stays empty. Vitrine lives in the sidebar when the plugin is on. No Diretório, Perfil, Pedidos, Entrar, e-mail, or Sair in the top bar.
 
 Right cluster (always):
 
@@ -127,7 +127,7 @@ Desktop: 12-column, max content 1120px. Filters as a quiet left rail (240px) on 
 
 Tablet: 2-column cards, filters collapse to a Filter button + **second** sheet (filters only). Do not mix filters with account nav.
 
-Mobile: 1 column. Header = menu + Vitrine + locale + theme. Hamburger is mandatory because destinations live in the sheet.
+Mobile: 1 column. Header = menu + brand + locale + theme. Hamburger is mandatory because destinations live in the sheet.
 
 Generous whitespace. Cards: 1px border, almost no shadow (0 1px 2px rgba(15,23,42,0.04)).
 

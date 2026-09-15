@@ -1,7 +1,7 @@
 ---
 title: Database Design
 status: review
-version: 2.7
+version: 2.8
 updated: 2026-09-15
 depends_on: [05_architecture.md]
 blocks: [07_api_contracts.md]
@@ -221,7 +221,7 @@ erDiagram
 3b. **`ops_core`**: `platform_settings` (uma row) e `email_templates` (overlay por kind+locale). Não é plugin.
 4. **`plugin_core`**: catálogo `modules`.
 5. **`plugin_directory`**: `cards` (headline/bio LocalizedText, availability, vitrine, `custom_attributes`); `field_groups` e `fields` por `community_id`; `list_fields` (filtro e placement por lista). Skills no ER legado `network_core.skills` ainda não existem em SQL.
-6. **`plugin_contact`**: `messages` (pedido mediado: e-mail, nome, telefone opcional, corpo). Sem inbox in-app.
+6. **`plugin_contact`**: `messages` (pedido mediado: nome e e-mail obrigatórios, telefone opcional, corpo ≥ 40). Sem inbox in-app.
 
 `community_admin` fora da v2.0.0.
 

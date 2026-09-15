@@ -493,20 +493,24 @@ if (SEED_COMMUNITIES.length !== 6) {
   throw new Error(`expected 6 seed communities, got ${SEED_COMMUNITIES.length}`);
 }
 
+const HOME_SLUGS = [
+  'demo',
+  'cerrado-lab',
+  'pratica-dados',
+  'mentoria-norte',
+  'conservatorio-litoral',
+  'saude-territorio',
+];
+
+function homeSlug(n) {
+  if (n <= 40) return 'demo';
+  return HOME_SLUGS[(n - 1) % 6];
+}
+
 function communitySlugsFor(n) {
-  const homes = [
-    'demo',
-    'cerrado-lab',
-    'pratica-dados',
-    'mentoria-norte',
-    'conservatorio-litoral',
-    'saude-territorio',
-  ];
-  const slugs = new Set();
-  if (n <= 40) slugs.add('demo');
-  else slugs.add(homes[(n - 1) % 6]);
-  if (n % 11 === 0) slugs.add(homes[n % 6]);
-  if (n % 13 === 0) slugs.add(homes[(n + 3) % 6]);
+  const slugs = new Set([homeSlug(n)]);
+  if (n % 11 === 0) slugs.add(HOME_SLUGS[n % 6]);
+  if (n % 13 === 0) slugs.add(HOME_SLUGS[(n + 3) % 6]);
   return [...slugs];
 }
 
@@ -522,6 +526,8 @@ async function seedTenantExtras(client, communityId, extras) {
 
 module.exports = {
   SEED_COMMUNITIES,
+  HOME_SLUGS,
+  homeSlug,
   communitySlugsFor,
   cohortFor,
   seedTenantExtras,

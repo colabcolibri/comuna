@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@community/db';
 import { sendKindEmail } from '@community/mail';
-import { contactMediatedContribution } from '@community/contact-mediated';
+import { contactMediatedContribution, parseContactPayload } from '@community/contact-mediated';
 import { moduleRuntime } from '@/lib/server/membership';
 
 const hits = new Map<string, number[]>();
@@ -48,20 +48,26 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Perfil não encontrado' } }, { status: 404 });
   }
   const body = await req.json();
-  const senderEmail = String(body.sender_email || '').trim();
-  const senderName = String(body.sender_name || '').trim();
-  const senderPhone = String(body.sender_phone || '').trim().slice(0, 40);
-  const message = String(body.message || '').trim();
-  if (!senderEmail.includes('@') || !message) {
+  const parsed = parseContactPayload(body);
+  if (!parsed.ok) {
     return NextResponse.json(
-      { error: { code: 'VALIDATION_ERROR', message: 'Campos obrigatórios' } },
+      {
+        error: {
+          code: 'VALIDATION_ERROR',
+          message:
+            parsed.reason === 'message_min'
+              ? 'A mensagem precisa ter pelo menos 40 caracteres.'
+              : 'Preencha nome, e-mail e mensagem.',
+        },
+      },
       { status: 400 }
     );
   }
+  const { senderName, senderEmail, senderPhone, message } = parsed.value;
   await query(
     `INSERT INTO plugin_contact.messages (membership_id, sender_email, sender_name, sender_phone, body)
      VALUES ($1, $2, $3, $4, $5)`,
-    [id, senderEmail, senderName || null, senderPhone || null, message]
+    [id, senderEmail, senderName, senderPhone || null, message]
   );
   const target = await query<{ email: string }>(`SELECT email FROM auth_core.users WHERE id = $1`, [row.user_id]);
   const to = target.rows[0]?.email;

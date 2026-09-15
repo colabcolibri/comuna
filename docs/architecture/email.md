@@ -24,7 +24,7 @@ O template **não** é editável por comunidade nem por kind. Comunidade só ent
 | ---- | ----- | ----------------------- |
 | `otp` | `member_otp`, `ops_otp` | Cartão com `{{code}}` |
 | `cta` | `person_invite` | Botão Entrar + `{{login_url}}` |
-| `quote` | `contact_notice` | Remetente (`sender_name` se houver, senão e-mail), `{{sender_email}}`, `{{sender_phone}}` se houver, `{{message}}` |
+| `quote` | `contact_notice` | Remetente (`{{sender_name}}`), `{{sender_email}}`, `{{sender_phone}}` se houver, `{{message}}` |
 
 Ops não cola HTML nesses blocos.
 

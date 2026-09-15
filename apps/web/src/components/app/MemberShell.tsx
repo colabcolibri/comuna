@@ -24,7 +24,6 @@ import Link from 'next/link';
 
 const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   brand: 'chrome.brand',
-  showcase: 'chrome.showcase',
   openMenu: 'chrome.open_menu',
   closeMenu: 'chrome.close_menu',
   toDark: 'theme.to_dark',
@@ -54,7 +53,6 @@ export function MemberShell({
   const current = seats.find((seat) => seat.slug === slug);
   const brand = current?.name ?? copy.brand;
   const initial = brand.trim().charAt(0).toUpperCase() || 'C';
-  const showcaseHref = slug ? communityPath(slug, '/showcase') : '/showcase';
 
   return (
     <SidebarProvider className="h-svh max-h-svh overflow-hidden">
@@ -73,11 +71,12 @@ export function MemberShell({
             <span className="truncate font-semibold tracking-tight">{brand}</span>
           </Link>
           {headerNav.map((item) => {
-            const active = item.href === '/showcase' && pathname.includes('/showcase');
+            const href = slug ? communityPath(slug, item.href) : item.href;
+            const active = pathname === href || pathname.startsWith(`${href}/`);
             return (
           <Link
             key={item.href}
-            href={item.href === '/showcase' ? showcaseHref : item.href}
+            href={href}
             className={`flex items-center px-2 text-base ${
               active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
             }`}

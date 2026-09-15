@@ -1,3 +1,5 @@
+import { parseContactPayload } from '@community/contact-mediated';
+
 export interface ContactMessageInput {
   target_member_id: string;
   target_email: string;
@@ -7,8 +9,12 @@ export interface ContactMessageInput {
 }
 
 export function sendMediatedContactMessage(input: ContactMessageInput) {
-  // Validação basica
-  if (!input.sender_name || !input.sender_email || !input.message) {
+  const parsed = parseContactPayload({
+    sender_name: input.sender_name,
+    sender_email: input.sender_email,
+    message: input.message,
+  });
+  if (!parsed.ok) {
     return { success: false, error: 'MISSING_FIELDS' };
   }
 

@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader, AppPersonFieldGroup, AppSheet, personInitials } from '@community/ui-member';
 import { Button, DialogTitle, Input, Label, Textarea, toast } from '@community/ui';
+import { CONTACT_MESSAGE_MIN, parseContactPayload } from '@community/contact-mediated';
 import { projectPersonView, type ListField } from '@community/directory';
 import { displayPlaceLocality } from '@community/places';
 import { availabilityLabel } from '@/lib/people/availability';
@@ -51,21 +52,23 @@ export function PersonInspect({
     e.preventDefault();
     if (sending) return;
     setFieldError('');
-    if (!senderEmail.includes('@')) {
-      setFieldError(copy.email);
-      return;
-    }
-    if (!message.trim()) {
-      setFieldError(copy.message);
+    const parsed = parseContactPayload({
+      sender_name: senderName,
+      sender_email: senderEmail,
+      sender_phone: senderPhone,
+      message,
+    });
+    if (!parsed.ok) {
+      setFieldError(parsed.reason === 'message_min' ? copy.messageMin : copy.requiredMissing);
       return;
     }
     if (!profile) return;
     setSending(true);
     const sent = await sendPersonContact(profile.id, {
-      sender_email: senderEmail.trim(),
-      sender_name: senderName.trim(),
-      sender_phone: senderPhone.trim(),
-      message: message.trim(),
+      sender_email: parsed.value.senderEmail,
+      sender_name: parsed.value.senderName,
+      sender_phone: parsed.value.senderPhone,
+      message: parsed.value.message,
     });
     if (!sent.ok) {
       setSending(false);
@@ -202,6 +205,7 @@ export function PersonInspect({
                 <Input
                   id="contact-name"
                   className="min-h-11"
+                  required
                   autoComplete="name"
                   value={senderName}
                   disabled={sending}
@@ -239,6 +243,7 @@ export function PersonInspect({
                   id="contact-message"
                   className="min-h-32"
                   required
+                  minLength={CONTACT_MESSAGE_MIN}
                   rows={4}
                   value={message}
                   disabled={sending}

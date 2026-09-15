@@ -1,5 +1,7 @@
 'use strict';
 
+const { homeCopy } = require('./seed-profile-corpus.cjs');
+
 function loc(pt, en) {
   return [
     { locale: 'pt-BR', value: pt },
@@ -242,6 +244,23 @@ const LAST_NAMES = [
   'Santana',
 ];
 
+function demoHandle(n) {
+  const width = n < 100 ? 2 : 3;
+  return `member${String(n).padStart(width, '0')}`;
+}
+
+function fakeLink(kind, n) {
+  return `https://example.com/${kind}/${demoHandle(n)}`;
+}
+
+function fakeContacts(n, keys) {
+  const contacts = {};
+  for (const key of keys) {
+    contacts[key] = fakeLink(key, n);
+  }
+  return contacts;
+}
+
 const PEOPLE = [
   {
     n: 1,
@@ -254,11 +273,7 @@ const PEOPLE = [
       { code: 'pt', proficiency: 'native' },
       { code: 'en', proficiency: 'fluent' },
     ],
-    contacts: {
-      linkedin: 'https://linkedin.com/in/helenaprado',
-      github: 'https://github.com/helenaprado',
-      portfolio: 'https://helenaprado.com',
-    },
+    contacts: fakeContacts(1, ['linkedin', 'github', 'portfolio']),
     headline: loc('Produto para redes profissionais', 'Product for professional networks'),
     bio: loc(
       'Desenha o caminho de quem entra numa comunidade e precisa achar gente, não feed. Mentora de quem está mudando de carreira depois dos 30. Mora em São Paulo, ainda indica turma do Instituto e recusa o tom de palco: se a pergunta for sincera, responde; se for networking de evento, deixa quieto.',
@@ -276,7 +291,7 @@ const PEOPLE = [
     birth_city: RECIFE,
     current_city: RECIFE,
     languages: [{ code: 'pt', proficiency: 'native' }],
-    contacts: { linkedin: 'https://linkedin.com/in/joaoalmeidarecife' },
+    contacts: fakeContacts(2, ['linkedin']),
     headline: loc('Engenharia de dados em operação', 'Data engineering in operations'),
     bio: loc(
       'Cuida de pipelines e qualidade de dados em organizações que ainda misturam planilha com sistema. Gosta de pergunta simples: de onde veio esse número?',
@@ -298,7 +313,7 @@ const PEOPLE = [
       { code: 'en', proficiency: 'fluent' },
       { code: 'de', proficiency: 'basic' },
     ],
-    contacts: { github: 'https://github.com/alexcsta', portfolio: 'https://alexcsta.dev' },
+    contacts: fakeContacts(3, ['github', 'portfolio']),
     headline: loc('Arquitetura de sistemas calmos', 'Calm systems architecture'),
     bio: loc(
       'Prefere diretório a timeline. Trabalha em serviços pequenos, contratos claros e menos estado escondido no cliente.',
@@ -320,7 +335,7 @@ const PEOPLE = [
       { code: 'en', proficiency: 'fluent' },
       { code: 'es', proficiency: 'advanced' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/sofiamendeslx' },
+    contacts: fakeContacts(4, ['linkedin']),
     headline: loc('Investigação e política pública', 'Research and public policy'),
     bio: loc(
       'Liga universidade e prática em educação. Não coloca e-mail na vitrine: o contato passa pela coordenação da rede.',
@@ -341,7 +356,7 @@ const PEOPLE = [
       { code: 'pt', proficiency: 'native' },
       { code: 'en', proficiency: 'advanced' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/rafaelnogueira-bh' },
+    contacts: fakeContacts(5, ['linkedin']),
     headline: loc('Advogado de startups e contratos', 'Startup and contracts lawyer'),
     bio: loc(
       'Revisa contratos de sócios, investimento e prestadores. Explica o risco em português, não em latim de petição.',
@@ -362,10 +377,7 @@ const PEOPLE = [
       { code: 'pt', proficiency: 'native' },
       { code: 'en', proficiency: 'fluent' },
     ],
-    contacts: {
-      linkedin: 'https://linkedin.com/in/camilaferreira-prod',
-      portfolio: 'https://camilaferreira.design',
-    },
+    contacts: fakeContacts(6, ['linkedin', 'portfolio']),
     headline: loc('Design de produto em saúde digital', 'Product design in digital health'),
     bio: loc(
       'Trabalha com fluxos para pacientes e clínicas. Obsessão atual: formulários que um adulto cansado consegue preencher no celular.',
@@ -386,7 +398,7 @@ const PEOPLE = [
       { code: 'pt', proficiency: 'native' },
       { code: 'en', proficiency: 'fluent' },
     ],
-    contacts: { github: 'https://github.com/tbarbosa', linkedin: 'https://linkedin.com/in/thiagobarbosa-eng' },
+    contacts: fakeContacts(7, ['linkedin', 'github']),
     headline: loc('Engenharia de software, backend', 'Software engineering, backend'),
     bio: loc(
       'APIs, filas e o tipo de incidente que só aparece na sexta. Mora no Rio e colabora remoto com times em São Paulo e Lisboa.',
@@ -407,7 +419,7 @@ const PEOPLE = [
       { code: 'pt', proficiency: 'native' },
       { code: 'en', proficiency: 'fluent' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/beatrizlopes-porto' },
+    contacts: fakeContacts(8, ['linkedin']),
     headline: loc('Jornalismo de dados e investigação', 'Data journalism and investigations'),
     bio: loc(
       'Cruza bases públicas com reportagem. Saiu de Porto Alegre para o Porto e ainda cobre política brasileira à distância.',
@@ -447,7 +459,7 @@ const PEOPLE = [
       { code: 'en', proficiency: 'fluent' },
       { code: 'es', proficiency: 'basic' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/liviacastro-df' },
+    contacts: fakeContacts(10, ['linkedin']),
     headline: loc('Gestão pública e orçamento', 'Public management and budget'),
     bio: loc(
       'Passou por secretaria estadual e agora assessora conselhos. Não está na vitrine: pede conversa pela coordenação.',
@@ -469,7 +481,7 @@ const PEOPLE = [
       { code: 'en', proficiency: 'fluent' },
       { code: 'fr', proficiency: 'basic' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/marcelovieira-to', github: 'https://github.com/mvieira' },
+    contacts: fakeContacts(11, ['linkedin', 'github']),
     headline: loc('Ciência de dados em crédito', 'Data science in credit'),
     bio: loc(
       'Modelos de risco e o debate chato de viés. Mora em Toronto, volta a São Paulo no verão brasileiro.',
@@ -491,7 +503,7 @@ const PEOPLE = [
       { code: 'fr', proficiency: 'fluent' },
       { code: 'en', proficiency: 'advanced' },
     ],
-    contacts: { portfolio: 'https://anabeatrizsouza.fr', linkedin: 'https://linkedin.com/in/anabeatrizsouza' },
+    contacts: fakeContacts(12, ['linkedin', 'portfolio']),
     headline: loc('Pesquisa em climatologia urbana', 'Urban climatology research'),
     bio: loc(
       'Estuda ilha de calor e verde nas cidades. Recife no currículo, Paris no laboratório. Abre a casa para quem passa em congresso.',
@@ -509,7 +521,7 @@ const PEOPLE = [
     birth_city: CAMPINAS,
     current_city: SAO_PAULO,
     languages: [{ code: 'pt', proficiency: 'native' }, { code: 'en', proficiency: 'fluent' }],
-    contacts: { linkedin: 'https://linkedin.com/in/phlima-ops' },
+    contacts: fakeContacts(13, ['linkedin']),
     headline: loc('Operações e comunidades internas', 'Operations and internal communities'),
     bio: loc(
       'Organiza onboarding, ritos e o cadastro que ninguém quer manter. Se a planilha virou fonte da verdade, ele quer matar a planilha.',
@@ -531,7 +543,7 @@ const PEOPLE = [
       { code: 'es', proficiency: 'fluent' },
       { code: 'en', proficiency: 'fluent' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/isabeladuarte', portfolio: 'https://isabeladuarte.cat' },
+    contacts: fakeContacts(14, ['linkedin', 'portfolio']),
     headline: loc('Produção cultural e residências', 'Cultural production and residencies'),
     bio: loc(
       'Programa residências e intercâmbio entre Brasil e Catalunha. Bom contato para quem chega em Barcelona sem rede.',
@@ -570,7 +582,7 @@ const PEOPLE = [
       { code: 'pt', proficiency: 'native' },
       { code: 'en', proficiency: 'fluent' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/fernandarocha-ux', github: 'https://github.com/ferocha' },
+    contacts: fakeContacts(16, ['linkedin', 'github']),
     headline: loc('Pesquisa com usuários e acessibilidade', 'User research and accessibility'),
     bio: loc(
       'Testa produto com gente de verdade, inclusive quem usa leitor de tela. Mora em Londres e ainda atende times no Brasil de manhã cedo.',
@@ -592,7 +604,7 @@ const PEOPLE = [
       { code: 'en', proficiency: 'fluent' },
       { code: 'nl', proficiency: 'basic' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/lucasmartins-ams', github: 'https://github.com/lmartins' },
+    contacts: fakeContacts(17, ['linkedin', 'github']),
     headline: loc('Infraestrutura e SRE', 'Infrastructure and SRE'),
     bio: loc(
       'Alertas, capacidade e o ritual de postmortem sem caça às bruxas. Holanda no visto, sotaque gaúcho no Zoom.',
@@ -610,7 +622,7 @@ const PEOPLE = [
     birth_city: SALVADOR,
     current_city: SALVADOR,
     languages: [{ code: 'pt', proficiency: 'native' }, { code: 'en', proficiency: 'advanced' }],
-    contacts: { linkedin: 'https://linkedin.com/in/julianapires-saude' },
+    contacts: fakeContacts(18, ['linkedin']),
     headline: loc('Médica de família e comunidade', 'Family and community physician'),
     bio: loc(
       'Atende no SUS e discute território, não só diagnóstico. Mentora de quem está no internato e ainda não sabe se quer especializar.',
@@ -631,7 +643,7 @@ const PEOPLE = [
       { code: 'pt', proficiency: 'native' },
       { code: 'en', proficiency: 'fluent' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/andrecarvalho-fin' },
+    contacts: fakeContacts(19, ['linkedin']),
     headline: loc('Finanças para organizações sociais', 'Finance for social organizations'),
     bio: loc(
       'Nasceu em Lisboa, trabalha em São Paulo com OSCs que cresceram rápido demais para o Excel do tesoureiro.',
@@ -671,7 +683,7 @@ const PEOPLE = [
       { code: 'es', proficiency: 'fluent' },
       { code: 'en', proficiency: 'advanced' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/felipeandrade-ba', portfolio: 'https://felipeandrade.ar' },
+    contacts: fakeContacts(21, ['linkedin', 'portfolio']),
     headline: loc('Música e produção independente', 'Music and independent production'),
     bio: loc(
       'Produtor e músico. Ajuda artistas brasileiros a tocar em Buenos Aires sem cair em contrato ruim.',
@@ -689,7 +701,7 @@ const PEOPLE = [
     birth_city: FORTALEZA,
     current_city: RECIFE,
     languages: [{ code: 'pt', proficiency: 'native' }, { code: 'en', proficiency: 'fluent' }],
-    contacts: { linkedin: 'https://linkedin.com/in/patriciagomes-edu' },
+    contacts: fakeContacts(22, ['linkedin']),
     headline: loc('Tecnologia educacional', 'Education technology'),
     bio: loc(
       'Faz ferramenta de aula que professor de escola pública consegue usar com internet ruim. Recife é base, Ceará é origem.',
@@ -707,7 +719,7 @@ const PEOPLE = [
     birth_city: CAMPINAS,
     current_city: CAMPINAS,
     languages: [{ code: 'pt', proficiency: 'native' }, { code: 'en', proficiency: 'advanced' }],
-    contacts: { github: 'https://github.com/brunoazevedo', linkedin: 'https://linkedin.com/in/brunoazevedo-emb' },
+    contacts: fakeContacts(23, ['linkedin', 'github']),
     headline: loc('Hardware e sistemas embarcados', 'Hardware and embedded systems'),
     bio: loc(
       'Firmware, sensores e o momento em que o protótipo funciona na bancada e falha no campo. Aberto a parceria de laboratório.',
@@ -728,7 +740,7 @@ const PEOPLE = [
       { code: 'pt', proficiency: 'native' },
       { code: 'en', proficiency: 'fluent' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/carolinadias-pm' },
+    contacts: fakeContacts(24, ['linkedin']),
     headline: loc('Gestão de produto em fintech', 'Product management in fintech'),
     bio: loc(
       'Já lançou conta, cartão e o fluxo de disputa que ninguém quer desenhar. Mentora de PMs júnior que herdaram backlog inflado.',
@@ -768,7 +780,7 @@ const PEOPLE = [
       { code: 'fr', proficiency: 'fluent' },
       { code: 'en', proficiency: 'advanced' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/marianafreitas-gastro', portfolio: 'https://marianafreitas.kitchen' },
+    contacts: fakeContacts(26, ['linkedin', 'portfolio']),
     headline: loc('Gastronomia e cadeias curtas', 'Gastronomy and short supply chains'),
     bio: loc(
       'Cozinha com produtores pequenos. Em Paris, ainda importa farinha e história de Minas. Recebe quem visita a cidade com fome e pergunta boa.',
@@ -786,7 +798,7 @@ const PEOPLE = [
     birth_city: RECIFE,
     current_city: RIO,
     languages: [{ code: 'pt', proficiency: 'native' }, { code: 'en', proficiency: 'fluent' }],
-    contacts: { linkedin: 'https://linkedin.com/in/ricardomelo-cine' },
+    contacts: fakeContacts(27, ['linkedin']),
     headline: loc('Documentário e arquivo audiovisual', 'Documentary and audiovisual archives'),
     bio: loc(
       'Faz filme longo e cataloga acervo familiar que ia para o lixo. Parceria com quem tem fita, não só ideia.',
@@ -804,7 +816,7 @@ const PEOPLE = [
     birth_city: CURITIBA,
     current_city: POA,
     languages: [{ code: 'pt', proficiency: 'native' }, { code: 'en', proficiency: 'basic' }],
-    contacts: { linkedin: 'https://linkedin.com/in/tatianeribeiro-rh' },
+    contacts: fakeContacts(28, ['linkedin']),
     headline: loc('Pessoas e desenvolvimento de liderança', 'People and leadership development'),
     bio: loc(
       'Coaching de liderança sem jargão de palestra. Trabalha com times técnicos que foram promovidos sem mapa.',
@@ -826,7 +838,7 @@ const PEOPLE = [
       { code: 'de', proficiency: 'advanced' },
       { code: 'en', proficiency: 'fluent' },
     ],
-    contacts: { github: 'https://github.com/hsousa', linkedin: 'https://linkedin.com/in/henriquesousa-ml' },
+    contacts: fakeContacts(29, ['linkedin', 'github']),
     headline: loc('Aprendizado de máquina aplicado', 'Applied machine learning'),
     bio: loc(
       'Modelos em produção, não notebook de demo. Berlim de base; ainda vota e discute política brasileira de longe.',
@@ -862,7 +874,7 @@ const PEOPLE = [
     birth_city: RIO,
     current_city: SAO_PAULO,
     languages: [{ code: 'pt', proficiency: 'native' }, { code: 'en', proficiency: 'fluent' }],
-    contacts: { linkedin: 'https://linkedin.com/in/viniciuspacheco', github: 'https://github.com/vpacheco' },
+    contacts: fakeContacts(31, ['linkedin', 'github']),
     headline: loc('Mobile e performance em app', 'Mobile and app performance'),
     bio: loc(
       'iOS e Android quando o app trava na abertura. Gosta de medir frame, não de slide de “experiência fluida”.',
@@ -883,7 +895,7 @@ const PEOPLE = [
       { code: 'pt', proficiency: 'native' },
       { code: 'en', proficiency: 'fluent' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/nataliacampos-mig' },
+    contacts: fakeContacts(32, ['linkedin']),
     headline: loc('Migração e regularização em Portugal', 'Migration and regularization in Portugal'),
     bio: loc(
       'Acompanha quem chega de Brasil e PALOP. Explica SEF, NIF e o que o grupo de WhatsApp erra. Recebe quem acabou de aterrissar.',
@@ -901,7 +913,7 @@ const PEOPLE = [
     birth_city: BH,
     current_city: FORTALEZA,
     languages: [{ code: 'pt', proficiency: 'native' }],
-    contacts: { portfolio: 'https://otaviobrandao.photo' },
+    contacts: fakeContacts(33, ['portfolio']),
     headline: loc('Fotografia de território e arquivo', 'Territory photography and archives'),
     bio: loc(
       'Fotografa rua, obra e arquivo familiar. Aberto a ensaio em Fortaleza e interior do Ceará.',
@@ -923,7 +935,7 @@ const PEOPLE = [
       { code: 'en', proficiency: 'fluent' },
       { code: 'nl', proficiency: 'advanced' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/simonearaujo-energy' },
+    contacts: fakeContacts(34, ['linkedin']),
     headline: loc('Energia e transição elétrica', 'Energy and power transition'),
     bio: loc(
       'Trabalha com rede e renovável. Holanda no emprego, Nordeste na pergunta: quem paga a conta da transição.',
@@ -941,7 +953,7 @@ const PEOPLE = [
     birth_city: SAO_PAULO,
     current_city: SAO_PAULO,
     languages: [{ code: 'pt', proficiency: 'native' }, { code: 'en', proficiency: 'fluent' }, { code: 'es', proficiency: 'basic' }],
-    contacts: { github: 'https://github.com/igorsantana', portfolio: 'https://igorsantana.work' },
+    contacts: fakeContacts(35, ['github', 'portfolio']),
     headline: loc('Ilustração e design editorial', 'Illustration and editorial design'),
     bio: loc(
       'Capa, infográfico e identidade para revistas pequenas. Parceria com quem tem texto e prazo, não moodboard infinito.',
@@ -962,7 +974,7 @@ const PEOPLE = [
       { code: 'pt', proficiency: 'native' },
       { code: 'en', proficiency: 'fluent' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/danielamoura-bio' },
+    contacts: fakeContacts(36, ['linkedin']),
     headline: loc('Biotecnologia e regulação sanitária', 'Biotech and health regulation'),
     bio: loc(
       'Dossiê para agência e o intervalo entre laboratório e prateleira. Mentora de quem está saindo da pós para a indústria.',
@@ -980,7 +992,7 @@ const PEOPLE = [
     birth_city: POA,
     current_city: CURITIBA,
     languages: [{ code: 'pt', proficiency: 'native' }, { code: 'en', proficiency: 'advanced' }],
-    contacts: { linkedin: 'https://linkedin.com/in/caiofonseca-agro' },
+    contacts: fakeContacts(37, ['linkedin']),
     headline: loc('Agronomia e cooperativas', 'Agronomy and cooperatives'),
     bio: loc(
       'Assistência técnica em cooperativa. Fala de solo e de governança com a mesma paciência.',
@@ -998,7 +1010,7 @@ const PEOPLE = [
     birth_city: RIO,
     current_city: RIO,
     languages: [{ code: 'pt', proficiency: 'native' }, { code: 'en', proficiency: 'fluent' }],
-    contacts: { linkedin: 'https://linkedin.com/in/larissapinto-psic' },
+    contacts: fakeContacts(38, ['linkedin']),
     headline: loc('Psicologia clínica e trabalho', 'Clinical and workplace psychology'),
     bio: loc(
       'Atende adulto e discute burnout sem virar post. Fora da vitrine: agenda fechada; o diretório é só para a turma.',
@@ -1020,7 +1032,7 @@ const PEOPLE = [
       { code: 'es', proficiency: 'fluent' },
       { code: 'en', proficiency: 'advanced' },
     ],
-    contacts: { github: 'https://github.com/gcorreia', linkedin: 'https://linkedin.com/in/gustavocorreia-geo' },
+    contacts: fakeContacts(39, ['linkedin', 'github']),
     headline: loc('Geografia urbana e mobilidade', 'Urban geography and mobility'),
     bio: loc(
       'Estuda ônibus, bicicleta e o mapa que a prefeitura não atualiza. Bom para quem chega a Barcelona e quer entender o bairro, não só o Sagrada.',
@@ -1042,7 +1054,7 @@ const PEOPLE = [
       { code: 'en', proficiency: 'fluent' },
       { code: 'fr', proficiency: 'basic' },
     ],
-    contacts: { linkedin: 'https://linkedin.com/in/elisamonteiro-hist' },
+    contacts: fakeContacts(40, ['linkedin']),
     headline: loc('História pública e museus', 'Public history and museums'),
     bio: loc(
       'Mediação em museu e texto para exposição. Abre a casa no Porto para quem pesquisa arquivo ou só precisa de um jantar depois do arquivo.',
@@ -1104,23 +1116,16 @@ function generatedLanguages(n) {
   return [{ code: 'pt', proficiency: 'native' }, ...extra];
 }
 
-function generatedContacts(n, slug) {
-  const handle = `pessoa${String(n).padStart(3, '0')}`;
+function generatedContacts(n) {
   if (n % 5 === 0) return {};
-  const contacts = { linkedin: `https://linkedin.com/in/${slug}` };
-  if (n % 2 === 0) contacts.github = `https://github.com/${handle}`;
-  if (n % 3 === 0) contacts.portfolio = `https://${handle}.example`;
-  return contacts;
+  const keys = ['linkedin'];
+  if (n % 2 === 0) keys.push('github');
+  if (n % 3 === 0) keys.push('portfolio');
+  return fakeContacts(n, keys);
 }
 
 function generatedPerson(n) {
   const { full_name, gender } = generatedName(n);
-  const slug = full_name
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '')
-    .slice(0, 24);
   const birth_city = CITIES[n % CITIES.length];
   const current_city = CITIES[(n * 3) % CITIES.length];
   return {
@@ -1131,7 +1136,8 @@ function generatedPerson(n) {
     birth_city,
     current_city,
     languages: generatedLanguages(n),
-    contacts: generatedContacts(n, slug || `pessoa${n}`),
+    contacts: generatedContacts(n),
+    ...homeCopy(n),
     availability: ['available_for_hire', 'project_partner', 'mentor', 'unavailable'][n % 4],
     public_showcase: n % 6 !== 0,
     host_at_home: n % 3 === 0,
