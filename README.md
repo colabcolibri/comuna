@@ -1,28 +1,32 @@
 # Comuna
 
-A small open-source platform for member spaces that stay out of your pocket.
+A small open-source platform for groups that want a house, not a feed.
 
-Not a social network. Not a feed. Not another place that pings you until you come back. Comuna is for people who already have a project — a cohort, an alumni year, a practice, an incubator — and need a house for it: members, a public face, a way to write to someone without handing over their inbox.
+Not a social network. Not another engagement machine. Comuna is for a group that already exists — a cohort, an alumni year, a practice, an incubator — and needs room to be that group in more than one aspect: a roster, a public face, a way to find each other, a way to write without handing over an inbox. Internal tools in service of the people, not a chat that keeps score.
 
 The name is on purpose. A *comuna* is a shared place with a door. You choose when to walk in.
 
 ## Why it exists
 
-Every project eventually hits the same wall. Spreadsheets for the roster. WhatsApp for everything else. Then a “community” product that arrives with chat, stories, badges, and a profile that wants your whole life.
+Most software for groups is built to make people talk more. Unread badges, streaks, a thousand small exchanges as proof that the community is “alive.” That is a particular kind of success. It is not the one this house is built for.
 
-The needs underneath that mess are quieter:
+The tension is the point. Fast triggers treat attention as the product. Comuna treats the group as the product. Conversation can happen. Volume is not the prize. Showing up on purpose is.
 
-- **Spaces that do not leak.** Project A, project B, and project C are different rooms. They keep their own people, their own fields, their own tone. Isolation is the point.
+Circle and its cousins still orbit the thread: spaces, posts, DMs, courses as content. Useful if the job is to keep a conversation running. Comuna is adjacent and different. Closer in temperament to WordPress or Moodle — a stubborn centre, modules you switch on — but the centre is the group, not the classroom or the blog. You come in, you use the tool the group needed, you leave.
+
+What that looks like in practice:
+
+- **Rooms that do not leak.** Group A and group B keep their own people, their own fields, their own tone. Isolation is the point.
 - **People over time.** A group that is happening now, and a group that already happened, both deserve a roster that still makes sense.
 - **A window, not a megaphone.** The network can be visible to the world. Contact can be possible. An email address does not have to be the price of showing up.
 - **A map of consent.** Where people are, what they share, what stays inside — field by field, person by person.
-- **Software you visit.** A forum, if it ever exists here, should work like the old web: you go there, you read, you leave. It does not sit in your notifications deciding that now is the time.
+- **Software you visit.** If a forum ever exists here, it should work like the old web: you go there, you read, you leave. It does not sit in your notifications deciding that now is the time.
 
 Some things want to be shared across rooms later — a simple course that several cohorts can pick up or drop, a time bank where offering and asking is a gift of hours, not a product. Those are not the core. They are guests. The core has to stay small enough that adding them does not turn the house into an amusement park.
 
-Comuna borrows the mood of WordPress and Moodle: a stubborn centre, and modules you switch on when a space actually needs them. Expand the edges. Do not fatten the middle.
+Expand the edges. Do not fatten the middle.
 
-This is software for people who still believe a network can be a practice, not an audience. It will not save anything. It might help a few rooms stay kinder than the default.
+This is software for people who still believe a network can be a practice, not an audience. It will not save anything. It might help a few rooms stay more intentional than the default.
 
 ## What runs today
 
