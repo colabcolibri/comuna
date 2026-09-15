@@ -24,7 +24,7 @@ O template **não** é editável por comunidade nem por kind. Comunidade só ent
 | ---- | ----- | ----------------------- |
 | `otp` | `member_otp`, `ops_otp` | Cartão com `{{code}}` |
 | `cta` | `person_invite` | Botão Entrar + `{{login_url}}` |
-| `quote` | `contact_notice` | Remetente + `{{message}}` |
+| `quote` | `contact_notice` | Remetente (`sender_name` se houver, senão e-mail), `{{sender_email}}`, `{{sender_phone}}` se houver, `{{message}}` |
 
 Ops não cola HTML nesses blocos.
 
@@ -41,7 +41,7 @@ Defaults: `packages/core/mail/src/copy.ts`. Overlay: `ops_core.email_templates`.
 | `member_otp` | e-mail pedido na web | `product_name`, `support_url` | `otp` (`code`) | `POST /api/auth/request-otp` |
 | `ops_otp` | e-mail pedido no admin | `product_name`, `support_url` | `otp` (`code`) | `POST /api/admin/auth/request-otp` |
 | `person_invite` | pessoa criada no admin | `product_name`, `support_url` | `cta` (`login_url`) | `POST /api/admin/people` |
-| `contact_notice` | coordenação / caixa da comunidade | `product_name`, `community_name` | `quote` (`sender_name`, `sender_email`, `message`) | contato mediado |
+| `contact_notice` | membro alvo (e-mail da conta) | `product_name`, `community_name` | `quote` (`sender_name`, `sender_email`, `sender_phone`, `message`) | `POST /api/profiles/:id/contact` — `community_name` vem de `network_core.communities.name`, nunca string vazia se o tenant tem nome |
 
 Não há kind livre nesta versão.
 

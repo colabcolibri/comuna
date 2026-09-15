@@ -11,8 +11,29 @@ function opt(value, pt, en) {
   return { value, label: JSON.parse(loc(pt, en)) };
 }
 
-async function seedDirectoryCatalog(client, communityId) {
-  const groups = [
+const LIST = {
+  hidden: { filterable: false, placement: 'off' },
+  card: { filterable: false, placement: 'card' },
+  detail: { filterable: false, placement: 'detail' },
+};
+
+const LISTS = {
+  identity: { directory: LIST.card, showcase: LIST.card },
+  pii: { directory: LIST.hidden, showcase: LIST.hidden },
+  bio: { directory: LIST.detail, showcase: { filterable: false, placement: 'card' } },
+  availability: {
+    directory: { filterable: false, placement: 'card' },
+    showcase: { filterable: true, placement: 'card' },
+  },
+  links: { directory: LIST.detail, showcase: LIST.detail },
+  extraFilter: {
+    directory: { filterable: true, placement: 'detail' },
+    showcase: { filterable: true, placement: 'detail' },
+  },
+  extraDirectoryOnly: { directory: LIST.detail, showcase: LIST.hidden },
+};
+
+const PLATFORM_CATALOG_GROUPS = [
     {
       slug: 'identity',
       label: loc('Nome e foto', 'Name and photo'),
@@ -36,6 +57,7 @@ async function seedDirectoryCatalog(client, communityId) {
           column_key: 'full_name',
           required: true,
           sort: 10,
+          lists: LISTS.identity,
         },
         {
           name: 'avatar_url',
@@ -49,6 +71,7 @@ async function seedDirectoryCatalog(client, communityId) {
           storage: 'person',
           column_key: 'avatar_url',
           sort: 20,
+          lists: LISTS.identity,
         },
       ],
     },
@@ -80,19 +103,21 @@ async function seedDirectoryCatalog(client, communityId) {
             opt('non_binary', 'Não binário', 'Non-binary'),
             opt('prefer_not', 'Prefiro não dizer', 'Prefer not to say'),
           ],
+          lists: LISTS.pii,
         },
         {
           name: 'birth_city',
           type: 'city',
           label: loc('Cidade de nascimento', 'City of birth'),
           description: loc(
-            'Cidade em que você nasceu, se quiser contar. Usada para filtro e para quem procura gente da mesma origem.',
-            'The city you were born in, if you want to share it. Used for filters and for people looking for the same origin.'
+            'Cidade em que você nasceu, se quiser contar. Fica no perfil; não entra na vitrine nem no filtro das listas.',
+            'The city you were born in, if you want to share it. It stays on the profile; it does not enter the showcase or list filters.'
           ),
           span: 1,
           storage: 'person',
           column_key: 'birth_city',
           sort: 20,
+          lists: LISTS.pii,
         },
         {
           name: 'current_city',
@@ -106,6 +131,7 @@ async function seedDirectoryCatalog(client, communityId) {
           storage: 'person',
           column_key: 'current_city',
           sort: 30,
+          lists: LISTS.identity,
         },
         {
           name: 'languages',
@@ -133,6 +159,7 @@ async function seedDirectoryCatalog(client, communityId) {
             opt('ru', 'Russo', 'Russian'),
             opt('ar', 'Árabe', 'Arabic'),
           ],
+          lists: LISTS.identity,
         },
       ],
     },
@@ -158,6 +185,7 @@ async function seedDirectoryCatalog(client, communityId) {
           storage: 'person',
           column_key: 'contacts.linkedin',
           sort: 10,
+          lists: LISTS.links,
         },
         {
           name: 'github',
@@ -171,6 +199,7 @@ async function seedDirectoryCatalog(client, communityId) {
           storage: 'person',
           column_key: 'contacts.github',
           sort: 20,
+          lists: LISTS.links,
         },
         {
           name: 'portfolio',
@@ -184,6 +213,7 @@ async function seedDirectoryCatalog(client, communityId) {
           storage: 'person',
           column_key: 'contacts.portfolio',
           sort: 30,
+          lists: LISTS.links,
         },
       ],
     },
@@ -210,6 +240,7 @@ async function seedDirectoryCatalog(client, communityId) {
           column_key: 'headline',
           sort: 10,
           module_slug: 'directory',
+          lists: LISTS.identity,
         },
         {
           name: 'bio',
@@ -224,6 +255,7 @@ async function seedDirectoryCatalog(client, communityId) {
           column_key: 'bio',
           sort: 20,
           module_slug: 'directory',
+          lists: LISTS.bio,
         },
       ],
     },
@@ -256,6 +288,7 @@ async function seedDirectoryCatalog(client, communityId) {
             opt('mentor', 'Mentoria', 'Mentoring'),
             opt('unavailable', 'Indisponível', 'Unavailable'),
           ],
+          lists: LISTS.availability,
         },
         {
           name: 'public_showcase',
@@ -270,12 +303,14 @@ async function seedDirectoryCatalog(client, communityId) {
           column_key: 'public_showcase',
           sort: 20,
           module_slug: 'showcase',
+          lists: LISTS.pii,
         },
       ],
     },
   ];
 
-  await upsertCatalogGroups(client, communityId, groups);
+async function seedDirectoryCatalog(client, communityId) {
+  await upsertCatalogGroups(client, communityId, PLATFORM_CATALOG_GROUPS);
 
   await client.query(
     `UPDATE plugin_directory.fields f
@@ -303,41 +338,10 @@ function listsFor(field) {
   if (field.lists) {
     return field.lists;
   }
-  // Extra fields: `listFilterable` (legacy `filterable`) is DSL for list_fields, not a SQL column on fields.
-  const hidden = { filterable: false, placement: 'off' };
-  const card = { filterable: false, placement: 'card' };
-  const detail = { filterable: false, placement: 'detail' };
-  switch (field.name) {
-    case 'full_name':
-    case 'avatar_url':
-    case 'current_city':
-    case 'languages':
-    case 'headline':
-      return { directory: card, showcase: card };
-    case 'gender':
-    case 'birth_city':
-    case 'public_showcase':
-      return { directory: hidden, showcase: hidden };
-    case 'bio':
-      return { directory: detail, showcase: { filterable: false, placement: 'card' } };
-    case 'availability_status':
-      return {
-        directory: { filterable: false, placement: 'card' },
-        showcase: { filterable: true, placement: 'card' },
-      };
-    case 'linkedin':
-    case 'github':
-    case 'portfolio':
-      return { directory: detail, showcase: detail };
-    default:
-      if (field.listFilterable || field.filterable) {
-        return {
-          directory: { filterable: true, placement: 'detail' },
-          showcase: { filterable: true, placement: 'detail' },
-        };
-      }
-      return { directory: detail, showcase: hidden };
+  if (field.listFilterable || field.filterable) {
+    return LISTS.extraFilter;
   }
+  return LISTS.extraDirectoryOnly;
 }
 
 async function upsertListFields(client, fieldId, lists) {
@@ -410,5 +414,14 @@ async function upsertCatalogGroups(client, communityId, groups) {
   }
 }
 
-module.exports = { seedDirectoryCatalog, seedDemoCatalogExtras, upsertCatalogGroups, loc, opt, listsFor };
+module.exports = {
+  seedDirectoryCatalog,
+  seedDemoCatalogExtras,
+  upsertCatalogGroups,
+  loc,
+  opt,
+  listsFor,
+  LISTS,
+  PLATFORM_CATALOG_GROUPS,
+};
 

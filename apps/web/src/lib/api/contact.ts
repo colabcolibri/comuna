@@ -1,6 +1,6 @@
 export async function sendPersonContact(
   membershipId: string,
-  body: { sender_email: string; sender_name: string; message: string }
+  body: { sender_email: string; sender_name?: string; sender_phone?: string; message: string }
 ) {
   const res = await fetch(`/api/profiles/${membershipId}/contact`, {
     method: 'POST',

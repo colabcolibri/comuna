@@ -86,12 +86,13 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `AppAuthFrame` | Login centrado com kicker | `packages/ui/member/src/app-auth-frame.tsx` |
 | `AppIndexList` / `AppPersonRow` | Índice de pessoas (não grid de cards); row pode mostrar idiomas se a lista directory marcar `card` | `packages/ui/member/src/app-person-row.tsx` |
 | `AppAlertDialog` | Confirmação (cancelar / confirmar) | `packages/ui/member/src/app-alert-dialog.tsx` |
-| `AppDialog` | Perfil / detalhe: envolve o `Dialog` shadcn (tamanho, header, body com `ScrollArea`) | `packages/ui/member/src/app-dialog.tsx` |
+| `AppDialog` | Perfil / detalhe: header e footer fora do scroll; body é `ScrollArea` shadcn com viewport `overflow-y: scroll` limitado (`app-dialog-scroll`) | `packages/ui/member/src/app-dialog.tsx` |
 | `AppSheet` | Sheet shadcn: `SheetTrigger` + `SheetContent` + `SheetClose`. Corpo `grid flex-1 auto-rows-min gap-6 px-4`. Filtros e enviar mensagem usam este template. | `packages/ui/member/src/app-sheet.tsx` |
 | `AppFilterSheet` | `AppSheet` com trigger na página, limpar e fechar no rodapé | `packages/ui/member/src/app-filter-sheet.tsx` |
 | `AppPublicChrome` | Página pública da vitrine: header sem sidebar, documento rola | `packages/ui/member/src/app-public-chrome.tsx` |
 | `AppShowcasePortal` / `AppShowcasePager` | Herói do portal público + paginação | `packages/ui/member/src/app-showcase-portal.tsx` |
-| `AppShowcaseCard` | Cartão da vitrine (foto 80px; slot de idiomas separado de availability/facts; cartão inteiro abre o perfil) | `packages/ui/member/src/app-showcase-card.tsx` |
+| `AppPersonFieldGroup` | Rótulo do campo + valores em chips (vitrine, diálogo) | `packages/ui/member/src/app-person-field-group.tsx` |
+| `AppShowcaseCard` | Cartão da vitrine (foto 80px; cada extra com label; cartão inteiro abre o perfil) | `packages/ui/member/src/app-showcase-card.tsx` |
 | `Toaster` (Sonner) | Feedback **transitório** (salvar, envio) | `packages/ui/primitives` — `toast` de `@community/ui`. Um `Toaster` no layout. Alerta **inline** = `Alert` de `@community/ui`, não toast. |
 | `MemberShell` | Sidebar + inset + header; páginas rolam com `ScrollArea`; rodapé no chrome (fora do scroll) | `apps/web/.../MemberShell.tsx` |
 | `AppSidebar` | Destinos desta comunidade; rodapé = perfil + Sair | `apps/web/.../AppSidebar.tsx` |
@@ -112,8 +113,8 @@ Navegação do **workspace**: sidebar shadcn no desktop. **Vitrine**: sem menu h
 | ----------------- | --- | ---- | ------ | -------------- | --------------------- |
 | `/showcase` | Portal público | Visitante / membro | `AppPublicChrome` | Sidebar no visitante | Herói admin + cartões; CTA Entrar |
 | `/c/{slug}/showcase` | Homepage pública desta comunidade | Visitante / membro | `AppPublicChrome` | Página interna | Título/texto do admin; sem sidebar |
-| Perfil público | Ler perfil sanitizado | Visitante | `AppDialog` + `ScrollArea` | — | Headline no header; bio no body |
-| Contato | Pedir contato mediado | Visitante | `AppSheet` (mesmo template dos filtros) | Form no `AppDialog` | Trigger **Enviar mensagem** no footer do diálogo |
+| Perfil público | Ler perfil sanitizado | Visitante | `AppDialog` + `ScrollArea` | — | Nome no header; tagline + bio no body; extras na coluna |
+| Contato | Pedir contato mediado | Visitante | `AppSheet` (mesmo template dos filtros) | Form no `AppDialog` | Trigger **Enviar mensagem**; sheet com e-mail e mensagem obrigatórios, nome e telefone opcionais; CTA **Enviar** passa a **Enviando…** e fica `disabled` até a resposta |
 | `/` | Ver assentos e comunidades públicas | Visitante / membro | Header da plataforma | — | Lista de tenants; OTP fica em `/login` |
 | `/login` | Entrar com OTP | Visitante | `AppPublicChrome` | Sidebar no OTP | OTP centrado, um CTA |
 | `/c/{slug}/directory` | Buscar membros **desta** comunidade | Membro | Sidebar: comunidade + Diretório | Path legado `/directory` | Lista em linhas; `Ver perfil` abre o mesmo diálogo da vitrine |

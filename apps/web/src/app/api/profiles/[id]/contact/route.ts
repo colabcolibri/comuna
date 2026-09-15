@@ -48,9 +48,10 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Perfil não encontrado' } }, { status: 404 });
   }
   const body = await req.json();
-  const senderEmail = String(body.sender_email || '');
-  const senderName = String(body.sender_name || '');
-  const message = String(body.message || '');
+  const senderEmail = String(body.sender_email || '').trim();
+  const senderName = String(body.sender_name || '').trim();
+  const senderPhone = String(body.sender_phone || '').trim().slice(0, 40);
+  const message = String(body.message || '').trim();
   if (!senderEmail.includes('@') || !message) {
     return NextResponse.json(
       { error: { code: 'VALIDATION_ERROR', message: 'Campos obrigatórios' } },
@@ -58,23 +59,30 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     );
   }
   await query(
-    `INSERT INTO plugin_contact.messages (membership_id, sender_email, sender_name, body)
-     VALUES ($1, $2, $3, $4)`,
-    [id, senderEmail, senderName, message]
+    `INSERT INTO plugin_contact.messages (membership_id, sender_email, sender_name, sender_phone, body)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [id, senderEmail, senderName || null, senderPhone || null, message]
   );
   const target = await query<{ email: string }>(`SELECT email FROM auth_core.users WHERE id = $1`, [row.user_id]);
   const to = target.rows[0]?.email;
   if (!to) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Perfil não encontrado' } }, { status: 404 });
   }
+  const community = await query<{ name: string; settings: unknown }>(
+    `SELECT name, settings FROM network_core.communities WHERE id = $1`,
+    [row.community_id]
+  );
+  const settings = community.rows[0]?.settings as { default_locale?: string } | undefined;
+  const locale = settings?.default_locale === 'en' ? 'en' : 'pt-BR';
   await sendKindEmail({
     kind: 'contact_notice',
     to,
-    locale: 'pt-BR',
+    locale,
     vars: {
-      community_name: '',
+      community_name: community.rows[0]?.name || '',
       sender_name: senderName,
       sender_email: senderEmail,
+      sender_phone: senderPhone,
       message,
     },
   });

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { personInitials } from './app-person-row';
+import { AppPersonFieldGroup } from './app-person-field-group';
 
 export function AppShowcaseGrid({ children }: { children: ReactNode }) {
   return <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">{children}</div>;
@@ -13,6 +14,7 @@ export function AppShowcaseCard({
   summary,
   languagesLabel,
   languages,
+  availabilityLabel,
   availability,
   facts,
   actionLabel,
@@ -25,8 +27,9 @@ export function AppShowcaseCard({
   summary?: string | null;
   languagesLabel?: string;
   languages?: string[];
+  availabilityLabel?: string;
   availability?: string | null;
-  facts?: string[];
+  facts?: { label: string; values: string[] }[];
   actionLabel: string;
   onOpen: () => void;
 }) {
@@ -67,35 +70,14 @@ export function AppShowcaseCard({
             <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">{summary}</p>
           ) : null}
           {languages && languages.length > 0 ? (
-            <div className="min-w-0">
-              {languagesLabel ? <p className="mb-2 text-sm font-medium text-foreground">{languagesLabel}</p> : null}
-              <ul className="flex flex-wrap gap-2">
-                {languages.map((item) => (
-                  <li
-                    key={item}
-                    className="inline-flex rounded-md border border-border bg-secondary px-2.5 py-1 text-sm text-foreground"
-                  >
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <AppPersonFieldGroup label={languagesLabel || ''} values={languages} />
           ) : null}
           {availability ? (
-            <p className="text-sm text-foreground">{availability}</p>
+            <AppPersonFieldGroup label={availabilityLabel || ''} values={[availability]} />
           ) : null}
-          {facts && facts.length > 0 ? (
-            <ul className="flex flex-wrap gap-2">
-              {facts.map((item) => (
-                <li
-                  key={item}
-                  className="inline-flex rounded-md border border-border bg-secondary px-2.5 py-1 text-sm text-foreground"
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-          ) : null}
+          {facts?.map((item) => (
+            <AppPersonFieldGroup key={item.label} label={item.label} values={item.values} />
+          ))}
         </div>
       </button>
     </article>

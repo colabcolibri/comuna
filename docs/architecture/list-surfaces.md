@@ -30,10 +30,10 @@ Vitrine: `gender`, `birth_city`, `public_showcase` ficam `off` / filtro false. N
 
 ## Projeção
 
-`projectPersonView` (domínio directory) monta slots: identidade, headline, bio, idiomas, availability, facts (label do catálogo), links. UI só desenha. Idiomas nunca misturam com availability. Slots built-in: `PERSON_VIEW_SLOTS` + `contacts.*`. Extra de `attributes` vai para `facts`.
+`projectPersonView` (domínio directory) monta slots: identidade, headline, bio, idiomas, availability, facts, links. UI só desenha. Cada extra em `facts` traz **label do catálogo** + `values[]` (checkbox vira vários valores; boolean verdadeiro é só o rótulo). Idiomas e disponibilidade também saem com heading do campo. Idiomas nunca misturam com availability.
 
 Densidade `card`: só `placement = card`. Densidade `detail`: `card` ou `detail`.
 
 Load: `LIST_FIELDS_SQL` + `parseListFields`. Facets: `attributeFacets`. Filtro `attr.*`: `parseAttrFilters` lê `ListField.filterable`, não o catálogo do perfil.
 
-Seed de extra: `listFilterable: true` no JS vira duas rows em `list_fields`. Não é coluna de `fields`.
+Seed de extra: `listFilterable: true` no JS vira duas rows em `list_fields` (`detail` + filtro nas duas listas). Não é coluna de `fields`. Campos da plataforma levam `lists` no seed (`scripts/seed-directory-catalog.cjs`); teste `scripts/seed-list-surfaces.test.ts` projeta Helena com essa política.

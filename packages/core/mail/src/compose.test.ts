@@ -69,6 +69,19 @@ describe('composeMail', () => {
     expect(mail.html).toContain('#1f3d38');
   });
 
+  it('puts community name in the contact subject and phone in the quote', () => {
+    const mail = composeMail({
+      kind: 'contact_notice',
+      locale: 'pt-BR',
+      vars: { ...previewVarsFor('contact_notice', settings), sender_phone: '+55 11 99999-0000' },
+      settings,
+    });
+    expect(mail.subject).toBe('Contato em Demo');
+    expect(mail.html).toContain('Novo recado em Demo');
+    expect(mail.html).toContain('+55 11 99999-0000');
+    expect(mail.text).toContain('+55 11 99999-0000');
+  });
+
   it('escapes html in contact message', () => {
     expect(interpolateMustacheHtml('<p>{{message}}</p>', { message: '<script>' })).toBe(
       '<p>&lt;script&gt;</p>'

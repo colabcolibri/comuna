@@ -26,7 +26,7 @@ O cartão e o diálogo **projetam** `list_fields` com `list_key = showcase` (`do
 | `current_city` | GeoPlace — cidade + país (`displayPlaceLocality`) |
 | `languages` | slot próprio (não mistura com availability) |
 | `availability_status` | status, não chip de idioma |
-| facts | `custom_attributes` com placement ≠ `off`; label do catálogo |
+| facts | `custom_attributes` com placement ≠ `off`; **rótulo do catálogo** + valores (não badge solto) |
 | links | `linkedin` / `github` / `portfolio` se `https://` e placement no detalhe |
 
 Query: `search` (nome, headline, bio), `status` (só se availability for filtrável na vitrine), `attr.*` (só `list_fields.filterable` da vitrine), `page`, `size`. Página padrão **24**; `size` só 24, 48 ou 96. `{ data, meta: { page, pageSize, total } }`. A página Server Component chama `listPublicProfiles`; o cliente só muda a URL e abre o diálogo.
@@ -41,7 +41,7 @@ UI do diálogo: `AppDialog`. **Enviar mensagem** no footer abre `AppSheet`.
 
 ## Diálogo (perfil público)
 
-Mesmos slots na densidade `detail` (card + detail). Bio completa. Idiomas em seção rotulada. Sem `host_at_home` hardcoded.
+Mesmos slots na densidade `detail`. Header: nome, foto, cidade. Tagline no corpo, à esquerda, **acima** da bio e mais marcada (`text-xl semibold`); bio em `muted`. Extras à direita em `md+`. Mobile empilha. Body rola no `ScrollArea`. Sem `host_at_home` hardcoded.
 
 ## Fora
 

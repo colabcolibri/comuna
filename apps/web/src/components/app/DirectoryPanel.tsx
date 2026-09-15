@@ -60,9 +60,13 @@ const CONTENT = mergeContent(
     contact: 'form.contact',
     cancel: 'form.cancel',
     send: 'form.send',
+    sending: 'form.sending',
     success: 'form.success',
+    name: 'form.name',
     email: 'form.email',
+    phone: 'form.phone',
     message: 'form.message',
+    privacy: 'form.privacy',
   })
 );
 
@@ -188,6 +192,7 @@ export function DirectoryPanel({
                 photo={view.photoUrl}
                 headline={[view.headline, view.city].filter(Boolean).join(' · ')}
                 languages={view.languages.map((item) => item.label)}
+                languagesLabel={view.languagesHeading || copy.languages}
                 status={view.availability}
                 action={
                   <Button variant="outline" className="min-h-11 w-full sm:w-auto" onClick={() => setSelected(profile)}>

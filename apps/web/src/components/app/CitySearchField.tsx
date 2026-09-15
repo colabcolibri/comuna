@@ -51,7 +51,7 @@ export function CitySearchField({
 
   return (
     <div className="space-y-2 min-w-0">
-      <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
         <Label htmlFor={id}>{label}</Label>
         {status ? <span className="text-xs text-muted-foreground">{status}</span> : null}
       </div>

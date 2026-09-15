@@ -102,6 +102,7 @@ describe('projectPersonView', () => {
       availabilityLabel: 'Mentoria',
     });
     expect(card.languages.map((item) => item.label)).toEqual(['Português']);
+    expect(card.languagesHeading).toBeNull();
     expect(card.facts).toEqual([]);
     expect(card.links).toEqual([]);
     expect(card.headline).toBe('Produto');
@@ -113,7 +114,31 @@ describe('projectPersonView', () => {
       cityLabel: 'São Paulo',
       availabilityLabel: 'Mentoria',
     });
-    expect(detail.facts[0]?.value).toBe('Recebe em casa');
+    expect(detail.facts[0]).toEqual({ name: 'host_at_home', label: 'Recebe em casa', values: [] });
+    const skills = parseListField({
+      name: 'skills',
+      type: 'checkbox',
+      storage: 'attributes',
+      placement: 'detail',
+      label: [{ locale: 'pt-BR', value: 'Competências' }],
+      options: [
+        { value: 'product', label: [{ locale: 'pt-BR', value: 'Produto' }] },
+        { value: 'ops', label: [{ locale: 'pt-BR', value: 'Ops' }] },
+      ],
+    })!;
+    const withSkills = projectPersonView({
+      profile: { ...profile, custom_attributes: { host_at_home: true, skills: ['product', 'ops'] } },
+      fields: [...fields, skills],
+      density: 'detail',
+      locale: 'pt-BR',
+      cityLabel: 'São Paulo',
+      availabilityLabel: 'Mentoria',
+    });
+    expect(withSkills.facts.find((item) => item.name === 'skills')).toEqual({
+      name: 'skills',
+      label: 'Competências',
+      values: ['Produto', 'Ops'],
+    });
     expect(detail.links[0]?.href).toContain('linkedin');
   });
 });

@@ -21,6 +21,8 @@ describe('AppDialog', () => {
     expect(screen.getByText('Produto')).toBeTruthy();
     expect(screen.getByText('Bio pública')).toBeTruthy();
     expect(document.querySelector('[data-slot="scroll-area"]')).toBeTruthy();
+    expect(document.querySelector('[data-slot="scroll-area"]')?.className).toMatch(/app-dialog-scroll/);
+    expect(document.querySelector('[data-slot="scroll-area-scrollbar"]')).toBeTruthy();
     expect(screen.getByText('Enviar')).toBeTruthy();
   });
 });
@@ -36,6 +38,8 @@ describe('AppShowcaseCard', () => {
         languagesLabel="Idiomas"
         languages={['Português', 'Inglês']}
         availability="Mentoria"
+        availabilityLabel="Disponibilidade"
+        facts={[{ label: 'Recebe em casa', values: [] }]}
         actionLabel="Ver perfil"
         onOpen={() => undefined}
       />
@@ -51,6 +55,8 @@ describe('AppShowcaseCard', () => {
     expect(screen.getByText('Português')).toBeTruthy();
     expect(screen.getByText('Inglês')).toBeTruthy();
     expect(screen.getByText('Mentoria')).toBeTruthy();
+    expect(screen.getByText('Disponibilidade')).toBeTruthy();
+    expect(screen.getByText('Recebe em casa')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Ver perfil: Marina Silva' })).toBeTruthy();
   });
 });

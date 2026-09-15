@@ -20,8 +20,26 @@
     overflow: hidden;
   }
 
-  .ops-page-scroll [data-slot="scroll-area-viewport"] {
+  .ops-page-scroll [data-slot="scroll-area-viewport"],
+  .app-scroll [data-slot="scroll-area-viewport"] {
     overflow-y: auto !important;
+  }
+
+  .app-dialog-scroll {
+    min-height: 0;
+    max-height: min(calc(90svh - 12rem), 28rem);
+  }
+
+  .app-dialog-scroll [data-slot="scroll-area-viewport"] {
+    height: auto !important;
+    max-height: min(calc(90svh - 12rem), 28rem) !important;
+    overflow-x: hidden !important;
+    overflow-y: scroll !important;
+  }
+
+  .app-dialog-scroll [data-slot="scroll-area-viewport"] > div {
+    display: block !important;
+    min-width: 100%;
   }
 
   body {

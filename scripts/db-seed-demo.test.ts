@@ -83,6 +83,19 @@ describe('demo member seed list', () => {
     expect(north.public_showcase).toBe(false);
   });
 
+  it('does not clone the same headline across a community list', () => {
+    const people = demoPeople();
+    for (const slug of SEED_COMMUNITIES.map((row) => row.slug)) {
+      const headlines = people.map((person) => membershipCard(slug, person).headline[0].value);
+      expect(new Set(headlines).size, slug).toBe(headlines.length);
+      const bios = people.map((person) => membershipCard(slug, person).bio[0].value);
+      expect(new Set(bios).size, slug).toBe(bios.length);
+    }
+    const helena = people[0];
+    const titles = SEED_COMMUNITIES.map((row) => membershipCard(row.slug, helena).headline[0].value);
+    expect(new Set(titles).size).toBe(titles.length);
+  });
+
   it('keeps hospitality off the platform catalog', () => {
     const catalog = fs.readFileSync(path.join(import.meta.dirname, 'seed-directory-catalog.cjs'), 'utf8');
     const seed = fs.readFileSync(path.join(import.meta.dirname, 'db-seed.cjs'), 'utf8');

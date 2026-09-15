@@ -69,7 +69,8 @@ blocks: []
 | `GET` | `/api/directory/catalog` | Grupos e campos; API **omite** campos cujo `module_id` não está enabled (núcleo sempre). 404 só se o plugin **directory** está off | Member | — | `{ "groups": [ { fields } ] }` |
 | `GET` | `/api/directory/members` | Diretório rico | Member; **404 se plugin off** | query + facets | `{ "data", "meta" }` |
 | `GET` | `/api/profiles/public` | Vitrine desta comunidade | Public; **404 se plugin off** | `?slug=` ou cookie `community_slug` + `search` / `status` / `attr.*` / `page` / `size` (24, 48, 96; default 24) | `{ "data", "meta": { page, pageSize, total } }` |
-| `POST` | `/api/contact/:membershipId` | Contato mediado | Public; **404 se plugin off** | nome, e-mail, mensagem | `200` sem e-mail |
+| `POST` | `/api/contact/:membershipId` | Contato mediado (legado) | Public; **404 se plugin off** | e-mail e mensagem obrigatórios; nome e telefone opcionais | `200` |
+| `POST` | `/api/profiles/:id/contact` | Contato mediado (vitrine/diretório) | Public; **404 se plugin off** ou sem vitrine; 5 / hora / IP | `sender_email`, `message` obrigatórios; `sender_name`, `sender_phone` opcionais | `200`; e-mail `contact_notice` com `community_name` do tenant |
 | `GET` | `/api/communities/public` | Comunidades com vitrine pública | Public | — | `{ "data": [{ id, slug, name }] }` |
 | `POST` | `/api/communities/:slug/join` | Pedido `pending_approval` (membro autenticado, sem assento) | Member | `{}` | `201` `{ "data": JoinSeat }` |
 | `GET` | `/api/coord/approvals` | Fila `pending_approval` deste tenant | Coordinator | — | `{ "pending" }` |

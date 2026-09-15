@@ -119,7 +119,7 @@ export function FieldControl({
       <label className="flex items-center gap-3 min-h-11 text-sm min-w-0">
         <Checkbox id={id} checked={Boolean(value)} onCheckedChange={(checked) => onChange(checked === true)} />
         <span className="min-w-0 flex-1">
-          <span className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+          <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
             <span className="font-medium">{label}</span>
             <span className="text-xs text-muted-foreground">{field.required ? copy.required : copy.optional}</span>
           </span>
@@ -229,7 +229,7 @@ function FieldMeta({
 }) {
   const status = required ? requiredLabel : optionalLabel;
   return (
-    <span className="flex min-w-0 w-full flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+    <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
       {htmlFor ? <Label htmlFor={htmlFor}>{label}</Label> : <span className="text-sm font-medium">{label}</span>}
       <span className="text-xs text-muted-foreground">{status}</span>
     </span>

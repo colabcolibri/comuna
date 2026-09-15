@@ -36,9 +36,10 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ membership
     locale,
     vars: {
       community_name: community.rows[0]?.name || '',
-      sender_name: String(body.sender_name || ''),
-      sender_email: String(body.sender_email || ''),
-      message: String(body.message || ''),
+      sender_name: String(body.sender_name || '').trim(),
+      sender_email: String(body.sender_email || '').trim(),
+      sender_phone: String(body.sender_phone || '').trim().slice(0, 40),
+      message: String(body.message || '').trim(),
     },
   });
   return NextResponse.json({ message: 'Mensagem enviada com sucesso' });

@@ -1,6 +1,7 @@
 export { AppPageHeader } from './app-page-header';
 export { AppPageTemplate } from './app-page-template';
 export { AppIndexList, AppPersonRow, personInitials } from './app-person-row';
+export { AppPersonFieldGroup } from './app-person-field-group';
 export { AppAuthFrame } from './app-auth-frame';
 export { AppAlertDialog } from './app-alert-dialog';
 export { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader } from './app-dialog';

@@ -34,7 +34,7 @@ export function OpsDialog({
     <Dialog open={open} onOpenChange={(next) => { if (!next) onClose(); }}>
       <DialogContent
         className={cn(
-          'flex max-h-[min(90svh,40rem)] w-full flex-col gap-0 overflow-hidden p-0',
+          'grid max-h-[min(90svh,40rem)] w-full grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0',
           'top-auto bottom-0 translate-y-0 rounded-t-xl sm:top-[50%] sm:bottom-auto sm:translate-y-[-50%] sm:rounded-xl',
           SIZE[size]
         )}
@@ -70,7 +70,7 @@ export function OpsDialogHeader({
 
 export function OpsDialogBody({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <ScrollArea type="always" className={cn('app-scroll min-h-0 flex-1', className)}>
+    <ScrollArea type="always" className={cn('app-scroll app-dialog-scroll', className)}>
       <div className="px-5 py-4 sm:px-6">{children}</div>
     </ScrollArea>
   );

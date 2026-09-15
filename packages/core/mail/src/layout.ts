@@ -59,11 +59,21 @@ function ctaSlot(href: string, locale: EmailLocale): string {
 </table>`;
 }
 
-function quoteSlot(name: string, email: string, message: string): string {
+function quoteSlot(name: string, email: string, phone: string, message: string): string {
+  const title = name || email;
+  const emailLine =
+    name && email
+      ? `<p style="margin:0 0 ${phone ? '4px' : '12px'};font-family:${FONT};font-size:13px;color:#5c564e;">${escapeHtml(email)}</p>`
+      : '';
+  const phoneLine = phone
+    ? `<p style="margin:0 0 12px;font-family:${FONT};font-size:13px;color:#5c564e;">${escapeHtml(phone)}</p>`
+    : '';
+  const titleGap = name && email ? '4px' : phone ? '4px' : '12px';
   return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:8px auto 24px;max-width:420px;text-align:left;">
   <tr><td style="padding:4px 0 4px 16px;border-left:3px solid #c45c26;">
-    <p style="margin:0 0 4px;font-family:${FONT};font-size:16px;font-weight:600;color:#1c1915;">${escapeHtml(name)}</p>
-    <p style="margin:0 0 12px;font-family:${FONT};font-size:13px;color:#5c564e;">${escapeHtml(email)}</p>
+    <p style="margin:0 0 ${titleGap};font-family:${FONT};font-size:16px;font-weight:600;color:#1c1915;">${escapeHtml(title)}</p>
+    ${emailLine}
+    ${phoneLine}
     <p style="margin:0;font-family:${FONT};font-size:16px;line-height:1.6;color:#1c1915;white-space:pre-wrap;">${escapeHtml(message)}</p>
   </td></tr>
 </table>`;
@@ -77,7 +87,7 @@ function slotHtml(kind: EmailKind, locale: EmailLocale, vars: Record<string, str
   if (slot === 'cta') {
     return ctaSlot(vars.login_url || '', locale);
   }
-  return quoteSlot(vars.sender_name || '', vars.sender_email || '', vars.message || '');
+  return quoteSlot(vars.sender_name || '', vars.sender_email || '', vars.sender_phone || '', vars.message || '');
 }
 
 export function renderMailHtml(input: {
@@ -136,7 +146,14 @@ export function renderMailText(input: {
   } else if (slot === 'cta') {
     lines.push('', `${CTA_LABEL[input.locale]}: ${input.vars.login_url || ''}`);
   } else {
-    lines.push('', `${input.vars.sender_name || ''} <${input.vars.sender_email || ''}>`, '', input.vars.message || '');
+    const name = input.vars.sender_name || '';
+    const email = input.vars.sender_email || '';
+    const who = name ? `${name} <${email}>` : email;
+    lines.push('', who);
+    if (input.vars.sender_phone) {
+      lines.push(input.vars.sender_phone);
+    }
+    lines.push('', input.vars.message || '');
   }
   lines.push('', '--', input.settings.product_name || 'Community');
   if (input.settings.support_url) {

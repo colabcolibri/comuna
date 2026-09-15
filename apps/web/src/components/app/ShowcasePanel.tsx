@@ -68,9 +68,13 @@ const CONTENT = mergeContent(
     contact: 'form.contact',
     cancel: 'form.cancel',
     send: 'form.send',
+    sending: 'form.sending',
     success: 'form.success',
+    name: 'form.name',
     email: 'form.email',
+    phone: 'form.phone',
     message: 'form.message',
+    privacy: 'form.privacy',
   })
 );
 
@@ -237,10 +241,11 @@ export function ShowcasePanel({
                   headline={view.headline}
                   summary={view.summary}
                   city={view.city}
-                  languagesLabel={copy.languages}
+                  languagesLabel={view.languagesHeading || copy.languages}
                   languages={view.languages.map((item) => item.label)}
+                  availabilityLabel={view.availabilityHeading || copy.availability}
                   availability={view.availability}
-                  facts={view.facts.map((item) => item.value)}
+                  facts={view.facts}
                   actionLabel={copy.view}
                   onOpen={() => setSelected(profile)}
                 />

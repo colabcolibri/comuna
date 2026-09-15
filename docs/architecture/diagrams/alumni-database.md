@@ -168,6 +168,7 @@ erDiagram
         uuid membership_id FK
         text sender_email
         text sender_name
+        text sender_phone
         text body
         timestamptz created_at
     }

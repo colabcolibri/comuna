@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader, AppSheet, personInitials } from '@community/ui-member';
+import { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader, AppPersonFieldGroup, AppSheet, personInitials } from '@community/ui-member';
 import { Button, DialogTitle, Input, Label, Textarea, toast } from '@community/ui';
 import { projectPersonView, type ListField } from '@community/directory';
 import { displayPlaceLocality } from '@community/places';
@@ -24,15 +24,21 @@ export function PersonInspect({
   canContact: boolean;
   onClose: () => void;
 }) {
+  const [senderName, setSenderName] = useState('');
   const [senderEmail, setSenderEmail] = useState('');
+  const [senderPhone, setSenderPhone] = useState('');
   const [message, setMessage] = useState('');
   const [fieldError, setFieldError] = useState('');
   const [contactOpen, setContactOpen] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const resetContact = () => {
+    setSenderName('');
     setSenderEmail('');
+    setSenderPhone('');
     setMessage('');
     setFieldError('');
+    setSending(false);
   };
 
   const closeAll = () => {
@@ -43,18 +49,26 @@ export function PersonInspect({
 
   const handleSendMessage = async (e: FormEvent) => {
     e.preventDefault();
+    if (sending) return;
     setFieldError('');
     if (!senderEmail.includes('@')) {
       setFieldError(copy.email);
       return;
     }
+    if (!message.trim()) {
+      setFieldError(copy.message);
+      return;
+    }
     if (!profile) return;
+    setSending(true);
     const sent = await sendPersonContact(profile.id, {
-      sender_email: senderEmail,
-      sender_name: senderEmail,
-      message,
+      sender_email: senderEmail.trim(),
+      sender_name: senderName.trim(),
+      sender_phone: senderPhone.trim(),
+      message: message.trim(),
     });
     if (!sent.ok) {
+      setSending(false);
       setFieldError(sent.message || copy.message);
       return;
     }
@@ -73,9 +87,13 @@ export function PersonInspect({
         availabilityLabel: availabilityLabel(profile.availability_status, copy),
       })
     : null;
+  const hasMeta = Boolean(
+    view && (view.languages.length > 0 || view.availability || view.facts.length > 0 || view.links.length > 0)
+  );
+  const split = Boolean((view?.headline || view?.summary) && hasMeta);
 
   return (
-    <AppDialog open={!!profile} onClose={closeAll} size="lg">
+    <AppDialog open={!!profile} onClose={closeAll} size="xl">
       <AppDialogHeader>
         {profile && view ? (
           <div className="flex min-w-0 items-start gap-4">
@@ -91,48 +109,55 @@ export function PersonInspect({
             )}
             <div className="min-w-0 flex-1">
               <DialogTitle className="tracking-tight text-foreground">{view.name}</DialogTitle>
-              {view.city ? <p className="mt-1 text-base text-muted-foreground">{view.city}</p> : null}
+              {view.city ? <p className="mt-1 text-sm text-muted-foreground">{view.city}</p> : null}
             </div>
           </div>
         ) : null}
       </AppDialogHeader>
       <AppDialogBody>
         {view ? (
-          <div className="space-y-6">
-            {view.headline ? <p className="text-base font-medium text-foreground">{view.headline}</p> : null}
-            {view.summary ? <p className="text-base leading-relaxed text-foreground">{view.summary}</p> : null}
-            {view.languages.length > 0 ? (
-              <section className="min-w-0 space-y-2">
-                <h3 className="text-sm font-medium text-foreground">{copy.languages}</h3>
-                <ul className="flex flex-wrap gap-2">
-                  {view.languages.map((item) => (
-                    <li key={item.code} className="rounded-md border border-border bg-secondary px-2.5 py-1 text-sm">
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
-              </section>
+          <div className={split ? 'grid min-w-0 gap-8 md:grid-cols-[minmax(0,1fr)_minmax(13rem,18rem)] md:items-start md:gap-10' : 'min-w-0'}>
+            {view.headline || view.summary ? (
+              <div className="min-w-0">
+                {view.headline ? (
+                  <p className="text-xl font-semibold leading-snug tracking-tight text-foreground">{view.headline}</p>
+                ) : null}
+                {view.summary ? (
+                  <p className={`text-base leading-relaxed text-muted-foreground ${view.headline ? 'mt-4' : ''}`}>
+                    {view.summary}
+                  </p>
+                ) : null}
+              </div>
             ) : null}
-            {view.availability ? <p className="text-sm text-foreground">{view.availability}</p> : null}
-            {view.facts.length > 0 ? (
-              <ul className="flex flex-wrap gap-2">
+            {hasMeta ? (
+              <aside className={split ? 'min-w-0 space-y-5 md:border-l md:border-border md:pl-8' : 'min-w-0 space-y-5'}>
+                {view.languages.length > 0 ? (
+                  <AppPersonFieldGroup
+                    label={view.languagesHeading || copy.languages}
+                    values={view.languages.map((item) => item.label)}
+                  />
+                ) : null}
+                {view.availability ? (
+                  <AppPersonFieldGroup
+                    label={view.availabilityHeading || copy.availability}
+                    values={[view.availability]}
+                  />
+                ) : null}
                 {view.facts.map((item) => (
-                  <li key={item.name} className="rounded-md border border-border bg-secondary px-2.5 py-1 text-sm">
-                    {item.value}
-                  </li>
+                  <AppPersonFieldGroup key={item.name} label={item.label} values={item.values} />
                 ))}
-              </ul>
-            ) : null}
-            {view.links.length > 0 ? (
-              <ul className="flex flex-col gap-2 text-sm">
-                {view.links.map((item) => (
-                  <li key={item.key}>
-                    <a href={item.href} className="underline" rel="noreferrer" target="_blank">
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+                {view.links.length > 0 ? (
+                  <ul className="flex flex-col gap-2 text-sm">
+                    {view.links.map((item) => (
+                      <li key={item.key} className="min-w-0">
+                        <a href={item.href} className="break-all underline" rel="noreferrer" target="_blank">
+                          {item.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </aside>
             ) : null}
           </div>
         ) : null}
@@ -159,13 +184,30 @@ export function PersonInspect({
               }
             }}
             footer={
-              <Button type="submit" form="person-inspect-contact" className="min-h-11">
-                {copy.send}
+              <Button
+                type="submit"
+                form="person-inspect-contact"
+                className="min-h-11"
+                disabled={sending}
+                aria-busy={sending}
+              >
+                {sending ? copy.sending : copy.send}
               </Button>
             }
           >
-            <form id="person-inspect-contact" onSubmit={handleSendMessage} className="grid gap-3">
+            <form id="person-inspect-contact" onSubmit={handleSendMessage} className="grid gap-3" aria-busy={sending}>
               {fieldError ? <p className="text-sm text-destructive">{fieldError}</p> : null}
+              <div className="grid gap-3">
+                <Label htmlFor="contact-name">{copy.name}</Label>
+                <Input
+                  id="contact-name"
+                  className="min-h-11"
+                  autoComplete="name"
+                  value={senderName}
+                  disabled={sending}
+                  onChange={(e) => setSenderName(e.target.value)}
+                />
+              </div>
               <div className="grid gap-3">
                 <Label htmlFor="contact-email">{copy.email}</Label>
                 <Input
@@ -173,8 +215,22 @@ export function PersonInspect({
                   className="min-h-11"
                   type="email"
                   required
+                  autoComplete="email"
                   value={senderEmail}
+                  disabled={sending}
                   onChange={(e) => setSenderEmail(e.target.value)}
+                />
+              </div>
+              <div className="grid gap-3">
+                <Label htmlFor="contact-phone">{copy.phone}</Label>
+                <Input
+                  id="contact-phone"
+                  className="min-h-11"
+                  type="tel"
+                  autoComplete="tel"
+                  value={senderPhone}
+                  disabled={sending}
+                  onChange={(e) => setSenderPhone(e.target.value)}
                 />
               </div>
               <div className="grid gap-3">
@@ -185,6 +241,7 @@ export function PersonInspect({
                   required
                   rows={4}
                   value={message}
+                  disabled={sending}
                   onChange={(e) => setMessage(e.target.value)}
                 />
               </div>

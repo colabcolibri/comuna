@@ -20,10 +20,21 @@ export type PersonView = {
   headline: string | null;
   summary: string | null;
   availability: string | null;
+  languagesHeading: string | null;
+  availabilityHeading: string | null;
   languages: { code: string; proficiency: string; label: string }[];
-  facts: { name: string; label: string; value: string }[];
+  facts: { name: string; label: string; values: string[] }[];
   links: { key: string; href: string; label: string }[];
 };
+
+function visibleFieldLabel(fields: ListField[], name: string, density: ListDensity, locale: string): string | null {
+  const field = fields.find((item) => item.name === name || item.column_key === name);
+  if (!field || !visibleOn(field.placement, density)) {
+    return null;
+  }
+  const label = pickLocalizedText(field.label, locale).trim();
+  return label || null;
+}
 
 function fieldVisible(fields: ListField[], name: string, density: ListDensity) {
   const field = fields.find((item) => item.name === name || item.column_key === name);
@@ -38,21 +49,21 @@ function optionLabel(field: ListField, value: string, locale: string) {
   return (option ? pickLocalizedText(option.label, locale) : '') || value;
 }
 
-function factValue(field: ListField, raw: unknown, locale: string): string | null {
+function factValues(field: ListField, raw: unknown, locale: string): string[] | null {
   if (field.type === 'boolean') {
-    return raw === true ? pickLocalizedText(field.label, locale) || field.name : null;
-  }
-  if (field.type === 'select' || field.type === 'radio') {
-    const value = String(raw ?? '').trim();
-    return value ? optionLabel(field, value, locale) : null;
+    return raw === true ? [] : null;
   }
   if (field.type === 'checkbox' && Array.isArray(raw)) {
     const labels = raw.map((item) => optionLabel(field, String(item), locale)).filter(Boolean);
-    return labels.length ? labels.join(', ') : null;
+    return labels.length ? labels : null;
+  }
+  if (field.type === 'select' || field.type === 'radio') {
+    const value = String(raw ?? '').trim();
+    return value ? [optionLabel(field, value, locale)] : null;
   }
   if (typeof raw === 'string') {
     const value = raw.trim();
-    return value || null;
+    return value ? [value] : null;
   }
   return null;
 }
@@ -79,9 +90,9 @@ export function projectPersonView(input: {
       continue;
     }
     if (field.storage === 'attributes') {
-      const value = factValue(field, profile.custom_attributes[field.name], locale);
-      if (value) {
-        facts.push({ name: field.name, label: pickLocalizedText(field.label, locale) || field.name, value });
+      const values = factValues(field, profile.custom_attributes[field.name], locale);
+      if (values) {
+        facts.push({ name: field.name, label: pickLocalizedText(field.label, locale) || field.name, values });
       }
     }
   }
@@ -107,6 +118,10 @@ export function projectPersonView(input: {
     headline: fieldVisible(fields, 'headline', density) ? pickLocalizedText(profile.headline, locale) || null : null,
     summary: fieldVisible(fields, 'bio', density) ? pickLocalizedText(profile.bio, locale) || null : null,
     availability: fieldVisible(fields, 'availability_status', density) ? input.availabilityLabel : null,
+    languagesHeading: languages.length ? visibleFieldLabel(fields, 'languages', density, locale) : null,
+    availabilityHeading: fieldVisible(fields, 'availability_status', density)
+      ? visibleFieldLabel(fields, 'availability_status', density, locale)
+      : null,
     languages,
     facts,
     links,

@@ -46,6 +46,7 @@ export const KIND_VARIABLES: Record<EmailKind, EmailVariable[]> = {
     { name: 'community_name', sample: 'Demo' },
     { name: 'sender_name', sample: 'Ada', slot: true },
     { name: 'sender_email', sample: 'ada@example.com', slot: true },
+    { name: 'sender_phone', sample: '+55 11 99999-0000', slot: true },
     { name: 'message', sample: 'Olá', slot: true },
   ],
 };

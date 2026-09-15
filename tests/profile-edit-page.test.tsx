@@ -95,6 +95,12 @@ describe('profile forms', () => {
     expect(screen.getByLabelText('Foto')).toBeTruthy();
     expect(screen.getByText('Obrigatório')).toBeTruthy();
     expect(screen.getAllByText('Opcional').length).toBeGreaterThan(0);
+    const nameRow = screen.getByText('Nome completo').closest('span');
+    expect(nameRow?.className).not.toContain('justify-between');
+    expect(nameRow?.textContent).toContain('Obrigatório');
+    const languageRow = screen.getByText('Idiomas que fala').closest('div');
+    expect(languageRow?.className).not.toContain('justify-between');
+    expect(languageRow?.textContent).toContain('Opcional');
     expect(screen.getByText('Português')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Remover Português' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Adicionar novo idioma' })).toBeTruthy();
