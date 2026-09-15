@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { memberFromRequest } from '@community/auth';
 import { query } from '@community/db';
+import { directoryContribution } from '@community/directory';
 import { activeMembership, moduleRuntime } from '@/lib/server/membership';
 
 export async function GET(req: NextRequest) {
@@ -12,7 +13,7 @@ export async function GET(req: NextRequest) {
   if (!membership) {
     return NextResponse.json({ data: [], meta: { page: 1 } });
   }
-  const on = await moduleRuntime.isEnabled(membership.community_id, 'directory');
+  const on = await moduleRuntime.isEnabled(membership.community_id, directoryContribution.slug);
   if (!on) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
   }

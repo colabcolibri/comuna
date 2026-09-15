@@ -8,14 +8,16 @@ import { displayPlace } from '@community/places';
 import { AppDialogTemplate } from '@/components/templates/AppDialogTemplate';
 import { AppAlertTemplate } from '@/components/templates/AppAlertTemplate';
 import { useLocale } from '@/components/app/LocaleProvider';
+import { useEnabledModules } from '@/components/app/EnabledModulesProvider';
+import { SHOWCASE_ROW_ACTION } from '@community/showcase';
 import { uiCatalog } from '@/lang/catalog';
+import { slotOn } from '@/modules/registry';
 
 const CONTENT = mergeContent(
   contentFromCatalog(uiCatalog, 'plugin_showcase', {
     kicker: 'page.kicker',
     title: 'page.title',
     subtitle: 'page.subtitle',
-    off: 'page.off',
   }),
   contentFromCatalog(uiCatalog, 'plugin_contact_mediated', {
     contact: 'form.contact',
@@ -32,19 +34,19 @@ type Row = { id: string; full_name: string; headline: unknown; current_city: unk
 export default function ShowcasePage() {
   const locale = useLocale();
   const copy = pickContent(CONTENT, locale);
+  const enabled = useEnabledModules();
   const [rows, setRows] = useState<Row[]>([]);
   const [selected, setSelected] = useState<Row | null>(null);
   const [senderEmail, setSenderEmail] = useState('');
   const [message, setMessage] = useState('');
   const [sentSuccess, setSentSuccess] = useState(false);
   const [fieldError, setFieldError] = useState('');
-  const [off, setOff] = useState(false);
 
   useEffect(() => {
     fetch('/api/profiles/public')
       .then(async (res) => {
         if (res.status === 404) {
-          setOff(true);
+          window.location.replace('/');
           return;
         }
         const json = await res.json();
@@ -82,9 +84,7 @@ export default function ShowcasePage() {
 
   return (
     <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
-      {off && <p>{copy.off}</p>}
-      {!off && (
-        <AppIndexList>
+      <AppIndexList>
           {rows.map((profile) => (
             <AppPersonRow
               key={profile.id}
@@ -96,14 +96,15 @@ export default function ShowcasePage() {
                 .filter(Boolean)
                 .join(' · ')}
               action={
+                slotOn(enabled, SHOWCASE_ROW_ACTION) ? (
                 <Button variant="outline" onClick={() => setSelected(profile)}>
                   {copy.contact}
                 </Button>
+                ) : undefined
               }
             />
           ))}
         </AppIndexList>
-      )}
       <AppDialogTemplate
         isOpen={!!selected}
         onClose={() => setSelected(null)}

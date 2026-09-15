@@ -140,6 +140,7 @@ async function seedDirectoryCatalog(client, communityId) {
           storage: 'card_column',
           column_key: 'headline',
           sort: 10,
+          module_slug: 'directory',
         },
         {
           name: 'bio',
@@ -149,6 +150,7 @@ async function seedDirectoryCatalog(client, communityId) {
           storage: 'card_column',
           column_key: 'bio',
           sort: 20,
+          module_slug: 'directory',
         },
       ],
     },
@@ -167,6 +169,7 @@ async function seedDirectoryCatalog(client, communityId) {
           storage: 'card_column',
           column_key: 'availability_status',
           sort: 10,
+          module_slug: 'directory',
           options: [
             opt('available_for_hire', 'Disponível para contratação', 'Available for hire'),
             opt('project_partner', 'Parceiro de projeto', 'Project partner'),
@@ -182,6 +185,7 @@ async function seedDirectoryCatalog(client, communityId) {
           storage: 'card_column',
           column_key: 'public_showcase',
           sort: 20,
+          module_slug: 'showcase',
         },
       ],
     },
@@ -201,6 +205,7 @@ async function seedDirectoryCatalog(client, communityId) {
           storage: 'attributes',
           filterable: true,
           sort: 10,
+          module_slug: 'directory',
         },
       ],
     },
@@ -224,8 +229,11 @@ async function seedDirectoryCatalog(client, communityId) {
       await client.query(
         `INSERT INTO plugin_directory.fields (
            group_id, name, type, label, description, options, span, required, sort_order,
-           storage, column_key, filterable
-         ) VALUES ($1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8, $9, $10, $11, $12)
+           storage, column_key, filterable, module_id
+         ) VALUES (
+           $1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8, $9, $10, $11, $12,
+           (SELECT id FROM plugin_core.modules WHERE slug = $13)
+         )
          ON CONFLICT (group_id, name) DO UPDATE SET
            type = EXCLUDED.type,
            label = EXCLUDED.label,
@@ -236,7 +244,8 @@ async function seedDirectoryCatalog(client, communityId) {
            sort_order = EXCLUDED.sort_order,
            storage = EXCLUDED.storage,
            column_key = EXCLUDED.column_key,
-           filterable = EXCLUDED.filterable`,
+           filterable = EXCLUDED.filterable,
+           module_id = EXCLUDED.module_id`,
         [
           groupId,
           field.name,
@@ -250,6 +259,7 @@ async function seedDirectoryCatalog(client, communityId) {
           field.storage,
           field.column_key || null,
           Boolean(field.filterable),
+          field.module_slug || null,
         ]
       );
     }

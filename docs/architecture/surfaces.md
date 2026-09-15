@@ -12,7 +12,7 @@ Volta: `docs/05_architecture.md`.
 
 - **Users:** `guest`, `member`, `coordinator`.
 - **Visual:** `09` + Stitch.
-- **Monta** só plugins `enabled` da comunidade atual.
+- **Monta** só plugins `enabled` da comunidade atual (nav, home, campos, CTA). Sem link órfão.
 - **Cookie:** sessão membro.
 
 ## apps/admin

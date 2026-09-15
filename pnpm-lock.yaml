@@ -169,18 +169,27 @@ importers:
       '@community/identity':
         specifier: workspace:*
         version: link:../../core/identity
+      '@community/module-runtime':
+        specifier: workspace:*
+        version: link:../../core/module-runtime
 
   packages/modules/directory:
     dependencies:
       '@community/identity':
         specifier: workspace:*
         version: link:../../core/identity
+      '@community/module-runtime':
+        specifier: workspace:*
+        version: link:../../core/module-runtime
 
   packages/modules/showcase:
     dependencies:
       '@community/identity':
         specifier: workspace:*
         version: link:../../core/identity
+      '@community/module-runtime':
+        specifier: workspace:*
+        version: link:../../core/module-runtime
 
   packages/ui/admin:
     dependencies:

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { query } from '@community/db';
+import { showcaseContribution } from '@community/showcase';
 import { moduleRuntime } from '@/lib/server/membership';
 
 export async function GET() {
@@ -10,7 +11,7 @@ export async function GET() {
   if (!communityId) {
     return NextResponse.json({ data: [], meta: { page: 1 } });
   }
-  const on = await moduleRuntime.isEnabled(communityId, 'showcase');
+  const on = await moduleRuntime.isEnabled(communityId, showcaseContribution.slug);
   if (!on) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
   }

@@ -1,7 +1,7 @@
 ---
 title: System Architecture
 status: approved
-version: 1.8
+version: 1.9
 updated: 2026-09-15
 depends_on: [00_scope.md, 01_tech_stack.md, 02_security.md, 03_user_types.md, 04_principles.md]
 blocks: [06_database.md, 07_api_contracts.md, 08_environments.md]
@@ -65,6 +65,7 @@ flowchart TD
 | `docs/architecture/diagrams/alumni-database.md` | database | ER SQL + catálogo `field_groups` / `fields` (skills ainda não existem em SQL) |
 | `docs/architecture/diagrams/alumni-runtime.md` | runtime | `apps/web` e `apps/admin`, places, plugins, Postgres |
 | `docs/architecture/diagrams/module-runtime.md` | flow | enable/disable por `community_id` → 404 se off |
+| `docs/architecture/diagrams/plugin-contributions.md` | flow | registry + `listEnabled` → chrome/slots/campos |
 
 ## Architecture detail files
 
@@ -74,6 +75,7 @@ flowchart TD
 | `docs/architecture/monorepo.md` | Árvore de pastas |
 | `docs/architecture/modules.md` | Contrato de plugin, perfil-base vs extra |
 | `docs/architecture/profile-fields.md` | Catálogo de grupos/campos, templates, jsonb + GIN |
+| `docs/architecture/plugin-surfaces.md` | Contribuições (registry + `module_id`); off = filtro genérico |
 | `docs/architecture/i18n-content.md` | Packs + `CONTENT` no arquivo |
 
 ## System modules (core)
@@ -92,7 +94,9 @@ Tenant, papéis `member` / `coordinator`, `pending_approval`. Coordenação de e
 
 ### Module runtime
 
-Catálogo `plugin_core.modules`. Por comunidade: `network_core.community_modules (community_id, module_id, enabled)`. Comunidade nova: plugins first-party nascem **enabled**. Resolve manifest, recusa rotas de plugin off.
+Catálogo `plugin_core.modules`. Por comunidade: `network_core.community_modules (community_id, module_id, enabled)`. Comunidade nova e seed: first-party **inseridos** `enabled = true` (a coluna continua `DEFAULT false` para módulo sem row).
+
+Montagem: **registry de contribuições** (rotas, chrome, slots) filtrado por `listEnabled`. Campos de perfil: `fields.module_id` (null = núcleo). Parser de catálogo não infere plugin. Detalhe: `docs/architecture/plugin-surfaces.md`.
 
 ### Operations (admin app)
 
@@ -112,7 +116,7 @@ Detalhe: `docs/architecture/profile-fields.md`. Resumo: definições em tabela (
 
 ## Component boundary
 
-1. App web pergunta ao runtime o que montar.
+1. App web registra contribuições e pergunta `listEnabled`; monta só o filtro.
 2. Autorização no core; módulo não grava se `enabled = false`.
 3. Isolamento `community_id` em toda query de rede.
 

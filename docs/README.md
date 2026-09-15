@@ -16,7 +16,7 @@ Plataforma genérica de comunidades (diretório + plugins). Alumni é um tipo de
 | [07_api_contracts.md](07_api_contracts.md) | approved | Core APIs + catálogo + plugin 404 se off |
 | [08_environments.md](08_environments.md) | approved | Local, env |
 | [09_design_system.md](09_design_system.md) | approved | Stitch membro + i18n `CONTENT` |
-| [architecture/](architecture/monorepo.md) | — | Monorepo, modules, i18n, profile-fields |
+| [architecture/](architecture/monorepo.md) | — | Monorepo, modules, i18n, profile-fields, plugin-surfaces (contribuições) |
 | [stitch/](stitch/README.md) | reference | HTML (ainda com copy alumni) |
 | [10_test_strategy.md](10_test_strategy.md) | approved | Vitest |
 | [11_decisions.md](11_decisions.md) | approved | Índice SQLite |

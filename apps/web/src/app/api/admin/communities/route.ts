@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { memberFromRequest } from '@community/auth';
 import { query } from '@community/db';
 import { enableFirstPartyModules } from '@community/module-runtime';
+import { firstPartySlugs } from '@/modules/registry';
 
 async function requireOps(req: NextRequest) {
   const member = await memberFromRequest(req);
@@ -33,6 +34,6 @@ export async function POST(req: NextRequest) {
     [body.slug, body.name, body.type || 'alumni']
   );
   const community = inserted.rows[0];
-  await enableFirstPartyModules(query, community.id);
+  await enableFirstPartyModules(query, community.id, firstPartySlugs);
   return NextResponse.json(community, { status: 201 });
 }

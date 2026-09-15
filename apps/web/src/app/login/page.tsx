@@ -14,7 +14,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
 export default async function LoginPage() {
   const session = await getMemberSession();
   if (session) {
-    redirect('/directory');
+    redirect('/');
   }
   const locale = resolveUiLocale((await cookies()).get(LOCALE_COOKIE)?.value);
   const copy = pickContent(CONTENT, locale);

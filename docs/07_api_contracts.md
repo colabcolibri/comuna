@@ -58,7 +58,8 @@ blocks: []
 | `PUT` | `/api/profiles/me` | Atualiza perfil-base | Member / coordinator | identidade + demografia + lugares Nominatim | `{ "profile" }` |
 | `GET` | `/api/places/cities` | Busca cidade (Nominatim) | Member | `?q=` | `{ "data": GeoPlace[] }` |
 | `PUT` | `/api/memberships/me` | Card do directory | Member; 404 se plugin off | LocalizedText headline/bio, availability, vitrine, `custom_attributes` (só chaves do catálogo) | `{ ok }` |
-| `GET` | `/api/directory/catalog` | Grupos e campos da comunidade | Member; **404 se plugin off** | — | `{ "groups": [ { fields } ] }` |
+| `GET` | `/api/community/modules` | Slugs enabled da comunidade do viewer | Public (comunidade pública) / member | — | `{ "enabled": ["directory", "showcase"] }` |
+| `GET` | `/api/directory/catalog` | Grupos e campos; API **omite** campos cujo `module_id` não está enabled (núcleo sempre). 404 só se o plugin **directory** está off | Member | — | `{ "groups": [ { fields } ] }` |
 | `GET` | `/api/directory/members` | Diretório rico | Member; **404 se plugin off** | query + facets | `{ "data", "meta" }` |
 | `GET` | `/api/showcase/profiles` | Vitrine | Public; **404 se plugin off** | query | dados públicos |
 | `POST` | `/api/contact/:membershipId` | Contato mediado | Public; **404 se plugin off** | nome, e-mail, mensagem | `200` sem e-mail |

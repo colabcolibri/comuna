@@ -15,7 +15,6 @@ const CONTENT = contentFromCatalog(uiCatalog, 'plugin_directory', {
   subtitle: 'page.subtitle',
   search: 'page.search',
   empty: 'page.empty',
-  off: 'page.off',
   privacy: 'page.privacy',
   view: 'page.view',
   facets: 'page.facets',
@@ -36,14 +35,13 @@ export default function DirectoryPage() {
   const copy = pickContent(CONTENT, locale);
   const [rows, setRows] = useState<MemberRow[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [off, setOff] = useState(false);
   const [facets, setFacets] = useState<CatalogField[]>([]);
   const [facetValues, setFacetValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetch('/api/directory/catalog').then(async (res) => {
       if (res.status === 404) {
-        setOff(true);
+        window.location.replace('/');
         return;
       }
       if (!res.ok) {
@@ -56,9 +54,6 @@ export default function DirectoryPage() {
   }, []);
 
   useEffect(() => {
-    if (off) {
-      return;
-    }
     const params = new URLSearchParams();
     if (searchTerm.trim()) {
       params.set('search', searchTerm.trim());
@@ -71,13 +66,13 @@ export default function DirectoryPage() {
     const query = params.toString();
     fetch(`/api/directory/members${query ? `?${query}` : ''}`).then(async (res) => {
       if (res.status === 404) {
-        setOff(true);
+        window.location.replace('/');
         return;
       }
       const json = await res.json();
       setRows(json.data || []);
     });
-  }, [searchTerm, facetValues, off]);
+  }, [searchTerm, facetValues]);
 
   return (
     <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
@@ -110,9 +105,8 @@ export default function DirectoryPage() {
         </fieldset>
       )}
       <p className="text-base text-muted-foreground mb-6 max-w-[40rem]">{copy.privacy}</p>
-      {off && <p>{copy.off}</p>}
-      {!off && rows.length === 0 && <p className="text-muted-foreground">{copy.empty}</p>}
-      {!off && rows.length > 0 && (
+      {rows.length === 0 && <p className="text-muted-foreground">{copy.empty}</p>}
+      {rows.length > 0 && (
         <AppIndexList>
           {rows.map((profile) => {
             const headline = pickLocalizedText(profile.headline, locale);

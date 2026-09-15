@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ClipboardList, LayoutGrid, LogIn, LogOut, SquareChevronLeft, SquareChevronRight, UserRound, Users } from 'lucide-react';
+import { ClipboardList, LogIn, LogOut, SquareChevronLeft, SquareChevronRight, UserRound } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -20,7 +20,10 @@ import {
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { AppAlertDialog } from '@community/ui-member';
 import { useLocale } from '@/components/app/LocaleProvider';
+import { useEnabledModules } from '@/components/app/EnabledModulesProvider';
 import { uiCatalog } from '@/lang/catalog';
+import { chromeIcon } from '@/modules/chrome-icons';
+import { copyFrom, visibleChrome } from '@/modules/registry';
 
 const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   showcase: 'chrome.showcase',
@@ -39,6 +42,8 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
 export function AppSidebar({ email }: { email: string | null }) {
   const pathname = usePathname();
   const copy = pickContent(CONTENT, useLocale());
+  const enabled = useEnabledModules();
+  const pluginNav = visibleChrome(enabled, 'sidebar', Boolean(email));
   const { toggleSidebar, state, isMobile } = useSidebar();
   const collapsed = state === 'collapsed' && !isMobile;
   const [signOutOpen, setSignOutOpen] = useState(false);
@@ -64,25 +69,21 @@ export function AppSidebar({ email }: { email: string | null }) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname.startsWith('/showcase')} tooltip={copy.showcase}>
-                  <Link href="/showcase">
-                    <LayoutGrid />
-                    <span>{copy.showcase}</span>
+              {pluginNav.map((item) => {
+                const Icon = chromeIcon(item.icon);
+                return (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={copyFrom(copy, item.copyKey)}>
+                  <Link href={item.href}>
+                    {Icon ? <Icon /> : null}
+                    <span>{copyFrom(copy, item.copyKey)}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+                );
+              })}
               {email ? (
-                <>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={pathname.startsWith('/directory')} tooltip={copy.directory}>
-                      <Link href="/directory">
-                        <Users />
-                        <span>{copy.directory}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
+                <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={pathname.startsWith('/coord')} tooltip={copy.coord}>
                       <Link href="/coord/approvals">
                         <ClipboardList />
@@ -90,7 +91,6 @@ export function AppSidebar({ email }: { email: string | null }) {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                </>
               ) : null}
             </SidebarMenu>
           </SidebarGroupContent>

@@ -34,7 +34,18 @@ export type CatalogField = {
   storage: StorageKind;
   column_key: string | null;
   filterable: boolean;
+  module_slug: string | null;
 };
+
+export function visibleCatalog(groups: CatalogGroup[], enabled: Iterable<string>): CatalogGroup[] {
+  const on = new Set(enabled);
+  return groups
+    .map((group) => ({
+      ...group,
+      fields: group.fields.filter((field) => !field.module_slug || on.has(field.module_slug)),
+    }))
+    .filter((group) => group.fields.length > 0);
+}
 
 export type CatalogGroup = {
   slug: string;
@@ -84,6 +95,7 @@ export function parseField(row: Record<string, unknown>): CatalogField | null {
     return null;
   }
   const columnKey = row.column_key == null || row.column_key === '' ? null : String(row.column_key);
+  const moduleSlug = row.module_slug == null || row.module_slug === '' ? null : String(row.module_slug);
   return {
     name,
     type: type as FieldType,
@@ -96,6 +108,7 @@ export function parseField(row: Record<string, unknown>): CatalogField | null {
     storage: storage as StorageKind,
     column_key: columnKey,
     filterable: Boolean(row.filterable),
+    module_slug: moduleSlug,
   };
 }
 

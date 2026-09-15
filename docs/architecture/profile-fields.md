@@ -8,7 +8,7 @@ source: docs/05_architecture.md
 
 Volta: `docs/05_architecture.md` § Profile field catalog.
 
-O formulário de perfil **não** hardcoda cards. Lê grupos e campos da comunidade. Built-ins e custom usam os **mesmos templates** de tipo. Availability **não** é bloco de identidade.
+Plugin off **não** mostra campos daquele plugin. O dono é `fields.module_id` (setup/seed), não `if` no parser. Ver `docs/architecture/plugin-surfaces.md`.
 
 ## Definição vs valor
 
@@ -30,6 +30,8 @@ Cada campo tem `storage`:
 - `card_column` — `headline`, `bio`, `availability_status`, `public_showcase`.
 - `attributes` — chave em `custom_attributes`. Valor **escalar** (`true`, `"yes"`, texto curto). Sem LocalizedText aninhado no blob.
 
+`storage` **não** implica plugin. `module_id` null = núcleo. Directory e showcase marcam o próprio `module_id` no seed (ex.: `public_showcase` é `card_column` no schema directory e **módulo** showcase).
+
 Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejeitada.
 
 ## Grupos seed (reordenáveis)
@@ -39,7 +41,7 @@ Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejei
 | `identity` | core (não some) | nome, avatar | `person` |
 | `person` | core | gênero, cidades, idiomas, links | `person` |
 | `community_copy` | directory | headline, bio | `card_column` |
-| `availability` | directory | availability, vitrine | `card_column` |
+| `availability` | directory + showcase | availability (`directory`); `public_showcase` (`showcase`) | `card_column` |
 | (custom) | directory | o que a comunidade pedir | `attributes` |
 
 Grupos extra entram por seed/SQL nesta versão. Builder visual e tela admin de campos ficam para depois.

@@ -3,6 +3,7 @@ import { memberFromRequest } from '@community/auth';
 import { queryAsMember } from '@community/db';
 import { parseLocalized } from '@community/identity';
 import { parseField, validateCustomAttributes } from '@community/directory';
+import { canWriteCards } from '@/modules/registry';
 import { activeMembership, moduleRuntime } from '@/lib/server/membership';
 
 export async function GET(req: NextRequest) {
@@ -14,7 +15,8 @@ export async function GET(req: NextRequest) {
   if (!membership) {
     return NextResponse.json({ membership: null, card: null });
   }
-  const on = await moduleRuntime.isEnabled(membership.community_id, 'directory');
+  const enabled = await moduleRuntime.listEnabled(membership.community_id);
+  const on = canWriteCards(enabled);
   const card = on
     ? await queryAsMember(
         { userId: member.sub, communityId: membership.community_id },
@@ -38,7 +40,8 @@ export async function PUT(req: NextRequest) {
   if (!membership) {
     return NextResponse.json({ error: { code: 'FORBIDDEN', message: 'Sem membership ativa' } }, { status: 403 });
   }
-  if (!(await moduleRuntime.isEnabled(membership.community_id, 'directory'))) {
+  const enabled = await moduleRuntime.listEnabled(membership.community_id);
+  if (!canWriteCards(enabled)) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
   }
   const body = await req.json();

@@ -14,3 +14,26 @@ export async function activeMembership(userId: string) {
   );
   return result.rows[0] ?? null;
 }
+
+export async function viewerCommunityId(userId?: string | null) {
+  if (userId) {
+    const membership = await activeMembership(userId);
+    if (membership) {
+      return membership.community_id;
+    }
+  }
+  const publicCommunity = await query<{ id: string }>(
+    `SELECT id FROM network_core.communities
+     ORDER BY is_public_showcase DESC, created_at
+     LIMIT 1`
+  );
+  return publicCommunity.rows[0]?.id ?? null;
+}
+
+export async function viewerEnabledSlugs(userId?: string | null) {
+  const communityId = await viewerCommunityId(userId);
+  if (!communityId) {
+    return [];
+  }
+  return moduleRuntime.listEnabled(communityId);
+}

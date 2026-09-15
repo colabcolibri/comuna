@@ -28,7 +28,6 @@ export default function ProfileEditPage() {
   const copy = pickContent(CONTENT, locale);
   const [groups, setGroups] = useState<CatalogGroup[]>(coreCatalog());
   const [values, setValues] = useState<Record<string, unknown>>({});
-  const [directoryOn, setDirectoryOn] = useState(true);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
 
@@ -43,14 +42,11 @@ export default function ProfileEditPage() {
       const profileJson = await profileRes.json();
       const membershipJson = await membershipRes.json();
       let nextGroups = coreCatalog();
-      if (catalogRes.status === 404) {
-        setDirectoryOn(false);
-      } else if (catalogRes.ok) {
+      if (catalogRes.ok) {
         const catalogJson = await catalogRes.json();
         if (Array.isArray(catalogJson.groups) && catalogJson.groups.length) {
           nextGroups = catalogJson.groups;
         }
-        setDirectoryOn(true);
       }
       setGroups(nextGroups);
       const next: Record<string, unknown> = {};
@@ -77,7 +73,8 @@ export default function ProfileEditPage() {
       setError(data.error?.message || copy.error);
       return;
     }
-    if (directoryOn) {
+    const writesCard = fields.some((field) => field.storage !== 'person');
+    if (writesCard) {
       const cardRes = await fetch('/api/memberships/me', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

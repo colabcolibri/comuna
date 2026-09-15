@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@community/db';
 import { sendSmtpMail } from '@community/auth';
+import { contactMediatedContribution } from '@community/contact-mediated';
 import { moduleRuntime } from '@/lib/server/membership';
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ membershipId: string }> }) {
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ membership
   if (!row) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Perfil não encontrado' } }, { status: 404 });
   }
-  const on = await moduleRuntime.isEnabled(row.community_id, 'contact-mediated');
+  const on = await moduleRuntime.isEnabled(row.community_id, contactMediatedContribution.slug);
   if (!on) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
   }

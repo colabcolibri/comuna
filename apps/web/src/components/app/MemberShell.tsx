@@ -7,8 +7,10 @@ import { contentFromCatalog, pickContent } from '@community/identity';
 import { AppSidebar } from '@/components/app/AppSidebar';
 import { LocaleSwitcher } from '@/components/app/LocaleSwitcher';
 import { useLocale } from '@/components/app/LocaleProvider';
+import { useEnabledModules } from '@/components/app/EnabledModulesProvider';
 import MemberFooter from '@/components/app/MemberFooter';
 import { uiCatalog } from '@/lang/catalog';
+import { copyFrom, visibleChrome } from '@/modules/registry';
 import Link from 'next/link';
 
 const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
@@ -28,12 +30,12 @@ export function MemberShell({
 }) {
   const pathname = usePathname();
   const copy = pickContent(CONTENT, useLocale());
+  const enabled = useEnabledModules();
+  const headerNav = visibleChrome(enabled, 'header', Boolean(sessionEmail));
 
   if (pathname.startsWith('/ops')) {
     return <>{children}</>;
   }
-
-  const showcaseActive = pathname.startsWith('/showcase');
 
   return (
     <SidebarProvider className="h-svh max-h-svh overflow-hidden">
@@ -43,7 +45,7 @@ export function MemberShell({
           <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:px-6">
           <SidebarTrigger className="size-11 shrink-0 md:hidden" aria-label={copy.toggle} />
           <Link
-            href="/showcase"
+            href="/"
             className="flex min-h-11 min-w-0 items-center gap-2 px-1 text-foreground hover:text-foreground"
           >
             <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sm font-semibold text-sidebar-primary-foreground">
@@ -51,14 +53,17 @@ export function MemberShell({
             </span>
             <span className="truncate font-semibold tracking-tight">{copy.brand}</span>
           </Link>
+          {headerNav.map((item) => (
           <Link
-            href="/showcase"
+            key={item.href}
+            href={item.href}
             className={`inline-flex items-center min-h-11 px-2 text-base ${
-              showcaseActive ? 'text-foreground border-b-2 border-mark' : 'text-muted-foreground hover:text-foreground'
+              pathname.startsWith(item.href) ? 'text-foreground border-b-2 border-mark' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            {copy.showcase}
+            {copyFrom(copy, item.copyKey)}
           </Link>
+          ))}
           <div className="ml-auto flex items-center gap-1">
             <LocaleSwitcher />
             <ThemeToggle toDark={copy.toDark} toLight={copy.toLight} />

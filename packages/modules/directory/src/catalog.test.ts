@@ -1,4 +1,4 @@
-import { nestCatalog, parseAttrFilters, parseField, validateCustomAttributes } from './catalog';
+import { nestCatalog, parseAttrFilters, parseField, validateCustomAttributes, visibleCatalog } from './catalog';
 
 describe('directory catalog', () => {
   it('rejects unknown field types', () => {
@@ -56,5 +56,39 @@ describe('directory catalog', () => {
     expect(ok).toEqual({ ok: true, filters: [{ host_at_home: true }] });
     const bad = parseAttrFilters(new URLSearchParams('attr.unknown=1'), [field!]);
     expect(bad.ok).toBe(false);
+  });
+
+  it('hides directory and showcase fields when those plugins are off', () => {
+    const groups = nestCatalog([
+      {
+        group_slug: 'person',
+        group_label: [{ locale: 'pt-BR', value: 'Pessoa' }],
+        name: 'full_name',
+        type: 'text',
+        storage: 'person',
+        column_key: 'full_name',
+      },
+      {
+        group_slug: 'availability',
+        group_label: [{ locale: 'pt-BR', value: 'Disp' }],
+        name: 'public_showcase',
+        type: 'boolean',
+        storage: 'card_column',
+        column_key: 'public_showcase',
+        module_slug: 'showcase',
+      },
+      {
+        group_slug: 'hospitality',
+        group_label: [{ locale: 'pt-BR', value: 'Hosp' }],
+        name: 'host_at_home',
+        type: 'boolean',
+        storage: 'attributes',
+        module_slug: 'directory',
+      },
+    ]);
+    const onlyCore = visibleCatalog(groups, []);
+    expect(onlyCore.map((g) => g.slug)).toEqual(['person']);
+    const noShowcase = visibleCatalog(groups, ['directory']);
+    expect(noShowcase.flatMap((g) => g.fields.map((f) => f.name))).toEqual(['full_name', 'host_at_home']);
   });
 });
