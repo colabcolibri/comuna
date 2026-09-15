@@ -2,22 +2,16 @@
 
 import React, { useEffect, useState } from 'react';
 import { Input, Label } from '@community/ui';
-import { pickContent } from '@community/identity';
+import { contentFromCatalog, pickContent } from '@community/identity';
 import { MIN_CITY_QUERY, placeKey, placeLabel, toStoredPlace, type CitySearchHit, type GeoPlace } from '@community/places';
 import { useLocale } from '@/components/app/LocaleProvider';
+import { uiCatalog } from '@/lang/catalog';
 
-const CONTENT = {
-  'pt-BR': {
-    search: 'Buscar cidade',
-    empty: 'Nenhuma cidade encontrada',
-    clear: 'Limpar',
-  },
-  en: {
-    search: 'Search city',
-    empty: 'No cities found',
-    clear: 'Clear',
-  },
-} as const;
+const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
+  search: 'city.search',
+  empty: 'city.empty',
+  clear: 'city.clear',
+});
 
 export function CitySearchField({
   id,

@@ -1,27 +1,18 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
-import { LOCALE_COOKIE, pickContent, resolveUiLocale } from '@community/identity';
+import { LOCALE_COOKIE, contentFromCatalog, pickContent, resolveUiLocale } from '@community/identity';
 import { AppPageTemplate } from '@community/ui-member';
 import { getMemberSession } from '@/lib/server/member-session';
+import { uiCatalog } from '@/lang/catalog';
 
-const CONTENT = {
-  'pt-BR': {
-    kicker: 'Início',
-    title: 'Rede de comunidades',
-    subtitle: 'Diretório profissional intermediado. Contato sem e-mail público.',
-    signin: 'Entrar',
-    directory: 'Ir ao diretório',
-    showcase: 'Ver a vitrine',
-  },
-  en: {
-    kicker: 'Home',
-    title: 'Community network',
-    subtitle: 'Mediated professional directory. No public email.',
-    signin: 'Sign in',
-    directory: 'Go to directory',
-    showcase: 'View showcase',
-  },
-} as const;
+const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
+  kicker: 'home.kicker',
+  title: 'home.title',
+  subtitle: 'home.subtitle',
+  signin: 'home.signin',
+  directory: 'home.directory',
+  showcase: 'home.showcase',
+});
 
 export default async function HomePage() {
   const session = await getMemberSession();
