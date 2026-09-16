@@ -11,7 +11,8 @@ describe('DemoRibbon', () => {
         linkLabel="Abrir o admin"
       />
     );
-    expect(screen.getByRole('status').className).toMatch(/sticky/);
+    expect(screen.getByRole('status').className).toMatch(/shrink-0/);
+    expect(screen.getByRole('status').className).not.toMatch(/sticky/);
     expect(screen.getByRole('link', { name: 'Abrir o admin' }).getAttribute('href')).toBe(
       'http://localhost:3015'
     );

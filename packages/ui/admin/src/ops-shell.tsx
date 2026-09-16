@@ -52,7 +52,7 @@ export function OpsShell({
   children: ReactNode;
 }) {
   return (
-    <SidebarProvider className="h-full max-h-full overflow-hidden">
+    <SidebarProvider className="h-full min-h-0 max-h-full overflow-hidden">
       <Sidebar collapsible="offcanvas">
         <SidebarHeader className="h-14 justify-center border-b border-sidebar-border px-3">
           <p className="px-2 text-sm font-semibold leading-none tracking-tight">{brand}</p>

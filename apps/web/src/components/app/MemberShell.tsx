@@ -55,10 +55,10 @@ export function MemberShell({
   const initial = brand.trim().charAt(0).toUpperCase() || 'C';
 
   return (
-    <SidebarProvider className="h-full max-h-full overflow-hidden">
+    <SidebarProvider className="h-full min-h-0 max-h-full overflow-hidden">
       <AppSidebar email={sessionEmail} seats={seats} />
       <SidebarInset className="h-full max-h-full min-h-0 overflow-hidden">
-        <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center border-b border-border bg-card">
+        <header className="flex h-16 shrink-0 items-center border-b border-border bg-card">
           <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:px-6">
           <ShellMenuTrigger openLabel={copy.openMenu} closeLabel={copy.closeMenu} />
           <Link
