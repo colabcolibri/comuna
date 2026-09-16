@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { OPS_COOKIE, verifyOpsToken } from '../../packages/core/auth/src/session';
+import { readOnlyBlockedResponse } from './lib/read-only';
 
 export async function proxy(req: NextRequest) {
+  const blocked = readOnlyBlockedResponse(req);
+  if (blocked) {
+    return blocked;
+  }
   const { pathname } = req.nextUrl;
   const protectedPath =
     pathname === '/communities' ||
@@ -31,5 +36,15 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/communities', '/communities/:path*', '/people', '/people/:path*', '/platform', '/platform/:path*', '/emails', '/emails/:path*'],
+  matcher: [
+    '/communities',
+    '/communities/:path*',
+    '/people',
+    '/people/:path*',
+    '/platform',
+    '/platform/:path*',
+    '/emails',
+    '/emails/:path*',
+    '/api/:path*',
+  ],
 };

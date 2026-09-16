@@ -1,10 +1,6 @@
 # Drop-in para o Traefik em /opt/nanoclaw-stack/traefik (network_mode: host).
-# Não substitui dynamic_conf.yml. Incluir via providers.file.directory
-# ou copiar o conteúdo para o ficheiro dinâmico já usado.
-# Upstream: web e admin só escutam em 127.0.0.1 (igual ao Whisper :9000).
-#
-# Confirmar em traefik.yml os nomes reais de entrypoint e certResolver
-# antes de aplicar. Entrypoints típicos: web / websecure.
+# Não substitui o bloco do uai em dynamic_conf.yml — o ficheiro no VPS
+# é a união (ver dynamic_conf.merged.yml).
 
 http:
   routers:
@@ -15,8 +11,19 @@ http:
       service: comuna-web
       tls:
         certResolver: letsencrypt
+    comuna-admin:
+      rule: Host(`ops.comuna.sergioluciano.com`)
+      entryPoints:
+        - websecure
+      service: comuna-admin
+      tls:
+        certResolver: letsencrypt
   services:
     comuna-web:
       loadBalancer:
         servers:
           - url: http://127.0.0.1:3014
+    comuna-admin:
+      loadBalancer:
+        servers:
+          - url: http://127.0.0.1:3015

@@ -12,5 +12,6 @@ describe('AppPublicChrome', () => {
     expect(screen.getByRole('button', { name: 'Entrar' })).toBeTruthy();
     expect(screen.getByText('página')).toBeTruthy();
     expect(screen.queryByLabelText(/menu/i)).toBeNull();
+    expect(screen.getByText('página').parentElement?.className).toMatch(/overflow-y-auto/);
   });
 });

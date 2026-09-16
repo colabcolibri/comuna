@@ -6,9 +6,14 @@ export { consumeOtp, InvalidOtpError } from './consume-otp';
 export {
   DemoLoginForbiddenError,
   DEMO_MEMBER_LOGIN_EMAIL,
+  DEMO_OPS_LOGIN_EMAIL,
+  isDemoLoginEnabled,
   isDemoMemberLoginEmail,
   isDemoMemberLoginEnabled,
+  isDemoOpsLoginEmail,
+  isDemoOpsLoginEnabled,
   resolveDemoMemberLogin,
+  resolveDemoOpsLogin,
 } from './demo-login';
 export {
   ensureBareProfile,

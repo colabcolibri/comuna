@@ -64,6 +64,13 @@ In another terminal:
 pnpm dev:admin
 ```
 
+Read-only demo of both apps (two terminals; they can run together):
+
+```bash
+pnpm dev:demo
+pnpm dev:admin:demo
+```
+
 OTP for local login lands in [Mailpit](http://localhost:8026), not in the API JSON. Ops seed: `INITIAL_SUPER_ADMIN_EMAIL`. Postgres is on `localhost:5433`.
 
 Env contract: [docs/08_environments.md](docs/08_environments.md). Do not commit `.env`.

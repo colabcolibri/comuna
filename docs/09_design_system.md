@@ -101,7 +101,7 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `AppFormDock` | CTA Salvar grudado no fundo **só abaixo de sm** | mesmo ficheiro |
 | `OtpCard` | OTP | `OtpCard.tsx` |
 
-Chrome: **Workspace** = `MemberShell` + `AppSidebar`. Header do workspace: menu + marca da comunidade + locale + tema; a barra de links fica vazia por agora (vitrine só na sidebar). **Vitrine** pública = `AppPublicChrome` (sem sidebar). Sem barra ciano “Community”. Com `DATABASE_READ_ONLY=1`, uma faixa (`DemoRibbon`) no `layout` raiz, acima de qualquer header.
+Chrome: **Workspace** = `MemberShell` + `AppSidebar`. Header do workspace: menu + marca da comunidade + locale + tema; a barra de links fica vazia por agora (vitrine só na sidebar). **Vitrine** pública = `AppPublicChrome` (sem sidebar). Sem barra ciano “Community”. Com `DATABASE_READ_ONLY=1`, uma faixa (`DemoRibbon`) no `layout` raiz da web e do admin, **fixa** acima de qualquer header (o documento não faz scroll por cima dela). Na faixa: web liga para o admin (`NEXT_PUBLIC_OPS_URL`); admin liga para o site (`NEXT_PUBLIC_APP_URL`).
 
 Não existe rota `/profile/:id`. O detalhe público é o `AppDialog` na vitrine.
 
@@ -171,7 +171,7 @@ Voz institucional, curta, em sentence case. **Kicker, título e subtítulo são 
 | Ajuda | Uma frase se o controlo for ambíguo | Env vars, papéis internos |
 | Empty | Vitrine sem cartões: título + uma frase (`AppShowcaseEmpty`). Casa sem opt-in ≠ busca/filtro sem resultado | “Carregando…”, grelha vazia, uma linha miúda no canto |
 | Privacidade | Só no sheet **enviar mensagem**: a mensagem vai para a pessoa (com o nome). Login não leva nota de vitrine | Ensaio no diretório, no header, ou “o e-mail não aparece” |
-| Demo (`DATABASE_READ_ONLY`) | Faixa acima do chrome; `/login` com `member01@demo.example` + Entrar (sem OTP); write em `/api` abre `AppAlertDialog` | `DEMO=1`, snapshot, um `if` por botão |
+| Demo (`DATABASE_READ_ONLY`) | Faixa fixa; web `/login` com `member01@demo.example` + Entrar; admin `/login` com a conta de seed ops + Entrar (sem OTP); write em `/api` abre diálogo; faixa com link para a outra superfície | `DEMO=1`, snapshot, um `if` por botão |
 
 Proibido na UI (docs e logs podem): intermediado, tenant, membership, schema, demografia, headline, `super_admin`, `SMTP_HOST`, Mailpit, “no banco”, slug como aula. Ops pode ver **identificador na URL**. Membro e visitante: o produto. Ops: a operação, ainda humano.
 

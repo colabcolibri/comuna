@@ -12,11 +12,7 @@
 @layer base {
   html,
   body {
-    min-height: 100%;
-  }
-
-  html:has([data-slot="sidebar-wrapper"]) {
-    height: 100%;
+    height: 100dvh;
     overflow: hidden;
   }
 

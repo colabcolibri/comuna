@@ -24,6 +24,7 @@ blocks: []
 | `SMTP_PASS` | Senha SMTP. Nunca no GET admin | Não | — | Staging / prod |
 | `EMAIL_FROM_ADDRESS` | Fallback From se a plataforma ainda não tem `from_address` | Sim | `auth@community.local` | All |
 | `NEXT_PUBLIC_APP_URL` | URL membro | Sim | `http://localhost:3014` | All |
+| `NEXT_PUBLIC_OPS_URL` | URL ops (link na faixa da demo da web) | Não | `http://localhost:3015` | Demo / local |
 | `MEDIA_ROOT` | Pasta local do ObjectStore | Não (default `storage`) | `storage` | Local |
 | `MEDIA_DRIVER` | `local` ou `s3` | Não (default `local`) | `local` | All |
 | `OPS_BASE_PATH` | Path ops se mesmo origin | Não | _(removido; ops é `apps/admin`)_ | — |
@@ -58,7 +59,7 @@ docker compose up -d
 
 - `apps/web` é o Next de membros (`apps/web/src`). Não há `src/` na raiz.
 - `apps/admin` é o Next de ops na porta 3015. Sessão: cookie `ops_token`.
-- `pnpm install` **sempre na raiz**, workspace inteiro. `pnpm install --filter …` sozinho deixa as outras apps sem links. `pnpm dev` / `pnpm dev:admin` já filtram a app. Não rode `next` na raiz (isso cria `.next/` órfão).
+- `pnpm install` **sempre na raiz**, workspace inteiro. `pnpm install --filter …` sozinho deixa as outras apps sem links. `pnpm dev` / `pnpm dev:admin` sobem cada app via launcher em `scripts/dev/`. Não rode `next` na raiz (isso cria `.next/` órfão).
 
 `pnpm db:migrate` aplica SQL datado em `db/migrations/`. `pnpm db:migrate:status` lista arquivos applied versus pending. Sem Prisma, Drizzle ou Supabase.
 
@@ -106,7 +107,7 @@ Trezentas pessoas (`member01@demo.example` … `member99@demo.example`, depois `
 
 ## Instância demo
 
-A demo pública é **o mesmo app** (`apps/web`) com **o mesmo Postgres** (schema, RLS, seed). Não há flag `DEMO`, snapshot JSON, SQLite no GitHub Pages nem overlay no browser. GitHub Pages não serve: é estático e não corre Route Handlers.
+A demo local é **o mesmo código** (`apps/web` e, à parte, `apps/admin`) com **o mesmo Postgres** (schema, RLS, seed). `DATABASE_READ_ONLY=1` no processo da app. Não há flag `DEMO`, snapshot JSON, SQLite no GitHub Pages nem overlay no browser. GitHub Pages não serve: é estático e não corre Route Handlers.
 
 O visitante usa `/showcase` e `/c/{slug}/showcase` — já são públicos (`docs/architecture/showcase-public.md`). O diretório continua a exigir membership. Não publicar no README contas de ops, coordenação, `JWT_SECRET`, SMTP de produção nem `INITIAL_SUPER_ADMIN_EMAIL`.
 
@@ -114,22 +115,30 @@ Criar o projecto no host e colar secrets é **HAR**. Este runbook fecha a receit
 
 ### Local
 
-Mesmo Postgres do `pnpm dev` (Docker + `.env` + migrate + seed). Só liga a sessão só de leitura:
+Mesmo Postgres do `pnpm dev` (Docker + `.env` + migrate + seed). Só liga a sessão só de leitura no processo:
 
 ```bash
 pnpm dev:demo
+# outra aba, pasta diferente — pode correr ao mesmo tempo:
+pnpm dev:admin:demo
 ```
 
-**Uma instância por vez.** O Next 16 não deixa dois `next dev` no mesmo `apps/web`, mesmo em portas diferentes. Se `pnpm dev` já está no 3014, pare esse terminal (Ctrl+C) e só então rode `pnpm dev:demo`. Não dá para ter os dois em paralelo.
+**Uma instância por pasta.** O Next 16 não deixa dois `next dev` no mesmo `apps/web` (nem dois no mesmo `apps/admin`), mesmo em portas diferentes. Web e admin **podem** correr em paralelo: são pastas distintas (`3014` e `3015`). Se `pnpm dev` já está no 3014, pare esse terminal (Ctrl+C) e só então rode `pnpm dev:demo`. O mesmo para `pnpm dev:admin` vs `pnpm dev:admin:demo`.
 
-Abre `http://localhost:3014/showcase`. A faixa no topo e o diálogo nos writes só aparecem com `DATABASE_READ_ONLY=1`. `pnpm dev` normal continua a gravar.
+`pnpm dev` + `pnpm dev:admin:demo` partilham o Postgres: a web ainda grava. Para os dois só de leitura, os dois scripts `:demo`.
 
-**Login na demo:** `/login` mostra `member01@demo.example` e um botão **Entrar** (sem OTP). Essa conta tem membership em **três** comunidades (`demo`, `cerrado-lab`, `pratica-dados`) para o switcher. A rota `POST /api/auth/demo-login` responde **404** sem `DATABASE_READ_ONLY=1`. Com read-only: `SELECT` + JWT; só esse e-mail no allowlist. **Nunca** ligar `DATABASE_READ_ONLY` numa base com contas reais. Depois de mudar o seed, rode `pnpm db:seed` de novo. Avatares dos 300 membros: URLs diretas [DiceBear](https://www.dicebear.com/styles/sprouts/) estilo **sprouts** (ilustração colorida), gravadas só em `avatar_url` — sem ficheiro em `storage/`. Desligue com `SEED_DEMO_AVATARS=0`.
+Abre `http://localhost:3014/showcase` e `http://localhost:3015/login`. A faixa no topo e o diálogo nos writes só aparecem com `DATABASE_READ_ONLY=1` naquele processo. `pnpm dev` / `pnpm dev:admin` continuam a gravar.
+
+**Login na demo (web):** `/login` mostra `member01@demo.example` e um botão **Entrar** (sem OTP). Essa conta tem membership em **três** comunidades (`demo`, `cerrado-lab`, `pratica-dados`) para o switcher. A rota `POST /api/auth/demo-login` responde **404** sem `DATABASE_READ_ONLY=1`. Com read-only: `SELECT` + JWT; só esse e-mail no allowlist.
+
+**Login na demo (admin):** `/login` mostra a conta de seed ops (`admin@example.com`) e **Entrar** (sem OTP). `POST /api/admin/auth/demo-login` responde **404** sem `DATABASE_READ_ONLY=1`. Com read-only: `SELECT` + JWT `ops`; só essa conta, e só se for `super_admin`. OTP ops continua a falhar em read-only (grava token).
+
+**Nunca** ligar `DATABASE_READ_ONLY` numa base com contas reais. Depois de mudar o seed, rode `pnpm db:seed` de novo. Avatares dos 300 membros: URLs diretas [DiceBear](https://www.dicebear.com/styles/sprouts/) estilo **sprouts** (ilustração colorida), gravadas só em `avatar_url` — sem ficheiro em `storage/`. Desligue com `SEED_DEMO_AVATARS=0`.
 
 ### Peças
 
 1. **Hostinger VPS (KVM)** — Ubuntu 24.04. Template com Docker, ou CloudPanel. Não usar Web/Cloud/Business compartilhado: Postgres **não** existe nesses planos; o wizard de Node só oferece Supabase/Mongo Atlas, não o `pg` + RLS deste produto.
-2. **Dois processos Node** no mesmo VPS: `@community/web` (público) e, se for prod com ops, `@community/admin` noutro host (`ops.`). Demo pública **não** precisa publicar o admin.
+2. **Dois processos Node** no mesmo VPS: `@community/web` em `comuna.sergioluciano.com` e `@community/admin` em `ops.comuna.sergioluciano.com`.
 3. **Postgres no próprio VPS**, rede interna (Compose). Porta `5432` **não** vai para a internet. `DATABASE_URL` usa o hostname do serviço (`postgres:5432`), não `localhost:5433`.
 4. As **mesmas** variáveis da matriz. Demo: `SMTP_HOST` pode ficar vazio; `ALLOW_DEV_OTP` desligado; `NEXT_PUBLIC_APP_URL` é `https://comuna.sergioluciano.com`. `PGSSL=0` entre app e Postgres no Compose. Disco persistente para `MEDIA_ROOT` (ObjectStore local).
 5. Migrate em cada deploy; seed **uma vez** (ou quando quiserem refrescar demo). Seed faz upsert; não é `db reset`. **Proibido** `pnpm db:setup` / `db:reset` no VPS.
@@ -142,7 +151,7 @@ Pré-requisitos no painel (humano):
 
 1. Plano **VPS**, não hospedagem de site. O KVM 2 já em uso (`srv395737`, Debian 13) serve: Traefik (`network_mode: host`) + Whisper em `127.0.0.1:9000`. A Comuna entra como **projeto Compose à parte** (`name: comuna`). Não recriar o VPS. Não editar o Compose do Traefik/Whisper.
 2. SSH por chave. Firewall: 22, 80, 443. Nada de 5432 na internet. Web/admin só em loopback.
-3. DNS público: `comuna.sergioluciano.com` → `A` `89.116.225.164` (já na zona). Admin **sem** hostname público; só `127.0.0.1:3015` no VPS.
+3. DNS público: `comuna.sergioluciano.com` e `ops.comuna.sergioluciano.com` → `A` `89.116.225.164`.
 
 O MCP Hostinger `createNewProject` só cola um YAML e puxa **imagens**. Não constrói o monorepo. **Não** usar o painel Docker para substituir o projeto `traefik`. Deploy da Comuna: clone + `docker compose --build` no servidor.
 
@@ -164,7 +173,7 @@ TLS continua no Traefik que já está. Copiar `deploy/hostinger/traefik-file.yml
 | Host | Loopback |
 | ---- | -------- |
 | `comuna.sergioluciano.com` | `http://127.0.0.1:3014` |
-| admin (sem DNS) | `http://127.0.0.1:3015` |
+| `ops.comuna.sergioluciano.com` | `http://127.0.0.1:3015` |
 
 `DATABASE_URL` **dentro** da rede `comuna_internal`: `postgresql://comuna:…@postgres:5432/alumni_db`. `PGSSL=0`. Healthcheck da web: `GET /api/health`. Backup: volume `comuna_pgdata` + `comuna_media`. Rollback: tag git anterior + `compose up -d --build`. Volumes **não** se apagam.
 

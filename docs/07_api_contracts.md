@@ -48,6 +48,7 @@ blocks: []
 - `MAIL_FAILED` 500
 - `SERVER_ERROR` 500
 - `DUPLICATE_EMAIL` 409
+- `READ_ONLY` 403 — write em `/api` com `DATABASE_READ_ONLY=1` (exceto demo-login e logout)
 
 `FORBIDDEN` para coord usa `network_role`; ops usa `global_role`. Não misturar os dois códigos de produto.
 
@@ -58,6 +59,7 @@ blocks: []
 | `POST` | `/api/auth/request-otp` | Envia OTP | Public | `{ "email" }` | `200` `{ "message" }` — **sem** `dev_otp` em prod |
 | `POST` | `/api/auth/verify-otp` | Sessão membro | Public | `{ "email", "code" }` | `200` + `Set-Cookie` `auth_token` |
 | `POST` | `/api/auth/logout` | Encerra sessão membro | Authenticated | `{}` | `200` + cookie vazio |
+| `POST` | `/api/auth/demo-login` | Sessão membro na demo | Só com `DATABASE_READ_ONLY=1`; senão 404 | `{ "email" }` allowlist | `200` + `auth_token` |
 | `GET` | `/api/profiles/me` | Perfil-base | Member / coordinator | — | `{ "profile" }` base |
 | `PUT` | `/api/profiles/me` | Atualiza perfil-base | Member / coordinator | identidade + demografia + lugares Nominatim | `{ "profile" }` |
 | `POST` | `/api/profiles/me/avatar` | Upload de foto | Member | jpeg/png/webp; sem SVG; máximo 2 MB | `{ "avatar_url" }` |
@@ -77,6 +79,7 @@ blocks: []
 | `POST` | `/api/coord/approvals` | Aprova / recusa | Coordinator | `{ "membershipId", "action": "approve" \| "reject" }` | `{ "status" }` |
 | `POST` | `/api/admin/auth/request-otp` | Envia OTP ops | Public, só se o e-mail é `super_admin` | `{ "email" }` | `{ "message" }` |
 | `POST` | `/api/admin/auth/verify-otp` | Sessão admin | Public, `super_admin` | OTP | cookie `ops_token` |
+| `POST` | `/api/admin/auth/demo-login` | Sessão ops na demo | Só com `DATABASE_READ_ONLY=1`; senão 404 | `{ "email" }` allowlist ops | `200` + `ops_token` |
 | `GET` | `/api/admin/platform` | Settings da instalação + status SMTP | Super-admin | — | settings + `smtp: { configured, host, port, secure, auth }` (sem senha) |
 | `PUT` | `/api/admin/platform` | Grava settings da instalação | Super-admin | identity fields; ignora `smtp` | objeto settings |
 | `GET` | `/api/admin/email-templates` | Copy default ou overlay + envelope + slot | Super-admin | `?kind=&locale=` | `{ data: TemplateView }` com `subject`, `heading`, `body`, `slot`, `variables`, `envelope`, `previewHtml` |

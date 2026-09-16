@@ -13,6 +13,7 @@ import { LocaleProvider } from '@/components/app/LocaleProvider';
 import { DemoRibbon } from '@/components/app/DemoRibbon';
 import { DemoWriteNotice } from '@/components/app/DemoWriteNotice';
 import { isDatabaseReadOnly } from '@/lib/read-only';
+import { opsSurfaceUrl } from '@/lib/surface-urls';
 import { getMemberSession } from '@/lib/server/member-session';
 import { moduleRuntime, viewerEnabledSlugs } from '@/lib/server/membership';
 import { uiCatalog } from '@/lang/catalog';
@@ -28,6 +29,7 @@ const META = contentFromCatalog(uiCatalog, 'core_web', {
   title: 'meta.title',
   description: 'meta.description',
   ribbon: 'demo.ribbon',
+  toOps: 'demo.to_ops',
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -55,13 +57,15 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     }),
   ]);
   return (
-    <html lang={locale === 'en' ? 'en' : 'pt-BR'} className={`${ibmPlex.variable} h-full`} suppressHydrationWarning>
-      <body className={`${ibmPlex.className} flex h-full min-h-full flex-col antialiased bg-background text-foreground`}>
+    <html lang={locale === 'en' ? 'en' : 'pt-BR'} className={`${ibmPlex.variable} h-dvh overflow-hidden`} suppressHydrationWarning>
+      <body className={`${ibmPlex.className} flex h-dvh min-h-0 flex-col overflow-hidden antialiased bg-background text-foreground`}>
         <Script id={THEME_INIT_SCRIPT_ID} strategy="beforeInteractive">
           {THEME_INIT_SCRIPT}
         </Script>
-        {isDatabaseReadOnly() ? <DemoRibbon label={copy.ribbon} /> : null}
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        {isDatabaseReadOnly() ? (
+          <DemoRibbon label={copy.ribbon} href={opsSurfaceUrl()} linkLabel={copy.toOps} />
+        ) : null}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <ThemeProvider>
             <LocaleProvider initialLocale={locale}>
               <WorkspaceModules enabledBySlug={enabledBySlug} publicEnabled={publicEnabled}>
