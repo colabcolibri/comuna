@@ -1,7 +1,8 @@
 import type { GeoPlace, PlaceLocale } from './geo-place';
 
-/** City → region → country → continent-ish. Closed set; default 50. */
-export const LIST_RADIUS_KM = [25, 50, 100, 250, 500, 1000, 3000] as const;
+export const LIST_RADIUS_MIN_KM = 25;
+export const LIST_RADIUS_MAX_KM = 3000;
+export const LIST_RADIUS_STEP_KM = 25;
 export const DEFAULT_LIST_RADIUS_KM = 50;
 
 export function parseCountryCode(raw: string | null | undefined): string | null {
@@ -13,7 +14,10 @@ export function parseCountryCode(raw: string | null | undefined): string | null 
 
 export function parseListRadius(raw: string | null | undefined): number | null {
   const n = Number.parseInt(raw || '', 10);
-  return (LIST_RADIUS_KM as readonly number[]).includes(n) ? n : null;
+  if (!Number.isFinite(n) || n < LIST_RADIUS_MIN_KM || n > LIST_RADIUS_MAX_KM) {
+    return null;
+  }
+  return Math.round(n / LIST_RADIUS_STEP_KM) * LIST_RADIUS_STEP_KM;
 }
 
 export function parseNearLatLon(raw: string | null | undefined): { lat: number; lon: number } | null {

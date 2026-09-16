@@ -9,12 +9,14 @@ describe('list geo helpers', () => {
     expect(parseCountryCode('')).toBeNull();
   });
 
-  it('only allows the closed radius set', () => {
+  it('clamps radius to 25–3000 km in 25 km steps', () => {
     expect(parseListRadius('50')).toBe(DEFAULT_LIST_RADIUS_KM);
     expect(parseListRadius('12')).toBeNull();
     expect(parseListRadius('250')).toBe(250);
+    expect(parseListRadius('2000')).toBe(2000);
+    expect(parseListRadius('37')).toBe(25);
     expect(parseListRadius('3000')).toBe(3000);
-    expect(parseListRadius('2000')).toBeNull();
+    expect(parseListRadius('3001')).toBeNull();
     expect(formatListRadiusKm(1000, 'pt-BR')).toBe('1.000 km');
   });
 

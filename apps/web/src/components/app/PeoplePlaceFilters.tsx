@@ -1,8 +1,21 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { CitySearchField } from '@/components/app/CitySearchField';
-import { DEFAULT_LIST_RADIUS_KM, LIST_RADIUS_KM, countryName, formatListRadiusKm, legacyPlaceFromNear, placeLabel, placeLatLon, type GeoPlace, type PlaceLocale } from '@community/places';
-import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@community/ui';
+import {
+  DEFAULT_LIST_RADIUS_KM,
+  LIST_RADIUS_MAX_KM,
+  LIST_RADIUS_MIN_KM,
+  LIST_RADIUS_STEP_KM,
+  countryName,
+  formatListRadiusKm,
+  legacyPlaceFromNear,
+  placeLabel,
+  placeLatLon,
+  type GeoPlace,
+  type PlaceLocale,
+} from '@community/places';
+import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Slider } from '@community/ui';
 
 export type PlaceFilterValue = {
   country: string;
@@ -34,7 +47,12 @@ export function PeoplePlaceFilters({
 }) {
   const selected = legacyPlaceFromNear(value.near, value.nearLabel, value.country);
   const radius = value.radius ?? DEFAULT_LIST_RADIUS_KM;
+  const [draft, setDraft] = useState(radius);
   const codes = countries.includes(value.country) || !value.country ? countries : [value.country, ...countries];
+
+  useEffect(() => {
+    setDraft(radius);
+  }, [radius]);
 
   function applyPlace(place: GeoPlace | null) {
     const coords = placeLatLon(place);
@@ -77,23 +95,20 @@ export function PeoplePlaceFilters({
       <div className="min-w-0">
         <Label htmlFor={`${id}-radius`} className="mb-2 block">
           {radiusLabel}
+          <span className="ml-2 font-normal text-muted-foreground">{formatListRadiusKm(draft, locale)}</span>
         </Label>
-        <Select
-          value={String(radius)}
+        <Slider
+          id={`${id}-radius`}
+          min={LIST_RADIUS_MIN_KM}
+          max={LIST_RADIUS_MAX_KM}
+          step={LIST_RADIUS_STEP_KM}
+          value={[draft]}
           disabled={!value.near}
-          onValueChange={(next) => onChange({ ...value, radius: Number.parseInt(next, 10) })}
-        >
-          <SelectTrigger id={`${id}-radius`} className="min-h-11 w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {LIST_RADIUS_KM.map((km) => (
-              <SelectItem key={km} value={String(km)}>
-                {formatListRadiusKm(km, locale)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          aria-label={radiusLabel}
+          className="mt-4"
+          onValueChange={(next) => setDraft(next[0] ?? DEFAULT_LIST_RADIUS_KM)}
+          onValueCommit={(next) => onChange({ ...value, radius: next[0] ?? DEFAULT_LIST_RADIUS_KM })}
+        />
       </div>
     </div>
   );

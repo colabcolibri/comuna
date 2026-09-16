@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseListField } from './list-fields';
-import { peopleListCountriesQuery, peopleListQuery } from './people-list-sql';
+import { peopleListCountriesQuery, peopleListQuery, MAP_PIN_LIMIT } from './people-list-sql';
 
 const host = parseListField({
   name: 'host_at_home',
@@ -152,7 +152,7 @@ describe('peopleListQuery', () => {
     expect(junk.ok && junk.text).not.toContain('current_country =');
   });
 
-  it('applies a closed radius around near lat,lon', () => {
+  it('applies radius around near lat,lon', () => {
     const built = peopleListQuery({
       communityId: 'c1',
       searchParams: new URLSearchParams('near=38.72,-9.14&radius=50'),
@@ -170,6 +170,19 @@ describe('peopleListQuery', () => {
     expect(built.params).toContain(38.72);
     expect(built.params).toContain(-9.14);
     expect(built.params).toContain(50);
+  });
+
+  it('loads a single map page up to the pin cap', () => {
+    const built = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams('view=map&page=3&size=48'),
+      fields: [host],
+      scope: 'directory',
+    });
+    expect(built.ok && built.page).toBe(1);
+    expect(built.ok && built.pageSize).toBe(MAP_PIN_LIMIT);
+    expect(built.ok && built.params.at(-2)).toBe(MAP_PIN_LIMIT);
+    expect(built.ok && built.params.at(-1)).toBe(0);
   });
 
   it('lists distinct countries without search or radius', () => {

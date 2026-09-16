@@ -277,7 +277,13 @@ export function DirectoryPanel({
         <AppShowcaseEmpty title={sliced ? copy.emptyFilteredTitle : copy.emptyTitle} body={sliced ? copy.emptyFiltered : copy.empty} />
       ) : (
         <>
-          {pager('mb-6')}
+          {mapView ? (
+            <p className="mb-6 text-sm text-muted-foreground">
+              {interpolate(copy.range, { from: String(from), to: String(to), total: String(total) })}
+            </p>
+          ) : (
+            pager('mb-6')
+          )}
           {mapView ? (
             <PeopleMap
               rows={rows}
@@ -314,7 +320,7 @@ export function DirectoryPanel({
               })}
             </AppShowcaseGrid>
           )}
-          {pager('mt-10')}
+          {mapView ? null : pager('mt-10')}
         </>
       )}
       <PersonInspect

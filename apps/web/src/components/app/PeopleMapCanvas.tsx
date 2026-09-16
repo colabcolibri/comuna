@@ -86,6 +86,7 @@ export function PeopleMapCanvas({
     extrasRef.current = L.layerGroup().addTo(map);
     clustersRef.current = L.markerClusterGroup({
       showCoverageOnHover: false,
+      chunkedLoading: true,
       maxClusterRadius: 52,
       spiderfyOnMaxZoom: true,
       disableClusteringAtZoom: 15,

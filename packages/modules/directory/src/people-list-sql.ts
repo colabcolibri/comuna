@@ -7,6 +7,7 @@ const AVAILABILITY = new Set(['available_for_hire', 'project_partner', 'mentor',
 
 export const SHOWCASE_PAGE_SIZES = [24, 48, 96] as const;
 export const SHOWCASE_PAGE_SIZE = 24;
+export const MAP_PIN_LIMIT = 5000;
 
 function parseShowcasePageSize(raw: string | null) {
   const n = Number.parseInt(raw || '', 10);
@@ -90,8 +91,9 @@ export function peopleListQuery(input: {
     clauses.push(`${haversineKm(latSlot, lonSlot)} <= $${radiusSlot}`);
   }
   const where = `${FROM} WHERE ${clauses.join(' AND ')}`;
-  const page = Math.max(1, Number.parseInt(input.searchParams.get('page') || '1', 10) || 1);
-  const pageSize = parseShowcasePageSize(input.searchParams.get('size'));
+  const mapView = input.searchParams.get('view') === 'map';
+  const page = mapView ? 1 : Math.max(1, Number.parseInt(input.searchParams.get('page') || '1', 10) || 1);
+  const pageSize = mapView ? MAP_PIN_LIMIT : parseShowcasePageSize(input.searchParams.get('size'));
   const offset = (page - 1) * pageSize;
   return {
     ok: true,

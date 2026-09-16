@@ -257,19 +257,25 @@ export function ShowcasePanel({
         />
       ) : (
         <>
-          <AppShowcasePager
-            className="mb-6"
-            page={page}
-            pageSize={pageSize}
-            total={total}
-            prevLabel={copy.prev}
-            nextLabel={copy.next}
-            sizeLabel={copy.size}
-            sizes={SHOWCASE_PAGE_SIZES}
-            summary={interpolate(copy.range, { from: String(from), to: String(to), total: String(total) })}
-            onPage={(next) => go(search, facetValues, status, next)}
-            onPageSize={(next) => go(search, facetValues, status, 1, next)}
-          />
+          {mapView ? (
+            <p className="mb-6 text-sm text-muted-foreground">
+              {interpolate(copy.range, { from: String(from), to: String(to), total: String(total) })}
+            </p>
+          ) : (
+            <AppShowcasePager
+              className="mb-6"
+              page={page}
+              pageSize={pageSize}
+              total={total}
+              prevLabel={copy.prev}
+              nextLabel={copy.next}
+              sizeLabel={copy.size}
+              sizes={SHOWCASE_PAGE_SIZES}
+              summary={interpolate(copy.range, { from: String(from), to: String(to), total: String(total) })}
+              onPage={(next) => go(search, facetValues, status, next)}
+              onPageSize={(next) => go(search, facetValues, status, 1, next)}
+            />
+          )}
           {mapView ? (
             <PeopleMap
               rows={rows}
@@ -309,19 +315,21 @@ export function ShowcasePanel({
               })}
             </AppShowcaseGrid>
           )}
-          <AppShowcasePager
-            className="mt-10"
-            page={page}
-            pageSize={pageSize}
-            total={total}
-            prevLabel={copy.prev}
-            nextLabel={copy.next}
-            sizeLabel={copy.size}
-            sizes={SHOWCASE_PAGE_SIZES}
-            summary={interpolate(copy.range, { from: String(from), to: String(to), total: String(total) })}
-            onPage={(next) => go(search, facetValues, status, next)}
-            onPageSize={(next) => go(search, facetValues, status, 1, next)}
-          />
+          {mapView ? null : (
+            <AppShowcasePager
+              className="mt-10"
+              page={page}
+              pageSize={pageSize}
+              total={total}
+              prevLabel={copy.prev}
+              nextLabel={copy.next}
+              sizeLabel={copy.size}
+              sizes={SHOWCASE_PAGE_SIZES}
+              summary={interpolate(copy.range, { from: String(from), to: String(to), total: String(total) })}
+              onPage={(next) => go(search, facetValues, status, next)}
+              onPageSize={(next) => go(search, facetValues, status, 1, next)}
+            />
+          )}
         </>
       )}
       <PersonInspect
