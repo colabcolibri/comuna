@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { COMMUNITY_COOKIE, getCommunityBySlug } from '@community/communities';
 import { listPublicProfiles } from '@/lib/server/public-profiles';
+import { COMMUNITY_COOKIE, getCommunityBySlug } from '@community/communities';
+import { NextRequest, NextResponse } from 'next/server';
 
 async function communityFromRequest(req: NextRequest) {
   const slug = req.nextUrl.searchParams.get('slug') || req.cookies.get(COMMUNITY_COOKIE)?.value || '';

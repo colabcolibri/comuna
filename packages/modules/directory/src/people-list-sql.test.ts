@@ -164,6 +164,9 @@ describe('peopleListQuery', () => {
       return;
     }
     expect(built.text).toContain('6371 * acos');
+    expect(built.text).not.toContain('$LAT');
+    expect(built.text).not.toContain('$LON');
+    expect((built.text.match(/radians\(\$2::float\)/g) || []).length).toBe(2);
     expect(built.params).toContain(38.72);
     expect(built.params).toContain(-9.14);
     expect(built.params).toContain(50);

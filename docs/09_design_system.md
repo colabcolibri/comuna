@@ -45,7 +45,7 @@ Arquivo: `packages/ui/primitives/src/styles.css`. Sem hex nas páginas.
 | Mode | When it applies | Token set / file |
 | ---- | --------------- | ---------------- |
 | Light | Padrão Stitch | `:root` em `packages/ui/primitives/src/styles.css` |
-| Dark | Classe `.dark` + `next-themes` (`system` default) | Mesmo arquivo |
+| Dark | Classe `.dark` no `<html>` (`system` default). `next/script` `beforeInteractive` no layout; toggle no client | Mesmo arquivo |
 
 ## Typography
 

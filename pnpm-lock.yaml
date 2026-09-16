@@ -69,6 +69,9 @@ importers:
       '@community/mail':
         specifier: workspace:*
         version: link:../../packages/core/mail
+      '@community/map':
+        specifier: workspace:*
+        version: link:../../packages/modules/map
       '@community/memberships':
         specifier: workspace:*
         version: link:../../packages/core/memberships
@@ -135,6 +138,9 @@ importers:
       '@community/mail':
         specifier: workspace:*
         version: link:../../packages/core/mail
+      '@community/map':
+        specifier: workspace:*
+        version: link:../../packages/modules/map
       '@community/memberships':
         specifier: workspace:*
         version: link:../../packages/core/memberships
@@ -156,6 +162,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.3.3
         version: 4.3.3
+      leaflet:
+        specifier: ^1.9.4
+        version: 1.9.4
       lucide-react:
         specifier: ^1.45.0
         version: 1.45.0(react@19.3.0)
@@ -177,6 +186,10 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+    devDependencies:
+      '@types/leaflet':
+        specifier: ^1.9.21
+        version: 1.9.22
 
   packages/core/auth:
     dependencies:
@@ -276,6 +289,12 @@ importers:
         specifier: workspace:*
         version: link:../../core/places
 
+  packages/modules/map:
+    dependencies:
+      '@community/module-runtime':
+        specifier: workspace:*
+        version: link:../../core/module-runtime
+
   packages/modules/showcase:
     dependencies:
       '@community/identity':
@@ -338,9 +357,6 @@ importers:
       lucide-react:
         specifier: ^1.45.0
         version: 1.45.0(react@19.3.0)
-      next-themes:
-        specifier: ^0.4.6
-        version: 0.4.6(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       radix-ui:
         specifier: ^1.6.7
         version: 1.6.7(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -1719,6 +1735,12 @@ packages:
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
 
+  '@types/geojson@7946.0.16':
+    resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
+
+  '@types/leaflet@1.9.22':
+    resolution: {integrity: sha512-h3lhECYEKDasG7LFHu+GiHqAvsgLuQvlJvVZzJDGONo3sEL+wUOqSFLnwkZlK0qVxnxbuGFW8iBlJNYs5wgndA==}
+
   '@types/node@20.19.43':
     resolution: {integrity: sha512-6oYBAi5ikg4Pl+kGsoYtawUMBT2zZMCvPNF7pVLnHZfd1zf38DRiWn/gT01RYCdUqkv7Fhr+C9ot4/tb+2sVvA==}
 
@@ -1909,6 +1931,9 @@ packages:
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
+  leaflet@1.9.4:
+    resolution: {integrity: sha512-nxS1ynzJOmOlHp+iL3FyWqK89GtNL8U8rvlMOsQdTTssxZwCXh8N2NB3GDQOL+YR3XnWyZAxwQixURb+FA74PA==}
+
   lightningcss-android-arm64@1.32.0:
     resolution: {integrity: sha512-YK7/ClTt4kAK0vo6w3X+Pnm0D2cf2vPHbhOXdoNti1Ga0al1P4TBZhwjATvjNwLEBCnKvjJc2jQgHXH0NEwlAg==}
     engines: {node: '>= 12.0.0'}
@@ -2005,12 +2030,6 @@ packages:
     resolution: {integrity: sha512-Y2tUNy4ouw6tq5oDSKeQYGOyhkUBhNOcGV/02KC+6kd9eDGqdZd++mjMiIDilrBYvjEnCYvVtsuHCuP+okSfug==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
-
-  next-themes@0.4.6:
-    resolution: {integrity: sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA==}
-    peerDependencies:
-      react: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
-      react-dom: ^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc
 
   next@16.3.5:
     resolution: {integrity: sha512-MdtsTgzyfCPRLC6uJ1mN8ao7lyJ4BB0U6Inhnx3gta1UcCIdHK3yxLG0E8OWQteWD8/Q0qb8A5o7wJaL8M9y2w==}
@@ -3557,6 +3576,12 @@ snapshots:
 
   '@types/estree@1.0.9': {}
 
+  '@types/geojson@7946.0.16': {}
+
+  '@types/leaflet@1.9.22':
+    dependencies:
+      '@types/geojson': 7946.0.16
+
   '@types/node@20.19.43':
     dependencies:
       undici-types: 6.21.0
@@ -3755,6 +3780,8 @@ snapshots:
 
   js-tokens@4.0.0: {}
 
+  leaflet@1.9.4: {}
+
   lightningcss-android-arm64@1.32.0:
     optional: true
 
@@ -3819,11 +3846,6 @@ snapshots:
   ms@2.1.3: {}
 
   nanoid@3.3.19: {}
-
-  next-themes@0.4.6(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
-    dependencies:
-      react: 19.3.0
-      react-dom: 19.3.0(react@19.3.0)
 
   next@16.3.5(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0):
     dependencies:

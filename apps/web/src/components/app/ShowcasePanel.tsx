@@ -32,6 +32,8 @@ import { activeFilterCount, directoryQueryString, type ListQueryExtras } from '@
 import type { PersonCard } from '@/lib/people/person-card';
 import { useDebouncedValue } from '@/lib/people/use-debounced-value';
 
+const EMPTY_EXTRAS: ListQueryExtras = {};
+
 const CONTENT = mergeContent(
   contentFromCatalog(uiCatalog, 'plugin_showcase', {
     title: 'page.title',
@@ -102,7 +104,7 @@ export function ShowcasePanel({
   search = '',
   facetValues = {},
   status = '',
-  extras = {},
+  extras = EMPTY_EXTRAS,
   countries = [],
   page = 1,
   pageSize = SHOWCASE_PAGE_SIZE,

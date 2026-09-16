@@ -228,7 +228,7 @@ erDiagram
 
 Índice extra: `community_modules (community_id)` unique pair já é PK.
 
-Comunidade nova: insert de `community_modules` para slugs first-party com `enabled = true`. A coluna permanece `DEFAULT false`: **sem row o plugin está off**. Por isso “não estava tudo on” se a comunidade não passou pelo seed/`enableFirstPartyModules`. Backfill liga os três first-party em comunidades existentes.
+Comunidade nova: insert de `community_modules` para slugs default-on (`directory`, `showcase`, `contact-mediated`) com `enabled = true`. O plugin `map` entra no catálogo e nas comunidades com `enabled = false` (`ON CONFLICT DO NOTHING`). A coluna permanece `DEFAULT false`: **sem row o plugin está off**.
 
 ## Hot paths / indexes (alvo da primeira migração)
 

@@ -62,6 +62,9 @@
       "@community/contact-mediated": [
         "../../packages/modules/contact-mediated/src/index.ts"
       ],
+      "@community/ui/theme-init": [
+        "../../packages/ui/primitives/src/theme-init.ts"
+      ],
       "@community/ui-admin": [
         "../../packages/ui/admin/src/index.ts"
       ]

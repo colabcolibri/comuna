@@ -15,8 +15,11 @@ function parseShowcasePageSize(raw: string | null) {
 
 const SELECT = `SELECT m.id, p.full_name, p.avatar_url, p.current_city, p.languages, p.contacts, c.headline, c.bio, c.availability_status, c.custom_attributes`;
 const FROM = `FROM network_core.memberships m JOIN person_core.profiles p ON p.user_id = m.user_id JOIN plugin_directory.cards c ON c.membership_id = m.id`;
-const COORD = `(p.current_city->>'lat') ~ '^-?[0-9]+(\\.[0-9]+)?$' AND (p.current_city->>'lon') ~ '^-?[0-9]+(\\.[0-9]+)?$'`;
-const HAVERSINE = `6371 * acos(LEAST(1.0, GREATEST(-1.0, cos(radians($LAT::float)) * cos(radians((p.current_city->>'lat')::float)) * cos(radians((p.current_city->>'lon')::float) - radians($LON::float)) + sin(radians($LAT::float)) * sin(radians((p.current_city->>'lat')::float)))))`;
+const COORD = `pg_input_is_valid(p.current_city->>'lat', 'float8') AND pg_input_is_valid(p.current_city->>'lon', 'float8')`;
+
+function haversineKm(latSlot: number, lonSlot: number) {
+  return `6371 * acos(LEAST(1.0, GREATEST(-1.0, cos(radians($${latSlot}::float)) * cos(radians((p.current_city->>'lat')::float)) * cos(radians((p.current_city->>'lon')::float) - radians($${lonSlot}::float)) + sin(radians($${latSlot}::float)) * sin(radians((p.current_city->>'lat')::float)))))`;
+}
 
 function scopeClauses(scope: PeopleListScope) {
   return scope === 'directory' ? [`m.network_status = 'active'`] : ['c.public_showcase = true'];
@@ -84,9 +87,7 @@ export function peopleListQuery(input: {
     params.push(radius);
     const radiusSlot = params.length;
     clauses.push(COORD);
-    clauses.push(
-      `${HAVERSINE.replace('$LAT', `$${latSlot}`).replace('$LON', `$${lonSlot}`)} <= $${radiusSlot}`
-    );
+    clauses.push(`${haversineKm(latSlot, lonSlot)} <= $${radiusSlot}`);
   }
   const where = `${FROM} WHERE ${clauses.join(' AND ')}`;
   const page = Math.max(1, Number.parseInt(input.searchParams.get('page') || '1', 10) || 1);
@@ -104,7 +105,7 @@ export function peopleListQuery(input: {
 }
 
 export function peopleListCountriesQuery(input: { communityId: string; scope: PeopleListScope }) {
-  const clauses = ['m.community_id = $1', ...scopeClauses(input.scope), `p.current_country ~ '^[A-Z]{2}$'`];
+  const clauses = ['m.community_id = $1', ...scopeClauses(input.scope), `p.current_country SIMILAR TO '[A-Z]{2}'`];
   return {
     text: `SELECT DISTINCT p.current_country AS country ${FROM} WHERE ${clauses.join(' AND ')} ORDER BY 1`,
     params: [input.communityId],

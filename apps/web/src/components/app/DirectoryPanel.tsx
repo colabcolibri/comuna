@@ -31,6 +31,8 @@ import { ListFilter } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+const EMPTY_EXTRAS: ListQueryExtras = {};
+
 const CONTENT = mergeContent(
   mergeContent(
     contentFromCatalog(uiCatalog, 'plugin_directory', {
@@ -107,7 +109,7 @@ export function DirectoryPanel({
   cohorts,
   cohort,
   status = '',
-  extras = {},
+  extras = EMPTY_EXTRAS,
   countries = [],
   page = 1,
   pageSize = SHOWCASE_PAGE_SIZE,

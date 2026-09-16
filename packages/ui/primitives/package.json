@@ -4,6 +4,7 @@
   "private": true,
   "exports": {
     ".": "./src/index.ts",
+    "./theme-init": "./src/theme-init.ts",
     "./styles.css": "./src/styles.css"
   },
   "peerDependencies": {
@@ -16,7 +17,6 @@
     "cn": "workspace:*",
     "input-otp": "^1.5.0",
     "lucide-react": "^1.45.0",
-    "next-themes": "^0.4.6",
     "radix-ui": "^1.6.7",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.7.0"

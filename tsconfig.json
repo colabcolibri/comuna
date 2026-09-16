@@ -31,6 +31,7 @@
       "@community/communities": ["./packages/core/communities/src/index.ts"],
       "@community/communities/types": ["./packages/core/communities/src/types.ts"],
       "@community/ui": ["./packages/ui/primitives/src/index.ts"],
+      "@community/ui/theme-init": ["./packages/ui/primitives/src/theme-init.ts"],
       "@community/ui-member": ["./packages/ui/member/src/index.ts"],
       "@community/ui-admin": ["./packages/ui/admin/src/index.ts"],
       "cn": ["./packages/ui/primitives/src/lib/utils.ts"],

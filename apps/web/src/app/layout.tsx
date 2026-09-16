@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { cookies } from 'next/headers';
 import { IBM_Plex_Sans } from 'next/font/google';
+import Script from 'next/script';
 import { ThemeProvider, Toaster } from '@community/ui';
+import { THEME_INIT_SCRIPT, THEME_INIT_SCRIPT_ID } from '@community/ui/theme-init';
 import { LOCALE_COOKIE, contentFromCatalog, pickContent, resolveUiLocale } from '@community/identity';
 import { listPublicCommunities } from '@community/communities';
 import { listMyCommunities } from '@community/memberships';
@@ -55,6 +57,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang={locale === 'en' ? 'en' : 'pt-BR'} className={`${ibmPlex.variable} h-full`} suppressHydrationWarning>
       <body className={`${ibmPlex.className} flex h-full min-h-full flex-col antialiased bg-background text-foreground`}>
+        <Script id={THEME_INIT_SCRIPT_ID} strategy="beforeInteractive">
+          {THEME_INIT_SCRIPT}
+        </Script>
         {isDatabaseReadOnly() ? <DemoRibbon label={copy.ribbon} /> : null}
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <ThemeProvider>
