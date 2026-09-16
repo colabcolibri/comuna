@@ -82,7 +82,7 @@ describe('AppShowcaseCard', () => {
     expect(screen.queryByText('Idiomas')).toBeNull();
     expect(screen.queryByText('Disponibilidade')).toBeNull();
     expect(screen.queryByText('Recebe em casa')).toBeNull();
-    expect(screen.getByText('Mentoria')).toBeTruthy();
+    expect(screen.queryByText('Mentoria')).toBeNull();
     expect(screen.getByText('Português')).toBeTruthy();
   });
 });

@@ -22,7 +22,7 @@ const LISTS = {
   pii: { directory: LIST.hidden, showcase: LIST.hidden },
   bio: { directory: LIST.detail, showcase: { filterable: false, placement: 'card' } },
   availability: {
-    directory: { filterable: false, placement: 'card' },
+    directory: { filterable: false, placement: 'detail' },
     showcase: { filterable: true, placement: 'card' },
   },
   links: { directory: LIST.detail, showcase: LIST.detail },

@@ -60,7 +60,10 @@ describe('seed list surfaces', () => {
     expect(listsFor({ name: 'bio', lists: LISTS.bio }).directory.placement).toBe('detail');
     expect(listsFor({ name: 'bio', lists: LISTS.bio }).showcase.placement).toBe('card');
     expect(listsFor({ name: 'availability_status', lists: LISTS.availability }).showcase.filterable).toBe(true);
-    expect(listsFor({ name: 'availability_status', lists: LISTS.availability }).directory.filterable).toBe(false);
+    expect(listsFor({ name: 'availability_status', lists: LISTS.availability }).directory).toEqual({
+      filterable: false,
+      placement: 'detail',
+    });
   });
 
   it('maps tenant extras with listFilterable onto both lists as detail + filter', () => {
@@ -168,6 +171,7 @@ describe('seed list surfaces', () => {
       availabilityLabel: 'Mentoria',
     });
     expect(row.summary).toBeNull();
+    expect(row.availability).toBeNull();
     expect(row.headline).toBeTruthy();
     const dialog = projectPersonView({
       profile: {

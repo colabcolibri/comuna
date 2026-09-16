@@ -81,14 +81,7 @@ export function AppPersonCard({
             <p className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">{summary}</p>
           ) : null}
           {compact ? (
-            <>
-              {spoken && spoken.length > 0 ? <AppPersonFieldGroup label="" values={spoken} /> : null}
-              {availability ? (
-                <span className="inline-flex w-fit rounded-md border border-border bg-secondary px-2.5 py-1 text-sm text-foreground">
-                  {availability}
-                </span>
-              ) : null}
-            </>
+            spoken && spoken.length > 0 ? <AppPersonFieldGroup label="" values={spoken} /> : null
           ) : (
             <>
               {spoken && spoken.length > 0 ? (
