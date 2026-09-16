@@ -11,6 +11,8 @@ import {
   pickContent,
   pickLocalizedText,
   PROFICIENCIES,
+  sortSpokenLanguages,
+  spokenLanguageOptions,
   type Proficiency,
   type SpokenLanguage,
 } from '@community/identity';
@@ -55,7 +57,7 @@ export function LanguagesField({
   const label = pickLocalizedText(field.label, locale) || field.name;
   const description = pickLocalizedText(field.description, locale);
   const copy = pickContent(CONTENT, locale);
-  const selected = parseLanguages(value);
+  const selected = sortSpokenLanguages(parseLanguages(value), locale);
   const levels: Record<Proficiency, string> = {
     basic: copy.proficiency_basic,
     intermediate: copy.proficiency_intermediate,
@@ -69,7 +71,10 @@ export function LanguagesField({
   const [editing, setEditing] = useState<string | null>(null);
 
   const taken = new Set(selected.map((item) => item.code).filter((code) => code !== editing));
-  const available = field.options.filter((option) => !taken.has(option.value));
+  const available = spokenLanguageOptions(locale)
+    .filter((option) => !taken.has(option.value))
+    .map((option) => field.options.find((row) => row.value === option.value))
+    .filter((option): option is CatalogField['options'][number] => Boolean(option));
   const nameOf = (code: string) =>
     pickLocalizedText(field.options.find((option) => option.value === code)?.label || [], locale) || code;
 

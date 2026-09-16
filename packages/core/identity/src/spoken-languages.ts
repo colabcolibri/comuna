@@ -30,3 +30,20 @@ export function spokenLanguageLabel(code: string, locale: string) {
   const hit = row.label.find((entry) => entry.locale === locale) || row.label[0];
   return hit?.value || null;
 }
+
+export function compareSpokenLanguageCodes(a: string, b: string, locale: string) {
+  const left = spokenLanguageLabel(a, locale) || a;
+  const right = spokenLanguageLabel(b, locale) || b;
+  return left.localeCompare(right, locale, { sensitivity: 'base' });
+}
+
+export function spokenLanguageOptions(locale: string) {
+  return SPOKEN_LANGUAGES.map((item) => ({
+    value: item.value,
+    label: spokenLanguageLabel(item.value, locale) || item.value,
+  })).sort((a, b) => a.label.localeCompare(b.label, locale, { sensitivity: 'base' }));
+}
+
+export function sortSpokenLanguages<T extends { code: string }>(items: T[], locale: string): T[] {
+  return [...items].sort((a, b) => compareSpokenLanguageCodes(a.code, b.code, locale));
+}

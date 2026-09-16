@@ -1,7 +1,7 @@
 'use client';
 
 import { languageFilterQueryValue, parseLanguageFilter, type CatalogField } from '@community/directory';
-import { pickLocalizedText, SPOKEN_LANGUAGES, spokenLanguageLabel } from '@community/identity';
+import { pickLocalizedText, spokenLanguageOptions } from '@community/identity';
 import { AppFilterListbox } from '@community/ui-member';
 import { Checkbox, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@community/ui';
 
@@ -129,10 +129,7 @@ function PeopleLanguageFilter({
     <AppFilterListbox
       label={label}
       selected={parseLanguageFilter(value)}
-      options={SPOKEN_LANGUAGES.map((item) => ({
-        value: item.value,
-        label: spokenLanguageLabel(item.value, locale) || item.value,
-      }))}
+      options={spokenLanguageOptions(locale)}
       onChange={(next) => onChange(languageFilterQueryValue(next))}
     />
   );

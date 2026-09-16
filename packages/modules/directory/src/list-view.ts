@@ -1,4 +1,4 @@
-import { parseLanguages, pickLocalizedText, spokenLanguageLabel } from '@community/identity';
+import { parseLanguages, pickLocalizedText, sortSpokenLanguages, spokenLanguageLabel } from '@community/identity';
 import type { ListDensity, ListField } from './list-fields';
 import { isPersonViewSlot, visibleOn } from './list-fields';
 
@@ -78,10 +78,13 @@ export function projectPersonView(input: {
 }): PersonView {
   const { profile, fields, density, locale } = input;
   const languages = fieldVisible(fields, 'languages', density)
-    ? parseLanguages(profile.languages).flatMap((item) => {
-        const label = spokenLanguageLabel(item.code, locale);
-        return label ? [{ ...item, label }] : [];
-      })
+    ? sortSpokenLanguages(
+        parseLanguages(profile.languages).flatMap((item) => {
+          const label = spokenLanguageLabel(item.code, locale);
+          return label ? [{ ...item, label }] : [];
+        }),
+        locale
+      )
     : [];
   const facts: PersonView['facts'] = [];
   const links: PersonView['links'] = [];

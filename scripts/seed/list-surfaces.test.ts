@@ -126,7 +126,7 @@ describe('seed list surfaces', () => {
     expect(view.city).toBe('São Paulo');
     expect(view.headline).toBeTruthy();
     expect(view.summary).toBeTruthy();
-    expect(view.languages.map((item) => item.code)).toEqual(['pt', 'en']);
+    expect(view.languages.map((item) => item.code)).toEqual(['en', 'pt']);
     expect(view.availability).toBe('Mentoria');
     expect(view.facts).toEqual([]);
     expect(view.links).toEqual([]);
