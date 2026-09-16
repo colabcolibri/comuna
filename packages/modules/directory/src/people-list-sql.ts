@@ -1,5 +1,6 @@
 import { DEFAULT_LIST_RADIUS_KM, parseCountryCode, parseListRadius, parseNearLatLon } from '@community/places';
 import { parseAttrFilters } from './catalog';
+import { languagesIsFilterable, parseLanguageFilter } from './language-filter';
 import { availabilityIsFilterable, type ListField } from './list-fields';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -72,6 +73,12 @@ export function peopleListQuery(input: {
   if (AVAILABILITY.has(status) && availabilityIsFilterable(input.fields)) {
     params.push(status);
     clauses.push(`c.availability_status = $${params.length}`);
+  }
+  if (languagesIsFilterable(input.fields)) {
+    for (const code of parseLanguageFilter(input.searchParams.get('lang'))) {
+      params.push(JSON.stringify([{ code }]));
+      clauses.push(`p.languages @> $${params.length}::jsonb`);
+    }
   }
   const country = parseCountryCode(input.searchParams.get('country'));
   if (country) {

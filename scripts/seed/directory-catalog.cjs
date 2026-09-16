@@ -31,6 +31,10 @@ const LISTS = {
     showcase: { filterable: true, placement: 'detail' },
   },
   extraDirectoryOnly: { directory: LIST.detail, showcase: LIST.hidden },
+  languages: {
+    directory: { filterable: true, placement: 'card' },
+    showcase: { filterable: true, placement: 'card' },
+  },
 };
 
 const PLATFORM_CATALOG_GROUPS = [
@@ -159,7 +163,7 @@ const PLATFORM_CATALOG_GROUPS = [
             opt('ru', 'Russo', 'Russian'),
             opt('ar', 'Árabe', 'Arabic'),
           ],
-          lists: LISTS.identity,
+          lists: LISTS.languages,
         },
       ],
     },

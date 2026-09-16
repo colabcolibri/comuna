@@ -3,6 +3,8 @@
 import type { ReactNode } from 'react';
 import {
   Button,
+  cn,
+  ScrollArea,
   Sheet,
   SheetClose,
   SheetContent,
@@ -25,6 +27,7 @@ export function AppSheet({
   side = 'right',
   open,
   onOpenChange,
+  className,
 }: {
   trigger: ReactNode;
   title: ReactNode;
@@ -35,17 +38,18 @@ export function AppSheet({
   side?: AppSheetSide;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  className?: string;
 }) {
   return (
     <Sheet {...(typeof open === 'boolean' ? { open, onOpenChange } : {})}>
       <SheetTrigger asChild>{trigger}</SheetTrigger>
-      <SheetContent side={side}>
-        <SheetHeader>
+      <SheetContent side={side} className={cn('gap-0 overflow-hidden p-0', className)}>
+        <SheetHeader className="shrink-0 border-b border-border">
           <SheetTitle>{title}</SheetTitle>
           {description ? <SheetDescription>{description}</SheetDescription> : null}
         </SheetHeader>
-        <div className="grid flex-1 auto-rows-min gap-6 px-4">{children}</div>
-        <SheetFooter>
+        <AppSheetBody>{children}</AppSheetBody>
+        <SheetFooter className="shrink-0 border-t border-border bg-card">
           {footer}
           {closeLabel ? (
             <SheetClose asChild>
@@ -57,5 +61,13 @@ export function AppSheet({
         </SheetFooter>
       </SheetContent>
     </Sheet>
+  );
+}
+
+export function AppSheetBody({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <ScrollArea type="always" className={cn('app-scroll app-sheet-scroll min-h-0 flex-1', className)}>
+      <div className="grid auto-rows-min gap-6 px-4 py-4">{children}</div>
+    </ScrollArea>
   );
 }

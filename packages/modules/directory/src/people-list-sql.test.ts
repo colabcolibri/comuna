@@ -19,6 +19,15 @@ const availability = parseListField({
   placement: 'card',
 })!;
 
+const languages = parseListField({
+  name: 'languages',
+  type: 'checkbox',
+  storage: 'person',
+  column_key: 'languages',
+  filterable: true,
+  placement: 'card',
+})!;
+
 describe('peopleListQuery', () => {
   it('keeps one join graph and AND jsonb containment for facets', () => {
     const built = peopleListQuery({
@@ -118,6 +127,37 @@ describe('peopleListQuery', () => {
       return;
     }
     expect(built.text).not.toContain('availability_status =');
+  });
+
+  it('filters by spoken language codes when languages are filterable', () => {
+    const built = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams('lang=pt,en,xx'),
+      fields: [languages],
+      scope: 'directory',
+    });
+    expect(built.ok).toBe(true);
+    if (built.ok === false) {
+      return;
+    }
+    expect(built.text).toContain('p.languages @>');
+    expect((built.text.match(/p\.languages @>/g) || []).length).toBe(2);
+    expect(built.params).toContain('[{"code":"pt"}]');
+    expect(built.params).toContain('[{"code":"en"}]');
+  });
+
+  it('ignores language filter when languages are not filterable', () => {
+    const built = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams('lang=pt'),
+      fields: [{ ...languages, filterable: false }],
+      scope: 'showcase',
+    });
+    expect(built.ok).toBe(true);
+    if (built.ok === false) {
+      return;
+    }
+    expect(built.text).not.toContain('p.languages @>');
   });
 
   it('applies directory status when availability is filterable on that list', () => {

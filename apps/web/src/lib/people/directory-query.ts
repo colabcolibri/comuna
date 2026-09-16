@@ -1,5 +1,5 @@
+import { languageFilterQueryValue, parseLanguageFilter, SHOWCASE_PAGE_SIZE } from '@community/directory';
 import { DEFAULT_LIST_RADIUS_KM, parseCountryCode, parseListRadius, parseNearLatLon } from '@community/places';
-import { SHOWCASE_PAGE_SIZE } from '@community/directory';
 
 export type ListQueryExtras = {
   country?: string;
@@ -7,6 +7,7 @@ export type ListQueryExtras = {
   radius?: number;
   view?: string;
   nearLabel?: string;
+  lang?: string;
 };
 
 export function directoryQueryString(
@@ -49,6 +50,10 @@ export function directoryQueryString(
   }
   if (extras.view === 'map') {
     params.set('view', 'map');
+  }
+  const lang = languageFilterQueryValue(parseLanguageFilter(extras.lang || ''));
+  if (lang) {
+    params.set('lang', lang);
   }
   if (page > 1) {
     params.set('page', String(page));
@@ -104,5 +109,6 @@ export function extrasFromSearchParams(params: URLSearchParams): ListQueryExtras
     radius: near ? radius ?? DEFAULT_LIST_RADIUS_KM : undefined,
     view: params.get('view') === 'map' ? 'map' : '',
     nearLabel: near ? (params.get('near_label') || '').trim() : '',
+    lang: languageFilterQueryValue(parseLanguageFilter(params.get('lang'))),
   };
 }

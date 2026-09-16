@@ -42,6 +42,23 @@
     min-width: 100%;
   }
 
+  .app-sheet-scroll {
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  .app-sheet-scroll [data-slot="scroll-area-viewport"] {
+    height: 100% !important;
+    max-height: calc(100svh - 9rem) !important;
+    overflow-x: hidden !important;
+    overflow-y: scroll !important;
+  }
+
+  .app-sheet-scroll [data-slot="scroll-area-viewport"] > div {
+    display: block !important;
+    min-width: 100%;
+  }
+
   body {
     background-color: var(--background);
     color: var(--foreground);

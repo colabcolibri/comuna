@@ -3,6 +3,8 @@
 import type { ReactNode } from 'react';
 import {
   Button,
+  cn,
+  ScrollArea,
   Sheet,
   SheetClose,
   SheetContent,
@@ -41,13 +43,15 @@ export function OpsSheet({
   return (
     <Sheet {...(typeof open === 'boolean' ? { open, onOpenChange } : {})}>
       <SheetTrigger asChild>{trigger}</SheetTrigger>
-      <SheetContent side={side} className={className}>
-        <SheetHeader>
+      <SheetContent side={side} className={cn('gap-0 overflow-hidden p-0', className)}>
+        <SheetHeader className="shrink-0 border-b border-border">
           <SheetTitle>{title}</SheetTitle>
           {description ? <SheetDescription>{description}</SheetDescription> : null}
         </SheetHeader>
-        <div className="grid min-h-0 flex-1 auto-rows-min gap-6 overflow-y-auto px-4">{children}</div>
-        <SheetFooter>
+        <ScrollArea type="always" className="app-scroll app-sheet-scroll min-h-0 flex-1">
+          <div className="grid auto-rows-min gap-6 px-4 py-4">{children}</div>
+        </ScrollArea>
+        <SheetFooter className="shrink-0 border-t border-border bg-card">
           {footer}
           {closeLabel ? (
             <SheetClose asChild>

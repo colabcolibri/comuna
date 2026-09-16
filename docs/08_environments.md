@@ -1,7 +1,7 @@
 ---
 title: Environments and Setup
 status: review
-version: 1.9
+version: 1.11
 updated: 2026-09-16
 depends_on: [01_tech_stack.md, 05_architecture.md]
 blocks: []
@@ -28,8 +28,8 @@ blocks: []
 | `MEDIA_DRIVER` | `local` ou `s3` | Não (default `local`) | `local` | All |
 | `OPS_BASE_PATH` | Path ops se mesmo origin | Não | _(removido; ops é `apps/admin`)_ | — |
 | `ALLOW_DEV_OTP` | Se `true`, loga OTP no server **nunca** no JSON de prod | Não | `true` só local | Local |
-| `DATABASE_READ_ONLY` | Sessão da app em transação só de leitura (`SET default_transaction_read_only`). Writes (OTP, contacto, join) falham no Postgres | Não | `1` na demo Railway | Demo |
-| `PGSSL` | Força SSL do `pg` (`1`) ou desliga (`0`) | Não | vazio; Railway liga sozinho | Demo / staging |
+| `DATABASE_READ_ONLY` | Sessão da app em transação só de leitura (`SET default_transaction_read_only`). Writes (OTP, contacto, join) falham no Postgres | Não | `1` na demo pública | Demo |
+| `PGSSL` | Força SSL do `pg` (`1`) ou desliga (`0`) | Não | `0` no Compose interno do VPS; `1` se o Postgres for gerido com SSL | Demo / staging / prod |
 
 Busca de cidade: `GET /api/places/cities` chama Nominatim (OpenStreetMap). Sem chave. User-Agent próprio. Mínimo 1 req/s.
 
@@ -128,47 +128,63 @@ Abre `http://localhost:3014/showcase`. A faixa no topo e o diálogo nos writes s
 
 ### Peças
 
-1. Postgres gerido (Neon, Railway Postgres, ou equivalente). SSL na `DATABASE_URL` como o fornecedor indicar.
-2. Host Node para Next (Vercel, Railway, ou equivalente). Root do monorepo; app `@community/web`.
-3. As **mesmas** variáveis da matriz acima. Na demo: `SMTP_HOST` pode ficar vazio (contacto falha como já falha sem mail; não se especializa a rota). `ALLOW_DEV_OTP` fica desligado. `NEXT_PUBLIC_APP_URL` é o domínio público da demo.
-4. Na máquina com o repo (ou num job único de release), com `DATABASE_URL` apontado à base remota:
+1. **Hostinger VPS (KVM)** — Ubuntu 24.04. Template com Docker, ou CloudPanel. Não usar Web/Cloud/Business compartilhado: Postgres **não** existe nesses planos; o wizard de Node só oferece Supabase/Mongo Atlas, não o `pg` + RLS deste produto.
+2. **Dois processos Node** no mesmo VPS: `@community/web` (público) e, se for prod com ops, `@community/admin` noutro host (`ops.`). Demo pública **não** precisa publicar o admin.
+3. **Postgres no próprio VPS**, rede interna (Compose). Porta `5432` **não** vai para a internet. `DATABASE_URL` usa o hostname do serviço (`postgres:5432`), não `localhost:5433`.
+4. As **mesmas** variáveis da matriz. Demo: `SMTP_HOST` pode ficar vazio; `ALLOW_DEV_OTP` desligado; `NEXT_PUBLIC_APP_URL` é `https://comuna.sergioluciano.com`. `PGSSL=0` entre app e Postgres no Compose. Disco persistente para `MEDIA_ROOT` (ObjectStore local).
+5. Migrate em cada deploy; seed **uma vez** (ou quando quiserem refrescar demo). Seed faz upsert; não é `db reset`. **Proibido** `pnpm db:setup` / `db:reset` no VPS.
+
+Comprar o VPS, apontar DNS, colar secrets no servidor e o primeiro `up` são **HAR**.
+
+### Hostinger VPS (caminho escolhido)
+
+Pré-requisitos no painel (humano):
+
+1. Plano **VPS**, não hospedagem de site. O KVM 2 já em uso (`srv395737`, Debian 13) serve: Traefik (`network_mode: host`) + Whisper em `127.0.0.1:9000`. A Comuna entra como **projeto Compose à parte** (`name: comuna`). Não recriar o VPS. Não editar o Compose do Traefik/Whisper.
+2. SSH por chave. Firewall: 22, 80, 443. Nada de 5432 na internet. Web/admin só em loopback.
+3. DNS público: `comuna.sergioluciano.com` → `A` `89.116.225.164` (já na zona). Admin **sem** hostname público; só `127.0.0.1:3015` no VPS.
+
+O MCP Hostinger `createNewProject` só cola um YAML e puxa **imagens**. Não constrói o monorepo. **Não** usar o painel Docker para substituir o projeto `traefik`. Deploy da Comuna: clone + `docker compose --build` no servidor.
 
 ```bash
-pnpm install
-pnpm db:migrate
-pnpm db:seed
+# no servidor (não no laptop)
+git clone git@github.com:…/alumni.git /opt/comuna
+cd /opt/comuna
+cp deploy/hostinger/env.example .env.hostinger
+# editar POSTGRES_PASSWORD e JWT_SECRET (NEXT_PUBLIC_APP_URL já é https://comuna.sergioluciano.com)
+docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger up -d --build
+# uma vez, sem DATABASE_READ_ONLY no env da seed:
+docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger --profile seed run --rm seed
 ```
 
-O seed faz upsert por e-mail/slug; não é `db reset`. Não o ponha em loop a cada cold start. Migrate em cada deploy; seed na primeira vez (ou quando quiserem refrescar o conteúdo de demonstração).
+O `docker-compose.yml` da raiz (Postgres `5433` + Mailpit) é **só laptop**. No VPS usa-se `docker-compose.hostinger.yml`: Postgres interno, sem Mailpit, portas `127.0.0.1:3014` e `127.0.0.1:3015`.
 
-### Vercel (web)
+TLS continua no Traefik que já está. Copiar `deploy/hostinger/traefik-file.yml` para o file provider em `/opt/nanoclaw-stack/traefik/`, alinhando `entryPoints` e `certResolver` com o `traefik.yml` real (não adivinhar). Upstream:
 
-- Root directory: repositório (não só `apps/web`, por causa dos workspace packages).
-- Install: `pnpm install`
-- Build: `pnpm --filter @community/web build`
-- Output / app: `apps/web`
-- Env: copiar a matriz; `DATABASE_URL` do Postgres gerido; `JWT_SECRET` só no painel, nunca no git.
+| Host | Loopback |
+| ---- | -------- |
+| `comuna.sergioluciano.com` | `http://127.0.0.1:3014` |
+| admin (sem DNS) | `http://127.0.0.1:3015` |
 
-Não é obrigatório publicar `apps/admin` neste URL. Ops fica fora da demo pública.
+`DATABASE_URL` **dentro** da rede `comuna_internal`: `postgresql://comuna:…@postgres:5432/alumni_db`. `PGSSL=0`. Healthcheck da web: `GET /api/health`. Backup: volume `comuna_pgdata` + `comuna_media`. Rollback: tag git anterior + `compose up -d --build`. Volumes **não** se apagam.
 
-### Railway (web + Postgres)
+Demo no VPS: `DATABASE_READ_ONLY=1` só no processo da **app**. Migrate/seed usam `Client` sem essa flag. `proxy` responde `403 READ_ONLY` em writes de `/api/*`. Não ligar read-only numa base com contas reais.
 
-1. Projecto novo: plugin **PostgreSQL** + serviço a partir deste repo (root do monorepo). `railway.toml` / `nixpacks.toml` já definem build Nixpacks, `pnpm start`, healthcheck em `/showcase` e `releaseCommand` = `pnpm db:migrate`.
-2. Variáveis no serviço da **app** (além das que o plugin injeta): `JWT_SECRET`, `NEXT_PUBLIC_APP_URL` (URL pública Railway), `EMAIL_FROM_ADDRESS`, `DATABASE_READ_ONLY=1`. `SMTP_HOST` vazio. Não coloques `ALLOW_DEV_OTP`. `PORT` o Railway define.
-3. `DATABASE_URL` vem do Postgres. SSL: o pool liga SSL quando `RAILWAY_ENVIRONMENT` existe. Migrate no release **não** usa `DATABASE_READ_ONLY` (script `Client` à parte) — o seed do catálogo e das pessoas continua a escrever.
-4. Seed **uma vez**, na tua máquina ou num one-off **sem** `DATABASE_READ_ONLY` (ou o seed falha):
+Generate a strong `JWT_SECRET` no servidor. Não publicar e-mail de super-admin no README.
 
-```bash
-DATABASE_URL='postgresql://...railway...' pnpm db:seed
-```
+### O que não usar na Hostinger
 
-Na app, `DATABASE_READ_ONLY=1` impede INSERT/UPDATE/DELETE na sessão Node e o `proxy` responde `403 READ_ONLY` em qualquer `POST`/`PUT`/`PATCH`/`DELETE` de `/api/*` (uma porta; não há `if` por botão). A vitrine (SELECT) segue. Uma faixa no layout raiz avisa que é demonstração.
+| Oferta | Porquê não |
+| ------ | ---------- |
+| Web / Cloud / Business compartilhado | MySQL no painel; **sem Postgres**. Node “Web App” existe, mas o wizard de DB é Supabase/Mongo, não o driver `pg` + RLS daqui. Disco de media e dois Next do monorepo não cabem nesse fluxo. |
+| Export estático / GitHub Pages | Route Handlers não correm. |
+| Railway / Vercel | Recusado pelo manager. `railway.toml` / `nixpacks.toml` são legado; não são o runbook. |
 
-Generate a strong `JWT_SECRET`. Não publiques o e-mail do super-admin no README da demo.
+Postgres gerido externo (Neon) + Node no painel Hostinger só faria sentido como atalho frágil. Não é o caminho: VPS com Postgres local.
 
 ### O que o visitante vê
 
-Abrir `https://{domínio}/showcase`. Com uma só comunidade pública no seed, a vitrine dessa casa; com várias, a lista para escolher. Sem login obrigatório. Em `/login`, **Entrar** com `member01@demo.example` para ver diretório e workspace — writes continuam bloqueados. Mensagem mediada só funciona se houver SMTP; senão o gesto falha como no produto sem mail.
+Abrir `https://comuna.sergioluciano.com/showcase`. Com uma só comunidade pública no seed, a vitrine dessa casa; com várias, a lista para escolher. Sem login obrigatório. Em `/login`, **Entrar** com `member01@demo.example` para ver diretório e workspace — writes continuam bloqueados. Mensagem mediada só funciona se houver SMTP; senão o gesto falha como no produto sem mail.
 
 ### Fora deste caminho
 

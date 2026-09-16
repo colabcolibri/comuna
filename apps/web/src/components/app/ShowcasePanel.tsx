@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   AppFilterSheet,
   AppShowcaseCard,
@@ -10,11 +10,19 @@ import {
   AppShowcasePager,
   AppShowcasePortal,
 } from '@community/ui-member';
-import { Button, Input, cn } from '@community/ui';
+import { Button, cn } from '@community/ui';
 import { contentFromCatalog, interpolate, mergeContent, pickContent } from '@community/identity';
 import { displayPlaceLocality, parseNearLatLon } from '@community/places';
-import { SHOWCASE_PAGE_SIZE, SHOWCASE_PAGE_SIZES, availabilityIsFilterable, projectPersonView, type CatalogField, type ListField } from '@community/directory';
-import { ListFilter, Search } from 'lucide-react';
+import {
+  SHOWCASE_PAGE_SIZE,
+  SHOWCASE_PAGE_SIZES,
+  availabilityIsFilterable,
+  languagesIsFilterable,
+  projectPersonView,
+  type CatalogField,
+  type ListField,
+} from '@community/directory';
+import { ListFilter } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { useEnabledModules } from '@/components/app/EnabledModulesProvider';
@@ -30,7 +38,7 @@ import { slotOn } from '@/modules/registry';
 import { availabilityLabel } from '@/lib/people/availability';
 import { activeFilterCount, directoryQueryString, type ListQueryExtras } from '@/lib/people/directory-query';
 import type { PersonCard } from '@/lib/people/person-card';
-import { useDebouncedValue } from '@/lib/people/use-debounced-value';
+import { PeopleSearchField } from '@/components/app/PeopleSearchField';
 
 const EMPTY_EXTRAS: ListQueryExtras = {};
 
@@ -46,6 +54,8 @@ const CONTENT = mergeContent(
     close: 'page.close',
     search: 'page.search',
     searchHint: 'page.search_hint',
+    searchApply: 'page.search_apply',
+    searchClear: 'page.search_clear',
     range: 'page.range',
     prev: 'page.prev',
     next: 'page.next',
@@ -132,26 +142,11 @@ export function ShowcasePanel({
   const router = useRouter();
   const pathname = usePathname();
   const [selected, setSelected] = useState<PersonCard | null>(null);
-  const [term, setTerm] = useState(search);
-  const debounced = useDebouncedValue(term, 300);
-  const hasFacetSheet = facets.length > 0 || availabilityIsFilterable(listFields);
+  const hasFacetSheet = facets.length > 0 || availabilityIsFilterable(listFields) || languagesIsFilterable(listFields);
   const mapView = canMap && extras.view === 'map';
-  const count = activeFilterCount(facetValues, [status, extras.country || '', extras.near || '']);
+  const count = activeFilterCount(facetValues, [status, extras.lang || '', extras.country || '', extras.near || '']);
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
-
-  useEffect(() => {
-    setTerm(search);
-  }, [search]);
-
-  useEffect(() => {
-    if (debounced === search) {
-      return;
-    }
-    const query = directoryQueryString(debounced, facetValues, '', status, 1, pageSize, extras);
-    const next = query ? `${pathname}?${query}` : pathname;
-    router.replace(next, { scroll: false });
-  }, [debounced, facetValues, status, pathname, search, router, pageSize, extras]);
 
   function go(
     nextSearch: string,
@@ -180,21 +175,17 @@ export function ShowcasePanel({
       toolbar={
         <div className="mb-8 flex min-w-0 flex-col gap-4">
           <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end">
-            <div className="min-w-0 flex-1">
-              <label className="mb-2 block text-sm font-medium" htmlFor="showcase-search">
-                {copy.search}
-              </label>
-              <div className="relative">
-                <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="showcase-search"
-                  className="h-12 min-h-12 w-full pl-10 text-base md:text-base"
-                  value={term}
-                  onChange={(e) => setTerm(e.target.value)}
-                  placeholder={copy.searchHint}
-                />
-              </div>
-            </div>
+            <PeopleSearchField
+              id="showcase-search"
+              label={copy.search}
+              hint={copy.searchHint}
+              applyLabel={copy.searchApply}
+              clearLabel={copy.searchClear}
+              committed={search}
+              icon
+              onApply={(term) => go(term, facetValues, status)}
+              onClear={() => go('', facetValues, status)}
+            />
             {canMap ? (
               <PeopleMapToggle
                 mapView={mapView}
@@ -219,7 +210,7 @@ export function ShowcasePanel({
               description={copy.filtersHint}
               clearLabel={copy.filtersClear}
               closeLabel={copy.close}
-              onClear={() => go(search, {}, '', 1, pageSize, { view: extras.view })}
+              onClear={() => go(search, {}, '', 1, pageSize, { view: extras.view, lang: '' })}
             >
               <div className="lg:hidden">
                 <PeoplePlaceFilters
@@ -241,6 +232,13 @@ export function ShowcasePanel({
                   facets={facets}
                   facetValues={facetValues}
                   onFacets={(next) => go(search, next, status)}
+                  languages={languagesIsFilterable(listFields) ? extras.lang || '' : undefined}
+                  onLanguages={
+                    languagesIsFilterable(listFields)
+                      ? (next) => go(search, facetValues, status, 1, pageSize, { ...extras, lang: next })
+                      : undefined
+                  }
+                  languagesLabel={copy.languages}
                   status={availabilityIsFilterable(listFields) ? status : undefined}
                   onStatus={availabilityIsFilterable(listFields) ? (next) => go(search, facetValues, next) : undefined}
                   statusLabel={copy.availability}
@@ -273,8 +271,8 @@ export function ShowcasePanel({
     >
       {rows.length === 0 ? (
         <AppShowcaseEmpty
-          title={search || count ? copy.emptyFilteredTitle : copy.emptyTitle}
-          body={search || count ? copy.emptyFiltered : copy.empty}
+          title={search || count || extras.lang ? copy.emptyFilteredTitle : copy.emptyTitle}
+          body={search || count || extras.lang ? copy.emptyFiltered : copy.empty}
         />
       ) : (
         <>

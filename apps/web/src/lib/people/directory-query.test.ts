@@ -14,6 +14,7 @@ describe('directory query string', () => {
       'near_label=Lisboa'
     );
     expect(directoryQueryString('', {}, '', '', 1, 24, { view: 'map' })).toBe('view=map');
+    expect(directoryQueryString('', {}, '', '', 1, 24, { lang: 'pt,en,xx' })).toBe('lang=pt%2Cen');
     const parsed = facetsFromSearchParams(new URLSearchParams('search=ana&attr.host_at_home=true'));
     expect(parsed).toEqual({ host_at_home: 'true' });
   });

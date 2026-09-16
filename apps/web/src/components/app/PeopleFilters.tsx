@@ -1,7 +1,8 @@
 'use client';
 
-import type { CatalogField } from '@community/directory';
-import { pickLocalizedText } from '@community/identity';
+import { languageFilterQueryValue, parseLanguageFilter, type CatalogField } from '@community/directory';
+import { pickLocalizedText, SPOKEN_LANGUAGES, spokenLanguageLabel } from '@community/identity';
+import { AppFilterListbox } from '@community/ui-member';
 import { Checkbox, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@community/ui';
 
 export function PeopleCohortSelect({
@@ -54,6 +55,9 @@ export function PeopleFilters({
   onStatus,
   statusLabel,
   statusOptions,
+  languages,
+  onLanguages,
+  languagesLabel,
 }: {
   locale: string;
   allLabel: string;
@@ -64,9 +68,20 @@ export function PeopleFilters({
   onStatus?: (next: string) => void;
   statusLabel?: string;
   statusOptions?: { value: string; label: string }[];
+  languages?: string;
+  onLanguages?: (next: string) => void;
+  languagesLabel?: string;
 }) {
   return (
     <div className="min-w-0 space-y-6">
+      {onLanguages && languagesLabel ? (
+        <PeopleLanguageFilter
+          locale={locale}
+          label={languagesLabel}
+          value={languages || ''}
+          onChange={onLanguages}
+        />
+      ) : null}
       {onStatus && statusOptions?.length ? (
         <div className="min-w-0 space-y-2">
           <Label htmlFor="people-filter-status">{statusLabel}</Label>
@@ -96,6 +111,30 @@ export function PeopleFilters({
         />
       ))}
     </div>
+  );
+}
+
+function PeopleLanguageFilter({
+  locale,
+  label,
+  value,
+  onChange,
+}: {
+  locale: string;
+  label: string;
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  return (
+    <AppFilterListbox
+      label={label}
+      selected={parseLanguageFilter(value)}
+      options={SPOKEN_LANGUAGES.map((item) => ({
+        value: item.value,
+        label: spokenLanguageLabel(item.value, locale) || item.value,
+      }))}
+      onChange={(next) => onChange(languageFilterQueryValue(next))}
+    />
   );
 }
 
@@ -142,28 +181,17 @@ function FacetControl({
     );
   }
   if (field.type === 'checkbox') {
-    const selected = new Set(value.split(',').filter(Boolean));
+    const selected = value.split(',').filter(Boolean);
     return (
-      <fieldset className="min-w-0 space-y-2">
-        <legend className="text-sm font-medium">{label}</legend>
-        {field.options.map((option) => (
-          <label key={option.value} className="flex min-h-11 min-w-0 items-center gap-2 text-sm">
-            <Checkbox
-              checked={selected.has(option.value)}
-              onCheckedChange={(checked) => {
-                const next = new Set(selected);
-                if (checked === true) {
-                  next.add(option.value);
-                } else {
-                  next.delete(option.value);
-                }
-                onChange([...next].join(','));
-              }}
-            />
-            <span className="min-w-0">{pickLocalizedText(option.label, locale) || option.value}</span>
-          </label>
-        ))}
-      </fieldset>
+      <AppFilterListbox
+        label={label}
+        selected={selected}
+        options={field.options.map((option) => ({
+          value: option.value,
+          label: pickLocalizedText(option.label, locale) || option.value,
+        }))}
+        onChange={(next) => onChange(next.join(','))}
+      />
     );
   }
   return null;

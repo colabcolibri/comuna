@@ -21,5 +21,6 @@ describe('AppFilterSheet', () => {
     expect(screen.getByRole('button', { name: 'Limpar' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Fechar' })).toBeTruthy();
     expect(screen.getByText('Turma')).toBeTruthy();
+    expect(document.querySelector('[data-slot="scroll-area"]')?.className).toMatch(/app-sheet-scroll/);
   });
 });

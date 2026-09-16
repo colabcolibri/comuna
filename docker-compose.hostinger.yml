@@ -1,0 +1,159 @@
+# Produção no VPS Hostinger (Debian + Traefik em network_mode: host).
+# Não substitui o docker-compose.yml local (Postgres 5433 + Mailpit).
+#
+# Traefik e Whisper já ocupam 80/443 e 127.0.0.1:9000. Esta stack:
+# - não publica 80/443/5432
+# - web/admin só em 127.0.0.1 (mesmo padrão do Whisper)
+# - não sobe Mailpit
+#
+# Na raiz do clone, no servidor:
+#   cp deploy/hostinger/env.example .env.hostinger
+#   # editar secrets e COMUNA_HOST
+#   docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger up -d --build
+# Seed (uma vez, sem DATABASE_READ_ONLY):
+#   docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger --profile seed run --rm seed
+
+name: comuna
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: comuna_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: comuna
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: alumni_db
+    volumes:
+      - comuna_pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U comuna -d alumni_db']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - comuna_internal
+
+  migrate:
+    build:
+      context: .
+      dockerfile: deploy/hostinger/Dockerfile.migrate
+    container_name: comuna_migrate
+    restart: 'no'
+    environment:
+      DATABASE_URL: postgresql://comuna:${POSTGRES_PASSWORD}@postgres:5432/alumni_db
+      PGSSL: '0'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - comuna_internal
+
+  seed:
+    profiles: ['seed']
+    build:
+      context: .
+      dockerfile: deploy/hostinger/Dockerfile.migrate
+    container_name: comuna_seed
+    restart: 'no'
+    command: ['node', 'scripts/db/seed.cjs']
+    environment:
+      DATABASE_URL: postgresql://comuna:${POSTGRES_PASSWORD}@postgres:5432/alumni_db
+      PGSSL: '0'
+      INITIAL_SUPER_ADMIN_EMAIL: ${INITIAL_SUPER_ADMIN_EMAIL:-admin@example.com}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - comuna_internal
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/hostinger/Dockerfile.web
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+    container_name: comuna_web
+    restart: unless-stopped
+    environment:
+      PORT: '3014'
+      HOSTNAME: 0.0.0.0
+      NODE_ENV: production
+      DATABASE_URL: postgresql://comuna:${POSTGRES_PASSWORD}@postgres:5432/alumni_db
+      PGSSL: '0'
+      JWT_SECRET: ${JWT_SECRET}
+      INITIAL_SUPER_ADMIN_EMAIL: ${INITIAL_SUPER_ADMIN_EMAIL:-admin@example.com}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      MEDIA_DRIVER: local
+      MEDIA_ROOT: /data/storage
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_SECURE: ${SMTP_SECURE:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      ALLOW_DEV_OTP: ${ALLOW_DEV_OTP:-}
+      DATABASE_READ_ONLY: ${DATABASE_READ_ONLY:-}
+    volumes:
+      - comuna_media:/data/storage
+    ports:
+      - '127.0.0.1:3014:3014'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3014/api/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    networks:
+      - comuna_internal
+
+  admin:
+    build:
+      context: .
+      dockerfile: deploy/hostinger/Dockerfile.admin
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+    container_name: comuna_admin
+    restart: unless-stopped
+    environment:
+      PORT: '3015'
+      HOSTNAME: 0.0.0.0
+      NODE_ENV: production
+      DATABASE_URL: postgresql://comuna:${POSTGRES_PASSWORD}@postgres:5432/alumni_db
+      PGSSL: '0'
+      JWT_SECRET: ${JWT_SECRET}
+      INITIAL_SUPER_ADMIN_EMAIL: ${INITIAL_SUPER_ADMIN_EMAIL:-admin@example.com}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_SECURE: ${SMTP_SECURE:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      ALLOW_DEV_OTP: ${ALLOW_DEV_OTP:-}
+      DATABASE_READ_ONLY: ${DATABASE_READ_ONLY:-}
+    ports:
+      - '127.0.0.1:3015:3015'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    networks:
+      - comuna_internal
+
+networks:
+  comuna_internal:
+    name: comuna_internal
+    driver: bridge
+
+volumes:
+  comuna_pgdata:
+  comuna_media:

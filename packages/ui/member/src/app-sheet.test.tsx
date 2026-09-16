@@ -17,6 +17,7 @@ describe('AppSheet', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Enviar mensagem' }));
     expect(screen.getByText('Ajuda do formulário')).toBeTruthy();
     expect(screen.getByText('corpo')).toBeTruthy();
+    expect(document.querySelector('[data-slot="scroll-area"]')?.className).toMatch(/app-sheet-scroll/);
     expect(screen.getByRole('button', { name: 'Enviar' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
   });

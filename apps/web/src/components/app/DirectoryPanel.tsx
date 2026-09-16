@@ -11,14 +11,22 @@ import { uiCatalog } from '@/lang/catalog';
 import { availabilityLabel } from '@/lib/people/availability';
 import { activeFilterCount, directoryQueryString, type ListQueryExtras } from '@/lib/people/directory-query';
 import type { PersonCard } from '@/lib/people/person-card';
-import { useDebouncedValue } from '@/lib/people/use-debounced-value';
+import { PeopleSearchField } from '@/components/app/PeopleSearchField';
 import { slotOn } from '@/modules/registry';
-import { SHOWCASE_PAGE_SIZE, SHOWCASE_PAGE_SIZES, availabilityIsFilterable, projectPersonView, type CatalogField, type ListField } from '@community/directory';
+import {
+  SHOWCASE_PAGE_SIZE,
+  SHOWCASE_PAGE_SIZES,
+  availabilityIsFilterable,
+  languagesIsFilterable,
+  projectPersonView,
+  type CatalogField,
+  type ListField,
+} from '@community/directory';
 import { contentFromCatalog, interpolate, mergeContent, pickContent } from '@community/identity';
 import { DIRECTORY_MAP_VIEW } from '@community/map';
 import { displayPlaceLocality, parseNearLatLon } from '@community/places';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
-import { Button, Input, cn } from '@community/ui';
+import { Button, cn } from '@community/ui';
 import {
   AppFilterSheet,
   AppPageTemplate,
@@ -29,7 +37,7 @@ import {
 } from '@community/ui-member';
 import { ListFilter } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const EMPTY_EXTRAS: ListQueryExtras = {};
 
@@ -41,6 +49,8 @@ const CONTENT = mergeContent(
       subtitle: 'page.subtitle',
       search: 'page.search',
       searchHint: 'page.search_hint',
+      searchApply: 'page.search_apply',
+      searchClear: 'page.search_clear',
       emptyTitle: 'page.empty_title',
       empty: 'page.empty',
       emptyFilteredTitle: 'page.empty_filtered_title',
@@ -136,26 +146,12 @@ export function DirectoryPanel({
   const router = useRouter();
   const pathname = usePathname();
   const [selected, setSelected] = useState<PersonCard | null>(null);
-  const [term, setTerm] = useState(search);
-  const debounced = useDebouncedValue(term, 300);
   const mapView = canMap && extras.view === 'map';
-  const count = activeFilterCount(facetValues, [status, extras.country || '', extras.near || '']);
-  const hasFacetSheet = facets.length > 0 || availabilityIsFilterable(listFields);
+  const count = activeFilterCount(facetValues, [status, extras.lang || '', extras.country || '', extras.near || '']);
+  const hasFacetSheet = facets.length > 0 || availabilityIsFilterable(listFields) || languagesIsFilterable(listFields);
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
-  const sliced = Boolean(search || count || cohort);
-
-  useEffect(() => {
-    setTerm(search);
-  }, [search]);
-
-  useEffect(() => {
-    if (debounced === search) {
-      return;
-    }
-    const query = directoryQueryString(debounced, facetValues, cohort, status, 1, pageSize, extras);
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }, [debounced, facetValues, cohort, status, pathname, search, router, pageSize, extras]);
+  const sliced = Boolean(search || count || cohort || extras.lang);
 
   function go(
     nextSearch: string,
@@ -199,18 +195,16 @@ export function DirectoryPanel({
     <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
       <div className="mb-6 flex min-w-0 flex-col gap-3">
         <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end">
-          <div className="min-w-0 flex-1">
-            <label className="mb-2 block text-sm font-medium" htmlFor="global-search">
-              {copy.search}
-            </label>
-            <Input
-              id="global-search"
-              className="min-h-11 w-full"
-              value={term}
-              onChange={(e) => setTerm(e.target.value)}
-              placeholder={copy.searchHint}
-            />
-          </div>
+          <PeopleSearchField
+            id="global-search"
+            label={copy.search}
+            hint={copy.searchHint}
+            applyLabel={copy.searchApply}
+            clearLabel={copy.searchClear}
+            committed={search}
+            onApply={(term) => go(term, facetValues, cohort, status)}
+            onClear={() => go('', facetValues, cohort, status)}
+          />
           <PeopleCohortSelect
             id="directory-cohort"
             label={copy.cohort}
@@ -243,7 +237,7 @@ export function DirectoryPanel({
             description={copy.filtersHint}
             clearLabel={copy.filtersClear}
             closeLabel={copy.close}
-            onClear={() => go(search, {}, cohort, '', 1, pageSize, { view: extras.view })}
+            onClear={() => go(search, {}, cohort, '', 1, pageSize, { view: extras.view, lang: '' })}
           >
             <div className="grid gap-6 lg:hidden">
               <PeoplePlaceFilters
@@ -265,6 +259,13 @@ export function DirectoryPanel({
                 facets={facets}
                 facetValues={facetValues}
                 onFacets={(next) => go(search, next, cohort)}
+                languages={languagesIsFilterable(listFields) ? extras.lang || '' : undefined}
+                onLanguages={
+                  languagesIsFilterable(listFields)
+                    ? (next) => go(search, facetValues, cohort, status, 1, pageSize, { ...extras, lang: next })
+                    : undefined
+                }
+                languagesLabel={copy.languages}
                 status={availabilityIsFilterable(listFields) ? status : undefined}
                 onStatus={availabilityIsFilterable(listFields) ? (next) => go(search, facetValues, cohort, next) : undefined}
                 statusLabel={copy.availability}

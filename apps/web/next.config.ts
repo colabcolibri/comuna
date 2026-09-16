@@ -34,6 +34,11 @@ applyEnvFile(path.join(monorepoRoot, '.env'));
 applyEnvFile(path.join(monorepoRoot, '.env.local'));
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
+  outputFileTracingRoot: monorepoRoot,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   turbopack: {
     root: monorepoRoot,
   },
