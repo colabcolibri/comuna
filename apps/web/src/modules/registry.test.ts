@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { defaultOffSlugs, defaultOnSlugs, firstPartySlugs } from './registry';
+import { firstPartySlugs } from './registry';
 
 describe('first-party registry', () => {
-  it('lists map without turning it on', () => {
-    expect(firstPartySlugs).toContain('map');
-    expect(defaultOnSlugs).not.toContain('map');
-    expect(defaultOffSlugs).toEqual(['map']);
+  it('enables all first-party plugins for new communities', () => {
+    expect(firstPartySlugs).toEqual(['directory', 'showcase', 'contact-mediated', 'map']);
   });
 });

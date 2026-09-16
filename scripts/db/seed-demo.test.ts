@@ -145,9 +145,9 @@ describe('demo member seed list', () => {
     expect(tenants).toContain('works_sus');
   });
 
-  it('registers the map plugin off by default', () => {
+  it('enables map with the other first-party plugins', () => {
     const source = fs.readFileSync(path.join(import.meta.dirname, 'seed.cjs'), 'utf8');
-    expect(source).toContain("OPTIONAL_MODULES = ['map']");
-    expect(source).toContain('ON CONFLICT (community_id, module_id) DO NOTHING');
+    expect(source).toContain("'contact-mediated', 'map'");
+    expect(source).not.toContain('OPTIONAL_MODULES');
   });
 });

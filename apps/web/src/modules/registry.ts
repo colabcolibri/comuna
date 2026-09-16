@@ -18,8 +18,6 @@ export const firstPartyModules = [
 ];
 
 export const firstPartySlugs = slugsOf(firstPartyModules);
-export const defaultOnSlugs = firstPartySlugs.filter((slug) => slug !== mapContribution.slug);
-export const defaultOffSlugs = [mapContribution.slug];
 
 export function visibleChrome(enabled: Iterable<string>, slot: ChromeSlot, signedIn: boolean) {
   return chromeOf(firstPartyModules, enabled, slot).filter((item) => !item.memberOnly || signedIn);

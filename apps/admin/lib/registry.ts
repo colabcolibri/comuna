@@ -12,5 +12,3 @@ export const firstPartyModules = [
 ];
 
 export const firstPartySlugs = slugsOf(firstPartyModules);
-export const defaultOnSlugs = firstPartySlugs.filter((slug) => slug !== mapContribution.slug);
-export const defaultOffSlugs = [mapContribution.slug];

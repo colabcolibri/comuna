@@ -18,7 +18,7 @@ import { contentFromCatalog, interpolate, mergeContent, pickContent } from '@com
 import { DIRECTORY_MAP_VIEW } from '@community/map';
 import { displayPlaceLocality, parseNearLatLon } from '@community/places';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
-import { Button, Input } from '@community/ui';
+import { Button, Input, cn } from '@community/ui';
 import {
   AppFilterSheet,
   AppPageTemplate,
@@ -140,7 +140,7 @@ export function DirectoryPanel({
   const debounced = useDebouncedValue(term, 300);
   const mapView = canMap && extras.view === 'map';
   const count = activeFilterCount(facetValues, [status, extras.country || '', extras.near || '']);
-  const canFilter = facets.length > 0 || availabilityIsFilterable(listFields);
+  const hasFacetSheet = facets.length > 0 || availabilityIsFilterable(listFields);
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
   const sliced = Boolean(search || count || cohort);
@@ -188,6 +188,13 @@ export function DirectoryPanel({
     );
   }
 
+  const placeValue = {
+    country: extras.country || '',
+    near: extras.near || '',
+    radius: extras.radius,
+    nearLabel: extras.nearLabel || '',
+  };
+
   return (
     <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
       <div className="mb-6 flex min-w-0 flex-col gap-3">
@@ -220,21 +227,38 @@ export function DirectoryPanel({
               onChange={(next) => go(search, facetValues, cohort, status, 1, pageSize, { ...extras, view: next ? 'map' : '' })}
             />
           ) : null}
-          {canFilter ? (
-            <AppFilterSheet
-              trigger={
-                <Button type="button" variant="outline" className="min-h-11 w-full shrink-0 sm:w-auto">
-                  <ListFilter className="size-4" />
-                  {copy.filters}
-                  {count ? ` (${count})` : ''}
-                </Button>
-              }
-              title={copy.filters}
-              description={copy.filtersHint}
-              clearLabel={copy.filtersClear}
-              closeLabel={copy.close}
-              onClear={() => go(search, {}, cohort, '', 1, pageSize, { view: extras.view })}
-            >
+          <AppFilterSheet
+            trigger={
+              <Button
+                type="button"
+                variant="outline"
+                className={cn('min-h-11 w-full shrink-0 sm:w-auto', !hasFacetSheet && 'lg:hidden')}
+              >
+                <ListFilter className="size-4" />
+                {copy.filters}
+                {count ? ` (${count})` : ''}
+              </Button>
+            }
+            title={copy.filters}
+            description={copy.filtersHint}
+            clearLabel={copy.filtersClear}
+            closeLabel={copy.close}
+            onClear={() => go(search, {}, cohort, '', 1, pageSize, { view: extras.view })}
+          >
+            <div className="grid gap-6 lg:hidden">
+              <PeoplePlaceFilters
+                id="directory-place-sheet"
+                locale={locale}
+                countries={countries}
+                value={placeValue}
+                allCountriesLabel={copy.all}
+                countryLabel={copy.country}
+                cityLabel={copy.city}
+                radiusLabel={copy.radius}
+                onChange={(next) => go(search, facetValues, cohort, status, 1, pageSize, { ...extras, ...next })}
+              />
+            </div>
+            {hasFacetSheet ? (
               <PeopleFilters
                 locale={locale}
                 allLabel={copy.all}
@@ -251,25 +275,23 @@ export function DirectoryPanel({
                   { value: 'unavailable', label: copy.unavailable },
                 ]}
               />
-            </AppFilterSheet>
-          ) : null}
+            ) : null}
+          </AppFilterSheet>
         </div>
-        <PeoplePlaceFilters
-          id="directory-place"
-          locale={locale}
-          countries={countries}
-          value={{
-            country: extras.country || '',
-            near: extras.near || '',
-            radius: extras.radius,
-            nearLabel: extras.nearLabel || '',
-          }}
-          allCountriesLabel={copy.all}
-          countryLabel={copy.country}
-          cityLabel={copy.city}
-          radiusLabel={copy.radius}
-          onChange={(next) => go(search, facetValues, cohort, status, 1, pageSize, { ...extras, ...next })}
-        />
+        <div className="hidden lg:block">
+          <PeoplePlaceFilters
+            id="directory-place"
+            locale={locale}
+            countries={countries}
+            value={placeValue}
+            allCountriesLabel={copy.all}
+            countryLabel={copy.country}
+            cityLabel={copy.city}
+            radiusLabel={copy.radius}
+            className="lg:grid-cols-3"
+            onChange={(next) => go(search, facetValues, cohort, status, 1, pageSize, { ...extras, ...next })}
+          />
+        </div>
       </div>
       {rows.length === 0 ? (
         <AppShowcaseEmpty title={sliced ? copy.emptyFilteredTitle : copy.emptyTitle} body={sliced ? copy.emptyFiltered : copy.empty} />

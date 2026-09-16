@@ -110,7 +110,7 @@ Várias memberships `active` são o caso normal. A web resolve **uma** comunidad
 
 ### Module runtime
 
-Catálogo `plugin_core.modules`. Por comunidade: `network_core.community_modules (community_id, module_id, enabled)`. Comunidade nova e seed: first-party default-on **inseridos** `enabled = true`. O plugin `map` entra no registry e no catálogo, mas a row nasce `enabled = false` (`insertDisabledModules`, `ON CONFLICT DO NOTHING`). A coluna continua `DEFAULT false` para módulo sem row.
+Catálogo `plugin_core.modules`. Por comunidade: `network_core.community_modules (community_id, module_id, enabled)`. Comunidade nova e seed: first-party (`directory`, `showcase`, `contact-mediated`, `map`) **inseridos** `enabled = true`. A coluna continua `DEFAULT false` para módulo sem row.
 
 Montagem: **registry de contribuições** (rotas, chrome, slots) filtrado por `listEnabled`. Campos de perfil: `fields.module_id` (null = núcleo). Parser de catálogo não infere plugin. Detalhe: `docs/architecture/plugin-surfaces.md`.
 

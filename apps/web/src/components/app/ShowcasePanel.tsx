@@ -10,7 +10,7 @@ import {
   AppShowcasePager,
   AppShowcasePortal,
 } from '@community/ui-member';
-import { Button, Input } from '@community/ui';
+import { Button, Input, cn } from '@community/ui';
 import { contentFromCatalog, interpolate, mergeContent, pickContent } from '@community/identity';
 import { displayPlaceLocality, parseNearLatLon } from '@community/places';
 import { SHOWCASE_PAGE_SIZE, SHOWCASE_PAGE_SIZES, availabilityIsFilterable, projectPersonView, type CatalogField, type ListField } from '@community/directory';
@@ -134,7 +134,7 @@ export function ShowcasePanel({
   const [selected, setSelected] = useState<PersonCard | null>(null);
   const [term, setTerm] = useState(search);
   const debounced = useDebouncedValue(term, 300);
-  const canFilter = facets.length > 0 || availabilityIsFilterable(listFields);
+  const hasFacetSheet = facets.length > 0 || availabilityIsFilterable(listFields);
   const mapView = canMap && extras.view === 'map';
   const count = activeFilterCount(facetValues, [status, extras.country || '', extras.near || '']);
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
@@ -164,6 +164,13 @@ export function ShowcasePanel({
     const query = directoryQueryString(nextSearch, nextFacets, '', nextStatus, nextPage, nextSize, nextExtras);
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
+
+  const placeValue = {
+    country: extras.country || '',
+    near: extras.near || '',
+    radius: extras.radius,
+    nearLabel: extras.nearLabel || '',
+  };
 
   return (
     <AppShowcasePortal
@@ -196,10 +203,13 @@ export function ShowcasePanel({
                 onChange={(next) => go(search, facetValues, status, 1, pageSize, { ...extras, view: next ? 'map' : '' })}
               />
             ) : null}
-            {canFilter ? (
             <AppFilterSheet
               trigger={
-                <Button type="button" variant="outline" className="min-h-12 w-full shrink-0 sm:w-auto">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className={cn('min-h-12 w-full shrink-0 sm:w-auto', !hasFacetSheet && 'lg:hidden')}
+                >
                   <ListFilter className="size-4" />
                   {copy.filters}
                   {count ? ` (${count})` : ''}
@@ -211,41 +221,53 @@ export function ShowcasePanel({
               closeLabel={copy.close}
               onClear={() => go(search, {}, '', 1, pageSize, { view: extras.view })}
             >
-              <PeopleFilters
-                locale={locale}
-                allLabel={copy.all}
-                facets={facets}
-                facetValues={facetValues}
-                onFacets={(next) => go(search, next, status)}
-                status={availabilityIsFilterable(listFields) ? status : undefined}
-                onStatus={availabilityIsFilterable(listFields) ? (next) => go(search, facetValues, next) : undefined}
-                statusLabel={copy.availability}
-                statusOptions={[
-                  { value: 'available_for_hire', label: copy.hire },
-                  { value: 'project_partner', label: copy.partner },
-                  { value: 'mentor', label: copy.mentor },
-                  { value: 'unavailable', label: copy.unavailable },
-                ]}
-              />
+              <div className="lg:hidden">
+                <PeoplePlaceFilters
+                  id="showcase-place-sheet"
+                  locale={locale}
+                  countries={countries}
+                  value={placeValue}
+                  allCountriesLabel={copy.all}
+                  countryLabel={copy.country}
+                  cityLabel={copy.city}
+                  radiusLabel={copy.radius}
+                  onChange={(next) => go(search, facetValues, status, 1, pageSize, { ...extras, ...next })}
+                />
+              </div>
+              {hasFacetSheet ? (
+                <PeopleFilters
+                  locale={locale}
+                  allLabel={copy.all}
+                  facets={facets}
+                  facetValues={facetValues}
+                  onFacets={(next) => go(search, next, status)}
+                  status={availabilityIsFilterable(listFields) ? status : undefined}
+                  onStatus={availabilityIsFilterable(listFields) ? (next) => go(search, facetValues, next) : undefined}
+                  statusLabel={copy.availability}
+                  statusOptions={[
+                    { value: 'available_for_hire', label: copy.hire },
+                    { value: 'project_partner', label: copy.partner },
+                    { value: 'mentor', label: copy.mentor },
+                    { value: 'unavailable', label: copy.unavailable },
+                  ]}
+                />
+              ) : null}
             </AppFilterSheet>
-            ) : null}
           </div>
-          <PeoplePlaceFilters
-            id="showcase-place"
-            locale={locale}
-            countries={countries}
-            value={{
-              country: extras.country || '',
-              near: extras.near || '',
-              radius: extras.radius,
-              nearLabel: extras.nearLabel || '',
-            }}
-            allCountriesLabel={copy.all}
-            countryLabel={copy.country}
-            cityLabel={copy.city}
-            radiusLabel={copy.radius}
-            onChange={(next) => go(search, facetValues, status, 1, pageSize, { ...extras, ...next })}
-          />
+          <div className="hidden lg:block">
+            <PeoplePlaceFilters
+              id="showcase-place"
+              locale={locale}
+              countries={countries}
+              value={placeValue}
+              allCountriesLabel={copy.all}
+              countryLabel={copy.country}
+              cityLabel={copy.city}
+              radiusLabel={copy.radius}
+              className="lg:grid-cols-3"
+              onChange={(next) => go(search, facetValues, status, 1, pageSize, { ...extras, ...next })}
+            />
+          </div>
         </div>
       }
     >

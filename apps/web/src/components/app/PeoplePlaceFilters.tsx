@@ -48,6 +48,7 @@ export function PeoplePlaceFilters({
   cityLabel,
   radiusLabel,
   onChange,
+  className,
 }: {
   id: string;
   locale: PlaceLocale;
@@ -58,6 +59,7 @@ export function PeoplePlaceFilters({
   cityLabel: string;
   radiusLabel: string;
   onChange: (next: PlaceFilterValue) => void;
+  className?: string;
 }) {
   const selected = legacyPlaceFromNear(value.near, value.nearLabel, value.country);
   const radius = value.radius ?? DEFAULT_LIST_RADIUS_KM;
@@ -91,7 +93,7 @@ export function PeoplePlaceFilters({
   }
 
   return (
-    <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3">
+    <div className={cn('grid min-w-0 grid-cols-1 gap-3', className)}>
       <div className="min-w-0">
         <Label htmlFor={`${id}-country`} className="mb-2 block">
           {countryLabel}

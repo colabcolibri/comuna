@@ -18,7 +18,7 @@ blocks: []
 - **Copy:** ver secção Copy. Formulário: grupo = título. Campo = rótulo + **Obrigatório** ou **Opcional** (os dois estados, sempre), no mesmo eixo do nome.
 - **Catálogo (ops):** o grupo é o único card (`OpsAccordion`). Campos e opções = linhas, não caixa dentro de caixa. **Adicionar campo** e **editar campo** abrem `OpsSheet` à direita (mesmo contrato de `AppSheet`); adicionar fica no cabeçalho do grupo. Ações do grupo e da linha são `OpsIconButton` (`icon-sm` + tooltip no hover + `aria-label`). Não expande a linha. Checkbox avulso (`OpsCheckboxFrame`) usa o mesmo recorte do select.
 - **Motion:** sidebar desktop = `transition-[width]`. Overlay shadcn (`Sheet`, dialog, select) via `@import "tw-animate-css"` no `globals.css` das apps.
-- **Filtros (diretório e vitrine):** busca na página; turma do diretório ao lado da busca; afinadores (`attr.*`, disponibilidade na vitrine) num `AppFilterSheet` à **direita**. Sem filtro de lista no cliente. Vitrine pagina no servidor (24, 48 ou 96).
+- **Filtros (diretório e vitrine):** busca na página; turma do diretório ao lado da busca. Abaixo de `lg`, país/cidade/raio entram no `AppFilterSheet` à direita, com os afinadores (`attr.*`, disponibilidade). Em `lg+`, lugar fica na página; o sheet fica só para afinadores (e some se não houver nenhum).
 - **Prévia de campos (ops):** botão **Como fica** no grupo; a silhueta abre num `OpsDialog` (tela larga). Não fica inline no cartão. `localized_text` = dois controles com legenda de locale, não dois campos.
 - **Reference HTML:** `docs/stitch/` — **não** é o contrato. Este arquivo é. HTML + capturas ilustram o alvo visual.
 
@@ -155,7 +155,7 @@ flowchart TB
 | Breakpoint | Width | Behavior |
 | ---------- | ----- | -------- |
 | Mobile | `< 640px` | Uma coluna; header = menu + marca + locale + tema (sem links); sheet 100% largura; hit 44px; sem overflow-x |
-| Tablet | `640–1024px` | Grelha de pessoas em duas colunas; filtros no `AppFilterSheet` à direita |
+| Tablet | `640–1024px` | Grelha de pessoas em duas colunas; país/cidade/raio e afinadores no `AppFilterSheet` à direita |
 | Desktop | `> 768px` | Sidebar; colapsada = rail de ícones + inicial da comunidade; páginas `max-w-6xl`; grelha em três colunas; filtros continuam no sheet à direita (não rail esquerdo) |
 
 ## Copy

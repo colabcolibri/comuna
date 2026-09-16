@@ -59,7 +59,7 @@ Deep link de rota que não está em `ui.routes` → redirect `/`. API do plugin:
 
 ## Banco: enable vs dono
 
-`community_modules.enabled` **DEFAULT false**. Sem row = off. Comunidade nova e seed **inserem** first-party default-on `enabled = true`. Plugins opt-in (`map`) inserem `enabled = false` sem sobrescrever um toggle já gravado. Desligar: `PUT` `{ enabled: false }`. Aí `visibleContributions` e o filtro de campos esvaziam sozinhos.
+`community_modules.enabled` **DEFAULT false**. Sem row = off. Comunidade nova e seed **inserem** first-party (`directory`, `showcase`, `contact-mediated`, `map`) com `enabled = true`. Desligar: `PUT` `{ enabled: false }`. Aí `visibleContributions` e o filtro de campos esvaziam sozinhos.
 
 `fields.module_id` nullable FK `plugin_core.modules`. Null = núcleo. Não se infere de `column_key`.
 
