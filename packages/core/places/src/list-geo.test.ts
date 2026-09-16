@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_LIST_RADIUS_KM, formatNearLatLon, legacyPlaceFromNear, parseCountryCode, parseListRadius, parseNearLatLon } from './list-geo';
+import { DEFAULT_LIST_RADIUS_KM, formatListRadiusKm, formatNearLatLon, legacyPlaceFromNear, parseCountryCode, parseListRadius, parseNearLatLon } from './list-geo';
 
 describe('list geo helpers', () => {
   it('accepts ISO country codes and drops junk', () => {
@@ -13,6 +13,9 @@ describe('list geo helpers', () => {
     expect(parseListRadius('50')).toBe(DEFAULT_LIST_RADIUS_KM);
     expect(parseListRadius('12')).toBeNull();
     expect(parseListRadius('250')).toBe(250);
+    expect(parseListRadius('3000')).toBe(3000);
+    expect(parseListRadius('2000')).toBeNull();
+    expect(formatListRadiusKm(1000, 'pt-BR')).toBe('1.000 km');
   });
 
   it('parses a near pair and rejects out of range', () => {

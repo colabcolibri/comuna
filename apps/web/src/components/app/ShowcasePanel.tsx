@@ -245,7 +245,6 @@ export function ShowcasePanel({
             countryLabel={copy.country}
             cityLabel={copy.city}
             radiusLabel={copy.radius}
-            radiusKmLabel={(n) => interpolate(copy.radiusKm, { n: String(n) })}
             onChange={(next) => go(search, facetValues, status, 1, pageSize, { ...extras, ...next })}
           />
         </div>

@@ -34,7 +34,7 @@ Hoje o Next de membros vive em `apps/web`. Pacotes `@community/*` via pnpm works
 | UI primitives | React / shadcn | `packages/ui/primitives` | CLI neste pacote; `tw-animate-css` no `globals.css` das apps (Sheet/dialog) |
 | UI member | React | `packages/ui/member` | Compostos Stitch |
 | UI admin | React | `packages/ui/admin` | Tabelas densas |
-| Maps | Leaflet 1.9 + tiles OSM | plugin `map` + `PeopleMap` | Sem chave; 2.0 ainda alpha; default off |
+| Maps | Leaflet 1.9 + tiles OSM | plugin `map` + `PeopleMap` | Sem chave; panes isolados no container; 2.0 ainda alpha; default off |
 
 ## Data layer
 

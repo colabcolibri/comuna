@@ -1,7 +1,7 @@
 'use client';
 
 import { CitySearchField } from '@/components/app/CitySearchField';
-import { DEFAULT_LIST_RADIUS_KM, LIST_RADIUS_KM, countryName, legacyPlaceFromNear, placeLabel, placeLatLon, type GeoPlace, type PlaceLocale } from '@community/places';
+import { DEFAULT_LIST_RADIUS_KM, LIST_RADIUS_KM, countryName, formatListRadiusKm, legacyPlaceFromNear, placeLabel, placeLatLon, type GeoPlace, type PlaceLocale } from '@community/places';
 import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@community/ui';
 
 export type PlaceFilterValue = {
@@ -20,7 +20,6 @@ export function PeoplePlaceFilters({
   countryLabel,
   cityLabel,
   radiusLabel,
-  radiusKmLabel,
   onChange,
 }: {
   id: string;
@@ -31,7 +30,6 @@ export function PeoplePlaceFilters({
   countryLabel: string;
   cityLabel: string;
   radiusLabel: string;
-  radiusKmLabel: (n: number) => string;
   onChange: (next: PlaceFilterValue) => void;
 }) {
   const selected = legacyPlaceFromNear(value.near, value.nearLabel, value.country);
@@ -91,7 +89,7 @@ export function PeoplePlaceFilters({
           <SelectContent>
             {LIST_RADIUS_KM.map((km) => (
               <SelectItem key={km} value={String(km)}>
-                {radiusKmLabel(km)}
+                {formatListRadiusKm(km, locale)}
               </SelectItem>
             ))}
           </SelectContent>

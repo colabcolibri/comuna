@@ -33,7 +33,7 @@ blocks: []
 
 Busca de cidade: `GET /api/places/cities` chama Nominatim (OpenStreetMap). Sem chave. User-Agent próprio. Mínimo 1 req/s.
 
-Mapa das listas (plugin `map`, default off): Leaflet 1.9 no cliente, tiles `tile.openstreetmap.org`. Sem token. Pins = página corrente. Atribuição OSM no mapa.
+Mapa das listas (plugin `map`, default off): Leaflet 1.9 no cliente, tiles `tile.openstreetmap.org`. Sem token. Pins = página corrente, foto/iniciais + clustering. Atribuição OSM no mapa. O container do mapa cria stacking context (`isolation` + `z-index: 0`): panes do Leaflet (400–1000) não competem com overlay Radix (dialog, sheet, select).
 
 `INITIAL_ADMIN_EMAIL` legado: tratar como alias depreado de `INITIAL_SUPER_ADMIN_EMAIL`.
 

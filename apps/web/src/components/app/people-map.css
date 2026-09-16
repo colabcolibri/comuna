@@ -1,0 +1,53 @@
+/* Leaflet panes use z-index 400–1000 on descendants. Without a stacking
+   context on the container those values compete with the document (Radix
+   dialog/sheet/select are z-50). isolation + z-index: 0 traps the panes. */
+.people-map-host.leaflet-container {
+  isolation: isolate;
+  z-index: 0;
+  font-family: inherit;
+  background: var(--muted);
+}
+
+.people-map-frame {
+  height: min(80dvh, 52rem);
+  width: 100%;
+  min-width: 0;
+}
+
+.people-map-marker {
+  background: none !important;
+  border: none !important;
+}
+
+.people-map-face,
+.people-map-cluster {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 9999px;
+  border: 2px solid var(--background);
+  box-shadow: 0 1px 4px rgb(15 23 20 / 0.28);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.people-map-face img {
+  position: absolute;
+  inset: 0;
+  width: 40px;
+  height: 40px;
+  max-width: none;
+  max-height: none;
+  object-fit: cover;
+}
+
+.people-map-cluster {
+  background: var(--primary);
+}

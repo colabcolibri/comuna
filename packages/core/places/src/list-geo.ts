@@ -1,6 +1,7 @@
-import type { GeoPlace } from './geo-place';
+import type { GeoPlace, PlaceLocale } from './geo-place';
 
-export const LIST_RADIUS_KM = [25, 50, 100, 250] as const;
+/** City → region → country → continent-ish. Closed set; default 50. */
+export const LIST_RADIUS_KM = [25, 50, 100, 250, 500, 1000, 3000] as const;
 export const DEFAULT_LIST_RADIUS_KM = 50;
 
 export function parseCountryCode(raw: string | null | undefined): string | null {
@@ -37,6 +38,10 @@ export function placeLatLon(place: GeoPlace | null | undefined): { lat: number; 
 
 export function formatNearLatLon(lat: number, lon: number) {
   return `${lat},${lon}`;
+}
+
+export function formatListRadiusKm(km: number, locale: PlaceLocale) {
+  return `${new Intl.NumberFormat(locale).format(km)} km`;
 }
 
 export function legacyPlaceFromNear(near: string, label: string, country?: string): GeoPlace | null {
