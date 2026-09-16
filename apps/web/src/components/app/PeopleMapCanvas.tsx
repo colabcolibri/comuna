@@ -6,8 +6,9 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import './people-map.css';
-import { parsePlace, placeLatLon } from '@community/places';
+import { parsePlace, placeLatLon, displayPlaceLocality } from '@community/places';
 import { personInitials } from '@community/ui-member';
+import { useLocale } from '@/components/app/LocaleProvider';
 import type { PersonCard } from '@/lib/people/person-card';
 
 const TILE = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -75,6 +76,7 @@ export function PeopleMapCanvas({
   const extrasRef = useRef<L.LayerGroup | null>(null);
   const onOpenRef = useRef(onOpen);
   onOpenRef.current = onOpen;
+  const locale = useLocale();
 
   useEffect(() => {
     const el = host.current;
@@ -124,8 +126,14 @@ export function PeopleMapCanvas({
     });
     const bounds = L.latLngBounds([]);
     pins.forEach(({ row, coords }) => {
+      const city = displayPlaceLocality(row.current_city, locale);
       const marker = L.marker([coords.lat, coords.lon], { icon: faceIcon(row) });
-      marker.bindTooltip(row.full_name);
+      marker.bindTooltip(
+        `<div class="people-map-tip"><strong>${escapeHtml(row.full_name)}</strong>${
+          city ? `<span>${escapeHtml(city)}</span>` : ''
+        }</div>`,
+        { direction: 'top', opacity: 1, className: 'people-map-tooltip' }
+      );
       marker.on('click', () => onOpenRef.current(row));
       clusters.addLayer(marker);
       bounds.extend([coords.lat, coords.lon]);
@@ -150,7 +158,7 @@ export function PeopleMapCanvas({
     } else {
       map.setView([20, 0], 2);
     }
-  }, [rows, near, radiusKm]);
+  }, [rows, near, radiusKm, locale]);
 
   const located = rows.some((row) => placeLatLon(parsePlace(row.current_city)));
 
