@@ -1,34 +1,32 @@
 # Comuna
 
-A home for a group that already exists.
+A simple, modular platform that holds a mirror up to a community — and gives that community a motor.
 
-A cohort, an alumni year, a practice, an incubator, a mentoring circle — people who already share a life, and need more than a spreadsheet and a chat thread to be that group in public and in private. Not a social network. Not a feed. Not a machine that measures how alive you are by how often you talk.
+A cohort, an alumni year, a practice, an incubator, a mentoring circle: people who already share a life. Comuna is the place where that life can be seen, entered, and set in motion. Not a social network. Not an infinite chat with a channel for every topic and a thread for every aside. Talk can exist later, as a module, if a group wants it. The centre of the product is something else: **a working likeness of the community itself.**
 
-Comuna is named on purpose. A *comuna* is a shared place with a door. You choose when to walk in. The software is in service of the people in the room, not the other way around.
+Comuna is named on purpose. A *comuna* is a shared place with a door. You choose when to walk in. The software serves the people in the room.
 
 ## The core
 
-Most community software is built to make people speak more. Unread badges, streaks, a thousand small exchanges as proof the network is “working.” That is a real product. It is not this one.
+The job is not to keep everyone typing. The job is to dynamize the life of a group that already exists.
 
-Comuna’s bet is the opposite: **the group is the product.** Conversation can happen. Volume is not the prize. Showing up on purpose is.
+That looks like a roster that still makes sense years later. Like finding each other without ransoming an inbox. Like a public face the world can look at, without turning members into a megaphone. Like room to learn together, to go deeper in the exchanges that matter, to become less of a list and more of a community.
 
-The core stays small so the house does not become a mall.
+The platform is built **modular** so each community can turn on only the facets it actually lives. A directory. A showcase. Mediated contact. A map. Later, perhaps a course, a forum, a time bank. Guests at the door — never a reason to fatten the middle into Slack-with-a-directory.
 
-**A person.** Someone with a name, a place, a way to sign in. Enough to exist without filling a marketing form.
+Under every module, the same small core:
 
-**A community.** A tenant with its own people, its own tone, its own door. Group A and group B do not leak into each other. Isolation is the point, not a side effect.
+**A person.** A name, a place, a way in. Enough to exist.
 
-**A membership.** You ask to enter. Someone who holds that room says yes or no. An alumni year, a cohort, a practice — those are kinds of community, not the name of the platform.
+**A community.** A tenant with its own people, its own tone, its own door. Rooms do not leak. Isolation is the point.
 
-**A base profile.** The minimum the group needs to recognise you. Extra fields, maps, a public window, a way to write without handing over an inbox — those are modules the community turns on. They are guests. They do not fatten the middle.
+**A membership.** You ask. Someone who holds that room says yes or no. Alumni, cohort, practice — kinds of community, not the name of the product.
 
-Around that: consent as a map, not a banner. What the world can see, what stays inside, what another person may ask — field by field, person by person. Contact can be possible without an email address as the price of showing up.
+**A base profile.** The minimum the group needs to recognise you. Extra fields and extra tools are modules that community switches on.
 
-This is software you visit. You come in, you use the tool the group needed, you leave. If a forum ever lives here, it should work like the old web: you go there, you read, you go. It does not sit in your notifications deciding that now is the time.
+Around that: consent as a map, not a banner. What the world sees, what stays inside, what another person may ask — field by field. You visit the software, use the tool the group needed, and leave. Nothing sits in your notifications deciding that now is the time.
 
-Expand the edges. Do not fatten the middle. A course several cohorts can pick up, a time bank of hours given rather than sold — those can wait at the door. They land as modules or they do not land. The core does not grow a timeline to make room for them.
-
-This will not save anything. It might help a few rooms stay more intentional than the default.
+This will not invent a community that is not there. It can give one that is there a clearer reflection, and a way to move.
 
 ## What ships
 
@@ -45,7 +43,7 @@ Public repo: [colabcolibri/comuna](https://github.com/colabcolibri/comuna). Work
 
 **On the ops app:** communities, people, members, cohorts, field catalogs, lists, mail, platform settings, and the module board — enable or disable per community.
 
-**Not in this cut, and not arriving as chat:** a shared course catalog, an internal forum, a time bank, payments, OAuth, native apps. If they land, they land as modules.
+**Not in this cut:** a shared course catalog, a forum of channels and threads, a time bank, payments, OAuth, native apps. If they land, they land as modules — they do not become the product.
 
 ## Modules
 
