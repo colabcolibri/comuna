@@ -138,9 +138,9 @@ Abre `http://localhost:3014/showcase` e `http://localhost:3015/login`. A faixa n
 ### Peças
 
 1. **Hostinger VPS (KVM)** — Ubuntu 24.04. Template com Docker, ou CloudPanel. Não usar Web/Cloud/Business compartilhado: Postgres **não** existe nesses planos; o wizard de Node só oferece Supabase/Mongo Atlas, não o `pg` + RLS deste produto.
-2. **Dois processos Node** no mesmo VPS: `@community/web` em `comuna.sergioluciano.com` e `@community/admin` em `ops.comuna.sergioluciano.com`.
+2. **Dois processos Node** no mesmo VPS: `@community/web` no host público e `@community/admin` num host `ops.` à parte.
 3. **Postgres no próprio VPS**, rede interna (Compose). Porta `5432` **não** vai para a internet. `DATABASE_URL` usa o hostname do serviço (`postgres:5432`), não `localhost:5433`.
-4. As **mesmas** variáveis da matriz. Demo: `SMTP_HOST` pode ficar vazio; `ALLOW_DEV_OTP` desligado; `NEXT_PUBLIC_APP_URL` é `https://comuna.sergioluciano.com`. `PGSSL=0` entre app e Postgres no Compose. Disco persistente para `MEDIA_ROOT` (ObjectStore local).
+4. As **mesmas** variáveis da matriz. Demo: `SMTP_HOST` pode ficar vazio; `ALLOW_DEV_OTP` desligado; `NEXT_PUBLIC_APP_URL` / `NEXT_PUBLIC_OPS_URL` são os HTTPS reais **só no `.env.hostinger` do servidor**. `PGSSL=0` entre app e Postgres no Compose. Disco persistente para `MEDIA_ROOT` (ObjectStore local).
 5. Migrate em cada deploy; seed **uma vez** (ou quando quiserem refrescar demo). Seed faz upsert; não é `db reset`. **Proibido** `pnpm db:setup` / `db:reset` no VPS.
 
 Comprar o VPS, apontar DNS, colar secrets no servidor e o primeiro `up` são **HAR**.
@@ -149,9 +149,9 @@ Comprar o VPS, apontar DNS, colar secrets no servidor e o primeiro `up` são **H
 
 Pré-requisitos no painel (humano):
 
-1. Plano **VPS**, não hospedagem de site. O KVM 2 já em uso (`srv395737`, Debian 13) serve: Traefik (`network_mode: host`) + Whisper em `127.0.0.1:9000`. A Comuna entra como **projeto Compose à parte** (`name: comuna`). Não recriar o VPS. Não editar o Compose do Traefik/Whisper.
+1. Plano **VPS**, não hospedagem de site. A Comuna entra como **projeto Compose à parte** (`name: comuna`) ao lado de outro Traefik em `network_mode: host`, se já existir. Não recriar o VPS. Não editar o Compose de outros projetos.
 2. SSH por chave. Firewall: 22, 80, 443. Nada de 5432 na internet. Web/admin só em loopback.
-3. DNS público: `comuna.sergioluciano.com` e `ops.comuna.sergioluciano.com` → `A` `89.116.225.164`.
+3. DNS: `A` do host da vitrine e do host `ops.` para o IP do VPS. Valores reais **não** vão no git.
 
 O MCP Hostinger `createNewProject` só cola um YAML e puxa **imagens**. Não constrói o monorepo. **Não** usar o painel Docker para substituir o projeto `traefik`. Deploy da Comuna: clone + `docker compose --build` no servidor.
 
@@ -160,7 +160,8 @@ O MCP Hostinger `createNewProject` só cola um YAML e puxa **imagens**. Não con
 git clone git@github.com:…/alumni.git /opt/comuna
 cd /opt/comuna
 cp deploy/hostinger/env.example .env.hostinger
-# editar POSTGRES_PASSWORD e JWT_SECRET (NEXT_PUBLIC_APP_URL já é https://comuna.sergioluciano.com)
+# editar POSTGRES_PASSWORD, JWT_SECRET, NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_OPS_URL
+# demo: DATABASE_READ_ONLY=1 no env da app (web e admin); seed sem essa flag
 docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger up -d --build
 # uma vez, sem DATABASE_READ_ONLY no env da seed:
 docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger --profile seed run --rm seed
@@ -168,12 +169,12 @@ docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger --profi
 
 O `docker-compose.yml` da raiz (Postgres `5433` + Mailpit) é **só laptop**. No VPS usa-se `docker-compose.hostinger.yml`: Postgres interno, sem Mailpit, portas `127.0.0.1:3014` e `127.0.0.1:3015`.
 
-TLS continua no Traefik que já está. Copiar `deploy/hostinger/traefik-file.yml` para o file provider em `/opt/nanoclaw-stack/traefik/`, alinhando `entryPoints` e `certResolver` com o `traefik.yml` real (não adivinhar). Upstream:
+TLS continua no Traefik que já está. Fundir `deploy/hostinger/traefik-file.yml` no file provider, alinhando `entryPoints` e `certResolver` com o `traefik.yml` da máquina. Upstream:
 
 | Host | Loopback |
 | ---- | -------- |
-| `comuna.sergioluciano.com` | `http://127.0.0.1:3014` |
-| `ops.comuna.sergioluciano.com` | `http://127.0.0.1:3015` |
+| vitrine (`NEXT_PUBLIC_APP_URL`) | `http://127.0.0.1:3014` |
+| ops (`NEXT_PUBLIC_OPS_URL`) | `http://127.0.0.1:3015` |
 
 `DATABASE_URL` **dentro** da rede `comuna_internal`: `postgresql://comuna:…@postgres:5432/alumni_db`. `PGSSL=0`. Healthcheck da web: `GET /api/health`. Backup: volume `comuna_pgdata` + `comuna_media`. Rollback: tag git anterior + `compose up -d --build`. Volumes **não** se apagam.
 
@@ -193,7 +194,7 @@ Postgres gerido externo (Neon) + Node no painel Hostinger só faria sentido como
 
 ### O que o visitante vê
 
-Abrir `https://comuna.sergioluciano.com/showcase`. Com uma só comunidade pública no seed, a vitrine dessa casa; com várias, a lista para escolher. Sem login obrigatório. Em `/login`, **Entrar** com `member01@demo.example` para ver diretório e workspace — writes continuam bloqueados. Mensagem mediada só funciona se houver SMTP; senão o gesto falha como no produto sem mail.
+Abrir `https://{vitrine}/showcase`. Com uma só comunidade pública no seed, a vitrine dessa casa; com várias, a lista para escolher. Sem login obrigatório. Em `/login`, **Entrar** com `member01@demo.example` para ver diretório e workspace — writes continuam bloqueados. Ops em `https://{ops}/login` com `admin@example.com`. Mensagem mediada só funciona se houver SMTP; senão o gesto falha como no produto sem mail.
 
 ### Fora deste caminho
 

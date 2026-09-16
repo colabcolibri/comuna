@@ -1,18 +1,19 @@
-# Drop-in para o Traefik em /opt/nanoclaw-stack/traefik (network_mode: host).
-# Não substitui o bloco do uai em dynamic_conf.yml — o ficheiro no VPS
-# é a união (ver dynamic_conf.merged.yml).
+# Snippet para o file provider do Traefik (network_mode: host).
+# Substituir COMUNA_HOST / COMUNA_OPS_HOST. Não misturar com outros
+# routers já no dynamic_conf do servidor (fundir à mão).
+# Confirmar entryPoints e certResolver no traefik.yml da máquina.
 
 http:
   routers:
     comuna-web:
-      rule: Host(`comuna.sergioluciano.com`)
+      rule: Host(`COMUNA_HOST`)
       entryPoints:
         - websecure
       service: comuna-web
       tls:
         certResolver: letsencrypt
     comuna-admin:
-      rule: Host(`ops.comuna.sergioluciano.com`)
+      rule: Host(`COMUNA_OPS_HOST`)
       entryPoints:
         - websecure
       service: comuna-admin

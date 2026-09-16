@@ -16,7 +16,9 @@ FROM deps AS build
 WORKDIR /app
 COPY . .
 ARG NEXT_PUBLIC_APP_URL
+ARG NEXT_PUBLIC_OPS_URL
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_OPS_URL=$NEXT_PUBLIC_OPS_URL
 RUN mkdir -p apps/admin/public \
   && pnpm --filter @community/admin build
 
