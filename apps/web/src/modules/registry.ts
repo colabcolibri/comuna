@@ -1,5 +1,6 @@
 import { contactMediatedContribution } from '@community/contact-mediated';
 import { directoryContribution } from '@community/directory';
+import { mapContribution } from '@community/map';
 import {
   canWriteCards as cardsFromRegistry,
   chromeOf,
@@ -13,9 +14,12 @@ export const firstPartyModules = [
   directoryContribution,
   showcaseContribution,
   contactMediatedContribution,
+  mapContribution,
 ];
 
 export const firstPartySlugs = slugsOf(firstPartyModules);
+export const defaultOnSlugs = firstPartySlugs.filter((slug) => slug !== mapContribution.slug);
+export const defaultOffSlugs = [mapContribution.slug];
 
 export function visibleChrome(enabled: Iterable<string>, slot: ChromeSlot, signedIn: boolean) {
   return chromeOf(firstPartyModules, enabled, slot).filter((item) => !item.memberOnly || signedIn);

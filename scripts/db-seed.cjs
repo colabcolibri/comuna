@@ -17,9 +17,10 @@ const { membershipCard } = require('./seed-membership-cards.cjs');
 const { seedDemoAvatarsForPeople, seedDemoAvatarsEnabled } = require('./seed-demo-avatars.cjs');
 
 const MODULES = ['directory', 'showcase', 'contact-mediated'];
+const OPTIONAL_MODULES = ['map'];
 
 async function ensureModules(client) {
-  for (const slug of MODULES) {
+  for (const slug of [...MODULES, ...OPTIONAL_MODULES]) {
     await client.query(
       `INSERT INTO plugin_core.modules (slug, version) VALUES ($1, '1.0.0')
        ON CONFLICT (slug) DO NOTHING`,
@@ -47,6 +48,13 @@ async function upsertCommunity(client, spec) {
      WHERE slug = ANY($2::text[])
      ON CONFLICT (community_id, module_id) DO UPDATE SET enabled = true`,
     [communityId, MODULES]
+  );
+  await client.query(
+    `INSERT INTO network_core.community_modules (community_id, module_id, enabled)
+     SELECT $1, id, false FROM plugin_core.modules
+     WHERE slug = ANY($2::text[])
+     ON CONFLICT (community_id, module_id) DO NOTHING`,
+    [communityId, OPTIONAL_MODULES]
   );
   await seedDirectoryCatalog(client, communityId);
   await seedTenantExtras(client, communityId, spec.extras);

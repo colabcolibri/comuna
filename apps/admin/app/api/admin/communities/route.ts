@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createCommunity, DuplicateCommunitySlugError, listCommunities } from '@community/communities';
-import { enableFirstPartyModules } from '@community/module-runtime';
+import { enableFirstPartyModules, insertDisabledModules } from '@community/module-runtime';
 import { seedCommunityCatalog } from '@community/directory/ops';
 import { query } from '@community/db';
 import { jsonError } from '@/lib/http';
 import { isOpsClaims, requireOps } from '@/lib/require-ops';
-import { firstPartySlugs } from '@/lib/registry';
+import { defaultOffSlugs, defaultOnSlugs } from '@/lib/registry';
 
 export async function GET(req: NextRequest) {
   const ops = await requireOps(req);
@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
   }
   try {
     const community = await createCommunity({ slug, name });
-    await enableFirstPartyModules(query, community.id, firstPartySlugs);
+    await enableFirstPartyModules(query, community.id, defaultOnSlugs);
+    await insertDisabledModules(query, community.id, defaultOffSlugs);
     await seedCommunityCatalog(community.id);
     return NextResponse.json(community, { status: 201 });
   } catch (err) {
