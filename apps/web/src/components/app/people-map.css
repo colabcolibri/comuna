@@ -9,7 +9,7 @@
 }
 
 .people-map-frame {
-  height: min(80dvh, 52rem);
+  height: min(60dvh, 39rem);
   width: 100%;
   min-width: 0;
 }
