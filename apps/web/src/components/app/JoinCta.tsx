@@ -13,6 +13,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_membership', {
   pending: 'join.pending',
   suspended: 'join.suspended',
   signin: 'join.signin',
+  enter: 'join.enter',
   ok: 'join.ok',
   error: 'join.error',
 });
@@ -36,12 +37,17 @@ export function JoinCta({
     return null;
   }
   if (!signedIn) {
+    const href = `/login?next=${encodeURIComponent(`/c/${slug}/directory`)}`;
     if (tone === 'hero') {
-      return null;
+      return (
+        <Button asChild className="min-h-11 w-full px-6 sm:w-auto">
+          <Link href={href}>{copy.enter}</Link>
+        </Button>
+      );
     }
     return (
       <p className="text-sm text-muted-foreground">
-        <Link className="underline" href={`/login?next=/c/${slug}/showcase`}>
+        <Link className="underline" href={href}>
           {copy.signin}
         </Link>
       </p>

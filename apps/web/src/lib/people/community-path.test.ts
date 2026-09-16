@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { communityPath, jobFromPath, nextJobPath, slugFromPathname } from './community-path';
+import { communityPath, jobFromPath, memberPostLoginPath, nextJobPath, slugFromPathname } from './community-path';
+
+describe('memberPostLoginPath', () => {
+  it('sends showcase login into the directory, not back to the public page', () => {
+    expect(memberPostLoginPath('/c/alumni/showcase')).toBe('/c/alumni/directory');
+    expect(memberPostLoginPath('/c/alumni/showcase?view=map')).toBe('/c/alumni/directory');
+    expect(memberPostLoginPath('/showcase')).toBe('/');
+    expect(memberPostLoginPath('/c/alumni/directory')).toBe('/c/alumni/directory');
+    expect(memberPostLoginPath('https://example.com')).toBe('/');
+  });
+});
 
 describe('communityPath', () => {
   it('prefixes the plugin href with the slug', () => {

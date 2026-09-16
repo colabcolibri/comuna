@@ -1,3 +1,17 @@
+export function memberPostLoginPath(next: string | null | undefined): string {
+  if (!next || !next.startsWith('/') || next.startsWith('//') || next.startsWith('/login')) {
+    return '/';
+  }
+  if (next === '/showcase' || next.startsWith('/showcase?') || next.startsWith('/showcase/')) {
+    return '/';
+  }
+  const showcase = next.match(/^\/c\/([^/]+)\/showcase(?:\/|\?|$)/);
+  if (showcase) {
+    return `/c/${showcase[1]}/directory`;
+  }
+  return next;
+}
+
 export function communityPath(slug: string, href: string) {
   const path = href.startsWith('/') ? href : `/${href}`;
   if (path.startsWith('/c/')) {

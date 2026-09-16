@@ -36,7 +36,7 @@ export function DemoOpsLogin() {
         setError(copy.error);
         return;
       }
-      window.location.href = '/communities';
+      window.location.assign('/communities');
     } catch {
       setError(copy.network);
     } finally {

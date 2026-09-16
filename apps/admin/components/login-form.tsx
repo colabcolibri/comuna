@@ -1,7 +1,6 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Button,
   Card,
@@ -47,7 +46,6 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
 
 export function LoginForm() {
   const copy = pickContent(CONTENT, useLocale());
-  const router = useRouter();
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -94,8 +92,7 @@ export function LoginForm() {
         setMessage(otpUserMessage('verify', otpErrorCodeFromBody(data), copy));
         return;
       }
-      router.push('/communities');
-      router.refresh();
+      window.location.assign('/communities');
     } catch {
       setMessage(copy.network);
     } finally {

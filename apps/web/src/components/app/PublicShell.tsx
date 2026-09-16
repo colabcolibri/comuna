@@ -40,7 +40,7 @@ export function PublicShell({
   const seat = seats.find((item) => item.slug === slug);
   const brand = listed?.name || seat?.name || copy.brand;
   const brandHref = slug ? communityPath(slug, '/showcase') : '/showcase';
-  const next = pathname || '/showcase';
+  const next = slug ? communityPath(slug, '/directory') : '/';
   const communityHref = seat ? communityPath(seat.slug, '/directory') : seats[0] ? communityPath(seats[0].slug, '/directory') : '/';
 
   const initial = brand.trim().charAt(0).toUpperCase() || 'C';

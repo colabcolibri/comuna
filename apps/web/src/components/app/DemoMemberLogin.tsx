@@ -1,5 +1,6 @@
 'use client';
 
+import { memberPostLoginPath } from '@/lib/people/community-path';
 import { DEMO_MEMBER_LOGIN_EMAIL } from '@community/auth/demo-login-constants';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { Alert, AlertDescription, Button, Card, CardContent, CardHeader, CardTitle } from '@community/ui';
@@ -33,8 +34,7 @@ export function DemoMemberLogin() {
         setError(copy.error);
         return;
       }
-      const next = new URLSearchParams(window.location.search).get('next');
-      window.location.href = next && next.startsWith('/c/') ? next : '/';
+      window.location.assign(memberPostLoginPath(new URLSearchParams(window.location.search).get('next')));
     } catch {
       setError(copy.network);
     } finally {

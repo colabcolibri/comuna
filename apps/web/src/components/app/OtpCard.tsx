@@ -1,6 +1,7 @@
 'use client';
 
 import { contentFromCatalog, pickContent } from '@community/identity';
+import { memberPostLoginPath } from '@/lib/people/community-path';
 import { otpErrorCodeFromBody, otpUserMessage } from '@community/auth/otp-api-error';
 import {
   Alert,
@@ -92,8 +93,7 @@ export default function OtpCard() {
         return;
       }
       setDone({ email: data.user.email, role: data.user.global_role });
-      const next = new URLSearchParams(window.location.search).get('next');
-      window.location.href = next && next.startsWith('/c/') ? next : '/';
+      window.location.assign(memberPostLoginPath(new URLSearchParams(window.location.search).get('next')));
     } catch {
       setError(copy.network);
     } finally {

@@ -3,6 +3,7 @@ import { AppAuthFrame } from '@community/ui-member';
 import { DemoMemberLogin } from '@/components/app/DemoMemberLogin';
 import OtpCard from '@/components/app/OtpCard';
 import { isDatabaseReadOnly } from '@/lib/read-only';
+import { memberPostLoginPath } from '@/lib/people/community-path';
 import { getMemberSession } from '@/lib/server/member-session';
 
 export default async function LoginPage({
@@ -13,8 +14,7 @@ export default async function LoginPage({
   const session = await getMemberSession();
   const next = (await searchParams).next;
   if (session) {
-    const target = next && next.startsWith('/') && !next.startsWith('//') ? next : '/';
-    redirect(target);
+    redirect(memberPostLoginPath(next));
   }
 
   return (
