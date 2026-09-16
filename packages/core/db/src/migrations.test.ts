@@ -6,7 +6,7 @@ describe('migration file discovery', () => {
     const dir = path.resolve(__dirname, '../../../../db/migrations');
     const files = listMigrationFiles(dir);
     expect(files.length).toBeGreaterThan(0);
-    expect(files.some((f) => f.includes('20260914233353_core_schemas'))).toBe(true);
+    expect(files.some((f) => f.includes('20260916020320_core'))).toBe(true);
     expect(migrationIdFromPath(files[0])).toMatch(/^\d{14}_/);
   });
 });

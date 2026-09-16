@@ -83,7 +83,7 @@ Cookie de sessão membro: `Secure` só quando `NODE_ENV=production`. Local HTTP 
 
 - Web (membros): `http://localhost:3014`
 - Admin: `http://localhost:3015` (`apps/admin`) — login OTP + comunidades + pessoas da rede + módulos + coordenador. Cookie `ops_token`. Seed: `INITIAL_SUPER_ADMIN_EMAIL` (default `admin@example.com`).
-- **Não** usar reset de banco.
+- Reset de banco só em dev: `pnpm db:setup` (reset + migrate + seed). **Não** usar em produção.
 
 ## Seed do super-admin
 

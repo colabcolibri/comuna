@@ -59,6 +59,7 @@ describe('seed list surfaces', () => {
     });
     expect(listsFor({ name: 'bio', lists: LISTS.bio }).directory.placement).toBe('detail');
     expect(listsFor({ name: 'bio', lists: LISTS.bio }).showcase.placement).toBe('card');
+    expect(listsFor({ name: 'availability_status', lists: LISTS.availability }).directory.placement).toBe('detail');
     expect(listsFor({ name: 'availability_status', lists: LISTS.availability }).showcase.filterable).toBe(true);
     expect(listsFor({ name: 'availability_status', lists: LISTS.availability }).directory).toEqual({
       filterable: false,

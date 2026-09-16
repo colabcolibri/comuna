@@ -13,7 +13,8 @@ blocks: [07_api_contracts.md]
 
 - **Engine:** PostgreSQL (Docker local; `DATABASE_URL`).
 - **Access:** driver `pg` em `packages/core/db` (alvo). Sem ORM nesta versão.
-- **Migrations:** `db/migrations/YYYYMMDDHHMMSS_*.sql` — uma alteração por arquivo. Aplicar com runner documentado na US de persistência. **Proibido** reset/drop de banco como rotina.
+- **Migrations:** `db/migrations/YYYYMMDDHHMMSS_*.sql` na **raiz** da pasta — só DDL (schemas, tabelas, constraints, RLS, triggers). Runner: `pnpm db:migrate`. Histórico incremental pré-squash em `db/migrations/_archive/` (não é aplicado). **Seed** (`pnpm db:seed`): catálogo, `list_fields`, copy, módulos, demo — não corrigir placement/labels via migration.
+- **Dev reset:** `pnpm db:setup` = reset + migrate + seed. Só em desenvolvimento; **proibido** como rotina em produção.
 - **Tenancy:** toda query de rede filtra `memberships.community_id`. `super_admin` não usa `community_id` para “ver tudo na vitrine”; ops lista comunidades, não o diretório de talentos.
 - **Who writes:** app usa `SET LOCAL ROLE community_app` (NOBYPASSRLS) e `set_config` de `app.user_id` / `app.community_id` nas queries de perfil e membership. Copy bilingue digitado: só headline/bio. Cidade: objeto Nominatim. Migrate/seed na role dona do banco. Sem ORM. Instância demo no host: `DATABASE_READ_ONLY=1` no **pool da app** (`default_transaction_read_only`); migrate/seed usam `Client` sem essa opção, na mesma `DATABASE_URL`.
 - **Backup:** dump Postgres no host de prod (procedimento no `08` quando houver prod). Sem `db reset`.

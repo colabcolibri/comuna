@@ -9,6 +9,18 @@ const { pgSsl } = require('./pg-ssl.cjs');
 
 const dir = path.resolve(__dirname, '../db/migrations');
 
+// Mesmo DDL de 20260916020320_core.sql — o runner precisa da tabela antes de saber o que já rodou.
+const ENSURE_SCHEMA_MIGRATIONS = `
+  CREATE TABLE IF NOT EXISTS public.schema_migrations (
+    id text PRIMARY KEY,
+    applied_at timestamptz NOT NULL DEFAULT now()
+  )
+`;
+
+async function ensureSchemaMigrations(client) {
+  await client.query(ENSURE_SCHEMA_MIGRATIONS);
+}
+
 function listMigrationIds(migrationsDir) {
   return fs
     .readdirSync(migrationsDir)
@@ -29,12 +41,7 @@ async function readAppliedIds(connectionString) {
   const client = new Client({ connectionString, ssl: pgSsl(connectionString) });
   await client.connect();
   try {
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS public.schema_migrations (
-        id text PRIMARY KEY,
-        applied_at timestamptz NOT NULL DEFAULT now()
-      )
-    `);
+    await ensureSchemaMigrations(client);
     const existing = await client.query('SELECT id FROM public.schema_migrations');
     return existing.rows.map((r) => r.id);
   } finally {
@@ -48,12 +55,7 @@ async function applyMigrations(connectionString) {
   const client = new Client({ connectionString, ssl: pgSsl(connectionString) });
   await client.connect();
   try {
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS public.schema_migrations (
-        id text PRIMARY KEY,
-        applied_at timestamptz NOT NULL DEFAULT now()
-      )
-    `);
+    await ensureSchemaMigrations(client);
     const existing = await client.query('SELECT id FROM public.schema_migrations');
     const done = new Set(existing.rows.map((r) => r.id));
     for (const id of fileIds) {

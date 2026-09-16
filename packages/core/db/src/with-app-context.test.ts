@@ -12,7 +12,7 @@ describe('app RLS context', () => {
 
   it('migration enables RLS on profiles and memberships without bypass', () => {
     const sql = readFileSync(
-      path.resolve(__dirname, '../../../../db/migrations/20260915010045_rls_profiles_memberships.sql'),
+      path.resolve(__dirname, '../../../../db/migrations/20260916020324_rls.sql'),
       'utf8'
     );
     expect(sql).toContain('ENABLE ROW LEVEL SECURITY');
