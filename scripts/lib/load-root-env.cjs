@@ -31,7 +31,7 @@ function applyEnvFile(file) {
 }
 
 function loadRootEnv() {
-  const root = path.resolve(__dirname, '..');
+  const root = path.resolve(__dirname, '../..');
   applyEnvFile(path.join(root, '.env'));
   applyEnvFile(path.join(root, '.env.local'));
 }

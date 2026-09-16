@@ -34,6 +34,8 @@ Vitrine: `gender`, `birth_city`, `public_showcase` ficam `off` / filtro false. N
 
 Densidade `card`: só `placement = card`. Densidade `detail`: `card` ou `detail`. A UI do diretório desenha `card` em `AppPersonCard` `compact` (sem bio, disponibilidade nem facts — estes ficam em `detail` e aparecem no diálogo). A vitrine desenha `card` em `AppShowcaseCard` (`teaser`). As duas listas paginam com o mesmo `AppShowcasePager` e os mesmos `page`/`size` (24, 48, 96).
 
+Recorte de lugar **não** é `list_fields`. País (`current_country`) e raio em torno de `near=lat,lon` entram em `peopleListQuery`. Helpers de parse ficam em `@community/places` (`list-geo`); o SQL fica no directory. A lista de países do dropdown é `peopleListCountriesQuery` (DISTINCT, sem search). Vista mapa: plugin `map`, slots `directory.mapView` / `showcase.mapView`, default off.
+
 Load: `LIST_FIELDS_SQL` + `parseListFields`. Facets: `attributeFacets`. Filtro `attr.*`: `parseAttrFilters` lê `ListField.filterable`, não o catálogo do perfil.
 
-Seed de extra: `listFilterable: true` no JS vira duas rows em `list_fields` (`detail` + filtro nas duas listas). Não é coluna de `fields`. Campos da plataforma levam `lists` no seed (`scripts/seed-directory-catalog.cjs`); teste `scripts/seed-list-surfaces.test.ts` projeta Helena com essa política.
+Seed de extra: `listFilterable: true` no JS vira duas rows em `list_fields` (`detail` + filtro nas duas listas). Não é coluna de `fields`. Campos da plataforma levam `lists` no seed (`scripts/seed/directory-catalog.cjs`); teste `scripts/seed/list-surfaces.test.ts` projeta Helena com essa política.

@@ -2,7 +2,7 @@
 title: Tech Stack
 status: approved
 version: 1.2
-updated: 2026-09-14
+updated: 2026-09-16
 depends_on: [00_scope.md]
 blocks: [02_security.md, 04_principles.md, 08_environments.md, 09_design_system.md, 10_test_strategy.md]
 ---
@@ -34,6 +34,7 @@ Hoje o Next de membros vive em `apps/web`. Pacotes `@community/*` via pnpm works
 | UI primitives | React / shadcn | `packages/ui/primitives` | CLI neste pacote; `tw-animate-css` no `globals.css` das apps (Sheet/dialog) |
 | UI member | React | `packages/ui/member` | Compostos Stitch |
 | UI admin | React | `packages/ui/admin` | Tabelas densas |
+| Maps | Leaflet 1.9 + tiles OSM | plugin `map` + `PeopleMap` | Sem chave; 2.0 ainda alpha; default off |
 
 ## Data layer
 

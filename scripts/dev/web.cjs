@@ -7,7 +7,7 @@ const { spawn } = require('child_process');
 
 const ADMIN_PORT = 3015;
 const WEB_PORT = 3014;
-const WEB_DIR = path.join(__dirname, '../apps/web');
+const WEB_DIR = path.join(__dirname, '../../apps/web');
 
 function portFree(port) {
   return new Promise((resolve) => {

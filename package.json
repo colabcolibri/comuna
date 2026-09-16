@@ -7,19 +7,19 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "node scripts/dev-web.cjs",
-    "dev:demo": "DATABASE_READ_ONLY=1 node scripts/dev-web.cjs",
+    "dev": "node scripts/dev/web.cjs",
+    "dev:demo": "DATABASE_READ_ONLY=1 node scripts/dev/web.cjs",
     "dev:admin": "pnpm --filter @community/admin dev",
     "build": "pnpm --filter @community/web build",
     "start": "pnpm --filter @community/web start",
     "lint": "pnpm --filter @community/web exec next lint",
     "test": "vitest run",
     "ui:add": "npx --yes shadcn@latest add --cwd packages/ui/primitives",
-    "db:reset": "node scripts/db-reset.cjs",
-    "db:migrate": "node scripts/db-migrate.cjs",
-    "db:migrate:status": "node scripts/db-migrate.cjs --status",
-    "db:seed": "node scripts/db-seed.cjs",
-    "db:setup": "node scripts/db-reset.cjs && node scripts/db-migrate.cjs && node scripts/db-seed.cjs"
+    "db:reset": "node scripts/db/reset.cjs",
+    "db:migrate": "node scripts/db/migrate.cjs",
+    "db:migrate:status": "node scripts/db/migrate.cjs --status",
+    "db:seed": "node scripts/db/seed.cjs",
+    "db:setup": "node scripts/db/reset.cjs && node scripts/db/migrate.cjs && node scripts/db/seed.cjs"
   },
   "dependencies": {
     "pg": "^8.12.0",

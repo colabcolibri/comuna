@@ -1,6 +1,6 @@
 'use strict';
 
-const { loc, opt, upsertCatalogGroups } = require('./seed-directory-catalog.cjs');
+const { loc, opt, upsertCatalogGroups } = require('./directory-catalog.cjs');
 
 function settings(description, title, lede, locale = 'pt-BR') {
   if (description.length > 500) throw new Error(`description too long: ${description.length}`);

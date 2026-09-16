@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest';
 import { parseListField, projectPersonView } from '@community/directory';
 
 const require = createRequire(import.meta.url);
-const { listsFor, LISTS, PLATFORM_CATALOG_GROUPS } = require('./seed-directory-catalog.cjs');
-const { SEED_COMMUNITIES } = require('./seed-communities.cjs');
-const { demoPeople } = require('./seed-demo-people.cjs');
-const { membershipCard, attributesFor } = require('./seed-membership-cards.cjs');
+const { listsFor, LISTS, PLATFORM_CATALOG_GROUPS } = require('./directory-catalog.cjs');
+const { SEED_COMMUNITIES } = require('./communities.cjs');
+const { demoPeople } = require('./demo-people.cjs');
+const { membershipCard, attributesFor } = require('./membership-cards.cjs');
 
 function platformFields() {
   return PLATFORM_CATALOG_GROUPS.flatMap((group) => group.fields);

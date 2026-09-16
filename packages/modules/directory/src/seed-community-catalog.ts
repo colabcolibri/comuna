@@ -3,7 +3,7 @@ import { query } from '@community/db';
 import { ensureCustomGroup } from './ops-catalog';
 
 const require = createRequire(import.meta.url);
-const { seedDirectoryCatalog } = require('../../../../scripts/seed-directory-catalog.cjs') as {
+const { seedDirectoryCatalog } = require('../../../../scripts/seed/directory-catalog.cjs') as {
   seedDirectoryCatalog: (client: { query: typeof query }, communityId: string) => Promise<void>;
 };
 

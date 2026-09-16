@@ -1,13 +1,13 @@
 'use strict';
 
-const { homeSlug } = require('./seed-communities.cjs');
-const DEMO = require('./profiles/demo-home.cjs');
-const CERRADO = require('./profiles/cerrado-home.cjs');
-const DADOS = require('./profiles/dados-home.cjs');
-const NORTE = require('./profiles/norte-home.cjs');
-const CONSERV = require('./profiles/conserv-home.cjs');
-const SAUDE = require('./profiles/saude-home.cjs');
-const GUEST = require('./profiles/guest.cjs');
+const { homeSlug } = require('./communities.cjs');
+const DEMO = require('../profiles/demo-home.cjs');
+const CERRADO = require('../profiles/cerrado-home.cjs');
+const DADOS = require('../profiles/dados-home.cjs');
+const NORTE = require('../profiles/norte-home.cjs');
+const CONSERV = require('../profiles/conserv-home.cjs');
+const SAUDE = require('../profiles/saude-home.cjs');
+const GUEST = require('../profiles/guest.cjs');
 
 function loc(pt, en) {
   return [

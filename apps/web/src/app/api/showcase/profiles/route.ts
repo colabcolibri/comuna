@@ -22,5 +22,5 @@ export async function GET(req: NextRequest) {
   if (listed.status === 400) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: listed.message } }, { status: 400 });
   }
-  return NextResponse.json({ data: listed.data, meta: listed.meta });
+  return NextResponse.json({ data: listed.data, countries: listed.countries, meta: listed.meta });
 }

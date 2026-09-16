@@ -1,6 +1,6 @@
 'use strict';
 
-const { composedCopy } = require('./seed-profile-corpus.cjs');
+const { composedCopy } = require('./profile-corpus.cjs');
 
 function pick(n, offset, list) {
   return list[(n + offset) % list.length];

@@ -46,6 +46,7 @@ const nextConfig: NextConfig = {
     '@community/module-runtime',
     '@community/directory',
     '@community/showcase',
+    '@community/map',
     '@community/contact-mediated',
     '@community/mail',
     '@community/platform',

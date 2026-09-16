@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 
 const require = createRequire(import.meta.url);
-const { classifyMigrations, listMigrationIds } = require('./db-migrate.cjs');
+const { classifyMigrations, listMigrationIds } = require('./migrate.cjs');
 
 describe('migration status classifier', () => {
   it('splits applied versus pending by file id', () => {
@@ -13,7 +13,7 @@ describe('migration status classifier', () => {
   });
 
   it('lists dated sql files from db/migrations', () => {
-    const ids = listMigrationIds(path.resolve(__dirname, '../db/migrations'));
+    const ids = listMigrationIds(path.resolve(__dirname, '../../db/migrations'));
     expect(ids.every((id: string) => /^\d{14}_/.test(id))).toBe(true);
     expect(ids.length).toBeGreaterThan(0);
   });

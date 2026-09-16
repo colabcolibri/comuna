@@ -1,6 +1,6 @@
 'use strict';
 
-const { homeCopy } = require('./seed-profile-corpus.cjs');
+const { homeCopy } = require('./profile-corpus.cjs');
 
 function loc(pt, en) {
   return [

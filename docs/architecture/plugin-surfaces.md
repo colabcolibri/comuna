@@ -53,12 +53,13 @@ Deep link de rota que não está em `ui.routes` → redirect `/`. API do plugin:
 | `directory` | `/directory`, item nav/home | — | headline, bio, availability, `attributes` da comunidade |
 | `showcase` | `/showcase`, link vitrine | — | `public_showcase` (coluna em `cards`, **dono é showcase**) |
 | `contact-mediated` | — | `showcase.rowAction` | nenhum |
+| `map` | — | `directory.mapView`, `showcase.mapView` | nenhum |
 
 `storage` continua sendo **binding de valor** (`person` / `card_column` / `attributes`). Não é dono de plugin. Um `card_column` pode ser directory (`headline`) ou showcase (`public_showcase`). O seed é quem marca o dono.
 
 ## Banco: enable vs dono
 
-`community_modules.enabled` **DEFAULT false**. Sem row = off. Comunidade nova e seed **inserem** first-party `enabled = true`. Desligar: `PUT` `{ enabled: false }`. Aí `visibleContributions` e o filtro de campos esvaziam sozinhos.
+`community_modules.enabled` **DEFAULT false**. Sem row = off. Comunidade nova e seed **inserem** first-party default-on `enabled = true`. Plugins opt-in (`map`) inserem `enabled = false` sem sobrescrever um toggle já gravado. Desligar: `PUT` `{ enabled: false }`. Aí `visibleContributions` e o filtro de campos esvaziam sozinhos.
 
 `fields.module_id` nullable FK `plugin_core.modules`. Null = núcleo. Não se infere de `column_key`.
 

@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import { describe, expect, it } from 'vitest';
 
 const require = createRequire(import.meta.url);
-const { DICEBEAR_STYLE, demoAvatarUrl, dicebearAvatarUrl, seedDemoAvatarsEnabled } = require('./seed-demo-avatars.cjs');
+const { DICEBEAR_STYLE, demoAvatarUrl, dicebearAvatarUrl, seedDemoAvatarsEnabled } = require('./demo-avatars.cjs');
 
 describe('seed-demo-avatars', () => {
   it('uses dicebear sprouts for every member', () => {

@@ -4,10 +4,10 @@
 const fs = require('fs');
 const path = require('path');
 const { Client } = require('pg');
-const { loadRootEnv } = require('./load-root-env.cjs');
-const { pgSsl } = require('./pg-ssl.cjs');
+const { loadRootEnv } = require('../lib/load-root-env.cjs');
+const { pgSsl } = require('../lib/pg-ssl.cjs');
 
-const dir = path.resolve(__dirname, '../db/migrations');
+const dir = path.resolve(__dirname, '../../db/migrations');
 
 // Mesmo DDL de 20260916020320_core.sql — o runner precisa da tabela antes de saber o que já rodou.
 const ENSURE_SCHEMA_MIGRATIONS = `

@@ -2,7 +2,7 @@
 title: System Architecture
 status: approved
 version: 1.12
-updated: 2026-09-15
+updated: 2026-09-16
 depends_on: [00_scope.md, 01_tech_stack.md, 02_security.md, 03_user_types.md, 04_principles.md]
 blocks: [06_database.md, 07_api_contracts.md, 08_environments.md]
 ---
@@ -38,6 +38,7 @@ flowchart TD
         Dir[directory]
         Show[showcase]
         Contact[contact-mediated]
+        Map[map]
     end
 
     Web --> Runtime
@@ -45,6 +46,7 @@ flowchart TD
     Runtime --> Dir
     Runtime --> Show
     Runtime --> Contact
+    Runtime --> Map
     Runtime --> Auth
     Runtime --> Ident
     Runtime --> Comm
@@ -108,7 +110,7 @@ Várias memberships `active` são o caso normal. A web resolve **uma** comunidad
 
 ### Module runtime
 
-Catálogo `plugin_core.modules`. Por comunidade: `network_core.community_modules (community_id, module_id, enabled)`. Comunidade nova e seed: first-party **inseridos** `enabled = true` (a coluna continua `DEFAULT false` para módulo sem row).
+Catálogo `plugin_core.modules`. Por comunidade: `network_core.community_modules (community_id, module_id, enabled)`. Comunidade nova e seed: first-party default-on **inseridos** `enabled = true`. O plugin `map` entra no registry e no catálogo, mas a row nasce `enabled = false` (`insertDisabledModules`, `ON CONFLICT DO NOTHING`). A coluna continua `DEFAULT false` para módulo sem row.
 
 Montagem: **registry de contribuições** (rotas, chrome, slots) filtrado por `listEnabled`. Campos de perfil: `fields.module_id` (null = núcleo). Parser de catálogo não infere plugin. Detalhe: `docs/architecture/plugin-surfaces.md`.
 
@@ -123,6 +125,7 @@ Criar comunidade, pessoas da rede (listar **e criar** conta por e-mail), members
 | `directory` | Catálogo de campos + card + busca/listagem | Membros só veem perfil-base (ou lista mínima do núcleo) |
 | `showcase` | Projeção pública | Sem vitrine |
 | `contact-mediated` | Formulário sem expor e-mail | Sem hiring mail |
+| `map` | Vista mapa nas listas (Leaflet + OSM) | Sem toggle mapa; grelha continua |
 
 ## Profile field catalog
 

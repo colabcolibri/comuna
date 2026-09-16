@@ -2,8 +2,8 @@
 'use strict';
 
 const { Client } = require('pg');
-const { loadRootEnv } = require('./load-root-env.cjs');
-const { pgSsl } = require('./pg-ssl.cjs');
+const { loadRootEnv } = require('../lib/load-root-env.cjs');
+const { pgSsl } = require('../lib/pg-ssl.cjs');
 
 async function main() {
   loadRootEnv();

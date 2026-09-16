@@ -2,7 +2,7 @@ import { createRequire } from 'node:module';
 import { describe, expect, it } from 'vitest';
 
 const require = createRequire(import.meta.url);
-const { runningDevMessage, ADMIN_PORT, WEB_PORT } = require('./dev-web.cjs');
+const { runningDevMessage, ADMIN_PORT, WEB_PORT } = require('./web.cjs');
 
 describe('dev-web', () => {
   it('explains that demo needs a single next dev instance', () => {

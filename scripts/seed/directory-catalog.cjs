@@ -329,7 +329,7 @@ async function seedDirectoryCatalog(client, communityId) {
 }
 
 async function seedDemoCatalogExtras(client, communityId) {
-  const { SEED_COMMUNITIES, seedTenantExtras } = require('./seed-communities.cjs');
+  const { SEED_COMMUNITIES, seedTenantExtras } = require('./communities.cjs');
   const demo = SEED_COMMUNITIES.find((community) => community.slug === 'demo');
   await seedTenantExtras(client, communityId, demo.extras);
 }

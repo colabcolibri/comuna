@@ -33,7 +33,7 @@ O runtime **não** lê o filesystem em produção: a app **registra** first-part
 1. Super-admin em `apps/admin` altera `community_modules.enabled`.
 2. `module-runtime.isEnabled(communityId, slug)` é a única porta.
 3. API do plugin retorna 404 se off (não 200 vazio com campos secretos).
-4. Comunidade nova e seed: `directory` + `showcase` + `contact-mediated` nascem `enabled = true` (insert, não o DEFAULT da coluna). Admin pode desligar depois. Off = a app **não mostra** nada daquele slug.
+4. Comunidade nova e seed: `directory` + `showcase` + `contact-mediated` nascem `enabled = true` (insert, não o DEFAULT da coluna). `map` entra no catálogo e no registry, mas a row nasce `enabled = false` (`insertDisabledModules`, `ON CONFLICT DO NOTHING`). Admin pode ligar depois. Off = a app **não mostra** nada daquele slug.
 
 Não existe `if (community.type === 'alumni')` no core. Tipo de comunidade é dado + plugins, não um fork.
 

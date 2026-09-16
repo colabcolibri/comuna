@@ -3,13 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const require = createRequire(import.meta.url);
-const { demoMemberEmails, DEMO_MEMBER_COUNT, communitySlugsFor, SEED_COMMUNITIES } = require('./db-seed.cjs');
-const { demoPeople, CORE_COUNT } = require('./seed-demo-people.cjs');
-const { membershipCard } = require('./seed-membership-cards.cjs');
+const { demoMemberEmails, DEMO_MEMBER_COUNT, communitySlugsFor, SEED_COMMUNITIES } = require('./seed.cjs');
+const { demoPeople, CORE_COUNT } = require('../seed/demo-people.cjs');
+const { membershipCard } = require('../seed/membership-cards.cjs');
 
 describe('demo member seed list', () => {
   it('attaches the ops seed user to every seeded community as coordinator', () => {
-    const source = fs.readFileSync(path.join(import.meta.dirname, 'db-seed.cjs'), 'utf8');
+    const source = fs.readFileSync(path.join(import.meta.dirname, 'seed.cjs'), 'utf8');
     expect(source).toContain("'coordinator', 'active'");
     expect(source).toContain('SEED_COMMUNITIES');
     expect(SEED_COMMUNITIES[0].settings.showcase_title.length).toBeGreaterThan(8);
@@ -121,9 +121,9 @@ describe('demo member seed list', () => {
   });
 
   it('keeps hospitality off the platform catalog', () => {
-    const catalog = fs.readFileSync(path.join(import.meta.dirname, 'seed-directory-catalog.cjs'), 'utf8');
-    const seed = fs.readFileSync(path.join(import.meta.dirname, 'db-seed.cjs'), 'utf8');
-    const tenants = fs.readFileSync(path.join(import.meta.dirname, 'seed-communities.cjs'), 'utf8');
+    const catalog = fs.readFileSync(path.join(import.meta.dirname, '../seed/directory-catalog.cjs'), 'utf8');
+    const seed = fs.readFileSync(path.join(import.meta.dirname, 'seed.cjs'), 'utf8');
+    const tenants = fs.readFileSync(path.join(import.meta.dirname, '../seed/communities.cjs'), 'utf8');
     expect(seed).toContain('seedTenantExtras');
     const platform = catalog.slice(
       catalog.indexOf('function seedDirectoryCatalog'),
@@ -143,5 +143,11 @@ describe('demo member seed list', () => {
     expect(tenants).toContain('mentorship_side');
     expect(tenants).toContain("name: 'medium'");
     expect(tenants).toContain('works_sus');
+  });
+
+  it('registers the map plugin off by default', () => {
+    const source = fs.readFileSync(path.join(import.meta.dirname, 'seed.cjs'), 'utf8');
+    expect(source).toContain("OPTIONAL_MODULES = ['map']");
+    expect(source).toContain('ON CONFLICT (community_id, module_id) DO NOTHING');
   });
 });

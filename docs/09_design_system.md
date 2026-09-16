@@ -117,7 +117,7 @@ Navegação do **workspace**: sidebar shadcn no desktop; header sem destinos de 
 | Contato | Pedir contato mediado | Visitante | `AppSheet` (mesmo template dos filtros) | Form no `AppDialog` | Trigger **Enviar mensagem**; sheet com nome, e-mail e mensagem obrigatórios (mensagem ≥ 40), telefone opcional; CTA **Enviar** passa a **Enviando…** e fica `disabled` até a resposta |
 | `/` | Ver assentos e comunidades públicas | Visitante / membro | Header da plataforma | — | Lista de tenants; OTP fica em `/login` |
 | `/login` | Entrar com OTP | Visitante | `AppPublicChrome` | Sidebar no OTP | OTP centrado, um CTA |
-| `/c/{slug}/directory` | Buscar membros **desta** comunidade | Membro | Sidebar: comunidade + Diretório | Path legado `/directory` | Grelha de `AppPersonCard` compacto; `AppShowcasePager` acima e abaixo; o cartão abre o mesmo diálogo da vitrine |
+| `/c/{slug}/directory` | Buscar membros **desta** comunidade | Membro | Sidebar: comunidade + Diretório | Path legado `/directory` | Grelha de `AppPersonCard` compacto; filtros de país/cidade/raio; `AppShowcasePager` acima e abaixo; toggle mapa se o plugin `map` estiver on; o cartão (ou o pin) abre o mesmo diálogo da vitrine |
 | `/c/{slug}/profile` | Card e campos desta comunidade | Membro | Nesta comunidade | Misturado com identidade | Formulário só `storage` ≠ `person` |
 | `/profile` | Editar identidade | Membro | Rodapé: Meu perfil | Path legado `/profile/edit` | Nome, foto, cidade, links |
 | `/c/{slug}/coord/approvals` | Aprovar entrada **deste** tenant | Coordenador neste slug | Pedidos só se coord aqui | Path legado `/coord` | Tabela com Aprovar/Recusar rotulados |

@@ -30,6 +30,7 @@ packages/
     directory/
     showcase/
     contact-mediated/
+    map/
   ui/
     primitives/        # shadcn — @community/ui
     member/            # compostos Stitch

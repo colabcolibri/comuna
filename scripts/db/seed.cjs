@@ -2,19 +2,19 @@
 'use strict';
 
 const { Client } = require('pg');
-const { loadRootEnv } = require('./load-root-env.cjs');
-const { pgSsl } = require('./pg-ssl.cjs');
+const { loadRootEnv } = require('../lib/load-root-env.cjs');
+const { pgSsl } = require('../lib/pg-ssl.cjs');
 
-const { seedDirectoryCatalog } = require('./seed-directory-catalog.cjs');
-const { DEMO_MEMBER_COUNT, demoMemberEmails, demoPeople, emailFor } = require('./seed-demo-people.cjs');
+const { seedDirectoryCatalog } = require('../seed/directory-catalog.cjs');
+const { DEMO_MEMBER_COUNT, demoMemberEmails, demoPeople, emailFor } = require('../seed/demo-people.cjs');
 const {
   SEED_COMMUNITIES,
   communitySlugsFor,
   cohortFor,
   seedTenantExtras,
-} = require('./seed-communities.cjs');
-const { membershipCard } = require('./seed-membership-cards.cjs');
-const { seedDemoAvatarsForPeople, seedDemoAvatarsEnabled } = require('./seed-demo-avatars.cjs');
+} = require('../seed/communities.cjs');
+const { membershipCard } = require('../seed/membership-cards.cjs');
+const { seedDemoAvatarsForPeople, seedDemoAvatarsEnabled } = require('../seed/demo-avatars.cjs');
 
 const MODULES = ['directory', 'showcase', 'contact-mediated'];
 const OPTIONAL_MODULES = ['map'];
