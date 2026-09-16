@@ -5,6 +5,7 @@ import {
   availabilityIsFilterable,
   listedAttributeNames,
   parseListFields,
+  peopleListCountriesQuery,
   peopleListQuery,
   attributeFacets,
   type ListField,
@@ -48,12 +49,15 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
     ? await query<{ total: number }>(built.countText, built.countParams)
     : { rows: [{ total: 0 }] };
   const result = await query(built.text, built.params);
+  const countriesQuery = peopleListCountriesQuery({ communityId, scope: 'showcase' });
+  const countries = await query<{ country: string }>(countriesQuery.text, countriesQuery.params);
   return {
     status: 200 as const,
     data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, keys)),
     facets,
     listFields,
     availabilityFilter: availabilityIsFilterable(listFields),
+    countries: countries.rows.map((row) => row.country).filter(Boolean),
     meta: { page: built.page, pageSize: built.pageSize, total: counted.rows[0]?.total ?? 0 },
   };
 }

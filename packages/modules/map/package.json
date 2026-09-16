@@ -1,0 +1,11 @@
+{
+  "name": "@community/map",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@community/module-runtime": "workspace:*"
+  }
+}

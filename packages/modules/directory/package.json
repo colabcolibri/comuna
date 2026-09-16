@@ -10,6 +10,7 @@
   "dependencies": {
     "@community/db": "workspace:*",
     "@community/identity": "workspace:*",
-    "@community/module-runtime": "workspace:*"
+    "@community/module-runtime": "workspace:*",
+    "@community/places": "workspace:*"
   }
 }

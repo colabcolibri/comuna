@@ -1,4 +1,13 @@
+import { DEFAULT_LIST_RADIUS_KM, parseCountryCode, parseListRadius, parseNearLatLon } from '@community/places';
 import { SHOWCASE_PAGE_SIZE } from '@community/directory';
+
+export type ListQueryExtras = {
+  country?: string;
+  near?: string;
+  radius?: number;
+  view?: string;
+  nearLabel?: string;
+};
 
 export function directoryQueryString(
   search: string,
@@ -6,7 +15,8 @@ export function directoryQueryString(
   cohort = '',
   status = '',
   page = 1,
-  size = SHOWCASE_PAGE_SIZE
+  size = SHOWCASE_PAGE_SIZE,
+  extras: ListQueryExtras = {}
 ) {
   const params = new URLSearchParams();
   const term = search.trim();
@@ -23,6 +33,22 @@ export function directoryQueryString(
   }
   if (status) {
     params.set('status', status);
+  }
+  const country = parseCountryCode(extras.country || '');
+  if (country) {
+    params.set('country', country);
+  }
+  const near = parseNearLatLon(extras.near || '');
+  if (near) {
+    params.set('near', `${near.lat},${near.lon}`);
+    params.set('radius', String(parseListRadius(String(extras.radius || '')) ?? DEFAULT_LIST_RADIUS_KM));
+    const label = (extras.nearLabel || '').trim();
+    if (label) {
+      params.set('near_label', label);
+    }
+  }
+  if (extras.view === 'map') {
+    params.set('view', 'map');
   }
   if (page > 1) {
     params.set('page', String(page));
@@ -67,4 +93,16 @@ export function searchParamsFromRecord(raw: Record<string, string | string[] | u
     }
   });
   return params;
+}
+
+export function extrasFromSearchParams(params: URLSearchParams): ListQueryExtras {
+  const near = parseNearLatLon(params.get('near'));
+  const radius = parseListRadius(params.get('radius'));
+  return {
+    country: parseCountryCode(params.get('country')) || '',
+    near: near ? `${near.lat},${near.lon}` : '',
+    radius: near ? radius ?? DEFAULT_LIST_RADIUS_KM : undefined,
+    view: params.get('view') === 'map' ? 'map' : '',
+    nearLabel: near ? (params.get('near_label') || '').trim() : '',
+  };
 }

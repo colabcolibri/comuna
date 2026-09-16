@@ -3,16 +3,20 @@
 import { useEnabledModules } from '@/components/app/EnabledModulesProvider';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { PeopleCohortSelect, PeopleFilters } from '@/components/app/PeopleFilters';
+import { PeopleMap } from '@/components/app/PeopleMap';
+import { PeopleMapToggle } from '@/components/app/PeopleMapToggle';
+import { PeoplePlaceFilters } from '@/components/app/PeoplePlaceFilters';
 import { PersonInspect } from '@/components/app/PersonInspect';
 import { uiCatalog } from '@/lang/catalog';
 import { availabilityLabel } from '@/lib/people/availability';
-import { activeFilterCount, directoryQueryString } from '@/lib/people/directory-query';
+import { activeFilterCount, directoryQueryString, type ListQueryExtras } from '@/lib/people/directory-query';
 import type { PersonCard } from '@/lib/people/person-card';
 import { useDebouncedValue } from '@/lib/people/use-debounced-value';
 import { slotOn } from '@/modules/registry';
 import { SHOWCASE_PAGE_SIZE, SHOWCASE_PAGE_SIZES, availabilityIsFilterable, projectPersonView, type CatalogField, type ListField } from '@community/directory';
 import { contentFromCatalog, interpolate, mergeContent, pickContent } from '@community/identity';
-import { displayPlaceLocality } from '@community/places';
+import { DIRECTORY_MAP_VIEW } from '@community/map';
+import { displayPlaceLocality, parseNearLatLon } from '@community/places';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
 import { Button, Input } from '@community/ui';
 import {
@@ -52,6 +56,13 @@ const CONTENT = mergeContent(
       languages: 'page.languages',
       all: 'page.all',
       cohort: 'page.cohort',
+      country: 'page.country',
+      city: 'page.city',
+      radius: 'page.radius',
+      radiusKm: 'page.radius_km',
+      viewMap: 'page.view_map',
+      viewList: 'page.view_list',
+      mapEmpty: 'page.map_empty',
       hire: 'card.hire',
       partner: 'card.partner',
       mentor: 'card.mentor',
@@ -96,6 +107,8 @@ export function DirectoryPanel({
   cohorts,
   cohort,
   status = '',
+  extras = {},
+  countries = [],
   page = 1,
   pageSize = SHOWCASE_PAGE_SIZE,
   total = 0,
@@ -108,6 +121,8 @@ export function DirectoryPanel({
   cohorts: { id: string; name: string }[];
   cohort: string;
   status?: string;
+  extras?: ListQueryExtras;
+  countries?: string[];
   page?: number;
   pageSize?: number;
   total?: number;
@@ -116,12 +131,14 @@ export function DirectoryPanel({
   const copy = pickContent(CONTENT, locale);
   const enabled = useEnabledModules();
   const canContact = slotOn(enabled, SHOWCASE_ROW_ACTION);
+  const canMap = slotOn(enabled, DIRECTORY_MAP_VIEW);
   const router = useRouter();
   const pathname = usePathname();
   const [selected, setSelected] = useState<PersonCard | null>(null);
   const [term, setTerm] = useState(search);
   const debounced = useDebouncedValue(term, 300);
-  const count = activeFilterCount(facetValues, [status]);
+  const mapView = canMap && extras.view === 'map';
+  const count = activeFilterCount(facetValues, [status, extras.country || '', extras.near || '']);
   const canFilter = facets.length > 0 || availabilityIsFilterable(listFields);
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
@@ -135,9 +152,9 @@ export function DirectoryPanel({
     if (debounced === search) {
       return;
     }
-    const query = directoryQueryString(debounced, facetValues, cohort, status, 1, pageSize);
+    const query = directoryQueryString(debounced, facetValues, cohort, status, 1, pageSize, extras);
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }, [debounced, facetValues, cohort, status, pathname, search, router, pageSize]);
+  }, [debounced, facetValues, cohort, status, pathname, search, router, pageSize, extras]);
 
   function go(
     nextSearch: string,
@@ -145,9 +162,10 @@ export function DirectoryPanel({
     nextCohort = cohort,
     nextStatus = status,
     nextPage = 1,
-    nextSize = pageSize
+    nextSize = pageSize,
+    nextExtras = extras
   ) {
-    const query = directoryQueryString(nextSearch, nextFacets, nextCohort, nextStatus, nextPage, nextSize);
+    const query = directoryQueryString(nextSearch, nextFacets, nextCohort, nextStatus, nextPage, nextSize, nextExtras);
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
 
@@ -171,60 +189,87 @@ export function DirectoryPanel({
 
   return (
     <AppPageTemplate kicker={copy.kicker} title={copy.title} subtitle={copy.subtitle}>
-      <div className="mb-6 flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end">
-        <div className="min-w-0 flex-1">
-          <label className="mb-2 block text-sm font-medium" htmlFor="global-search">
-            {copy.search}
-          </label>
-          <Input
-            id="global-search"
-            className="min-h-11 w-full"
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-            placeholder={copy.searchHint}
-          />
-        </div>
-        <PeopleCohortSelect
-          id="directory-cohort"
-          label={copy.cohort}
-          allLabel={copy.all}
-          cohorts={cohorts}
-          value={cohort}
-          onChange={(next) => go(search, facetValues, next)}
-        />
-        {canFilter ? (
-          <AppFilterSheet
-            trigger={
-              <Button type="button" variant="outline" className="min-h-11 w-full shrink-0 sm:w-auto">
-                <ListFilter className="size-4" />
-                {copy.filters}
-                {count ? ` (${count})` : ''}
-              </Button>
-            }
-            title={copy.filters}
-            description={copy.filtersHint}
-            clearLabel={copy.filtersClear}
-            closeLabel={copy.close}
-            onClear={() => go(search, {}, cohort, '')}
-          >
-            <PeopleFilters
-              locale={locale}
-              allLabel={copy.all}
-              facets={facets}
-              facetValues={facetValues}
-              onFacets={(next) => go(search, next, cohort)}
-              status={availabilityIsFilterable(listFields) ? status : undefined}
-              onStatus={availabilityIsFilterable(listFields) ? (next) => go(search, facetValues, cohort, next) : undefined}
-              statusLabel={copy.availability}
-              statusOptions={[
-                { value: 'available_for_hire', label: copy.hire },
-                { value: 'project_partner', label: copy.partner },
-                { value: 'mentor', label: copy.mentor },
-                { value: 'unavailable', label: copy.unavailable },
-              ]}
+      <div className="mb-6 flex min-w-0 flex-col gap-3">
+        <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-end">
+          <div className="min-w-0 flex-1">
+            <label className="mb-2 block text-sm font-medium" htmlFor="global-search">
+              {copy.search}
+            </label>
+            <Input
+              id="global-search"
+              className="min-h-11 w-full"
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              placeholder={copy.searchHint}
             />
-          </AppFilterSheet>
-        ) : null}
+          </div>
+          <PeopleCohortSelect
+            id="directory-cohort"
+            label={copy.cohort}
+            allLabel={copy.all}
+            cohorts={cohorts}
+            value={cohort}
+            onChange={(next) => go(search, facetValues, next)}
+          />
+          {canMap ? (
+            <PeopleMapToggle
+              mapView={mapView}
+              mapLabel={copy.viewMap}
+              listLabel={copy.viewList}
+              onChange={(next) => go(search, facetValues, cohort, status, 1, pageSize, { ...extras, view: next ? 'map' : '' })}
+            />
+          ) : null}
+          {canFilter ? (
+            <AppFilterSheet
+              trigger={
+                <Button type="button" variant="outline" className="min-h-11 w-full shrink-0 sm:w-auto">
+                  <ListFilter className="size-4" />
+                  {copy.filters}
+                  {count ? ` (${count})` : ''}
+                </Button>
+              }
+              title={copy.filters}
+              description={copy.filtersHint}
+              clearLabel={copy.filtersClear}
+              closeLabel={copy.close}
+              onClear={() => go(search, {}, cohort, '', 1, pageSize, { view: extras.view })}
+            >
+              <PeopleFilters
+                locale={locale}
+                allLabel={copy.all}
+                facets={facets}
+                facetValues={facetValues}
+                onFacets={(next) => go(search, next, cohort)}
+                status={availabilityIsFilterable(listFields) ? status : undefined}
+                onStatus={availabilityIsFilterable(listFields) ? (next) => go(search, facetValues, cohort, next) : undefined}
+                statusLabel={copy.availability}
+                statusOptions={[
+                  { value: 'available_for_hire', label: copy.hire },
+                  { value: 'project_partner', label: copy.partner },
+                  { value: 'mentor', label: copy.mentor },
+                  { value: 'unavailable', label: copy.unavailable },
+                ]}
+              />
+            </AppFilterSheet>
+          ) : null}
+        </div>
+        <PeoplePlaceFilters
+          id="directory-place"
+          locale={locale}
+          countries={countries}
+          value={{
+            country: extras.country || '',
+            near: extras.near || '',
+            radius: extras.radius,
+            nearLabel: extras.nearLabel || '',
+          }}
+          allCountriesLabel={copy.all}
+          countryLabel={copy.country}
+          cityLabel={copy.city}
+          radiusLabel={copy.radius}
+          radiusKmLabel={(n) => interpolate(copy.radiusKm, { n: String(n) })}
+          onChange={(next) => go(search, facetValues, cohort, status, 1, pageSize, { ...extras, ...next })}
+        />
       </div>
       <p className="mb-6 max-w-160 text-base text-muted-foreground">{copy.privacy}</p>
       {rows.length === 0 ? (
@@ -232,32 +277,42 @@ export function DirectoryPanel({
       ) : (
         <>
           {pager('mb-6')}
-          <AppShowcaseGrid>
-            {rows.map((profile) => {
-              const view = projectPersonView({
-                profile,
-                fields: listFields,
-                density: 'card',
-                locale,
-                cityLabel: displayPlaceLocality(profile.current_city, locale),
-                availabilityLabel: availabilityLabel(profile.availability_status, copy),
-              });
-              return (
-                <AppPersonCard
-                  key={profile.id}
-                  variant="compact"
-                  name={view.name}
-                  photoUrl={view.photoUrl}
-                  headline={view.headline}
-                  city={view.city}
-                  languages={view.languages.map((item) => item.label)}
-                  availability={view.availability}
-                  actionLabel={copy.view}
-                  onOpen={() => setSelected(profile)}
-                />
-              );
-            })}
-          </AppShowcaseGrid>
+          {mapView ? (
+            <PeopleMap
+              rows={rows}
+              emptyLabel={copy.mapEmpty}
+              near={parseNearLatLon(extras.near || '')}
+              radiusKm={extras.radius}
+              onOpen={setSelected}
+            />
+          ) : (
+            <AppShowcaseGrid>
+              {rows.map((profile) => {
+                const view = projectPersonView({
+                  profile,
+                  fields: listFields,
+                  density: 'card',
+                  locale,
+                  cityLabel: displayPlaceLocality(profile.current_city, locale),
+                  availabilityLabel: availabilityLabel(profile.availability_status, copy),
+                });
+                return (
+                  <AppPersonCard
+                    key={profile.id}
+                    variant="compact"
+                    name={view.name}
+                    photoUrl={view.photoUrl}
+                    headline={view.headline}
+                    city={view.city}
+                    languages={view.languages.map((item) => item.label)}
+                    availability={view.availability}
+                    actionLabel={copy.view}
+                    onOpen={() => setSelected(profile)}
+                  />
+                );
+              })}
+            </AppShowcaseGrid>
+          )}
           {pager('mt-10')}
         </>
       )}

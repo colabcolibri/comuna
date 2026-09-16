@@ -5,7 +5,7 @@ import { MemberAccessNotice } from '@/components/app/MemberAccessNotice';
 import { listDirectoryCatalog } from '@/lib/server/directory-catalog';
 import { listDirectoryMembers } from '@/lib/server/directory-members';
 import { requireMemberForSlug } from '@/lib/server/require-member';
-import { facetsFromSearchParams, searchParamsFromRecord } from '@/lib/people/directory-query';
+import { extrasFromSearchParams, facetsFromSearchParams, searchParamsFromRecord } from '@/lib/people/directory-query';
 
 export default async function DirectoryPage({
   params,
@@ -40,6 +40,9 @@ export default async function DirectoryPage({
       search={query.get('search') || ''}
       facetValues={facetsFromSearchParams(query)}
       status={query.get('status') || ''}
+      extras={extrasFromSearchParams(query)}
+      countries={listed.body.countries}
+      page={listed.body.meta.page}
       cohorts={cohorts}
       cohort={query.get('cohort') || ''}
       page={listed.body.meta.page}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseListField } from './list-fields';
-import { peopleListQuery } from './people-list-sql';
+import { peopleListCountriesQuery, peopleListQuery } from './people-list-sql';
 
 const host = parseListField({
   name: 'host_at_home',
@@ -132,5 +132,48 @@ describe('peopleListQuery', () => {
       return;
     }
     expect(built.text).toContain('c.availability_status = $');
+  });
+
+  it('filters directory by country and ignores junk codes', () => {
+    const ok = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams('country=br'),
+      fields: [host],
+      scope: 'directory',
+    });
+    const junk = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams('country=brasil'),
+      fields: [host],
+      scope: 'directory',
+    });
+    expect(ok.ok && ok.text).toContain('p.current_country = $');
+    expect(ok.ok && ok.params).toContain('BR');
+    expect(junk.ok && junk.text).not.toContain('current_country =');
+  });
+
+  it('applies a closed radius around near lat,lon', () => {
+    const built = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams('near=38.72,-9.14&radius=50'),
+      fields: [host],
+      scope: 'directory',
+    });
+    expect(built.ok).toBe(true);
+    if (built.ok === false) {
+      return;
+    }
+    expect(built.text).toContain('6371 * acos');
+    expect(built.params).toContain(38.72);
+    expect(built.params).toContain(-9.14);
+    expect(built.params).toContain(50);
+  });
+
+  it('lists distinct countries without search or radius', () => {
+    const built = peopleListCountriesQuery({ communityId: 'c1', scope: 'directory' });
+    expect(built.text).toContain('DISTINCT p.current_country');
+    expect(built.text).not.toContain('ILIKE');
+    expect(built.text).not.toContain('6371');
+    expect(built.params).toEqual(['c1']);
   });
 });

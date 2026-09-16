@@ -272,6 +272,9 @@ importers:
       '@community/module-runtime':
         specifier: workspace:*
         version: link:../../core/module-runtime
+      '@community/places':
+        specifier: workspace:*
+        version: link:../../core/places
 
   packages/modules/showcase:
     dependencies:

@@ -3,7 +3,7 @@ import { ShowcasePanel } from '@/components/app/ShowcasePanel';
 import { CommunityJoinBar } from '@/components/app/CommunityJoinBar';
 import { listPublicProfiles } from '@/lib/server/public-profiles';
 import { getCommunityBySlug, publicShowcaseHero } from '@community/communities';
-import { facetsFromSearchParams, searchParamsFromRecord } from '@/lib/people/directory-query';
+import { extrasFromSearchParams, facetsFromSearchParams, searchParamsFromRecord } from '@/lib/people/directory-query';
 
 export default async function CommunityShowcasePage({
   params,

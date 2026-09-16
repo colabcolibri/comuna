@@ -12,19 +12,23 @@ import {
 } from '@community/ui-member';
 import { Button, Input } from '@community/ui';
 import { contentFromCatalog, interpolate, mergeContent, pickContent } from '@community/identity';
-import { displayPlaceLocality } from '@community/places';
+import { displayPlaceLocality, parseNearLatLon } from '@community/places';
 import { SHOWCASE_PAGE_SIZE, SHOWCASE_PAGE_SIZES, availabilityIsFilterable, projectPersonView, type CatalogField, type ListField } from '@community/directory';
 import { ListFilter, Search } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { useEnabledModules } from '@/components/app/EnabledModulesProvider';
 import { PeopleFilters } from '@/components/app/PeopleFilters';
+import { PeopleMap } from '@/components/app/PeopleMap';
+import { PeopleMapToggle } from '@/components/app/PeopleMapToggle';
+import { PeoplePlaceFilters } from '@/components/app/PeoplePlaceFilters';
 import { PersonInspect } from '@/components/app/PersonInspect';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
+import { SHOWCASE_MAP_VIEW } from '@community/map';
 import { uiCatalog } from '@/lang/catalog';
 import { slotOn } from '@/modules/registry';
 import { availabilityLabel } from '@/lib/people/availability';
-import { activeFilterCount, directoryQueryString } from '@/lib/people/directory-query';
+import { activeFilterCount, directoryQueryString, type ListQueryExtras } from '@/lib/people/directory-query';
 import type { PersonCard } from '@/lib/people/person-card';
 import { useDebouncedValue } from '@/lib/people/use-debounced-value';
 
@@ -51,6 +55,13 @@ const CONTENT = mergeContent(
     languages: 'page.languages',
     all: 'page.all',
     availability: 'page.availability',
+    country: 'page.country',
+    city: 'page.city',
+    radius: 'page.radius',
+    radiusKm: 'page.radius_km',
+    viewMap: 'page.view_map',
+    viewList: 'page.view_list',
+    mapEmpty: 'page.map_empty',
     langPt: 'lang.pt',
     langEn: 'lang.en',
     langEs: 'lang.es',
@@ -91,6 +102,8 @@ export function ShowcasePanel({
   search = '',
   facetValues = {},
   status = '',
+  extras = {},
+  countries = [],
   page = 1,
   pageSize = SHOWCASE_PAGE_SIZE,
   total = 0,
@@ -104,6 +117,8 @@ export function ShowcasePanel({
   search?: string;
   facetValues?: Record<string, string>;
   status?: string;
+  extras?: ListQueryExtras;
+  countries?: string[];
   page?: number;
   pageSize?: number;
   total?: number;
@@ -112,13 +127,15 @@ export function ShowcasePanel({
   const copy = pickContent(CONTENT, locale);
   const enabled = useEnabledModules();
   const canContact = slotOn(enabled, SHOWCASE_ROW_ACTION);
+  const canMap = slotOn(enabled, SHOWCASE_MAP_VIEW);
   const router = useRouter();
   const pathname = usePathname();
   const [selected, setSelected] = useState<PersonCard | null>(null);
   const [term, setTerm] = useState(search);
   const debounced = useDebouncedValue(term, 300);
   const canFilter = facets.length > 0 || availabilityIsFilterable(listFields);
-  const count = activeFilterCount(facetValues, [status]);
+  const mapView = canMap && extras.view === 'map';
+  const count = activeFilterCount(facetValues, [status, extras.country || '', extras.near || '']);
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
 
@@ -130,19 +147,20 @@ export function ShowcasePanel({
     if (debounced === search) {
       return;
     }
-    const query = directoryQueryString(debounced, facetValues, '', status, 1, pageSize);
+    const query = directoryQueryString(debounced, facetValues, '', status, 1, pageSize, extras);
     const next = query ? `${pathname}?${query}` : pathname;
     router.replace(next, { scroll: false });
-  }, [debounced, facetValues, status, pathname, search, router, pageSize]);
+  }, [debounced, facetValues, status, pathname, search, router, pageSize, extras]);
 
   function go(
     nextSearch: string,
     nextFacets: Record<string, string>,
     nextStatus = status,
     nextPage = 1,
-    nextSize = pageSize
+    nextSize = pageSize,
+    nextExtras = extras
   ) {
-    const query = directoryQueryString(nextSearch, nextFacets, '', nextStatus, nextPage, nextSize);
+    const query = directoryQueryString(nextSearch, nextFacets, '', nextStatus, nextPage, nextSize, nextExtras);
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
 
@@ -169,6 +187,14 @@ export function ShowcasePanel({
                 />
               </div>
             </div>
+            {canMap ? (
+              <PeopleMapToggle
+                mapView={mapView}
+                mapLabel={copy.viewMap}
+                listLabel={copy.viewList}
+                onChange={(next) => go(search, facetValues, status, 1, pageSize, { ...extras, view: next ? 'map' : '' })}
+              />
+            ) : null}
             {canFilter ? (
             <AppFilterSheet
               trigger={
@@ -182,7 +208,7 @@ export function ShowcasePanel({
               description={copy.filtersHint}
               clearLabel={copy.filtersClear}
               closeLabel={copy.close}
-              onClear={() => go(search, {}, '')}
+              onClear={() => go(search, {}, '', 1, pageSize, { view: extras.view })}
             >
               <PeopleFilters
                 locale={locale}
@@ -203,6 +229,23 @@ export function ShowcasePanel({
             </AppFilterSheet>
             ) : null}
           </div>
+          <PeoplePlaceFilters
+            id="showcase-place"
+            locale={locale}
+            countries={countries}
+            value={{
+              country: extras.country || '',
+              near: extras.near || '',
+              radius: extras.radius,
+              nearLabel: extras.nearLabel || '',
+            }}
+            allCountriesLabel={copy.all}
+            countryLabel={copy.country}
+            cityLabel={copy.city}
+            radiusLabel={copy.radius}
+            radiusKmLabel={(n) => interpolate(copy.radiusKm, { n: String(n) })}
+            onChange={(next) => go(search, facetValues, status, 1, pageSize, { ...extras, ...next })}
+          />
         </div>
       }
     >
@@ -226,35 +269,45 @@ export function ShowcasePanel({
             onPage={(next) => go(search, facetValues, status, next)}
             onPageSize={(next) => go(search, facetValues, status, 1, next)}
           />
-          <AppShowcaseGrid>
-            {rows.map((profile) => {
-              const view = projectPersonView({
-                profile,
-                fields: listFields,
-                density: 'card',
-                locale,
-                cityLabel: displayPlaceLocality(profile.current_city, locale),
-                availabilityLabel: availabilityLabel(profile.availability_status, copy),
-              });
-              return (
-                <AppShowcaseCard
-                  key={profile.id}
-                  name={view.name}
-                  photoUrl={view.photoUrl}
-                  headline={view.headline}
-                  summary={view.summary}
-                  city={view.city}
-                  languagesLabel={view.languagesHeading || copy.languages}
-                  languages={view.languages.map((item) => item.label)}
-                  availabilityLabel={view.availabilityHeading || copy.availability}
-                  availability={view.availability}
-                  facts={view.facts}
-                  actionLabel={copy.view}
-                  onOpen={() => setSelected(profile)}
-                />
-              );
-            })}
-          </AppShowcaseGrid>
+          {mapView ? (
+            <PeopleMap
+              rows={rows}
+              emptyLabel={copy.mapEmpty}
+              near={parseNearLatLon(extras.near || '')}
+              radiusKm={extras.radius}
+              onOpen={setSelected}
+            />
+          ) : (
+            <AppShowcaseGrid>
+              {rows.map((profile) => {
+                const view = projectPersonView({
+                  profile,
+                  fields: listFields,
+                  density: 'card',
+                  locale,
+                  cityLabel: displayPlaceLocality(profile.current_city, locale),
+                  availabilityLabel: availabilityLabel(profile.availability_status, copy),
+                });
+                return (
+                  <AppShowcaseCard
+                    key={profile.id}
+                    name={view.name}
+                    photoUrl={view.photoUrl}
+                    headline={view.headline}
+                    summary={view.summary}
+                    city={view.city}
+                    languagesLabel={view.languagesHeading || copy.languages}
+                    languages={view.languages.map((item) => item.label)}
+                    availabilityLabel={view.availabilityHeading || copy.availability}
+                    availability={view.availability}
+                    facts={view.facts}
+                    actionLabel={copy.view}
+                    onOpen={() => setSelected(profile)}
+                  />
+                );
+              })}
+            </AppShowcaseGrid>
+          )}
           <AppShowcasePager
             className="mt-10"
             page={page}

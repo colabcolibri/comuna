@@ -5,6 +5,7 @@ import {
   directoryContribution,
   listedAttributeNames,
   parseListFields,
+  peopleListCountriesQuery,
   peopleListQuery,
   attributeFacets,
 } from '@community/directory';
@@ -32,6 +33,8 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
     ? await queryAsMember<{ total: number }>(ctx, built.countText, built.countParams)
     : { rows: [{ total: 0 }] };
   const result = await queryAsMember(ctx, built.text, built.params);
+  const countriesQuery = peopleListCountriesQuery({ communityId: ctx.communityId, scope: 'directory' });
+  const countries = await queryAsMember<{ country: string }>(ctx, countriesQuery.text, countriesQuery.params);
   const keys = listedAttributeNames(listFields);
   return {
     status: 200 as const,
@@ -40,6 +43,7 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
       facets: attributeFacets(listFields),
       listFields,
       availabilityFilter: availabilityIsFilterable(listFields),
+      countries: countries.rows.map((row) => row.country).filter(Boolean),
       meta: {
         page: built.page,
         pageSize: built.pageSize,
