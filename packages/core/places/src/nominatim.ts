@@ -34,12 +34,14 @@ export function labelsFromNominatimNames(
 }
 
 export function mapNominatimHit(hit: NominatimHit): CitySearchHit | null {
-  const type = String(hit.type || hit.addresstype || '');
-  if (!SETTLEMENT_TYPES.has(type) && !hit.address?.city && !hit.address?.town && !hit.address?.municipality) {
+  const type = String(hit.addresstype || hit.type || '');
+  const ownName = String(hit.name || '').trim();
+  const localName = SETTLEMENT_TYPES.has(type)
+    ? ownName || addressLocality(hit)
+    : addressLocality(hit);
+  if (!localName) {
     return null;
   }
-  const localName =
-    hit.address?.city || hit.address?.town || hit.address?.village || hit.address?.municipality || hit.name || '';
   const place = parsePlace({
     provider: 'nominatim',
     osm_id: hit.osm_id,
@@ -53,6 +55,16 @@ export function mapNominatimHit(hit: NominatimHit): CitySearchHit | null {
     return null;
   }
   return { ...place, hint: String(hit.display_name || localName) };
+}
+
+function addressLocality(hit: NominatimHit) {
+  return (
+    hit.address?.village ||
+    hit.address?.town ||
+    hit.address?.city ||
+    hit.address?.municipality ||
+    ''
+  );
 }
 
 export function createNominatimCityDirectory(deps: { fetchImpl?: typeof fetch } = {}): CityDirectory {

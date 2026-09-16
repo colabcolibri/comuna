@@ -151,7 +151,7 @@ export function PeoplePlaceFilters({
             onValueChange={(next) => setDraft(next[0] ?? DEFAULT_LIST_RADIUS_KM)}
             onValueCommit={(next) => applyRadius(next[0] ?? DEFAULT_LIST_RADIUS_KM)}
           />
-          <InputGroupText className="shrink-0 justify-end whitespace-nowrap pr-3 tabular-nums">
+          <InputGroupText className="shrink-0 justify-end whitespace-nowrap px-3 tabular-nums">
             {formatListRadiusKm(draft, locale)}
           </InputGroupText>
         </InputGroup>

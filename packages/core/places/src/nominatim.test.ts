@@ -18,4 +18,22 @@ describe('nominatim adapter', () => {
     expect(hit?.label.en).toBe('Sao Paulo');
     expect(labelsFromNominatimNames('São Paulo', { 'name:en': 'Sao Paulo' }).en).toBe('Sao Paulo');
   });
+
+  it('keeps the village name when Nominatim nests it under a town', () => {
+    const hit = mapNominatimHit({
+      osm_id: 3873203,
+      osm_type: 'relation',
+      lat: '51.24',
+      lon: '4.89',
+      name: 'Tielen',
+      display_name: 'Tielen, Kasterlee, Antwerpen, België',
+      type: 'administrative',
+      addresstype: 'village',
+      namedetails: { name: 'Tielen' },
+      address: { village: 'Tielen', town: 'Kasterlee', country_code: 'be' },
+    });
+    expect(hit?.label['pt-BR']).toBe('Tielen');
+    expect(hit?.label.en).toBe('Tielen');
+    expect(hit?.hint).toContain('Kasterlee');
+  });
 });
