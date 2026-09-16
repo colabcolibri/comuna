@@ -42,7 +42,6 @@ export default async function DirectoryPage({
       status={query.get('status') || ''}
       extras={extrasFromSearchParams(query)}
       countries={listed.body.countries}
-      page={listed.body.meta.page}
       cohorts={cohorts}
       cohort={query.get('cohort') || ''}
       page={listed.body.meta.page}

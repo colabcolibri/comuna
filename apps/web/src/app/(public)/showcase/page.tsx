@@ -8,7 +8,7 @@ import { CommunityJoinBar } from '@/components/app/CommunityJoinBar';
 import { listPublicProfiles } from '@/lib/server/public-profiles';
 import { uiCatalog } from '@/lang/catalog';
 import { communityPath } from '@/lib/people/community-path';
-import { facetsFromSearchParams, searchParamsFromRecord } from '@/lib/people/directory-query';
+import { extrasFromSearchParams, facetsFromSearchParams, searchParamsFromRecord } from '@/lib/people/directory-query';
 import Link from 'next/link';
 
 const CONTENT = contentFromCatalog(uiCatalog, 'plugin_showcase', {
@@ -45,6 +45,8 @@ export default async function ShowcasePage({
         search={query.get('search') || ''}
         facetValues={facetsFromSearchParams(query)}
         status={query.get('status') || ''}
+        extras={extrasFromSearchParams(query)}
+        countries={listed.countries || []}
         page={listed.meta.page}
         pageSize={listed.meta.pageSize}
         total={listed.meta.total}
