@@ -8,11 +8,22 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 import './people-map.css';
 import { parsePlace, placeLatLon, displayPlaceLocality } from '@community/places';
 import { personInitials } from '@community/ui-member';
+import { contentFromCatalog, pickContent } from '@community/identity';
 import { useLocale } from '@/components/app/LocaleProvider';
+import { PeopleMapHeightControl, usePeopleMapHeight } from '@/components/app/people-map-height';
+import { uiCatalog } from '@/lang/catalog';
 import type { PersonCard } from '@/lib/people/person-card';
 
 const TILE = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+
+const HEIGHT_COPY = contentFromCatalog(uiCatalog, 'plugin_directory', {
+  mapHeight: 'page.map_height',
+  sm: 'page.map_height_sm',
+  md: 'page.map_height_md',
+  lg: 'page.map_height_lg',
+  xl: 'page.map_height_xl',
+});
 
 function escapeHtml(value: string) {
   return value
@@ -77,6 +88,8 @@ export function PeopleMapCanvas({
   const onOpenRef = useRef(onOpen);
   onOpenRef.current = onOpen;
   const locale = useLocale();
+  const copy = pickContent(HEIGHT_COPY, locale);
+  const [frameSize, setFrameSize] = usePeopleMapHeight();
 
   useEffect(() => {
     const el = host.current;
@@ -164,8 +177,15 @@ export function PeopleMapCanvas({
 
   return (
     <div className="min-w-0">
+      <PeopleMapHeightControl
+        size={frameSize}
+        label={copy.mapHeight}
+        labels={{ sm: copy.sm, md: copy.md, lg: copy.lg, xl: copy.xl }}
+        onChange={setFrameSize}
+      />
       <div
         ref={host}
+        data-size={frameSize}
         className="people-map-host people-map-frame overflow-hidden rounded-2xl border border-border"
       />
       {located ? null : <p className="mt-3 text-sm text-muted-foreground">{emptyLabel}</p>}

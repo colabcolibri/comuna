@@ -9,9 +9,25 @@
 }
 
 .people-map-frame {
-  height: min(60dvh, 39rem);
   width: 100%;
   min-width: 0;
+  height: min(60dvh, 39rem);
+}
+
+.people-map-frame[data-size='sm'] {
+  height: min(42dvh, 26rem);
+}
+
+.people-map-frame[data-size='md'] {
+  height: min(60dvh, 39rem);
+}
+
+.people-map-frame[data-size='lg'] {
+  height: min(72dvh, 48rem);
+}
+
+.people-map-frame[data-size='xl'] {
+  height: min(85dvh, 58rem);
 }
 
 .people-map-marker {
