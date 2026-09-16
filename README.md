@@ -1,60 +1,50 @@
 # Comuna
 
-A simple, modular platform that holds a mirror up to a community — and gives that community a motor.
+The name is ordinary Portuguese: a *comuna* is a place people share. The software is for a group that already exists and needs somewhere to exist as that group — not another feed.
 
-A cohort, an alumni year, a practice, an incubator, a mentoring circle: people who already share a life. Comuna is the place where that life can be seen, entered, and set in motion. Not a social network. Not an infinite chat with a channel for every topic and a thread for every aside. Talk can exist later, as a module, if a group wants it. The centre of the product is something else: **a working likeness of the community itself.**
+Alumni offices, schools, incubators and practices already hold more than one group, and they usually keep them in spreadsheets. On Comuna you run a single installation and create as many **spaces** as you need. Each space is one group, with its own members and its own modules, and people from one space do not show up in another. Someone can still belong to several: the 2019 alumni year and the incubator can sit on the same install, and a person who is in both switches space and keeps a different profile in each, looking at one space at a time.
 
-Comuna is named on purpose. A *comuna* is a shared place with a door. You choose when to walk in. The software serves the people in the room.
+Inside a space, members find each other, send a message without publishing an inbox, and can put a public page on the group if they want the world to see it. What someone shares is decided in that space, field by field. A visitor can look without giving an email address. Collective learning and deeper exchange are possible later, as modules you turn on — they are not required to make the space real.
 
-## The core
+## Chat tools do a different job
 
-The job is not to keep everyone typing. The job is to dynamize the life of a group that already exists.
+Products such as Circle, Discord, Slack and Mighty Networks are built around an ongoing conversation: feeds, channels, threads, unread counts. Comuna is built around the roster and the face of the group. A forum or chat could be added later as a module; it is not what the product is for, and the two kinds of tool can sit side by side.
 
-That looks like a roster that still makes sense years later. Like finding each other without ransoming an inbox. Like a public face the world can look at, without turning members into a megaphone. Like room to learn together, to go deeper in the exchanges that matter, to become less of a list and more of a community.
+The source is public on GitHub. You can host it and change it. There is no license file in the repo yet.
 
-The platform is built **modular** so each community can turn on only the facets it actually lives. A directory. A showcase. Mediated contact. A map. Later, perhaps a course, a forum, a time bank. Guests at the door — never a reason to fatten the middle into Slack-with-a-directory.
+## A space
 
-Under every module, the same small core:
+A space starts with people, membership and a basic profile. Someone asks to join; a coordinator of that space accepts or refuses. Members edit their own profile.
 
-**A person.** A name, a place, a way in. Enough to exist.
+A visitor opens `/showcase` with no account — a public page for one space, or a list if several are public. The directory stays behind membership.
 
-**A community.** A tenant with its own people, its own tone, its own door. Rooms do not leak. Isolation is the point.
+| Module | What the space gets | Off |
+| --- | --- | --- |
+| `directory` | Lists, extra fields, search | 404 / 403, no extra fields |
+| `showcase` | Public page | Same |
+| `contact-mediated` | Message delivered; address hidden | Same |
+| `map` | Map on the lists (default off) | Same |
 
-**A membership.** You ask. Someone who holds that room says yes or no. Alumni, cohort, practice — kinds of community, not the name of the product.
+Packages live under `packages/modules/<slug>`. In the codebase a space is the `community` tenant (`/c/{slug}/…`).
 
-**A base profile.** The minimum the group needs to recognise you. Extra fields and extra tools are modules that community switches on.
+## Try it
 
-Around that: consent as a map, not a banner. What the world sees, what stays inside, what another person may ask — field by field. You visit the software, use the tool the group needed, and leave. Nothing sits in your notifications deciding that now is the time.
-
-This will not invent a community that is not there. It can give one that is there a clearer reflection, and a way to move.
-
-## What ships
+After seed, the public face is [http://localhost:3014/showcase](http://localhost:3014/showcase). The seed already has several spaces (alumni, incubator, practice, mentorship) so the switcher has something to switch.
 
 Two Next.js apps, one Postgres. Default locale `pt-BR`, also `en`.
 
 | App | Who | Local |
 | --- | --- | --- |
-| [apps/web](apps/web) | Guests, members, coordinators | [http://localhost:3014](http://localhost:3014) |
-| [apps/admin](apps/admin) | Super-admin (ops) | [http://localhost:3015](http://localhost:3015) |
+| [apps/web](apps/web) | Visitors, members, coordinators | [http://localhost:3014](http://localhost:3014) |
+| [apps/admin](apps/admin) | Super-admin: create spaces, coordinators, modules | [http://localhost:3015](http://localhost:3015) |
 
-Public repo: [colabcolibri/comuna](https://github.com/colabcolibri/comuna). Workspace packages: `@community/*`.
+Repo: [colabcolibri/comuna](https://github.com/colabcolibri/comuna). Packages: `@community/*`.
 
-**In the core today:** email OTP, a person, a community, membership, join requests, cohorts, a base profile (city via OpenStreetMap). Members edit their own profile. Coordinators work the join queue at `/c/{slug}/coord/approvals`.
+**Member app:** email OTP, profile (city via OpenStreetMap), join requests, cohorts, space switcher. Coordinators review joins at `/c/{slug}/coord/approvals`.
 
-**On the ops app:** communities, people, members, cohorts, field catalogs, lists, mail, platform settings, and the module board — enable or disable per community.
+**Ops app:** spaces, people, members, cohorts, fields, lists, mail, platform settings, modules per space.
 
-**Not in this cut:** a shared course catalog, a forum of channels and threads, a time bank, payments, OAuth, native apps. If they land, they land as modules — they do not become the product.
-
-## Modules
-
-A new community is flags, not a fork. With a module off, its routes and APIs 404/403. Extra fields do not leak.
-
-| Slug | Package | What it is |
-| --- | --- | --- |
-| `directory` | `packages/modules/directory` | Field catalog, search, lists |
-| `showcase` | `packages/modules/showcase` | Public window onto the group |
-| `contact-mediated` | `packages/modules/contact-mediated` | The message is delivered; the address is not |
-| `map` | `packages/modules/map` | Map view on lists (off by default) |
+**Not built yet:** courses, forum, time bank, payments, OAuth, native apps. Those would be modules.
 
 ## Run it locally
 
@@ -82,7 +72,7 @@ pnpm dev:demo
 pnpm dev:admin:demo
 ```
 
-Local OTP lands in [Mailpit](http://localhost:8026), not in the API JSON. Ops seed: `INITIAL_SUPER_ADMIN_EMAIL`. Postgres is on `localhost:5433`. Env contract: [docs/08_environments.md](docs/08_environments.md). Do not commit `.env`.
+Local OTP lands in [Mailpit](http://localhost:8026), not in the API JSON. Postgres is on `localhost:5433`. Env: [docs/08_environments.md](docs/08_environments.md). Do not commit `.env`.
 
 Install from the workspace root. Do not run `next` at the repo root.
 
@@ -103,8 +93,6 @@ docs/                product contract
 ```
 
 ## Documentation
-
-The README is the front door. The house rules live in `docs/`.
 
 | | |
 | --- | --- |
