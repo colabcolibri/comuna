@@ -1,35 +1,37 @@
 # Comuna
 
-The name is ordinary Portuguese: a *comuna* is a place people share. The software is for a group that already exists and needs somewhere to exist as that group — not another feed.
+The name is ordinary Portuguese: a *comuna* is a place people share. The software is for a group that already exists — a class, an alumni year, a practice — and needs somewhere to be that group, rather than another feed.
 
-Alumni offices, schools, incubators and practices already hold more than one group, and they usually keep them in spreadsheets. On Comuna you run a single installation and create as many **spaces** as you need. Each space is one group, with its own members and its own modules, and people from one space do not show up in another. Someone can still belong to several: the 2019 alumni year and the incubator can sit on the same install, and a person who is in both switches space and keeps a different profile in each, looking at one space at a time.
-
-Inside a space, members find each other, send a message without publishing an inbox, and can put a public page on the group if they want the world to see it. What someone shares is decided in that space, field by field. A visitor can look without giving an email address. Collective learning and deeper exchange are possible later, as modules you turn on — they are not required to make the space real.
+It is meant for the people who already hold those groups: an alumni office, a school, an incubator. They usually keep more than one group, often in spreadsheets. On Comuna you run a single installation and create as many **spaces** as you need. Each space is one group, with its own members and its own modules.
 
 ## Chat tools do a different job
 
-Products such as Circle, Discord, Slack and Mighty Networks are built around an ongoing conversation: feeds, channels, threads, unread counts. Comuna is built around the roster and the face of the group. A forum or chat could be added later as a module; it is not what the product is for, and the two kinds of tool can sit side by side.
-
-The source is public on GitHub. You can host it and change it. There is no license file in the repo yet.
+Products such as Circle, Discord, Slack and Mighty Networks are built around an ongoing conversation: feeds, channels, threads, unread counts. Comuna is built around who belongs to the group and how that group can be seen. A forum or chat could be added later as a module; that is not what this product is for, and the two kinds of tool can sit side by side.
 
 ## A space
 
-A space starts with people, membership and a basic profile. Someone asks to join; a coordinator of that space accepts or refuses. Members edit their own profile.
+A space starts with people, membership and a basic profile. Someone asks to join; a coordinator of that space accepts or refuses. Members edit their own profile. People from one space do not show up in another.
 
-A visitor opens `/showcase` with no account — a public page for one space, or a list if several are public. The directory stays behind membership.
+Someone can still belong to several spaces. The 2019 alumni year and the incubator can sit on the same install; a person who is in both switches space and keeps a different profile in each, looking at one space at a time.
 
-| Module | What the space gets | Off |
-| --- | --- | --- |
-| `directory` | Lists, extra fields, search | 404 / 403, no extra fields |
-| `showcase` | Public page | Same |
-| `contact-mediated` | Message delivered; address hidden | Same |
-| `map` | Map on the lists (default off) | Same |
+The first thing in a space is a list of the people who belong there. If someone wants to reach a member, they fill in a short form on that person’s card. Comuna sends the message to the member by email; the address itself never appears on the page. Each member chooses whether they accept those messages at all — including saying no.
 
-Packages live under `packages/modules/<slug>`. In the codebase a space is the `community` tenant (`/c/{slug}/…`).
+The same space can publish a public page, so someone who is not logged in can still see who opted to appear. What is visible on a profile is decided in that space, field by field. A visitor opens `/showcase` with no account: one public page, or a list if several spaces are public. The directory stays behind membership.
+
+If a module is off in a space, that feature is simply not there: the page does not open, and extra profile fields from that module do not appear in another space.
+
+| Module | What the space gets |
+| --- | --- |
+| `directory` | Lists, extra fields, search |
+| `showcase` | Public page |
+| `contact-mediated` | Form to write to a member. They get email; their address stays hidden. They can refuse messages |
+| `map` | Map on the lists (default off) |
+
+Courses, forums, a time bank, payments, OAuth and native apps are not built yet. If they come, they come as modules. You do not need them for the space to exist.
 
 ## Try it
 
-After seed, the public face is [http://localhost:3014/showcase](http://localhost:3014/showcase). The seed already has several spaces (alumni, incubator, practice, mentorship) so the switcher has something to switch.
+After seed, the public face is [http://localhost:3014/showcase](http://localhost:3014/showcase). The seed already has several spaces (alumni, incubator, practice, mentorship), so the switcher has something to switch.
 
 Two Next.js apps, one Postgres. Default locale `pt-BR`, also `en`.
 
@@ -38,13 +40,11 @@ Two Next.js apps, one Postgres. Default locale `pt-BR`, also `en`.
 | [apps/web](apps/web) | Visitors, members, coordinators | [http://localhost:3014](http://localhost:3014) |
 | [apps/admin](apps/admin) | Super-admin: create spaces, coordinators, modules | [http://localhost:3015](http://localhost:3015) |
 
-Repo: [colabcolibri/comuna](https://github.com/colabcolibri/comuna). Packages: `@community/*`.
-
 **Member app:** email OTP, profile (city via OpenStreetMap), join requests, cohorts, space switcher. Coordinators review joins at `/c/{slug}/coord/approvals`.
 
 **Ops app:** spaces, people, members, cohorts, fields, lists, mail, platform settings, modules per space.
 
-**Not built yet:** courses, forum, time bank, payments, OAuth, native apps. Those would be modules.
+The source is public: [colabcolibri/comuna](https://github.com/colabcolibri/comuna). You can host it and change it. There is no license file in the repo yet. Packages: `@community/*`.
 
 ## Run it locally
 
@@ -91,6 +91,8 @@ packages/ui          shadcn primitives + member/admin composites
 db/migrations        dated SQL (no Prisma)
 docs/                product contract
 ```
+
+In the codebase a space is the `community` tenant (`/c/{slug}/…`). Module packages live under `packages/modules/<slug>`.
 
 ## Documentation
 
