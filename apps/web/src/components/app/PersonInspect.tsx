@@ -183,7 +183,7 @@ export function PersonInspect({
               </Button>
             }
             title={copy.contact}
-            description={copy.privacy}
+            description={interpolate(copy.sendTo, { name: view?.name || profile.full_name })}
             closeLabel={copy.cancel}
             open={contactOpen}
             onOpenChange={(next) => {

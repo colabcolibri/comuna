@@ -44,7 +44,6 @@ const CONTENT = mergeContent(
     emptyFiltered: 'page.empty_filtered',
     view: 'page.view',
     close: 'page.close',
-    privacy: 'page.privacy',
     search: 'page.search',
     searchHint: 'page.search_hint',
     range: 'page.range',
@@ -90,7 +89,7 @@ const CONTENT = mergeContent(
     requiredMissing: 'form.required_missing',
     messageMin: 'form.message_min',
     messageCount: 'form.message_count',
-    privacy: 'form.privacy',
+    sendTo: 'form.send_to',
   })
 );
 

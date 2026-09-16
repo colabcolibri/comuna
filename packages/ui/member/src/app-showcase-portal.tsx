@@ -1,5 +1,16 @@
 import type { ReactNode } from 'react';
-import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@community/ui';
+import {
+  Label,
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@community/ui';
 
 export function AppShowcasePortal({
   title,
@@ -80,8 +91,10 @@ export function AppShowcasePager({
   if (total === 0) {
     return null;
   }
+  const canPrev = page > 1;
+  const canNext = page < pages;
   return (
-    <nav className={`flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ${className ?? ''}`} aria-label={summary}>
+    <div className={`flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between ${className ?? ''}`}>
       <p className="text-sm text-muted-foreground">{summary}</p>
       <div className="flex min-w-0 flex-wrap items-center gap-2">
         <Label className="sr-only">{sizeLabel}</Label>
@@ -97,13 +110,50 @@ export function AppShowcasePager({
             ))}
           </SelectContent>
         </Select>
-        <Button type="button" variant="outline" className="min-h-11" disabled={page <= 1} onClick={() => onPage(page - 1)}>
-          {prevLabel}
-        </Button>
-        <Button type="button" variant="outline" className="min-h-11" disabled={page >= pages} onClick={() => onPage(page + 1)}>
-          {nextLabel}
-        </Button>
+        <Pagination className="mx-0 w-auto justify-end" aria-label={summary}>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationLink
+                size="default"
+                href="#"
+                aria-label={prevLabel}
+                aria-disabled={!canPrev}
+                className={`min-h-11 px-4 ${canPrev ? '' : 'pointer-events-none opacity-50'}`}
+                onClick={(event) => {
+                  event.preventDefault();
+                  if (canPrev) {
+                    onPage(page - 1);
+                  }
+                }}
+              >
+                {prevLabel}
+              </PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink size="icon" isActive href="#" className="min-h-11 min-w-11" onClick={(event) => event.preventDefault()}>
+                {page}
+              </PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink
+                size="default"
+                href="#"
+                aria-label={nextLabel}
+                aria-disabled={!canNext}
+                className={`min-h-11 px-4 ${canNext ? '' : 'pointer-events-none opacity-50'}`}
+                onClick={(event) => {
+                  event.preventDefault();
+                  if (canNext) {
+                    onPage(page + 1);
+                  }
+                }}
+              >
+                {nextLabel}
+              </PaginationLink>
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
-    </nav>
+    </div>
   );
 }

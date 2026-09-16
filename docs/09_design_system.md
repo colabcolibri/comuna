@@ -13,7 +13,7 @@ blocks: []
 
 - **Surfaces:** `apps/web` (Stitch + plugins). Admin **não** usa o contrato Stitch; usa os mesmos primitives.
 - **Primary UI stack:** `ts-shadcn` — primitives em `packages/ui/primitives` (`@community/ui`). Compostos membro em `packages/ui/member` e `apps/web/src/components/app/`.
-- **Select / Checkbox / menu:** shadcn em `@community/ui` (`SelectTrigger` + portal; `DropdownMenu`; `Checkbox` Radix; `Tabs`; `Accordion`). Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`, `AppSheet`, `OpsSheet`, `OpsTabs`, `OpsAccordion`, `OpsHtmlPreview`) é que fecham o produto.
+- **Select / Checkbox / menu / slider / pagination / input-group:** shadcn em `@community/ui` via `pnpm ui:add` (`npx shadcn@latest add --cwd packages/ui/primitives`). `SelectTrigger` + portal; `DropdownMenu`; `Checkbox` Radix; `Slider`; `Pagination`; `InputGroup`; `Tabs`; `Accordion`. Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`, `AppSheet`, `OpsSheet`, `OpsTabs`, `OpsAccordion`, `OpsHtmlPreview`) é que fecham o produto.
 - **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, espaços aninhados. Workspace (trocar de comunidade) **não** é sidebar de espaços — ver `community-context.md`.
 - **Copy:** ver secção Copy. Formulário: grupo = título. Campo = rótulo + **Obrigatório** ou **Opcional** (os dois estados, sempre), no mesmo eixo do nome.
 - **Catálogo (ops):** o grupo é o único card (`OpsAccordion`). Campos e opções = linhas, não caixa dentro de caixa. **Adicionar campo** e **editar campo** abrem `OpsSheet` à direita (mesmo contrato de `AppSheet`); adicionar fica no cabeçalho do grupo. Ações do grupo e da linha são `OpsIconButton` (`icon-sm` + tooltip no hover + `aria-label`). Não expande a linha. Checkbox avulso (`OpsCheckboxFrame`) usa o mesmo recorte do select.
@@ -90,7 +90,7 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `AppSheet` | Sheet shadcn: `SheetTrigger` + `SheetContent` + `SheetClose`. Corpo `grid flex-1 auto-rows-min gap-6 px-4`. Filtros e enviar mensagem usam este template. | `packages/ui/member/src/app-sheet.tsx` |
 | `AppFilterSheet` | `AppSheet` com trigger na página, limpar e fechar no rodapé | `packages/ui/member/src/app-filter-sheet.tsx` |
 | `AppPublicChrome` | Página pública da vitrine: header sem sidebar, documento rola | `packages/ui/member/src/app-public-chrome.tsx` |
-| `AppShowcasePortal` / `AppShowcasePager` | Herói do portal público + paginação das listas de pessoas (vitrine e diretório; 24/48/96; acima e abaixo da grelha) | `packages/ui/member/src/app-showcase-portal.tsx` |
+| `AppShowcasePortal` / `AppShowcasePager` | Herói do portal público + paginação das listas de pessoas (primitive `Pagination` shadcn + `Select` 24/48/96; acima e abaixo da grelha) | `packages/ui/member/src/app-showcase-portal.tsx` |
 | `AppPersonFieldGroup` | Rótulo do campo + valores em chips (vitrine, diálogo) | `packages/ui/member/src/app-person-field-group.tsx` |
 | `AppPersonCard` / `AppShowcaseCard` | Cartão de pessoa. `compact` = diretório (foto 64px, headline, idiomas e disponibilidade sem bio). `teaser` (`AppShowcaseCard`) = vitrine (foto 80px, bio, extras com label). Cartão inteiro abre o perfil | `packages/ui/member/src/app-showcase-card.tsx` |
 | `Toaster` (Sonner) | Feedback **transitório** (salvar, envio) | `packages/ui/primitives` — `toast` de `@community/ui`. Um `Toaster` no layout. Alerta **inline** = `Alert` de `@community/ui`, não toast. |
@@ -170,7 +170,7 @@ Voz institucional, curta, em sentence case. **Kicker, título e subtítulo são 
 | Campo | Rótulo + obrigatório/opcional | Lede que ensina schema |
 | Ajuda | Uma frase se o controlo for ambíguo | Env vars, papéis internos |
 | Empty | Vitrine sem cartões: título + uma frase (`AppShowcaseEmpty`). Casa sem opt-in ≠ busca/filtro sem resultado | “Carregando…”, grelha vazia, uma linha miúda no canto |
-| Privacidade | No diretório e no envio de mensagem — curta. Login não leva nota de vitrine | Ensaio em todo header |
+| Privacidade | Só no sheet **enviar mensagem**: a mensagem vai para a pessoa (com o nome). Login não leva nota de vitrine | Ensaio no diretório, no header, ou “o e-mail não aparece” |
 | Demo (`DATABASE_READ_ONLY`) | Faixa acima do chrome; `/login` com `member01@demo.example` + Entrar (sem OTP); write em `/api` abre `AppAlertDialog` | `DEMO=1`, snapshot, um `if` por botão |
 
 Proibido na UI (docs e logs podem): intermediado, tenant, membership, schema, demografia, headline, `super_admin`, `SMTP_HOST`, Mailpit, “no banco”, slug como aula. Ops pode ver **identificador na URL**. Membro e visitante: o produto. Ops: a operação, ainda humano.

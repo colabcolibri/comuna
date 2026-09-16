@@ -95,6 +95,7 @@ describe('showcase panel', () => {
     });
     expect(screen.getByLabelText('Nome')).toBeTruthy();
     expect(screen.getByLabelText('Telefone')).toBeTruthy();
+    expect(screen.getByText('A mensagem será enviada para Marina Silva.')).toBeTruthy();
   });
 
   it('shows sending state while contact is in flight', async () => {

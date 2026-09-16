@@ -14,7 +14,7 @@ export const contactMediatedPack = definePack({
     'form.required_missing': 'Preencha nome, e-mail e mensagem.',
     'form.message_min': 'A mensagem precisa ter pelo menos 40 caracteres.',
     'form.message_count': '{count}/{min} caracteres',
-    'form.privacy': 'O e-mail da pessoa não aparece.',
+    'form.send_to': 'A mensagem será enviada para {name}.',
   },
   en: {
     'form.contact': 'Send message',
@@ -29,6 +29,6 @@ export const contactMediatedPack = definePack({
     'form.required_missing': 'Fill in name, email, and message.',
     'form.message_min': 'The message must be at least 40 characters.',
     'form.message_count': '{count}/{min} characters',
-    'form.privacy': 'Their email stays hidden.',
+    'form.send_to': 'This message will be sent to {name}.',
   },
 });

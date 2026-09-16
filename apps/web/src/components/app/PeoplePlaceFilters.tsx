@@ -15,7 +15,21 @@ import {
   type GeoPlace,
   type PlaceLocale,
 } from '@community/places';
-import { Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Slider } from '@community/ui';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupText,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Slider,
+  cn,
+} from '@community/ui';
 
 export type PlaceFilterValue = {
   country: string;
@@ -54,6 +68,8 @@ export function PeoplePlaceFilters({
     setDraft(radius);
   }, [radius]);
 
+  const canRadius = Boolean(value.near);
+
   function applyPlace(place: GeoPlace | null) {
     const coords = placeLatLon(place);
     if (!place || !coords) {
@@ -66,6 +82,12 @@ export function PeoplePlaceFilters({
       nearLabel: placeLabel(place, locale),
       radius: value.radius ?? DEFAULT_LIST_RADIUS_KM,
     });
+  }
+
+  function applyRadius(next: number) {
+    const km = Math.min(LIST_RADIUS_MAX_KM, Math.max(LIST_RADIUS_MIN_KM, next));
+    setDraft(km);
+    onChange({ ...value, radius: km });
   }
 
   return (
@@ -93,22 +115,46 @@ export function PeoplePlaceFilters({
       </div>
       <CitySearchField id={`${id}-city`} label={cityLabel} value={selected} onChange={applyPlace} />
       <div className="min-w-0">
-        <Label htmlFor={`${id}-radius`} className="mb-2 block">
-          {radiusLabel}
-          <span className="ml-2 font-normal text-muted-foreground">{formatListRadiusKm(draft, locale)}</span>
-        </Label>
-        <Slider
-          id={`${id}-radius`}
-          min={LIST_RADIUS_MIN_KM}
-          max={LIST_RADIUS_MAX_KM}
-          step={LIST_RADIUS_STEP_KM}
-          value={[draft]}
-          disabled={!value.near}
-          aria-label={radiusLabel}
-          className="mt-4"
-          onValueChange={(next) => setDraft(next[0] ?? DEFAULT_LIST_RADIUS_KM)}
-          onValueCommit={(next) => onChange({ ...value, radius: next[0] ?? DEFAULT_LIST_RADIUS_KM })}
-        />
+        <Label className="mb-2 block">{radiusLabel}</Label>
+        <InputGroup
+          className={cn('h-11 min-h-11', !canRadius && 'pointer-events-none cursor-not-allowed opacity-50')}
+          data-disabled={!canRadius || undefined}
+          aria-disabled={!canRadius}
+        >
+          <InputGroupAddon align="inline-start" className="gap-0 pr-1 pl-1">
+            <InputGroupButton
+              size="icon-xs"
+              aria-label={`${radiusLabel} -${LIST_RADIUS_STEP_KM}`}
+              disabled={!canRadius || draft <= LIST_RADIUS_MIN_KM}
+              onClick={() => applyRadius(draft - LIST_RADIUS_STEP_KM)}
+            >
+              <ChevronLeftIcon />
+            </InputGroupButton>
+            <InputGroupButton
+              size="icon-xs"
+              aria-label={`${radiusLabel} +${LIST_RADIUS_STEP_KM}`}
+              disabled={!canRadius || draft >= LIST_RADIUS_MAX_KM}
+              onClick={() => applyRadius(draft + LIST_RADIUS_STEP_KM)}
+            >
+              <ChevronRightIcon />
+            </InputGroupButton>
+          </InputGroupAddon>
+          <Slider
+            min={LIST_RADIUS_MIN_KM}
+            max={LIST_RADIUS_MAX_KM}
+            step={LIST_RADIUS_STEP_KM}
+            value={[draft]}
+            disabled={!canRadius}
+            aria-label={radiusLabel}
+            data-slot="input-group-control"
+            className="min-w-0 flex-1 px-2"
+            onValueChange={(next) => setDraft(next[0] ?? DEFAULT_LIST_RADIUS_KM)}
+            onValueCommit={(next) => applyRadius(next[0] ?? DEFAULT_LIST_RADIUS_KM)}
+          />
+          <InputGroupText className="shrink-0 justify-end whitespace-nowrap pr-3 tabular-nums">
+            {formatListRadiusKm(draft, locale)}
+          </InputGroupText>
+        </InputGroup>
       </div>
     </div>
   );

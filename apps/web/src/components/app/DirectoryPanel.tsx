@@ -49,7 +49,6 @@ const CONTENT = mergeContent(
       prev: 'page.prev',
       next: 'page.next',
       size: 'page.size',
-      privacy: 'page.privacy',
       view: 'page.view',
       close: 'page.close',
       filters: 'page.filters',
@@ -96,7 +95,7 @@ const CONTENT = mergeContent(
     requiredMissing: 'form.required_missing',
     messageMin: 'form.message_min',
     messageCount: 'form.message_count',
-    privacy: 'form.privacy',
+    sendTo: 'form.send_to',
   })
 );
 
@@ -272,7 +271,6 @@ export function DirectoryPanel({
           onChange={(next) => go(search, facetValues, cohort, status, 1, pageSize, { ...extras, ...next })}
         />
       </div>
-      <p className="mb-6 max-w-160 text-base text-muted-foreground">{copy.privacy}</p>
       {rows.length === 0 ? (
         <AppShowcaseEmpty title={sliced ? copy.emptyFilteredTitle : copy.emptyTitle} body={sliced ? copy.emptyFiltered : copy.empty} />
       ) : (
