@@ -31,11 +31,11 @@ const lab = {
   membership_id: 'm2',
 };
 
-function wrap(node: ReactNode) {
+function wrap(node: ReactNode, defaultOpen = true) {
   return (
     <LocaleProvider initialLocale="pt-BR">
       <EnabledModulesProvider enabled={['directory']}>
-        <SidebarProvider>{node}</SidebarProvider>
+        <SidebarProvider defaultOpen={defaultOpen}>{node}</SidebarProvider>
       </EnabledModulesProvider>
     </LocaleProvider>
   );
@@ -61,5 +61,14 @@ describe('workspace sidebar', () => {
     expect(screen.getByRole('menuitem', { name: /Lab/ }).getAttribute('aria-current')).toBe('page');
     expect(screen.getByRole('menuitem', { name: /Alumni/ }).getAttribute('aria-current')).toBeNull();
     expect(screen.getByRole('menuitem', { name: /Alumni/ }).getAttribute('href')).toBe('/c/alumni/directory');
+  });
+
+  it('keeps the community group label as a divider when the rail is collapsed', () => {
+    render(wrap(<AppSidebar email="a@b.c" seats={[alumni]} />, false));
+    const label = screen.getByText('Nesta comunidade');
+    expect(label.getAttribute('data-sidebar')).toBe('group-label');
+    expect(label.className).not.toMatch(/-mt-8/);
+    expect(label.className).toMatch(/after:h-px/);
+    expect(label.className).toMatch(/h-8/);
   });
 });
