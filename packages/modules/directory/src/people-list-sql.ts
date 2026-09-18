@@ -1,10 +1,9 @@
 import { DEFAULT_LIST_RADIUS_KM, parseCountryCode, parseListRadius, parseNearLatLon } from '@community/places';
 import { parseAttrFilters } from './catalog';
 import { languagesIsFilterable, parseLanguageFilter } from './language-filter';
-import { availabilityIsFilterable, type ListField } from './list-fields';
+import type { ListField } from './list-fields';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const AVAILABILITY = new Set(['available_for_hire', 'project_partner', 'mentor', 'unavailable']);
 
 export const SHOWCASE_PAGE_SIZES = [24, 48, 96] as const;
 export const SHOWCASE_PAGE_SIZE = 24;
@@ -15,7 +14,7 @@ function parseShowcasePageSize(raw: string | null) {
   return (SHOWCASE_PAGE_SIZES as readonly number[]).includes(n) ? n : SHOWCASE_PAGE_SIZE;
 }
 
-const SELECT = `SELECT m.id, p.full_name, p.avatar_url, p.current_city, p.languages, p.contacts, c.headline, c.bio, c.availability_status, c.custom_attributes`;
+const SELECT = `SELECT m.id, p.full_name, p.avatar_url, p.current_city, p.languages, p.contacts, c.headline, c.bio, c.custom_attributes`;
 const FROM = `FROM network_core.memberships m JOIN person_core.profiles p ON p.user_id = m.user_id JOIN plugin_directory.cards c ON c.membership_id = m.id`;
 const COORD = `pg_input_is_valid(p.current_city->>'lat', 'float8') AND pg_input_is_valid(p.current_city->>'lon', 'float8')`;
 
@@ -24,7 +23,9 @@ function haversineKm(latSlot: number, lonSlot: number) {
 }
 
 function scopeClauses(scope: PeopleListScope) {
-  return scope === 'directory' ? [`m.network_status = 'active'`] : ['c.public_showcase = true'];
+  return scope === 'directory'
+    ? [`m.network_status = 'active'`, 'c.public_directory = true']
+    : ['c.public_showcase = true'];
 }
 
 export type PeopleListScope = 'directory' | 'showcase';
@@ -68,11 +69,6 @@ export function peopleListQuery(input: {
       params.push(cohort);
       clauses.push(`m.cohort_id = $${params.length}`);
     }
-  }
-  const status = input.searchParams.get('status')?.trim() || '';
-  if (AVAILABILITY.has(status) && availabilityIsFilterable(input.fields)) {
-    params.push(status);
-    clauses.push(`c.availability_status = $${params.length}`);
   }
   if (languagesIsFilterable(input.fields)) {
     for (const code of parseLanguageFilter(input.searchParams.get('lang'))) {

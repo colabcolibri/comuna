@@ -17,6 +17,12 @@ export function readFieldValue(field: CatalogField, sources: ProfileSources): un
   }
   if (field.storage === 'card_column') {
     const key = field.column_key || field.name;
+    if (key === 'public_directory') {
+      return sources.card?.[key] ?? true;
+    }
+    if (key === 'public_showcase') {
+      return sources.card?.[key] ?? false;
+    }
     return sources.card?.[key];
   }
   const key = field.column_key || field.name;
@@ -67,7 +73,7 @@ export function cardBodyFromFields(fields: CatalogField[], values: Record<string
   return {
     headline: (values.headline as LocalizedText) || [],
     bio: (values.bio as LocalizedText) || [],
-    availability_status: values.availability_status || null,
+    public_directory: values.public_directory === undefined ? true : Boolean(values.public_directory),
     public_showcase: Boolean(values.public_showcase),
     custom_attributes: attributes,
   };

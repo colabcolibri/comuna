@@ -23,7 +23,6 @@ export const SEED_GROUP_SLUGS = new Set([
   'person',
   'links',
   'community_copy',
-  'availability',
 ]);
 
 export function isFieldLocked(storage: string): boolean {

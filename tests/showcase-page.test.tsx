@@ -17,7 +17,6 @@ const marina = {
     { code: 'en', proficiency: 'fluent' },
   ],
   contacts: { linkedin: 'https://linkedin.com/in/demo-marina' },
-  availability_status: 'mentor',
   custom_attributes: { host_at_home: true },
 };
 

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast, cn } from '@community/ui';
+import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast, cn } from '@community/ui';
+import { AppSwitcher } from '@community/ui-member';
 import { contentFromCatalog, interpolate, pickContent, pickLocalizedText, type LocalizedText } from '@community/identity';
 import type { CatalogField } from '@community/directory';
 import type { GeoPlace } from '@community/places';
@@ -116,16 +117,14 @@ export function FieldControl({
 
   if (field.type === 'boolean') {
     return (
-      <label className="flex items-center gap-3 min-h-11 text-sm min-w-0">
-        <Checkbox id={id} checked={Boolean(value)} onCheckedChange={(checked) => onChange(checked === true)} />
-        <span className="min-w-0 flex-1">
-          <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span className="font-medium">{label}</span>
-            <span className="text-xs text-muted-foreground">{field.required ? copy.required : copy.optional}</span>
-          </span>
-          {description ? <span className="block text-muted-foreground">{description}</span> : null}
-        </span>
-      </label>
+      <AppSwitcher
+        id={id}
+        label={label}
+        status={field.required ? copy.required : copy.optional}
+        description={description}
+        checked={Boolean(value)}
+        onCheckedChange={onChange}
+      />
     );
   }
 

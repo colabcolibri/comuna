@@ -1,8 +1,8 @@
 ---
 title: Design System
 status: review
-version: 1.26
-updated: 2026-09-15
+version: 1.27
+updated: 2026-09-18
 depends_on: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 blocks: []
 ---
@@ -13,7 +13,7 @@ blocks: []
 
 - **Surfaces:** `apps/web` (Stitch + plugins). Admin **não** usa o contrato Stitch; usa os mesmos primitives.
 - **Primary UI stack:** `ts-shadcn` — primitives em `packages/ui/primitives` (`@community/ui`). Compostos membro em `packages/ui/member` e `apps/web/src/components/app/`.
-- **Select / Checkbox / menu / slider / pagination / input-group:** shadcn em `@community/ui` via `pnpm ui:add` (`npx shadcn@latest add --cwd packages/ui/primitives`). `SelectTrigger` + portal; `DropdownMenu`; `Checkbox` Radix; `Slider`; `Pagination`; `InputGroup`; `Tabs`; `Accordion`. Sem `<select>` / `input[type=checkbox]` nas páginas. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`, `AppSheet`, `OpsSheet`, `OpsTabs`, `OpsAccordion`, `OpsHtmlPreview`) é que fecham o produto.
+- **Select / Checkbox / Switch / menu / slider / pagination / input-group:** shadcn em `@community/ui` via `pnpm ui:add` (`npx shadcn@latest add --cwd packages/ui/primitives`). `SelectTrigger` + portal; `DropdownMenu`; `Checkbox` Radix; `Switch` Radix; `Slider`; `Pagination`; `InputGroup`; `Tabs`; `Accordion`. Sem `<select>` / `input[type=checkbox]` nas páginas. Opt-in persistente (vitrine, diretório) usa `AppSwitcher`, não checkbox. `Input` e `Textarea` nativos estilizados (contrato shadcn). Combobox de busca é `OpsCombobox`. `type=file` no avatar fica nativo de propósito. Primitives em `components/ui/*` não se personalizam; token (`--popover`) e compostos (`AppDialog`, `AppSheet`, `AppSwitcher`, `OpsSheet`, `OpsTabs`, `OpsAccordion`, `OpsHtmlPreview`) é que fecham o produto.
 - **Mood:** Directory-first, silêncio, institucional. Contraste com Circle: sem feed, badges rainbow, espaços aninhados. Workspace (trocar de comunidade) **não** é sidebar de espaços — ver `community-context.md`.
 - **Copy:** ver secção Copy. Formulário: grupo = título. Campo = rótulo + **Obrigatório** ou **Opcional** (os dois estados, sempre), no mesmo eixo do nome.
 - **Catálogo (ops):** o grupo é o único card (`OpsAccordion`). Campos e opções = linhas, não caixa dentro de caixa. **Adicionar campo** e **editar campo** abrem `OpsSheet` à direita (mesmo contrato de `AppSheet`); adicionar fica no cabeçalho do grupo. Ações do grupo e da linha são `OpsIconButton` (`icon-sm` + tooltip no hover + `aria-label`). Não expande a linha. Checkbox avulso (`OpsCheckboxFrame`) usa o mesmo recorte do select.
@@ -97,6 +97,7 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `MemberShell` | Sidebar + inset + header; páginas rolam com `ScrollArea`; rodapé no chrome (fora do scroll) | `apps/web/.../MemberShell.tsx` |
 | `AppSidebar` | Destinos desta comunidade; rodapé = perfil + Sair | `apps/web/.../AppSidebar.tsx` |
 | `CommunitySwitcher` | Troca de tenant no header da sidebar (dropdown se 2+) | `apps/web/.../CommunitySwitcher.tsx` |
+| `AppSwitcher` | Opt-in booleano (rótulo + opcional/obrigatório + descrição à esquerda; `Switch` à direita). Base para vitrine e diretório. Não é `CommunitySwitcher`. | `packages/ui/member/src/app-switcher.tsx` |
 | `AppProfileSection` / `AppProfileStack` | Seções do formulário de perfil (h2 + lede + campos; sem Card) | `packages/ui/member/src/app-profile-section.tsx` |
 | `AppFormDock` | CTA Salvar grudado no fundo **só abaixo de sm** | mesmo ficheiro |
 | `OtpCard` | OTP | `OtpCard.tsx` |

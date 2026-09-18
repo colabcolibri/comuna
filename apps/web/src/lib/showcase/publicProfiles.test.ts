@@ -30,7 +30,6 @@ describe('Public Showcase Module (US-0005)', () => {
         },
         headline: [{ locale: 'pt-BR', value: 'Produto' }],
         bio: [{ locale: 'pt-BR', value: 'Bio' }],
-        availability_status: 'mentor',
         custom_attributes: { host_at_home: true, secret: 'no' },
       },
       ['host_at_home']

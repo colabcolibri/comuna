@@ -21,10 +21,6 @@ const LISTS = {
   identity: { directory: LIST.card, showcase: LIST.card },
   pii: { directory: LIST.hidden, showcase: LIST.hidden },
   bio: { directory: LIST.detail, showcase: { filterable: false, placement: 'card' } },
-  availability: {
-    directory: { filterable: false, placement: 'detail' },
-    showcase: { filterable: true, placement: 'card' },
-  },
   links: { directory: LIST.detail, showcase: LIST.detail },
   extraFilter: {
     directory: { filterable: true, placement: 'detail' },
@@ -261,51 +257,33 @@ const PLATFORM_CATALOG_GROUPS = [
           module_slug: 'directory',
           lists: LISTS.bio,
         },
-      ],
-    },
-    {
-      slug: 'availability',
-      label: loc('Disponibilidade', 'Availability'),
-      description: loc(
-        'Como a pessoa quer ser procurada nesta comunidade, e se o cartão entra na vitrine pública.',
-        'How this person wants to be approached in this community, and whether the card appears on the public showcase.'
-      ),
-      sort: 40,
-      columns: 1,
-      fields: [
         {
-          name: 'availability_status',
-          type: 'select',
-          label: loc('Disponibilidade', 'Availability'),
+          name: 'public_directory',
+          type: 'boolean',
+          label: loc('Mostrar no diretório interno', 'Show in the internal directory'),
           description: loc(
-            'O convite desta casa. Indisponível não esconde o cartão; só diz que agora não é hora de pauta nova.',
-            'The ask in this house. Unavailable does not hide the card; it only says now is not the time for a new brief.'
+            'Só quem liga aparece na lista desta comunidade. Desligado, os outros membros não te veem no diretório. Não controla a vitrine.',
+            'Only people who turn this on appear in this community list. When off, other members do not see you in the directory. It does not control the showcase.'
           ),
           span: 1,
           storage: 'card_column',
-          column_key: 'availability_status',
-          sort: 10,
+          column_key: 'public_directory',
+          sort: 25,
           module_slug: 'directory',
-          options: [
-            opt('available_for_hire', 'Disponível para contratação', 'Available for hire'),
-            opt('project_partner', 'Parceiro de projeto', 'Project partner'),
-            opt('mentor', 'Mentoria', 'Mentoring'),
-            opt('unavailable', 'Indisponível', 'Unavailable'),
-          ],
-          lists: LISTS.availability,
+          lists: LISTS.pii,
         },
         {
           name: 'public_showcase',
           type: 'boolean',
           label: loc('Mostrar na vitrine pública', 'Show on the public showcase'),
           description: loc(
-            'Se esta comunidade tem vitrine, o cartão só entra com o seu sim. Desligado, você continua no diretório interno.',
-            'If this community has a showcase, the card only appears with your yes. When off, you still stay in the internal directory.'
+            'Se esta comunidade tem vitrine, o cartão só entra com o seu sim. Não controla o diretório interno.',
+            'If this community has a showcase, the card only appears with your yes. It does not control the internal directory.'
           ),
           span: 1,
           storage: 'card_column',
           column_key: 'public_showcase',
-          sort: 20,
+          sort: 30,
           module_slug: 'showcase',
           lists: LISTS.pii,
         },

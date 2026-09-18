@@ -39,7 +39,6 @@ export default async function DirectoryPage({
       listFields={listed.body.listFields}
       search={query.get('search') || ''}
       facetValues={facetsFromSearchParams(query)}
-      status={query.get('status') || ''}
       extras={extrasFromSearchParams(query)}
       countries={listed.body.countries}
       cohorts={cohorts}

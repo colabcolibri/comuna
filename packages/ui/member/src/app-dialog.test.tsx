@@ -37,8 +37,6 @@ describe('AppShowcaseCard', () => {
         city="São Paulo, Brasil"
         languagesLabel="Idiomas"
         languages={['Português', 'Inglês']}
-        availability="Mentoria"
-        availabilityLabel="Disponibilidade"
         facts={[{ label: 'Recebe em casa', values: [] }]}
         actionLabel="Ver perfil"
         onOpen={() => undefined}
@@ -54,8 +52,6 @@ describe('AppShowcaseCard', () => {
     expect(screen.getByText('Idiomas')).toBeTruthy();
     expect(screen.getByText('Português')).toBeTruthy();
     expect(screen.getByText('Inglês')).toBeTruthy();
-    expect(screen.getByText('Mentoria')).toBeTruthy();
-    expect(screen.getByText('Disponibilidade')).toBeTruthy();
     expect(screen.getByText('Recebe em casa')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Ver perfil: Marina Silva' })).toBeTruthy();
   });
@@ -70,8 +66,6 @@ describe('AppShowcaseCard', () => {
         city="São Paulo, Brasil"
         languagesLabel="Idiomas"
         languages={['Português', 'Inglês']}
-        availability="Mentoria"
-        availabilityLabel="Disponibilidade"
         facts={[{ label: 'Recebe em casa', values: [] }]}
         actionLabel="Ver perfil"
         onOpen={() => undefined}

@@ -1,6 +1,6 @@
 ---
 title: List surfaces
-updated: 2026-09-15
+updated: 2026-09-18
 source: docs/05_architecture.md
 ---
 
@@ -26,7 +26,7 @@ Campo novo: diretório `detail` + filtro off; vitrine `off` + filtro off. Não e
 
 ## Travas
 
-Vitrine: `gender`, `birth_city`, `public_showcase` ficam `off` / filtro false. Nome e foto (`full_name`, `avatar_url`) ficam `card` nas duas listas.
+Vitrine: `gender`, `birth_city`, `public_directory`, `public_showcase` ficam `off` / filtro false. Nome e foto (`full_name`, `avatar_url`) ficam `card` nas duas listas. Presença na lista não vem de `list_fields`: diretório exige `cards.public_directory`; vitrine exige `cards.public_showcase`.
 
 ## Projeção
 

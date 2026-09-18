@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   const card = on
     ? await queryAsMember(
         { userId: resolved.userId, communityId: resolved.seat.id },
-        `SELECT headline, bio, availability_status, public_showcase, custom_attributes
+        `SELECT headline, bio, public_directory, public_showcase, custom_attributes
          FROM plugin_directory.cards WHERE membership_id = $1`,
         [resolved.seat.membership_id]
       )
@@ -64,7 +64,7 @@ export async function PUT(req: NextRequest) {
   const values: Record<string, unknown> = {
     headline,
     bio,
-    availability_status: body.availability_status ?? null,
+    public_directory: body.public_directory === undefined ? true : Boolean(body.public_directory),
     public_showcase: Boolean(body.public_showcase),
     ...attributes.value,
   };
@@ -74,19 +74,19 @@ export async function PUT(req: NextRequest) {
   await queryAsMember(
     { userId: resolved.userId, communityId: resolved.seat.id },
     `INSERT INTO plugin_directory.cards (
-       membership_id, headline, bio, availability_status, public_showcase, custom_attributes
+       membership_id, headline, bio, public_directory, public_showcase, custom_attributes
      ) VALUES ($1, $2::jsonb, $3::jsonb, $4, $5, $6::jsonb)
      ON CONFLICT (membership_id) DO UPDATE SET
        headline = EXCLUDED.headline,
        bio = EXCLUDED.bio,
-       availability_status = EXCLUDED.availability_status,
+       public_directory = EXCLUDED.public_directory,
        public_showcase = EXCLUDED.public_showcase,
        custom_attributes = EXCLUDED.custom_attributes`,
     [
       resolved.seat.membership_id,
       JSON.stringify(headline),
       JSON.stringify(bio),
-      body.availability_status ?? null,
+      body.public_directory === undefined ? true : Boolean(body.public_directory),
       Boolean(body.public_showcase),
       JSON.stringify(attributes.value),
     ]

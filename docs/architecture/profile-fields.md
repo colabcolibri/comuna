@@ -1,6 +1,6 @@
 ---
 title: Profile field catalog
-updated: 2026-09-15
+updated: 2026-09-18
 source: docs/05_architecture.md
 ---
 
@@ -18,7 +18,7 @@ Plugin off **não** mostra campos daquele plugin. O dono é `fields.module_id` (
 | Campo (name, tipo, label, description, **required**, opções, span, grupo) | `plugin_directory.fields` | definição; não gera facet sozinho |
 | Política de lista (filtro, card/detalhe) | `plugin_directory.list_fields` | facets e o que a lista/diálogo pintam |
 | Identidade | `person_core.profiles` | colunas atuais |
-| Headline, bio, availability, vitrine | colunas de `plugin_directory.cards` | coluna / LocalizedText |
+| Headline, bio, availability, diretório, vitrine | colunas de `plugin_directory.cards` | coluna / LocalizedText |
 | Valores custom (boolean, select, texto curto) | `cards.custom_attributes` jsonb | GIN + `@>` |
 
 `name` do campo é o slug de armazenamento. Imutável depois que existir valor. Label é LocalizedText (dado da comunidade). `description` do **grupo** não aparece no perfil — grupo só tem título. Todo **campo** tem `description` curta (formato, exemplo, o que preencher); não é parágrafo de produto. Ops edita essa copy mesmo em campo `locked`. O estado que **sempre** aparece ao lado do rótulo é `required`: **Obrigatório** ou **Opcional**. Chrome da página (salvar, erro, esses dois vocábulos) continua pack + `CONTENT`.
@@ -28,7 +28,7 @@ Plugin off **não** mostra campos daquele plugin. O dono é `fields.module_id` (
 Cada campo tem `storage`:
 
 - `person` — coluna/json conhecido em `person_core.profiles` (`column_key`: `full_name`, `gender`, `birth_city`, `avatar_url`, …). Avatar: o valor é URL estável da app; o ficheiro está no store (`docs/architecture/media.md`).
-- `card_column` — `headline`, `bio`, `availability_status`, `public_showcase`.
+- `card_column` — `headline`, `bio`, `availability_status`, `public_directory`, `public_showcase`. `public_directory` e `public_showcase` são independentes: um não implica o outro.
 - `attributes` — chave em `custom_attributes`. Valor **escalar** (`true`, `"yes"`, texto curto). Sem LocalizedText aninhado no blob.
 
 `storage` **não** implica plugin. `module_id` null = núcleo. Directory e showcase marcam o próprio `module_id` no seed (ex.: `public_showcase` é `card_column` no schema directory e **módulo** showcase).
@@ -40,10 +40,10 @@ Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejei
 | slug | Origem | Campos | Storage |
 | --- | --- | --- | --- |
 | `identity` | core (não some) | nome, avatar (`image`) | `person` |
-| `community_copy` | directory | título, apresentação | `card_column` |
+| `community_copy` | directory + showcase | título, apresentação, `public_directory` (`directory`), `public_showcase` (`showcase`) | `card_column` |
 | `person` | core | gênero, cidades, idiomas (12 códigos + nível) | `person` |
 | `links` | core | linkedin, github, portfólio | `person` |
-| `availability` | directory + showcase | availability (`directory`); `public_showcase` (`showcase`) | `card_column` |
+| `availability` | directory | `availability_status` quando o tenant liga o campo | `card_column` |
 | (custom) | directory | o que a comunidade pedir | `attributes` |
 
 Hospitalidade (`host_at_home`) **não** é seed de plataforma. Só a comunidade `demo` (Alumni Instituto Atlântico) ganha esse grupo no `db:seed`. As outras cinco casas de demo trazem grupos `attributes` próprios (negócio incubado, prática de dados, mentoria, ofício artístico, território). Comunidade nova criada no admin: núcleo + headline/bio/availability + grupo `custom` vazio. Ops cria extras por tenant.

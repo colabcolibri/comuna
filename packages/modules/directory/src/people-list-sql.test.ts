@@ -10,15 +10,6 @@ const host = parseListField({
   placement: 'detail',
 })!;
 
-const availability = parseListField({
-  name: 'availability_status',
-  type: 'select',
-  storage: 'card_column',
-  column_key: 'availability_status',
-  filterable: true,
-  placement: 'card',
-})!;
-
 const languages = parseListField({
   name: 'languages',
   type: 'checkbox',
@@ -45,16 +36,18 @@ describe('peopleListQuery', () => {
     expect(built.text.match(/JOIN/g)?.length).toBe(2);
     expect(built.text).toContain('custom_attributes @>');
     expect(built.text).toContain("m.network_status = 'active'");
+    expect(built.text).toContain('c.public_directory = true');
+    expect(built.text).not.toContain('c.public_showcase = true');
     expect(built.params).toEqual(['c1', '{"host_at_home":true}', '%ana%', 24, 0]);
     expect(built.text).toContain('LIMIT $');
     expect(built.pageSize).toBe(24);
   });
 
-  it('scopes showcase with public_showcase and availability, not cohort', () => {
+  it('scopes showcase with public_showcase and ignores cohort', () => {
     const built = peopleListQuery({
       communityId: 'c1',
-      searchParams: new URLSearchParams('status=mentor&cohort=not-a-uuid'),
-      fields: [host, availability],
+      searchParams: new URLSearchParams('cohort=not-a-uuid'),
+      fields: [host],
       scope: 'showcase',
     });
     expect(built.ok).toBe(true);
@@ -62,7 +55,7 @@ describe('peopleListQuery', () => {
       return;
     }
     expect(built.text).toContain('c.public_showcase = true');
-    expect(built.text).toContain('c.availability_status = $');
+    expect(built.text).not.toContain('c.public_directory = true');
     expect(built.text).not.toContain('cohort_id');
   });
 
@@ -115,20 +108,6 @@ describe('peopleListQuery', () => {
     expect(rejected.ok && rejected.pageSize).toBe(24);
   });
 
-  it('ignores showcase status when availability is not filterable', () => {
-    const built = peopleListQuery({
-      communityId: 'c1',
-      searchParams: new URLSearchParams('status=mentor'),
-      fields: [host],
-      scope: 'showcase',
-    });
-    expect(built.ok).toBe(true);
-    if (built.ok === false) {
-      return;
-    }
-    expect(built.text).not.toContain('availability_status =');
-  });
-
   it('filters by spoken language codes when languages are filterable', () => {
     const built = peopleListQuery({
       communityId: 'c1',
@@ -158,20 +137,6 @@ describe('peopleListQuery', () => {
       return;
     }
     expect(built.text).not.toContain('p.languages @>');
-  });
-
-  it('applies directory status when availability is filterable on that list', () => {
-    const built = peopleListQuery({
-      communityId: 'c1',
-      searchParams: new URLSearchParams('status=mentor'),
-      fields: [availability],
-      scope: 'directory',
-    });
-    expect(built.ok).toBe(true);
-    if (built.ok === false) {
-      return;
-    }
-    expect(built.text).toContain('c.availability_status = $');
   });
 
   it('filters directory by country and ignores junk codes', () => {
@@ -228,6 +193,7 @@ describe('peopleListQuery', () => {
   it('lists distinct countries without search or radius', () => {
     const built = peopleListCountriesQuery({ communityId: 'c1', scope: 'directory' });
     expect(built.text).toContain('DISTINCT p.current_country');
+    expect(built.text).toContain('c.public_directory = true');
     expect(built.text).not.toContain('ILIKE');
     expect(built.text).not.toContain('6371');
     expect(built.params).toEqual(['c1']);

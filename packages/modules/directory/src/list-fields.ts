@@ -13,7 +13,7 @@ export type ListField = CatalogField & {
   placement: ListPlacement;
 };
 
-export const SHOWCASE_FORBIDDEN_KEYS = new Set(['gender', 'birth_city', 'public_showcase']);
+export const SHOWCASE_FORBIDDEN_KEYS = new Set(['gender', 'birth_city', 'public_directory', 'public_showcase']);
 export const IDENTITY_LOCKED_NAMES = new Set(['full_name', 'avatar_url']);
 
 export function parseListKey(raw: unknown): ListKey | null {
@@ -69,19 +69,13 @@ export const PERSON_VIEW_SLOTS = new Set([
   'languages',
   'headline',
   'bio',
-  'availability_status',
   'public_showcase',
+  'public_directory',
 ]);
 
 export function isPersonViewSlot(field: { name: string; column_key: string | null }): boolean {
   const key = field.column_key || field.name;
   return PERSON_VIEW_SLOTS.has(key) || key.startsWith('contacts.');
-}
-
-export function availabilityIsFilterable(fields: ListField[]): boolean {
-  return fields.some(
-    (field) => (field.column_key === 'availability_status' || field.name === 'availability_status') && field.filterable
-  );
 }
 
 export function showcaseFieldForbidden(field: { name: string; column_key: string | null }): boolean {

@@ -69,7 +69,6 @@ describe('profile forms', () => {
                 { locale: 'en', value: 'H' },
               ],
               bio: [],
-              availability_status: null,
               custom_attributes: {},
             },
           }),

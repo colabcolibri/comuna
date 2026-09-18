@@ -1,6 +1,6 @@
 ---
 title: Public showcase projection
-updated: 2026-09-15
+updated: 2026-09-18
 source: docs/05_architecture.md
 ---
 
@@ -10,7 +10,7 @@ Volta: `docs/05_architecture.md`. Lista: `GET /api/profiles/public`. Detalhe: o 
 
 A vitrine é uma **página pública**, não o workspace. Chrome: `AppPublicChrome` — **sem sidebar**. Header: marca da comunidade, locale, tema, e um CTA: **Entrar** (visitante) ou **Comunidade** (sessão; vai ao diretório do assento). O documento rola na página; não há `SidebarProvider` nem `ScrollArea` de app.
 
-Título e texto vêm do admin (`settings.showcase_title`, `settings.showcase_description`). Vazio: título = `communities.name`; texto = `settings.description` ou o pack. Opt-in continua a ser o predicado dos dados (`cards.public_showcase = true` **e** plugin `showcase` enabled).
+Título e texto vêm do admin (`settings.showcase_title`, `settings.showcase_description`). Vazio: título = `communities.name`; texto = `settings.description` ou o pack. Opt-in da vitrine é o predicado dos dados (`cards.public_showcase = true` **e** plugin `showcase` enabled). `public_directory` não entra nesta query.
 
 Só entra quem optou. Sem e-mail, WhatsApp, gênero, cidade de nascimento. Mensagem pela plataforma; o e-mail nunca entra na lista nem no diálogo.
 

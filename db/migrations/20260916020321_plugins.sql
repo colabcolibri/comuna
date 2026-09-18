@@ -23,7 +23,6 @@ CREATE TABLE IF NOT EXISTS plugin_directory.cards (
   membership_id uuid PRIMARY KEY REFERENCES network_core.memberships (id),
   headline jsonb NOT NULL DEFAULT '[]'::jsonb,
   bio jsonb NOT NULL DEFAULT '[]'::jsonb,
-  availability_status text,
   public_showcase boolean NOT NULL DEFAULT false,
   custom_attributes jsonb NOT NULL DEFAULT '{}'::jsonb,
   CONSTRAINT cards_headline_array_chk CHECK (jsonb_typeof(headline) = 'array'),

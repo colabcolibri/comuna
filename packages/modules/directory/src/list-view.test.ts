@@ -54,7 +54,6 @@ describe('projectPersonView', () => {
     contacts: { linkedin: 'https://linkedin.com/in/demo' },
     headline: [{ locale: 'pt-BR', value: 'Produto' }],
     bio: [{ locale: 'pt-BR', value: 'Mentora.' }],
-    availability_status: 'mentor',
     custom_attributes: { host_at_home: true },
   };
 
@@ -99,7 +98,6 @@ describe('projectPersonView', () => {
       density: 'card',
       locale: 'pt-BR',
       cityLabel: 'São Paulo',
-      availabilityLabel: 'Mentoria',
     });
     expect(card.languages.map((item) => item.label)).toEqual(['Português']);
     expect(card.languagesHeading).toBeNull();
@@ -112,7 +110,6 @@ describe('projectPersonView', () => {
       density: 'detail',
       locale: 'pt-BR',
       cityLabel: 'São Paulo',
-      availabilityLabel: 'Mentoria',
     });
     expect(detail.facts[0]).toEqual({ name: 'host_at_home', label: 'Recebe em casa', values: [] });
     const skills = parseListField({
@@ -132,7 +129,6 @@ describe('projectPersonView', () => {
       density: 'detail',
       locale: 'pt-BR',
       cityLabel: 'São Paulo',
-      availabilityLabel: 'Mentoria',
     });
     expect(withSkills.facts.find((item) => item.name === 'skills')).toEqual({
       name: 'skills',

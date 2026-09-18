@@ -7,7 +7,6 @@ import { CONTACT_MESSAGE_MIN, parseContactPayload } from '@community/contact-med
 import { projectPersonView, type ListField } from '@community/directory';
 import { interpolate } from '@community/identity';
 import { displayPlaceLocality } from '@community/places';
-import { availabilityLabel } from '@/lib/people/availability';
 import { sendPersonContact } from '@/lib/api/contact';
 import type { PersonCard } from '@/lib/people/person-card';
 
@@ -88,12 +87,9 @@ export function PersonInspect({
         density: 'detail',
         locale,
         cityLabel: displayPlaceLocality(profile.current_city, locale),
-        availabilityLabel: availabilityLabel(profile.availability_status, copy),
       })
     : null;
-  const hasMeta = Boolean(
-    view && (view.languages.length > 0 || view.availability || view.facts.length > 0 || view.links.length > 0)
-  );
+  const hasMeta = Boolean(view && (view.languages.length > 0 || view.facts.length > 0 || view.links.length > 0));
   const split = Boolean((view?.headline || view?.summary) && hasMeta);
   const messageLen = message.trim().length;
   const messageCountLabel = interpolate(copy.messageCount || '{count}/{min}', {
@@ -144,12 +140,6 @@ export function PersonInspect({
                   <AppPersonFieldGroup
                     label={view.languagesHeading || copy.languages}
                     values={view.languages.map((item) => item.label)}
-                  />
-                ) : null}
-                {view.availability ? (
-                  <AppPersonFieldGroup
-                    label={view.availabilityHeading || copy.availability}
-                    values={[view.availability]}
                   />
                 ) : null}
                 {view.facts.map((item) => (

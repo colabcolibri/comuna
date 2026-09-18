@@ -17,8 +17,6 @@ type AppPersonCardProps = {
   summary?: string | null;
   languagesLabel?: string;
   languages?: string[];
-  availabilityLabel?: string;
-  availability?: string | null;
   facts?: { label: string; values: string[] }[];
   actionLabel: string;
   onOpen: () => void;
@@ -33,8 +31,6 @@ export function AppPersonCard({
   summary,
   languagesLabel,
   languages,
-  availabilityLabel,
-  availability,
   facts,
   actionLabel,
   onOpen,
@@ -86,9 +82,6 @@ export function AppPersonCard({
             <>
               {spoken && spoken.length > 0 ? (
                 <AppPersonFieldGroup label={languagesLabel || ''} values={spoken} />
-              ) : null}
-              {availability ? (
-                <AppPersonFieldGroup label={availabilityLabel || ''} values={[availability]} />
               ) : null}
               {facts?.map((item) => (
                 <AppPersonFieldGroup key={item.label} label={item.label} values={item.values} />

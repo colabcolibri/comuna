@@ -62,10 +62,10 @@ describe('emails studio', () => {
     expect(screen.getByRole('tab', { name: 'OTP membro' })).toBeTruthy();
     expect(screen.queryByRole('combobox')).toBeNull();
     expect((screen.getByLabelText('Assunto') as HTMLInputElement).value).toBe(
-      'Seu código {{product_name}}'
+      'Código para entrar em {{product_name}}'
     );
     expect((screen.getByLabelText('Título') as HTMLInputElement).value).toBe(
-      'Entrar em {{product_name}}'
+      'Seu código de acesso'
     );
     await waitFor(() => expect(screen.getByRole('button', { name: '{{product_name}}' })).toBeTruthy());
     expect(screen.queryByRole('button', { name: '{{code}}' })).toBeNull();
@@ -78,7 +78,7 @@ describe('emails studio', () => {
         frame.getAttribute('srcdoc') ||
         '';
       expect(html).toContain('123456');
-      expect(html).toContain('Entrar em Rede');
+      expect(html).toContain('Seu código de acesso');
     });
   });
 
@@ -86,7 +86,7 @@ describe('emails studio', () => {
     render(wrap(<EmailsPanel />));
     fireEvent.keyDown(screen.getByRole('tab', { name: 'OTP membro' }), { key: 'ArrowRight' });
     await waitFor(() =>
-      expect((screen.getByLabelText('Título') as HTMLInputElement).value).toBe('Acesso ops')
+      expect((screen.getByLabelText('Título') as HTMLInputElement).value).toBe('Entrar no admin')
     );
   });
 

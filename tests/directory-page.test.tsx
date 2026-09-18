@@ -12,7 +12,6 @@ const marina = {
   current_city: { label: { 'pt-BR': 'São Paulo', en: 'Sao Paulo' } },
   headline: [{ locale: 'pt-BR', value: 'Produto e comunidades' }],
   bio: [{ locale: 'pt-BR', value: 'Mentora.' }],
-  availability_status: 'mentor',
   languages: [{ code: 'pt' }],
   contacts: { linkedin: 'https://linkedin.com/in/demo-marina' },
   custom_attributes: {},

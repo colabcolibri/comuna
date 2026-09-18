@@ -2,7 +2,7 @@
 title: Database Design
 status: review
 version: 2.8
-updated: 2026-09-16
+updated: 2026-09-18
 depends_on: [05_architecture.md]
 blocks: [07_api_contracts.md]
 ---
@@ -132,7 +132,8 @@ erDiagram
         jsonb headline "LocalizedText"
         jsonb bio "LocalizedText"
         string availability_status "available_for_hire | project_partner | mentor | unavailable"
-        boolean public_showcase
+        boolean public_directory "Opt-in do diretório interno; default true"
+        boolean public_showcase "Opt-in da vitrine; independente do diretório"
         jsonb custom_attributes "escalares; chaves = fields.name"
     }
 
@@ -202,7 +203,7 @@ erDiagram
 ### 1. Uma Pessoa (perfil-base), Múltiplas Comunidades (`memberships`)
 - Uma conta `users` + perfil-base (identidade + demografia + cidades geocodificadas).
 - A mesma pessoa pode ser `member` numa comunidade e `coordinator` noutra.
-- Headline, bio, vitrine, availability: colunas de `plugin_directory.cards`. Catálogo em `field_groups` / `fields`. `custom_attributes` guarda só valores escalares de campos `storage=attributes`; não substitui LocalizedText nem a definição do campo.
+- Headline, bio, availability, `public_directory` e `public_showcase`: colunas de `plugin_directory.cards`. Os dois opt-ins são independentes. Catálogo em `field_groups` / `fields`. `custom_attributes` guarda só valores escalares de campos `storage=attributes`; não substitui LocalizedText nem a definição do campo.
 
 ### 2. Isolamento por `community_id` (Tenant ID)
 - Todas as consultas, buscas no diretório e ações administrativas filtram obrigatoriamente pelo `community_id`.
@@ -221,7 +222,7 @@ erDiagram
 3. **`network_core`**: `communities`, `memberships` (`network_role`: `member | coordinator`), `community_modules`, `cohorts` (núcleo de agrupamento; UI extra pode ser plugin depois).
 3b. **`ops_core`**: `platform_settings` (uma row) e `email_templates` (overlay por kind+locale). Não é plugin.
 4. **`plugin_core`**: catálogo `modules`.
-5. **`plugin_directory`**: `cards` (headline/bio LocalizedText, availability, vitrine, `custom_attributes`); `field_groups` e `fields` por `community_id`; `list_fields` (filtro e placement por lista). Skills no ER legado `network_core.skills` ainda não existem em SQL.
+5. **`plugin_directory`**: `cards` (headline/bio LocalizedText, availability, `public_directory`, `public_showcase`, `custom_attributes`); `field_groups` e `fields` por `community_id`; `list_fields` (filtro e placement por lista). Skills no ER legado `network_core.skills` ainda não existem em SQL.
 6. **`plugin_contact`**: `messages` (pedido mediado: nome e e-mail obrigatórios, telefone opcional, corpo ≥ 40). Sem inbox in-app.
 
 `community_admin` fora da v2.0.0.

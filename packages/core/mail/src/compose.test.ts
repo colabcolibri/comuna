@@ -21,7 +21,7 @@ describe('composeMail', () => {
     expect(mail.subject).toContain('Rede');
     expect(mail.html).toContain('max-width:600px');
     expect(mail.html).toContain('123456');
-    expect(mail.html).toContain('Entrar em Rede');
+    expect(mail.html).toContain('Seu código de acesso');
     expect(mail.html).toContain('IBM Plex Sans');
     expect(mail.html).toContain('text-align:center');
     expect(mail.html).toContain('#f3f0ea');
@@ -76,8 +76,8 @@ describe('composeMail', () => {
       vars: { ...previewVarsFor('contact_notice', settings), sender_phone: '+55 11 99999-0000' },
       settings,
     });
-    expect(mail.subject).toBe('Contato em Demo');
-    expect(mail.html).toContain('Novo recado em Demo');
+    expect(mail.subject).toBe('Mensagem para você em Demo');
+    expect(mail.html).toContain('Alguém escreveu pela Demo');
     expect(mail.html).toContain('+55 11 99999-0000');
     expect(mail.text).toContain('+55 11 99999-0000');
   });

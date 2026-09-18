@@ -172,19 +172,17 @@ async function seed(url, email) {
         const card = membershipCard(slug, person);
         await client.query(
           `INSERT INTO plugin_directory.cards (
-             membership_id, headline, bio, availability_status, public_showcase, custom_attributes
-           ) VALUES ($1, $2::jsonb, $3::jsonb, $4, $5, $6::jsonb)
+             membership_id, headline, bio, public_showcase, custom_attributes
+           ) VALUES ($1, $2::jsonb, $3::jsonb, $4, $5::jsonb)
            ON CONFLICT (membership_id) DO UPDATE SET
              headline = EXCLUDED.headline,
              bio = EXCLUDED.bio,
-             availability_status = EXCLUDED.availability_status,
              public_showcase = EXCLUDED.public_showcase,
              custom_attributes = EXCLUDED.custom_attributes`,
           [
             membership.rows[0].id,
             JSON.stringify(card.headline),
             JSON.stringify(card.bio),
-            card.availability,
             card.public_showcase,
             JSON.stringify(card.attributes),
           ]

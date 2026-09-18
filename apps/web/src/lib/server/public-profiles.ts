@@ -2,7 +2,6 @@ import { query } from '@community/db';
 import {
   LIST_FIELDS_SQL,
   SHOWCASE_PAGE_SIZE,
-  availabilityIsFilterable,
   listedAttributeNames,
   parseListFields,
   peopleListCountriesQuery,
@@ -40,7 +39,6 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
       data: [],
       facets,
       listFields,
-      availabilityFilter: availabilityIsFilterable(listFields),
       meta: emptyMeta,
       message: built.message,
     };
@@ -56,7 +54,6 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
     data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, keys)),
     facets,
     listFields,
-    availabilityFilter: availabilityIsFilterable(listFields),
     countries: countries.rows.map((row) => row.country).filter(Boolean),
     meta: { page: built.page, pageSize: built.pageSize, total: counted.rows[0]?.total ?? 0 },
   };

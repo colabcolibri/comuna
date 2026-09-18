@@ -9,7 +9,6 @@ export type PersonCard = {
   contacts: Record<string, string>;
   headline: unknown;
   bio: unknown;
-  availability_status: string | null;
   custom_attributes: Record<string, unknown>;
 };
 
@@ -52,7 +51,6 @@ export function toPersonCard(row: Record<string, unknown>, attributeKeys: string
     contacts: publicContacts(row.contacts),
     headline: row.headline ?? [],
     bio: row.bio ?? [],
-    availability_status: typeof row.availability_status === 'string' ? row.availability_status : null,
     custom_attributes: publicAttributes(row.custom_attributes, attributeKeys),
   };
 }

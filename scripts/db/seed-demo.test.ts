@@ -59,7 +59,6 @@ describe('demo member seed list', () => {
     expect(helena.headline[0].locale).toBe('pt-BR');
     expect(helena.public_showcase).toBe(true);
     expect(people.some((person) => person.public_showcase === false)).toBe(true);
-    expect(people.some((person) => person.availability === 'mentor')).toBe(true);
     expect(people.every((person) => !/^Membro demo/.test(person.full_name))).toBe(true);
     expect(new Set(people.map((person) => person.full_name)).size).toBe(300);
   });

@@ -14,7 +14,6 @@ export function directoryQueryString(
   search: string,
   facets: Record<string, string>,
   cohort = '',
-  status = '',
   page = 1,
   size = SHOWCASE_PAGE_SIZE,
   extras: ListQueryExtras = {}
@@ -31,9 +30,6 @@ export function directoryQueryString(
   });
   if (cohort) {
     params.set('cohort', cohort);
-  }
-  if (status) {
-    params.set('status', status);
   }
   const country = parseCountryCode(extras.country || '');
   if (country) {

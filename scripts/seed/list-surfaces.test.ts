@@ -46,7 +46,7 @@ describe('seed list surfaces', () => {
       'portfolio',
       'headline',
       'bio',
-      'availability_status',
+      'public_directory',
       'public_showcase',
     ]);
     for (const field of fields) {
@@ -59,14 +59,9 @@ describe('seed list surfaces', () => {
     });
     expect(listsFor({ name: 'bio', lists: LISTS.bio }).directory.placement).toBe('detail');
     expect(listsFor({ name: 'bio', lists: LISTS.bio }).showcase.placement).toBe('card');
-    expect(listsFor({ name: 'availability_status', lists: LISTS.availability }).directory.placement).toBe('detail');
-    expect(listsFor({ name: 'availability_status', lists: LISTS.availability }).showcase.filterable).toBe(true);
     expect(listsFor({ name: 'languages', lists: LISTS.languages }).directory.filterable).toBe(true);
     expect(listsFor({ name: 'languages', lists: LISTS.languages }).showcase.filterable).toBe(true);
-    expect(listsFor({ name: 'availability_status', lists: LISTS.availability }).directory).toEqual({
-      filterable: false,
-      placement: 'detail',
-    });
+    expect(platformFields().some((field) => field.name === 'availability_status')).toBe(false);
   });
 
   it('maps tenant extras with listFilterable onto both lists as detail + filter', () => {
@@ -113,21 +108,18 @@ describe('seed list surfaces', () => {
         contacts: helena.contacts,
         headline: card.headline,
         bio: card.bio,
-        availability_status: card.availability,
         custom_attributes: card.attributes,
       },
       fields,
       density: 'card',
       locale: 'pt-BR',
       cityLabel: 'São Paulo',
-      availabilityLabel: 'Mentoria',
     });
     expect(view.name).toBe('Helena Prado');
     expect(view.city).toBe('São Paulo');
     expect(view.headline).toBeTruthy();
     expect(view.summary).toBeTruthy();
     expect(view.languages.map((item) => item.code)).toEqual(['en', 'pt']);
-    expect(view.availability).toBe('Mentoria');
     expect(view.facts).toEqual([]);
     expect(view.links).toEqual([]);
     const detail = projectPersonView({
@@ -138,14 +130,12 @@ describe('seed list surfaces', () => {
         contacts: helena.contacts,
         headline: card.headline,
         bio: card.bio,
-        availability_status: card.availability,
         custom_attributes: card.attributes,
       },
       fields,
       density: 'detail',
       locale: 'pt-BR',
       cityLabel: 'São Paulo',
-      availabilityLabel: 'Mentoria',
     });
     expect(detail.facts.some((item) => item.name === 'host_at_home')).toBe(true);
     expect(detail.links.map((item) => item.key).sort()).toEqual(['github', 'linkedin', 'portfolio']);
@@ -164,17 +154,14 @@ describe('seed list surfaces', () => {
         contacts: helena.contacts,
         headline: card.headline,
         bio: card.bio,
-        availability_status: card.availability,
         custom_attributes: {},
       },
       fields,
       density: 'card',
       locale: 'pt-BR',
       cityLabel: 'São Paulo',
-      availabilityLabel: 'Mentoria',
     });
     expect(row.summary).toBeNull();
-    expect(row.availability).toBeNull();
     expect(row.headline).toBeTruthy();
     const dialog = projectPersonView({
       profile: {
@@ -184,14 +171,12 @@ describe('seed list surfaces', () => {
         contacts: helena.contacts,
         headline: card.headline,
         bio: card.bio,
-        availability_status: card.availability,
         custom_attributes: {},
       },
       fields,
       density: 'detail',
       locale: 'pt-BR',
       cityLabel: 'São Paulo',
-      availabilityLabel: 'Mentoria',
     });
     expect(dialog.summary).toBeTruthy();
   });

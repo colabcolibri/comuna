@@ -51,10 +51,6 @@ export function PeopleFilters({
   facets,
   facetValues,
   onFacets,
-  status,
-  onStatus,
-  statusLabel,
-  statusOptions,
   languages,
   onLanguages,
   languagesLabel,
@@ -64,10 +60,6 @@ export function PeopleFilters({
   facets: CatalogField[];
   facetValues: Record<string, string>;
   onFacets: (next: Record<string, string>) => void;
-  status?: string;
-  onStatus?: (next: string) => void;
-  statusLabel?: string;
-  statusOptions?: { value: string; label: string }[];
   languages?: string;
   onLanguages?: (next: string) => void;
   languagesLabel?: string;
@@ -81,24 +73,6 @@ export function PeopleFilters({
           value={languages || ''}
           onChange={onLanguages}
         />
-      ) : null}
-      {onStatus && statusOptions?.length ? (
-        <div className="min-w-0 space-y-2">
-          <Label htmlFor="people-filter-status">{statusLabel}</Label>
-          <Select value={status || 'all'} onValueChange={(value) => onStatus(value === 'all' ? '' : value)}>
-            <SelectTrigger id="people-filter-status" className="min-h-11 w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{allLabel}</SelectItem>
-              {statusOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
       ) : null}
       {facets.map((field) => (
         <FacetControl

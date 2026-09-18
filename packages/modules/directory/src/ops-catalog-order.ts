@@ -103,7 +103,6 @@ const SEED_GROUP_ORDER = [
   'community_copy',
   'person',
   'links',
-  'availability',
   'hospitality',
   'custom',
 ] as const;
@@ -120,7 +119,7 @@ const SEED_FIELD_ORDER: Record<string, number> = {
   linkedin: 10,
   github: 20,
   portfolio: 30,
-  availability_status: 10,
+  public_directory: 15,
   public_showcase: 20,
   host_at_home: 10,
 };

@@ -1,6 +1,6 @@
 ---
 title: Transactional email
-updated: 2026-09-15
+updated: 2026-09-18
 source: docs/05_architecture.md
 ---
 
@@ -33,6 +33,8 @@ Ops não cola HTML nesses blocos.
 Por kind e locale: `subject`, `heading`, `body` (texto simples, `{{var}}` no texto). O renderer joga isso nos buracos do template.
 
 Defaults: `packages/core/mail/src/copy.ts`. Overlay: `ops_core.email_templates`. `html_body` / `text_body` são snapshot gerado na gravação, não fonte. Ausência de row (ou heading+body vazios) = default. Reset apaga o overlay.
+
+Voz: transacional, não marketing. Cada kind diz o que aconteceu, o que fazer agora, e o que ignorar se a pessoa não pediu. OTP: validade **10 minutos** (igual a `issue-otp`). `ops_otp` fala **admin**, não “ops”. `contact_notice` explica que responder o e-mail vai para quem escreveu (Reply-To). Sem jargão de produto (`ops`, `tenant`, `recado`).
 
 ## Kinds (catálogo fechado)
 

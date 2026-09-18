@@ -13,3 +13,4 @@ export { AppShowcaseEmpty, AppShowcasePager, AppShowcasePortal } from './app-sho
 export { AppPublicChrome } from './app-public-chrome';
 export { FieldGrid, fieldSpanClass } from './field-grid';
 export { AppFormDock, AppProfileSection, AppProfileStack } from './app-profile-section';
+export { AppSwitcher } from './app-switcher';

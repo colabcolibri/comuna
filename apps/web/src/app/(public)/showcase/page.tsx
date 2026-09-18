@@ -44,7 +44,6 @@ export default async function ShowcasePage({
         listFields={listed.listFields}
         search={query.get('search') || ''}
         facetValues={facetsFromSearchParams(query)}
-        status={query.get('status') || ''}
         extras={extrasFromSearchParams(query)}
         countries={listed.countries || []}
         page={listed.meta.page}

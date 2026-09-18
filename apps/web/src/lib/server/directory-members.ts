@@ -1,7 +1,6 @@
 import { queryAsMember } from '@community/db';
 import {
   LIST_FIELDS_SQL,
-  availabilityIsFilterable,
   directoryContribution,
   listedAttributeNames,
   parseListFields,
@@ -42,7 +41,6 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
       data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, keys)),
       facets: attributeFacets(listFields),
       listFields,
-      availabilityFilter: availabilityIsFilterable(listFields),
       countries: countries.rows.map((row) => row.country).filter(Boolean),
       meta: {
         page: built.page,

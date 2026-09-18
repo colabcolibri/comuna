@@ -50,14 +50,12 @@ function attributesFor(slug, n, person) {
 
 function membershipCard(slug, person) {
   const n = person.n;
-  const availability = ['available_for_hire', 'project_partner', 'mentor', 'unavailable'][n % 4];
   const public_showcase = slug === 'mentoria-norte' ? false : n % 6 !== 0;
   const attributes = attributesFor(slug, n, person);
   if (slug === 'demo' && person.headline && person.bio) {
     return {
       headline: person.headline,
       bio: person.bio,
-      availability: person.availability,
       public_showcase: person.public_showcase,
       attributes,
     };
@@ -66,7 +64,6 @@ function membershipCard(slug, person) {
   return {
     headline: copy.headline,
     bio: copy.bio,
-    availability,
     public_showcase,
     attributes,
   };

@@ -279,7 +279,6 @@ const PEOPLE = [
       'Desenha o caminho de quem entra numa comunidade e precisa achar gente, não feed. Mentora de quem está mudando de carreira depois dos 30. Mora em São Paulo, ainda indica turma do Instituto e recusa o tom de palco: se a pergunta for sincera, responde; se for networking de evento, deixa quieto.',
       'Designs the path for people who join a community to find people, not a feed. Mentors career switchers after 30. Lives in Sao Paulo, still points people to the Instituto cohort, and refuses conference-stage tone: honest questions get an answer; event networking does not.'
     ),
-    availability: 'mentor',
     public_showcase: true,
     host_at_home: true,
   },
@@ -297,7 +296,6 @@ const PEOPLE = [
       'Cuida de pipelines e qualidade de dados em organizações que ainda misturam planilha com sistema. Gosta de pergunta simples: de onde veio esse número?',
       'Owns pipelines and data quality in organizations that still mix spreadsheets with systems. Likes the simple question: where did this number come from?'
     ),
-    availability: 'available_for_hire',
     public_showcase: true,
     host_at_home: false,
   },
@@ -319,7 +317,6 @@ const PEOPLE = [
       'Prefere diretório a timeline. Trabalha em serviços pequenos, contratos claros e menos estado escondido no cliente.',
       'Prefers a directory to a timeline. Works on small services, clear contracts, and less hidden state on the client.'
     ),
-    availability: 'project_partner',
     public_showcase: true,
     host_at_home: false,
   },
@@ -341,7 +338,6 @@ const PEOPLE = [
       'Liga universidade e prática em educação. Não coloca e-mail na vitrine: o contato passa pela coordenação da rede.',
       'Bridges university and practice in education. Email stays off the showcase: contact goes through the network coordinators.'
     ),
-    availability: 'unavailable',
     public_showcase: false,
     host_at_home: true,
   },
@@ -362,7 +358,6 @@ const PEOPLE = [
       'Revisa contratos de sócios, investimento e prestadores. Explica o risco em português, não em latim de petição.',
       'Reviews shareholder, investment and contractor agreements. Explains risk in plain language, not petition Latin.'
     ),
-    availability: 'available_for_hire',
     public_showcase: true,
     host_at_home: false,
   },
@@ -383,7 +378,6 @@ const PEOPLE = [
       'Trabalha com fluxos para pacientes e clínicas. Obsessão atual: formulários que um adulto cansado consegue preencher no celular.',
       'Works on flows for patients and clinics. Current obsession: forms a tired adult can actually fill in on a phone.'
     ),
-    availability: 'project_partner',
     public_showcase: true,
     host_at_home: true,
   },
@@ -404,7 +398,6 @@ const PEOPLE = [
       'APIs, filas e o tipo de incidente que só aparece na sexta. Mora no Rio e colabora remoto com times em São Paulo e Lisboa.',
       'APIs, queues, and the kind of incident that only shows up on Friday. Lives in Rio and works remotely with teams in Sao Paulo and Lisbon.'
     ),
-    availability: 'available_for_hire',
     public_showcase: true,
     host_at_home: false,
   },
@@ -425,7 +418,6 @@ const PEOPLE = [
       'Cruza bases públicas com reportagem. Saiu de Porto Alegre para o Porto e ainda cobre política brasileira à distância.',
       'Crosses public datasets with reporting. Left Porto Alegre for Porto and still covers Brazilian politics from afar.'
     ),
-    availability: 'mentor',
     public_showcase: true,
     host_at_home: true,
   },
@@ -443,7 +435,6 @@ const PEOPLE = [
       'Projetos pequenos: biblioteca de bairro, sede de associação, reforma de escola. Prefere obra que a rua usa todo dia.',
       'Small projects: neighborhood library, association headquarters, school renovation. Prefers buildings the street uses every day.'
     ),
-    availability: 'project_partner',
     public_showcase: true,
     host_at_home: true,
   },
@@ -465,7 +456,6 @@ const PEOPLE = [
       'Passou por secretaria estadual e agora assessora conselhos. Não está na vitrine: pede conversa pela coordenação.',
       'Worked in a state secretariat and now advises councils. Off the public showcase: asks for contact through coordinators.'
     ),
-    availability: 'unavailable',
     public_showcase: false,
     host_at_home: false,
   },
@@ -487,7 +477,6 @@ const PEOPLE = [
       'Modelos de risco e o debate chato de viés. Mora em Toronto, volta a São Paulo no verão brasileiro.',
       'Risk models and the unglamorous bias debate. Lives in Toronto, back in Sao Paulo during the Brazilian summer.'
     ),
-    availability: 'available_for_hire',
     public_showcase: true,
     host_at_home: false,
   },
@@ -509,7 +498,6 @@ const PEOPLE = [
       'Estuda ilha de calor e verde nas cidades. Recife no currículo, Paris no laboratório. Abre a casa para quem passa em congresso.',
       'Studies urban heat islands and green cover. Recife on the CV, Paris in the lab. Hosts people passing through for conferences.'
     ),
-    availability: 'mentor',
     public_showcase: true,
     host_at_home: true,
   },
@@ -527,7 +515,6 @@ const PEOPLE = [
       'Organiza onboarding, ritos e o cadastro que ninguém quer manter. Se a planilha virou fonte da verdade, ele quer matar a planilha.',
       'Runs onboarding, rituals, and the registry nobody wants to maintain. If the spreadsheet became source of truth, he wants it gone.'
     ),
-    availability: 'project_partner',
     public_showcase: true,
     host_at_home: false,
   },
@@ -549,7 +536,6 @@ const PEOPLE = [
       'Programa residências e intercâmbio entre Brasil e Catalunha. Bom contato para quem chega em Barcelona sem rede.',
       'Programs residencies and exchange between Brazil and Catalonia. A good contact if you land in Barcelona without a network.'
     ),
-    availability: 'mentor',
     public_showcase: true,
     host_at_home: true,
   },
@@ -567,7 +553,6 @@ const PEOPLE = [
       'Dá aula em escola pública e escreve material próprio. Fora da vitrine: prefere conversa discreta sobre vocação docente.',
       'Teaches in a public school and writes his own materials. Off the showcase: prefers a discreet conversation about teaching as a vocation.'
     ),
-    availability: 'unavailable',
     public_showcase: false,
     host_at_home: false,
   },
@@ -588,7 +573,6 @@ const PEOPLE = [
       'Testa produto com gente de verdade, inclusive quem usa leitor de tela. Mora em Londres e ainda atende times no Brasil de manhã cedo.',
       'Tests products with real people, including screen-reader users. Lives in London and still joins Brazilian teams in the early morning.'
     ),
-    availability: 'available_for_hire',
     public_showcase: true,
     host_at_home: true,
   },
@@ -610,7 +594,6 @@ const PEOPLE = [
       'Alertas, capacidade e o ritual de postmortem sem caça às bruxas. Holanda no visto, sotaque gaúcho no Zoom.',
       'Alerts, capacity, and blameless postmortems. Netherlands on the visa, gaucho accent on Zoom.'
     ),
-    availability: 'project_partner',
     public_showcase: true,
     host_at_home: false,
   },
@@ -628,7 +611,6 @@ const PEOPLE = [
       'Atende no SUS e discute território, não só diagnóstico. Mentora de quem está no internato e ainda não sabe se quer especializar.',
       'Works in the public system and talks territory, not only diagnosis. Mentors interns who still do not know if they want to specialize.'
     ),
-    availability: 'mentor',
     public_showcase: true,
     host_at_home: true,
   },
@@ -649,7 +631,6 @@ const PEOPLE = [
       'Nasceu em Lisboa, trabalha em São Paulo com OSCs que cresceram rápido demais para o Excel do tesoureiro.',
       'Born in Lisbon, works in Sao Paulo with social organizations that outgrew the treasurer spreadsheet.'
     ),
-    availability: 'available_for_hire',
     public_showcase: true,
     host_at_home: false,
   },
@@ -667,7 +648,6 @@ const PEOPLE = [
       'Coordena acolhimento de famílias. Fora da vitrine pública por causa do trabalho de campo.',
       'Coordinates reception for families. Off the public showcase because of field work.'
     ),
-    availability: 'unavailable',
     public_showcase: false,
     host_at_home: false,
   },
@@ -689,7 +669,6 @@ const PEOPLE = [
       'Produtor e músico. Ajuda artistas brasileiros a tocar em Buenos Aires sem cair em contrato ruim.',
       'Producer and musician. Helps Brazilian artists play in Buenos Aires without walking into a bad contract.'
     ),
-    availability: 'project_partner',
     public_showcase: true,
     host_at_home: true,
   },
@@ -707,7 +686,6 @@ const PEOPLE = [
       'Faz ferramenta de aula que professor de escola pública consegue usar com internet ruim. Recife é base, Ceará é origem.',
       'Builds classroom tools a public-school teacher can use on a bad connection. Recife is home base, Ceara is origin.'
     ),
-    availability: 'available_for_hire',
     public_showcase: true,
     host_at_home: false,
   },
@@ -725,7 +703,6 @@ const PEOPLE = [
       'Firmware, sensores e o momento em que o protótipo funciona na bancada e falha no campo. Aberto a parceria de laboratório.',
       'Firmware, sensors, and the moment a prototype works on the bench and fails in the field. Open to lab partnerships.'
     ),
-    availability: 'project_partner',
     public_showcase: true,
     host_at_home: true,
   },
@@ -746,7 +723,6 @@ const PEOPLE = [
       'Já lançou conta, cartão e o fluxo de disputa que ninguém quer desenhar. Mentora de PMs júnior que herdaram backlog inflado.',
       'Has shipped accounts, cards, and the dispute flow nobody wants to design. Mentors junior PMs who inherited an inflated backlog.'
     ),
-    availability: 'mentor',
     public_showcase: true,
     host_at_home: false,
   },
@@ -764,7 +740,6 @@ const PEOPLE = [
       'Traduz ensaio e relatório técnico. Fora da vitrine: aceita encomenda pela coordenação da comunidade.',
       'Translates essays and technical reports. Off the showcase: takes commissions through community coordinators.'
     ),
-    availability: 'unavailable',
     public_showcase: false,
     host_at_home: true,
   },
@@ -786,7 +761,6 @@ const PEOPLE = [
       'Cozinha com produtores pequenos. Em Paris, ainda importa farinha e história de Minas. Recebe quem visita a cidade com fome e pergunta boa.',
       'Cooks with small producers. In Paris, still imports flour and stories from Minas. Hosts visitors who arrive hungry and with a good question.'
     ),
-    availability: 'project_partner',
     public_showcase: true,
     host_at_home: true,
   },
@@ -804,7 +778,6 @@ const PEOPLE = [
       'Faz filme longo e cataloga acervo familiar que ia para o lixo. Parceria com quem tem fita, não só ideia.',
       'Makes feature documentaries and catalogs family archives that were heading to the trash. Partners with people who have tape, not only an idea.'
     ),
-    availability: 'available_for_hire',
     public_showcase: true,
     host_at_home: false,
   },
@@ -822,7 +795,6 @@ const PEOPLE = [
       'Coaching de liderança sem jargão de palestra. Trabalha com times técnicos que foram promovidos sem mapa.',
       'Leadership coaching without keynote jargon. Works with technical teams who got promoted without a map.'
     ),
-    availability: 'mentor',
     public_showcase: true,
     host_at_home: true,
   },
@@ -844,7 +816,6 @@ const PEOPLE = [
       'Modelos em produção, não notebook de demo. Berlim de base; ainda vota e discute política brasileira de longe.',
       'Models in production, not demo notebooks. Berlin as base; still votes and argues Brazilian politics from afar.'
     ),
-    availability: 'available_for_hire',
     public_showcase: true,
     host_at_home: false,
   },
@@ -862,7 +833,6 @@ const PEOPLE = [
       'Atende trabalhador e entidade. Fora da vitrine: o escritório já tem fila; o diretório é para a rede, não para captação.',
       'Represents workers and unions. Off the showcase: the office already has a queue; the directory is for the network, not lead gen.'
     ),
-    availability: 'unavailable',
     public_showcase: false,
     host_at_home: false,
   },
@@ -880,7 +850,6 @@ const PEOPLE = [
       'iOS e Android quando o app trava na abertura. Gosta de medir frame, não de slide de “experiência fluida”.',
       'iOS and Android when the app freezes on launch. Likes measuring frames, not slides about a fluid experience.'
     ),
-    availability: 'project_partner',
     public_showcase: true,
     host_at_home: true,
   },
@@ -901,7 +870,6 @@ const PEOPLE = [
       'Acompanha quem chega de Brasil e PALOP. Explica SEF, NIF e o que o grupo de WhatsApp erra. Recebe quem acabou de aterrissar.',
       'Supports people arriving from Brazil and PALOP countries. Explains residency, tax ID, and what WhatsApp groups get wrong. Hosts people who just landed.'
     ),
-    availability: 'mentor',
     public_showcase: true,
     host_at_home: true,
   },
@@ -919,7 +887,6 @@ const PEOPLE = [
       'Fotografa rua, obra e arquivo familiar. Aberto a ensaio em Fortaleza e interior do Ceará.',
       'Photographs streets, construction sites, and family archives. Open to assignments in Fortaleza and inland Ceara.'
     ),
-    availability: 'available_for_hire',
     public_showcase: true,
     host_at_home: false,
   },
@@ -941,7 +908,6 @@ const PEOPLE = [
       'Trabalha com rede e renovável. Holanda no emprego, Nordeste na pergunta: quem paga a conta da transição.',
       'Works on grids and renewables. Netherlands on the job, Northeast Brazil in the question: who pays for the transition.'
     ),
-    availability: 'project_partner',
     public_showcase: true,
     host_at_home: true,
   },
@@ -959,7 +925,6 @@ const PEOPLE = [
       'Capa, infográfico e identidade para revistas pequenas. Parceria com quem tem texto e prazo, não moodboard infinito.',
       'Covers, infographics, and identity for small magazines. Partners with people who have copy and a deadline, not an endless moodboard.'
     ),
-    availability: 'available_for_hire',
     public_showcase: true,
     host_at_home: false,
   },
@@ -980,7 +945,6 @@ const PEOPLE = [
       'Dossiê para agência e o intervalo entre laboratório e prateleira. Mentora de quem está saindo da pós para a indústria.',
       'Agency dossiers and the gap between lab and shelf. Mentors people leaving grad school for industry.'
     ),
-    availability: 'mentor',
     public_showcase: true,
     host_at_home: false,
   },
@@ -998,7 +962,6 @@ const PEOPLE = [
       'Assistência técnica em cooperativa. Fala de solo e de governança com a mesma paciência.',
       'Technical assistance in a cooperative. Talks soil and governance with the same patience.'
     ),
-    availability: 'project_partner',
     public_showcase: true,
     host_at_home: true,
   },
@@ -1016,7 +979,6 @@ const PEOPLE = [
       'Atende adulto e discute burnout sem virar post. Fora da vitrine: agenda fechada; o diretório é só para a turma.',
       'Sees adults and talks burnout without turning it into a post. Off the showcase: books are full; the directory is for the cohort only.'
     ),
-    availability: 'unavailable',
     public_showcase: false,
     host_at_home: false,
   },
@@ -1038,7 +1000,6 @@ const PEOPLE = [
       'Estuda ônibus, bicicleta e o mapa que a prefeitura não atualiza. Bom para quem chega a Barcelona e quer entender o bairro, não só o Sagrada.',
       'Studies buses, bikes, and the map the city never updates. Useful if you land in Barcelona and want the neighborhood, not only the Sagrada.'
     ),
-    availability: 'available_for_hire',
     public_showcase: true,
     host_at_home: true,
   },
@@ -1060,7 +1021,6 @@ const PEOPLE = [
       'Mediação em museu e texto para exposição. Abre a casa no Porto para quem pesquisa arquivo ou só precisa de um jantar depois do arquivo.',
       'Museum mediation and exhibition copy. Hosts in Porto anyone researching archives, or anyone who just needs dinner after the archives.'
     ),
-    availability: 'mentor',
     public_showcase: true,
     host_at_home: true,
   },
@@ -1138,7 +1098,6 @@ function generatedPerson(n) {
     languages: generatedLanguages(n),
     contacts: generatedContacts(n),
     ...homeCopy(n),
-    availability: ['available_for_hire', 'project_partner', 'mentor', 'unavailable'][n % 4],
     public_showcase: n % 6 !== 0,
     host_at_home: n % 3 === 0,
   };

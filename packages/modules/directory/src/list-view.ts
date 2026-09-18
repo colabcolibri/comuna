@@ -9,7 +9,6 @@ export type PersonViewProfile = {
   contacts: Record<string, string>;
   headline: unknown;
   bio: unknown;
-  availability_status: string | null;
   custom_attributes: Record<string, unknown>;
 };
 
@@ -19,9 +18,7 @@ export type PersonView = {
   city: string | null;
   headline: string | null;
   summary: string | null;
-  availability: string | null;
   languagesHeading: string | null;
-  availabilityHeading: string | null;
   languages: { code: string; proficiency: string; label: string }[];
   facts: { name: string; label: string; values: string[] }[];
   links: { key: string; href: string; label: string }[];
@@ -74,7 +71,6 @@ export function projectPersonView(input: {
   density: ListDensity;
   locale: string;
   cityLabel: string | null;
-  availabilityLabel: string | null;
 }): PersonView {
   const { profile, fields, density, locale } = input;
   const languages = fieldVisible(fields, 'languages', density)
@@ -120,11 +116,7 @@ export function projectPersonView(input: {
     city: fieldVisible(fields, 'current_city', density) ? input.cityLabel : null,
     headline: fieldVisible(fields, 'headline', density) ? pickLocalizedText(profile.headline, locale) || null : null,
     summary: fieldVisible(fields, 'bio', density) ? pickLocalizedText(profile.bio, locale) || null : null,
-    availability: fieldVisible(fields, 'availability_status', density) ? input.availabilityLabel : null,
     languagesHeading: languages.length ? visibleFieldLabel(fields, 'languages', density, locale) : null,
-    availabilityHeading: fieldVisible(fields, 'availability_status', density)
-      ? visibleFieldLabel(fields, 'availability_status', density, locale)
-      : null,
     languages,
     facts,
     links,
