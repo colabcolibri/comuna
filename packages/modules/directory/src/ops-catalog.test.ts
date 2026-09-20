@@ -126,6 +126,7 @@ describe('ops catalog', () => {
   });
 
   it('groups fields under their catalog group', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ exists: false }] } as never);
     mockedQuery.mockResolvedValueOnce({
       rows: [
         {
@@ -147,7 +148,34 @@ describe('ops catalog', () => {
     expect(groups[0].fields[0].name).toBe('host_at_home');
   });
 
+  it('reconciles legacy availability group before listing', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ exists: true }] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    mockedQuery.mockResolvedValueOnce({ rows: [] } as never);
+    mockedQuery.mockResolvedValueOnce({
+      rows: [
+        {
+          group_id: 'g1',
+          group_slug: 'community_copy',
+          group_label: [{ locale: 'pt-BR', value: 'Nesta comunidade' }],
+          group_columns: 1,
+          field_id: 'f1',
+          name: 'public_directory',
+          type: 'boolean',
+          storage: 'card_column',
+          label: [{ locale: 'pt-BR', value: 'Diretório' }],
+        },
+      ],
+    } as never);
+    const groups = await listOpsCatalog('c1');
+    expect(groups[0].slug).toBe('community_copy');
+    expect(mockedQuery).toHaveBeenCalledTimes(6);
+  });
+
   it('locks seed groups and person storage, not extra attributes', async () => {
+    mockedQuery.mockResolvedValueOnce({ rows: [{ exists: false }] } as never);
     mockedQuery.mockResolvedValueOnce({
       rows: [
         {

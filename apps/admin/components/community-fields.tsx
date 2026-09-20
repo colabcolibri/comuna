@@ -84,6 +84,15 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   resetOrderTitle: 'community.fields_reset_order_title',
   resetOrderBody: 'community.fields_reset_order_body',
   resetOrderOk: 'community.fields_reset_order_ok',
+  manageOptions: 'community.fields_manage_options',
+  manageOptionsTitle: 'community.fields_manage_options_title',
+  manageOptionsHelp: 'community.fields_manage_options_help',
+  optionsImpactTitle: 'community.fields_options_impact_title',
+  optionsImpactBody: 'community.fields_options_impact_body',
+  optionsImpactRemove: 'community.fields_options_impact_remove',
+  optionsImpactRename: 'community.fields_options_impact_rename',
+  optionsImpactTotal: 'community.fields_options_impact_total',
+  optionsImpactConfirm: 'community.fields_options_impact_confirm',
 });
 
 export function CommunityFields({ communityId }: { communityId: string }) {

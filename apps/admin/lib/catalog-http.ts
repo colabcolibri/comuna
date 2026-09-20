@@ -21,6 +21,12 @@ export function catalogWriteResponse(err: unknown) {
   if (err.message === 'GROUP_NOT_EMPTY') {
     return jsonError('VALIDATION_ERROR', 'Grupo ainda tem campos', 409);
   }
+  if (err.message === 'ACK_MISMATCH') {
+    return jsonError('ACK_MISMATCH', 'Confirme o impacto antes de salvar', 409);
+  }
+  if (err.message === 'OPTION_IN_USE') {
+    return jsonError('OPTION_IN_USE', 'O uso mudou; revise o impacto', 409);
+  }
   return jsonError('VALIDATION_ERROR', 'Catálogo inválido', 400);
 }
 

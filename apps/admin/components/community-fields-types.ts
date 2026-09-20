@@ -96,6 +96,15 @@ export type CatalogCopy = {
   resetOrderTitle: string;
   resetOrderBody: string;
   resetOrderOk: string;
+  manageOptions: string;
+  manageOptionsTitle: string;
+  manageOptionsHelp: string;
+  optionsImpactTitle: string;
+  optionsImpactBody: string;
+  optionsImpactRemove: string;
+  optionsImpactRename: string;
+  optionsImpactTotal: string;
+  optionsImpactConfirm: string;
 };
 
 export function fieldNeedsOptions(type: string): boolean {

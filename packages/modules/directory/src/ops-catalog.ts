@@ -1,7 +1,16 @@
+import { createRequire } from 'node:module';
 import { query } from '@community/db';
 import { localizedPair, parseLocalized, pickLocalizedText, type LocalizedText } from '@community/identity';
 import { isFieldLocked, isSeedGroup, parseCatalogSpan } from './ops-catalog-shared';
 import { optionsToText, storedOptionsToOps, type OpsCatalogField } from './ops-catalog-fields';
+
+const require = createRequire(import.meta.url);
+const { reconcileLegacyAvailabilityGroup } = require('../../../../scripts/seed/directory-catalog.cjs') as {
+  reconcileLegacyAvailabilityGroup: (
+    client: { query: typeof query },
+    communityId: string
+  ) => Promise<void>;
+};
 
 export type OpsCatalogGroup = {
   id: string;
@@ -14,6 +23,17 @@ export type OpsCatalogGroup = {
 };
 
 export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGroup[]> {
+  const legacy = await query<{ exists: boolean }>(
+    `SELECT EXISTS (
+       SELECT 1 FROM plugin_directory.field_groups
+       WHERE community_id = $1 AND slug = 'availability'
+     ) AS exists`,
+    [communityId]
+  );
+  if (legacy.rows[0]?.exists) {
+    await reconcileLegacyAvailabilityGroup({ query }, communityId);
+  }
+
   const result = await query<{
     group_id: string;
     group_slug: string;

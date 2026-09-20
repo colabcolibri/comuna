@@ -19,11 +19,13 @@ export function CommunityFieldsOptionsEditor({
   rows,
   onChange,
   copy,
+  lockedValues,
 }: {
   idPrefix: string;
   rows: OptionRow[];
   onChange: (rows: OptionRow[]) => void;
   copy: CatalogCopy;
+  lockedValues?: Set<string>;
 }) {
   const list = rows.length > 0 ? rows : [emptyOptionRow()];
 
@@ -56,6 +58,7 @@ export function CommunityFieldsOptionsEditor({
                   id={`${idPrefix}-val-${index}`}
                   className="font-mono"
                   value={row.value}
+                  readOnly={Boolean(row.value && lockedValues?.has(row.value))}
                   onChange={(ev) => patch(index, { value: ev.target.value })}
                 />
               </div>

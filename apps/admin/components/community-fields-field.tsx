@@ -6,7 +6,7 @@ import { OpsAlertDialog, OpsBadge, OpsIconButton, OpsMoveButtons, OpsSheet } fro
 import { pickLocalizedText } from '@community/identity';
 import { Eye, EyeOff, Pencil, Trash2 } from 'lucide-react';
 import { clampFieldSpan, fieldNeedsOptions, fieldSpanChoices, fieldTypeLabel, type CatalogCopy, type OpsField, type OpsGroup } from './community-fields-types';
-import { CommunityFieldsOptionsEditor, emptyOptionRow } from './community-fields-options';
+import { CommunityFieldsManageOptions } from './community-fields-manage-options';
 
 export function CommunityFieldsField({
   communityId,
@@ -40,7 +40,6 @@ export function CommunityFieldsField({
   const [labelEn, setLabelEn] = useState(pickLocalizedText(field.label, 'en') || '');
   const [descriptionPt, setDescriptionPt] = useState(pickLocalizedText(field.description, 'pt-BR'));
   const [descriptionEn, setDescriptionEn] = useState(pickLocalizedText(field.description, 'en'));
-  const [options, setOptions] = useState(field.options?.length ? field.options : [emptyOptionRow()]);
   const [required, setRequired] = useState(field.required);
   const [span, setSpan] = useState(clampFieldSpan(field.span, groupColumns));
   const [busy, setBusy] = useState(false);
@@ -50,13 +49,13 @@ export function CommunityFieldsField({
   const showSpan = groupColumns > 1;
   const spanId = `ops-field-span-${field.id}`;
   const requiredId = `ops-field-required-${field.id}`;
+  const showOptions = !field.locked && fieldNeedsOptions(field.type);
 
   useEffect(() => {
     setLabelPt(pickLocalizedText(field.label, 'pt-BR') || field.name);
     setLabelEn(pickLocalizedText(field.label, 'en') || '');
     setDescriptionPt(pickLocalizedText(field.description, 'pt-BR'));
     setDescriptionEn(pickLocalizedText(field.description, 'en'));
-    setOptions(field.options?.length ? field.options : [emptyOptionRow()]);
     setRequired(field.required);
     setSpan(clampFieldSpan(field.span, groupColumns));
   }, [field, groupColumns]);
@@ -96,7 +95,6 @@ export function CommunityFieldsField({
         labelEn,
         descriptionPt,
         descriptionEn,
-        options,
       });
     } else {
       ok = await patchField({ descriptionPt, descriptionEn });
@@ -278,14 +276,30 @@ export function CommunityFieldsField({
                 <p className="text-xs text-muted-foreground">{copy.moveGroupHelp}</p>
               </div>
             ) : null}
-            {field.locked || !fieldNeedsOptions(field.type) ? null : (
-              <CommunityFieldsOptionsEditor
-                idPrefix={`ops-field-opt-${field.id}`}
-                rows={options}
-                onChange={setOptions}
-                copy={copy}
-              />
-            )}
+            {showOptions ? (
+              <div className="min-w-0 space-y-3">
+                <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-medium">{copy.options}</p>
+                  <CommunityFieldsManageOptions
+                    communityId={communityId}
+                    field={field}
+                    copy={copy}
+                    onChanged={onChanged}
+                  />
+                </div>
+                <ul className="divide-y divide-border border-t border-border text-sm">
+                  {(field.options || []).map((row) => (
+                    <li key={row.value} className="flex min-w-0 items-center justify-between gap-3 py-2">
+                      <span className="font-mono text-muted-foreground">{row.value}</span>
+                      <span className="min-w-0 truncate">{pickLocalizedText(
+                        [{ locale: 'pt-BR', value: row.labelPt }, { locale: 'en', value: row.labelEn }],
+                        locale
+                      )}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </OpsSheet>
           <OpsIconButton
             label={field.enabled ? copy.deactivate : copy.activate}

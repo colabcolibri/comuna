@@ -1,9 +1,9 @@
 'use strict';
 
-const fs = require('fs');
 const net = require('net');
 const path = require('path');
 const { spawn } = require('child_process');
+const { liveNextDevLock, readNextDevLock } = require('./next-lock.cjs');
 
 const ADMIN_PORT = 3015;
 const WEB_PORT = 3014;
@@ -19,23 +19,6 @@ function portFree(port) {
     });
     server.listen(port, '0.0.0.0');
   });
-}
-
-function readNextDevLock(adminDir = ADMIN_DIR) {
-  const lockPath = path.join(adminDir, '.next/dev/lock');
-  if (!fs.existsSync(lockPath)) {
-    return null;
-  }
-  try {
-    const raw = fs.readFileSync(lockPath, 'utf8').trim();
-    if (!raw) {
-      return { lockPath };
-    }
-    const parsed = JSON.parse(raw);
-    return { lockPath, pid: parsed.pid, port: parsed.port };
-  } catch {
-    return { lockPath };
-  }
 }
 
 function runningDevMessage(lock, port) {
@@ -65,7 +48,7 @@ async function main() {
     throw new Error(`porta ${WEB_PORT} é da web; use ${ADMIN_PORT} ou outra exceto ${WEB_PORT}`);
   }
 
-  const lock = readNextDevLock();
+  const lock = liveNextDevLock(ADMIN_DIR);
   if (lock) {
     console.error(runningDevMessage(lock, port));
     process.exit(1);

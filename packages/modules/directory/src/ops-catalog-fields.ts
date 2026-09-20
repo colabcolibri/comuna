@@ -347,8 +347,6 @@ export async function updateOpsField(
     labelEn?: string;
     descriptionPt?: string;
     descriptionEn?: string;
-    options?: unknown;
-    optionsText?: string;
   }
 ): Promise<void> {
   const found = await query<{ storage: string; type: string }>(
@@ -370,21 +368,14 @@ export async function updateOpsField(
     throw new CatalogWriteError('VALIDATION_ERROR');
   }
   const description = requiredLocalized(input.descriptionPt, input.descriptionEn);
-  const options = fieldNeedsOptions(row.type)
-    ? normalizeOpsChoiceOptions({ options: input.options, optionsText: input.optionsText })
-    : [];
-  if (fieldNeedsOptions(row.type) && options.length === 0) {
-    throw new CatalogWriteError('VALIDATION_ERROR');
-  }
   await query(
     `UPDATE plugin_directory.fields
-     SET label = $2::jsonb, description = $3::jsonb, options = $4::jsonb
+     SET label = $2::jsonb, description = $3::jsonb
      WHERE id = $1`,
     [
       fieldId,
       JSON.stringify(localizedPair(labelPt, (input.labelEn || '').trim() || labelPt)),
       JSON.stringify(description),
-      JSON.stringify(options),
     ]
   );
 }

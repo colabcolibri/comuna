@@ -62,6 +62,14 @@ describe('seed list surfaces', () => {
     expect(listsFor({ name: 'languages', lists: LISTS.languages }).directory.filterable).toBe(true);
     expect(listsFor({ name: 'languages', lists: LISTS.languages }).showcase.filterable).toBe(true);
     expect(platformFields().some((field) => field.name === 'availability_status')).toBe(false);
+    expect(PLATFORM_CATALOG_GROUPS.map((group) => group.slug)).not.toContain('availability');
+    const communityCopy = PLATFORM_CATALOG_GROUPS.find((group) => group.slug === 'community_copy');
+    expect(communityCopy?.fields.map((field) => field.name)).toEqual([
+      'headline',
+      'bio',
+      'public_directory',
+      'public_showcase',
+    ]);
   });
 
   it('maps tenant extras with listFilterable onto both lists as detail + filter', () => {

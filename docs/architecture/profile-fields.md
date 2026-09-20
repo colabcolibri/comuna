@@ -28,7 +28,7 @@ Plugin off **não** mostra campos daquele plugin. O dono é `fields.module_id` (
 Cada campo tem `storage`:
 
 - `person` — coluna/json conhecido em `person_core.profiles` (`column_key`: `full_name`, `gender`, `birth_city`, `avatar_url`, …). Avatar: o valor é URL estável da app; o ficheiro está no store (`docs/architecture/media.md`).
-- `card_column` — `headline`, `bio`, `availability_status`, `public_directory`, `public_showcase`. `public_directory` e `public_showcase` são independentes: um não implica o outro.
+- `card_column` — `headline`, `bio`, `public_directory`, `public_showcase`. `public_directory` e `public_showcase` são independentes: um não implica o outro.
 - `attributes` — chave em `custom_attributes`. Valor **escalar** (`true`, `"yes"`, texto curto). Sem LocalizedText aninhado no blob.
 
 `storage` **não** implica plugin. `module_id` null = núcleo. Directory e showcase marcam o próprio `module_id` no seed (ex.: `public_showcase` é `card_column` no schema directory e **módulo** showcase).
@@ -43,10 +43,9 @@ Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejei
 | `community_copy` | directory + showcase | título, apresentação, `public_directory` (`directory`), `public_showcase` (`showcase`) | `card_column` |
 | `person` | core | gênero, cidades, idiomas (12 códigos + nível) | `person` |
 | `links` | core | linkedin, github, portfólio | `person` |
-| `availability` | directory | `availability_status` quando o tenant liga o campo | `card_column` |
 | (custom) | directory | o que a comunidade pedir | `attributes` |
 
-Hospitalidade (`host_at_home`) **não** é seed de plataforma. Só a comunidade `demo` (Alumni Instituto Atlântico) ganha esse grupo no `db:seed`. As outras cinco casas de demo trazem grupos `attributes` próprios (negócio incubado, prática de dados, mentoria, ofício artístico, território). Comunidade nova criada no admin: núcleo + headline/bio/availability + grupo `custom` vazio. Ops cria extras por tenant.
+Hospitalidade (`host_at_home`) **não** é seed de plataforma. Só a comunidade `demo` (Alumni Instituto Atlântico) ganha esse grupo no `db:seed`. As outras cinco casas de demo trazem grupos `attributes` próprios (negócio incubado, prática de dados, mentoria, ofício artístico, território). Comunidade nova criada no admin: núcleo + `community_copy` (título, apresentação, opt-ins) + grupo `custom` vazio. O seed reconcilia o grupo legado `availability` (sem `availability_status`) movendo `public_directory` / `public_showcase` para `community_copy` e apagando o grupo vazio. Ops cria extras por tenant.
 
 A tela de **listas** (diretório e vitrine) é outra: `docs/architecture/list-surfaces.md`. O editor de campo não pede filtro nem placement.
 
@@ -61,6 +60,8 @@ Ops reordena grupos e campos (`sort_order`); a lista do admin é a ordem do form
 `select`, `radio` e `checkbox` são **lista fechada**: cada opção tem `value` único (slug) e label LocalizedText. Catálogo ops recusa lista vazia ou `value` repetido. Write do membro (`custom_attributes`) recusa valor fora de `fields.options` — inclusive checkbox (não descarta em silêncio). `text` / `textarea` / `boolean` / `url` / `city` / `localized_text` / `image` não usam `options`.
 
 Renderer: um `FieldControl` por tipo em UI compartilhada (`@community/ui` + compostos member). A página de perfil só mapeia binding → estado. Não duplicar `<select>` de availability fora do template `select`. Ops lança as opções em linhas (`options[]`); o textarea `valor|pt|en` não é a UI.
+
+**Gerenciar opções (pós-criação):** no edit de campo extra, a lista de opções é read-only; **Gerenciar** abre sheet dedicado. Salvar metadados (rótulo, descrição, obrigatoriedade, span) não envia `options`. No gerenciador, adicionar opção ou mudar só label aplica direto; remover ou renomear valor em uso exige preview, `OpsAlertDialog` com contagem de perfis e PATCH apply com `acknowledged` — migração de `custom_attributes` e catálogo na mesma transação (`POST`/`PATCH …/fields/:fieldId/options`).
 
 `languages` (núcleo, `storage: person`): tipo `checkbox` com 12 códigos (`pt`, `en`, `es`, `fr`, `de`, `it`, `nl`, `zh`, `ja`, `ko`, `ru`, `ar`). O valor persistido é `[{ code, proficiency }]`. Níveis: `basic`, `intermediate`, `advanced`, `fluent`, `native`. No perfil: lista do preenchido (borda de campo) + CTA **Adicionar novo idioma** abre `AppDialog` (`sm`) com idioma e nível empilhados como os outros `FieldControl`. O select do diálogo só lista códigos que ainda não estão no perfil. Editar reabre o mesmo diálogo; remover na linha. Lista canónica em `@community/identity`.
 

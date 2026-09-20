@@ -291,6 +291,79 @@ const PLATFORM_CATALOG_GROUPS = [
     },
   ];
 
+async function reconcileLegacyAvailabilityGroup(client, communityId) {
+  await client.query(
+    `UPDATE plugin_directory.fields f
+     SET group_id = copy.id,
+         sort_order = CASE f.name
+           WHEN 'public_directory' THEN 25
+           WHEN 'public_showcase' THEN 30
+           ELSE f.sort_order
+         END
+     FROM plugin_directory.field_groups avail
+     JOIN plugin_directory.field_groups copy
+       ON copy.community_id = avail.community_id AND copy.slug = 'community_copy'
+     WHERE avail.community_id = $1
+       AND avail.slug = 'availability'
+       AND f.group_id = avail.id
+       AND f.name IN ('public_directory', 'public_showcase')
+       AND NOT EXISTS (
+         SELECT 1
+         FROM plugin_directory.fields existing
+         WHERE existing.group_id = copy.id
+           AND existing.name = f.name
+       )`,
+    [communityId]
+  );
+
+  await client.query(
+    `DELETE FROM plugin_directory.list_fields lf
+     USING plugin_directory.fields f
+     JOIN plugin_directory.field_groups avail ON avail.id = f.group_id
+     JOIN plugin_directory.field_groups copy
+       ON copy.community_id = avail.community_id AND copy.slug = 'community_copy'
+     WHERE avail.community_id = $1
+       AND avail.slug = 'availability'
+       AND lf.field_id = f.id
+       AND f.name IN ('public_directory', 'public_showcase')
+       AND EXISTS (
+         SELECT 1
+         FROM plugin_directory.fields keeper
+         WHERE keeper.group_id = copy.id
+           AND keeper.name = f.name
+       )`,
+    [communityId]
+  );
+
+  await client.query(
+    `DELETE FROM plugin_directory.fields f
+     USING plugin_directory.field_groups avail
+     JOIN plugin_directory.field_groups copy
+       ON copy.community_id = avail.community_id AND copy.slug = 'community_copy'
+     WHERE avail.community_id = $1
+       AND avail.slug = 'availability'
+       AND f.group_id = avail.id
+       AND f.name IN ('public_directory', 'public_showcase')
+       AND EXISTS (
+         SELECT 1
+         FROM plugin_directory.fields keeper
+         WHERE keeper.group_id = copy.id
+           AND keeper.name = f.name
+       )`,
+    [communityId]
+  );
+
+  await client.query(
+    `DELETE FROM plugin_directory.field_groups g
+     WHERE g.community_id = $1
+       AND g.slug = 'availability'
+       AND NOT EXISTS (
+         SELECT 1 FROM plugin_directory.fields f WHERE f.group_id = g.id
+       )`,
+    [communityId]
+  );
+}
+
 async function seedDirectoryCatalog(client, communityId) {
   await upsertCatalogGroups(client, communityId, PLATFORM_CATALOG_GROUPS);
 
@@ -308,6 +381,8 @@ async function seedDirectoryCatalog(client, communityId) {
        AND f.name IN ('linkedin', 'github', 'portfolio')`,
     [communityId]
   );
+
+  await reconcileLegacyAvailabilityGroup(client, communityId);
 }
 
 async function seedDemoCatalogExtras(client, communityId) {
@@ -399,6 +474,7 @@ async function upsertCatalogGroups(client, communityId, groups) {
 module.exports = {
   seedDirectoryCatalog,
   seedDemoCatalogExtras,
+  reconcileLegacyAvailabilityGroup,
   upsertCatalogGroups,
   loc,
   opt,

@@ -17,8 +17,6 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
         labelEn: typeof body.labelEn === 'string' ? body.labelEn : undefined,
         descriptionPt: typeof body.descriptionPt === 'string' ? body.descriptionPt : undefined,
         descriptionEn: typeof body.descriptionEn === 'string' ? body.descriptionEn : undefined,
-        options: Array.isArray(body.options) ? body.options : undefined,
-        optionsText: typeof body.optionsText === 'string' ? body.optionsText : undefined,
       });
     } else if (body.descriptionPt !== undefined) {
       await updateCatalogFieldDescription(id, fieldId, {
