@@ -238,6 +238,21 @@ Use when you need to understand existing code **without** implementing or rewrit
 
 ---
 
+## Reconcile backlog gaps
+
+Use when docs, inventory, or delivery SQLite show work that never became a user story.
+
+1. `/survey-backlog` or `/survey-backlog report` — gap matrix only (default).
+2. Optional scope: `/survey-backlog EPIC-03`, `/survey-backlog inventory-only`.
+3. After you approve gap ids: `/survey-backlog apply GAP-001 GAP-002` or `/survey-backlog apply EPIC-03`.
+4. Hand off: `/refine-us` for thin Plans, then `/review-us`.
+
+**Not** for ad-hoc features (`/create-us` with `@story-maker`) or phase doc-only audits (`/audit-docs`).
+
+Typical after `/document-project` or before `/complete-epic`.
+
+---
+
 ## Implement a user story
 
 ### Choose the story
@@ -347,6 +362,7 @@ Run at the project root. Fix errors before creating US or marking docs `approved
 | `/implement-us US-XXXX` | Gate + implement — requires `ready: true` |
 | `/complete-us US-XXXX` | Close story — fills Record, marks `✅` (SQLite upsert) |
 | `/investigate` | Read-only code trace — how/where/flow with evidence |
+| `/survey-backlog` | Reconcile backlog gaps — report default; `apply` creates US (`ready: false`) |
 | `/discover` | Product discovery brief — before scope |
 | `/document-project` | Brownfield baseline in phase docs — no US |
 | `/audit-docs` | Audit phase docs vs code — report only |

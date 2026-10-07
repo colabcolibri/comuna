@@ -34,6 +34,7 @@ allowed-tools: Read, Glob, Grep, Bash
 
 - Full brownfield documentation → `/document-project`
 - Phase doc drift → `/audit-docs`
+- Backlog gap matrix / missing US → `/survey-backlog` (`backlog-surveyor`)
 - Security audit → `/security-review`
 - Implementing a fix → `/implement-us` after `/refine-us`
 

@@ -12,7 +12,7 @@
 | See kanban, versions, epics | **Extension** (views) | Meridian: Open Board |
 | Validate structure | **Extension** | Meridian: Validate Project |
 | Workspace health (kit, DB, adapters) | **Extension** | Meridian: Doctor |
-| Create or change docs / backlog | **Chat slash command** | `/init-meridian`, `/create-us` |
+| Create or change docs / backlog | **Chat slash command** | `/init-meridian`, `/create-us`, `/survey-backlog` |
 | Health check and next step | **Chat** | `/status` |
 | Unsure which station is next | **Chat** | `/deus-ex` |
 
@@ -46,7 +46,7 @@ output lands in   →  docs/ + .meridian/meridian.db
 3. **Meridian: Install Harness** — copies `.agent/` (agents, skills, workflows). Later, if the status bar shows `harness A → B`, run **Meridian: Upgrade Harness** (backs up the previous kit to `agent-backup/harness-<timestamp>.zip` before overwrite; reload does not copy a new kit).
 4. **Meridian: Open Welcome** — first-value checklist (kit, docs, delivery DB, adapters).
 5. In chat: **`/init-meridian`** if `docs/` does not exist yet.
-6. Brownfield: then **`/document-project`** (documents code — no US for legacy).
+6. Brownfield: then **`/document-project`** (documents code — no US for legacy); optional **`/survey-backlog`** (`@backlog-surveyor`) to draft missing US after `05` is approved.
 7. **Meridian: Open Board** — reads `.meridian/meridian.db`. Columns are **not** separate fields: 📋 Backlog = `ready: false` + `status: ❌`; 📌 Todo = `ready: true` + `status: ❌`; agents only edit `status` and `ready` in chat/CLI.
 
 Optional anytime: **`/audit-docs`** — gap report on phase docs.

@@ -75,7 +75,8 @@ Use the table in `.agent/agents/deus-ex/agent.md` only as a reminder. The checkl
 | `09` | `design-system-owner` |
 | `10` | `quality-owner` |
 | Version / sprint | `sprint-planner` |
-| Cook US | `story-maker` |
+| Cook US (intent-led) | `story-maker` |
+| Cook US (gap-led) | `backlog-surveyor` → `/survey-backlog` |
 | Attest US | `story-checker` |
 | Increment | `developer` |
 | Code fact first | `code-investigator` |

@@ -70,7 +70,7 @@ Skills are invoked as `/skill-name` in chat (e.g. `/us-create`); agents as `@slu
 
 ## Agents
 
-Sixteen stations. Each agent lists **skills** in frontmatter (domain + shared). Procedures live in `.agent/skills/`. See [station-references.md](./references/protocol/station-references.md).
+Seventeen stations. Each agent lists **skills** in frontmatter (domain + shared). Procedures live in `.agent/skills/`. See [station-references.md](./references/protocol/station-references.md).
 
 | Agent | Purpose | Shared skills |
 | ----- | ------- | ------------- |
@@ -90,6 +90,7 @@ Sixteen stations. Each agent lists **skills** in frontmatter (domain + shared). 
 | `developer` (Hephaestus) | `/us-implement` | update-decisions-log, meridian-routing |
 | `scrum-master` (Kairos) | Governance, status, init | init-project, update-decisions-log, meridian-routing |
 | `code-investigator` (Hermes) | `/investigate` read-only | update-decisions-log, meridian-routing |
+| `backlog-surveyor` (Metis) | `/survey-backlog` reconcile + gap-led US | update-decisions-log, meridian-routing |
 
 Each agent includes: phases 0/-1, mission, **station references**, prohibitions, output format, delegation.
 

@@ -27,7 +27,7 @@
 - [ ] `.agent/skills/meridian-routing/SKILL.md` — selection matrix row(s)
 - [ ] `.agent/references/guides/agents-help.md` — agent group table + skills list
 - [ ] `.agent/ARCHITECTURE.md` — § Agents table
-- [ ] US cook/attest: `story-maker` vs `story-checker` (see `agent-station-map.md`); never add a third US cook+attest agent
+- [ ] US cook/attest: `story-maker` (intent-led) + `backlog-surveyor` (gap-led `/survey-backlog`) vs `story-checker` attest; never add another US cook or a second attest agent
 - [ ] `./.agent/scripts/sync_kit.sh` (auto: `.cursor/agents/`, `.codex/agents/*.toml`)
 - [ ] `validate_meridian.py`
 

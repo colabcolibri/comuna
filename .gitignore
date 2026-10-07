@@ -54,3 +54,5 @@ Thumbs.db
 .codex/
 .opencode/
 AGENTS.md
+# Meridian harness backups (Upgrade Harness)
+agent-backup/

@@ -34,7 +34,7 @@ Use when adding or changing anything in `.agent/` that agents or managers invoke
 - "Create a new skill / agent / workflow for Meridian"
 - "Register `/foo` in the kit"
 - "What files do I update when adding an agent?"
-- Extending the harness (`code-investigator`, new operator, new pass/review)
+- Extending the harness (`code-investigator`, `backlog-surveyor`, new operator, new pass/review)
 - After creating artifacts — verify nothing was missed
 
 ---

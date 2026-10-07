@@ -7,6 +7,7 @@ Meridian no longer uses `.agent/workflows/`. **Procedures live in skills only.**
 | Create US | `/us-create` or `@story-maker` |
 | Database pass | `/data-engineering` or `@data-engineer` |
 | Project status | `/project-status` or `@scrum-master` |
+| Backlog gaps / missing US | `/survey-backlog` or `@backlog-surveyor` |
 
 Full map: `.agent/references/guides/agents-help.md`
 

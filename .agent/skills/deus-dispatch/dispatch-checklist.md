@@ -31,6 +31,7 @@ If two areas fight, pick the **gate** that is still closed (e.g. no `05` approve
 | US `ready` false and ask is implement | `developer` | `story-maker` `/refine-us` then `story-checker` `/review-us` (name the **first** missing step) |
 | Cook vs attest on the same US | one agent for both | maker **or** checker per map |
 | Need a code fact to choose | `developer` | `code-investigator` `/investigate` |
+| Missing US / backlog holes / after brownfield doc | `story-maker` `/create-us` alone | `backlog-surveyor` `/survey-backlog` (report first) |
 | Linked US still ❌/🔶 | `sprint-planner` `/complete-sprint` | Finish US (`story-checker`) or keep sprint open |
 | Sprint US all terminal | — | `sprint-planner` `/complete-sprint` after human review + real Retrospective |
 

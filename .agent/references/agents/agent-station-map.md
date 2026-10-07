@@ -1,6 +1,6 @@
 # Agent station map — maker vs checker
 
-> **Live roster:** sixteen actors. Call signs: [agent-personas.md](./agent-personas.md). `deus-ex` (Machina) dispatches (does not cook). `story-maker` (Penelope) cooks `/create-us` + `/refine-us`. `story-checker` (Argus) attests `/review-us` (`ready`) + `/complete-us`.
+> **Live roster:** seventeen actors. Call signs: [agent-personas.md](./agent-personas.md). `deus-ex` (Machina) dispatches (does not cook). `story-maker` (Penelope) cooks intent-led `/create-us` + `/refine-us`. `backlog-surveyor` (Metis) cooks gap-led `/survey-backlog` apply. `story-checker` (Argus) attests `/review-us` (`ready`) + `/complete-us`.
 
 v11 rename history stays in [plans/agent-roster-and-workflow-v11.md](../plans/agent-roster-and-workflow-v11.md). This file is the **production-line contract**. **Areas:** [agent-areas.md](./agent-areas.md).
 
@@ -19,7 +19,8 @@ v11 rename history stays in [plans/agent-roster-and-workflow-v11.md](../plans/ag
 | `09` | `design-system-owner` (Harmonia) | Human `approved`; `/design-review` attests **UI** |
 | `10` | `quality-owner` (Themis) | Human `approved`; `/test-review` attests **tests** |
 | Version / sprint container | `sprint-planner` (Hesperus) | Same agent may **close** container |
-| US recipe (Intent + Plan) | `story-maker` `/create-us` + `/refine-us` | `story-checker` `/review-us` → `ready: true` |
+| US recipe — intent-led (Intent + Plan) | `story-maker` `/create-us` + `/refine-us` | `story-checker` `/review-us` → `ready: true` |
+| US recipe — gap-led (from reconcile) | `backlog-surveyor` `/survey-backlog` **apply** only | `story-checker` `/review-us` → `ready: true` |
 | Increment (code) | `developer` (Hephaestus) `/implement-us` | Specialist reviews; `story-checker` `/complete-us` → `✅` |
 
 Who cooks the US must not set `ready` or `✅`.
@@ -34,6 +35,7 @@ Who cooks the US must not set `ready` or `✅`.
 | `/ux-pass` | `ux-researcher` |
 | `/create-version`, `/plan-sprint`, `/complete-sprint`, `/complete-epic` | `sprint-planner` |
 | `/create-us`, `/refine-us` | `story-maker` |
+| `/survey-backlog` | `backlog-surveyor` |
 | `/review-us`, `/complete-us` | `story-checker` |
 | `/implement-us` | `developer` |
 | `/security-pass`, `/security-review`, `/privacy-pass`, `/dependency-audit`, `/payment-pass` | `security-champion` |
@@ -48,7 +50,7 @@ Who cooks the US must not set `ready` or `✅`.
 
 Skills may be **shared as tools** (`update-decisions-log`, `init-project`, `discover-product`, `meridian-routing`). Domain procedures live in `.agent/skills/` — agents load them; humans invoke **`@owner`** (slash is optional alias). See [station-references.md](../protocol/station-references.md).
 
-## Sixteen-actor roster
+## Seventeen-actor roster
 
 1. `deus-ex` — Machina — dispatch only  
 2. `scrum-master` — Kairos — ceremonies, `/status`, init  
@@ -62,10 +64,11 @@ Skills may be **shared as tools** (`update-decisions-log`, `init-project`, `disc
 10. `quality-owner` — Themis — `10`, test passes  
 11. `devops-engineer` — Vulcan — `08`, `/release-pass`  
 12. `sprint-planner` — Hesperus — versions, sprints  
-13. `story-maker` — Penelope — create + refine US  
+13. `story-maker` — Penelope — intent-led create + refine US  
 14. `story-checker` — Argus — review + complete US  
 15. `developer` — Hephaestus — implement  
 16. `code-investigator` — Hermes — consult  
+17. `backlog-surveyor` — Metis — backlog reconcile + gap-led US  
 
 ## Allowed interactions
 

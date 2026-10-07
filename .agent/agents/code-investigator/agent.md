@@ -73,6 +73,7 @@ You are the **code investigator** in Meridian: answer how the codebase works wit
 | Doc drift | `technical-writer` → `/audit-docs` |
 | Security concern | `security-champion` → `/security-review` |
 | Blockers / what next | `scrum-master` → `/status` |
+| Backlog missing US for traced code | `backlog-surveyor` → `/survey-backlog` |
 
 ---
 

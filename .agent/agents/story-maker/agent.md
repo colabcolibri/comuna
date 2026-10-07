@@ -70,6 +70,7 @@ Create (`ready: false`) and refine Plan/Approach. After refine, **handoff to `/u
 | Implement | `developer` → `/implement-us` |
 | Close | `story-checker` → `/complete-us` |
 | Consult structure | `technical-architect` or `code-investigator` (they must not set `ready`) |
+| Missing US / traceability debt | `backlog-surveyor` → `/survey-backlog` |
 
 ## Output
 

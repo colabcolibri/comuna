@@ -11,7 +11,7 @@ Slash commands stay verb-first (`/create-us`). Skills are object-prefixed (`us-c
 | ---- | ---------- | ------------------ | -------------- | ---------------- |
 | **Discovery** | What problem, for whom, what is out | Before / during phase 1 | `product-owner`, `ux-researcher` | `/discover`, `/ux-pass` |
 | **Standards** | How we build and protect (docs `01`–`10`, `02`, `06`, `08`, `09`) | writer, security, architect, ux-researcher, data-engineer, design, quality, devops | `/database-pass`, `/release-pass`, `/architecture`, `/security-pass`, `/design-pass`, `/test-pass` |
-| **Planning** | What we will build in what order | Phase 3 | PO, planner, `story-maker` | `/create-epic`, `/create-version`, `/plan-sprint`, `/create-us`, `/refine-us` |
+| **Planning** | What we will build in what order | Phase 3 | PO, planner, `story-maker`, `backlog-surveyor` | `/create-epic`, `/create-version`, `/plan-sprint`, `/survey-backlog`, `/create-us`, `/refine-us` |
 | **Build** | The increment | Phase 4 | `developer` | `/implement-us` |
 | **Attest** | Recipe ready + dish done + specialist reviews | Phase 3 end + phase 4 | `story-checker`, security-code, test-review, design-review | `/review-us`, `/security-review`, `/test-review`, `/design-review`, `/complete-us` |
 

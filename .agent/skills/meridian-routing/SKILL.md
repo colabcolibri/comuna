@@ -1,6 +1,6 @@
 ---
 name: meridian-routing
-description: Automatic Meridian agent selection and task routing. Analyzes requests and picks deus-ex, scrum-master, product-owner, ux-researcher, technical-writer, security-champion, technical-architect, data-engineer, design-system-owner, quality-owner, devops-engineer, sprint-planner, story-maker, story-checker, developer, code-investigator.
+description: Automatic Meridian agent selection and task routing. Analyzes requests and picks deus-ex, scrum-master, product-owner, ux-researcher, technical-writer, security-champion, technical-architect, data-engineer, design-system-owner, quality-owner, devops-engineer, sprint-planner, story-maker, story-checker, developer, code-investigator, backlog-surveyor.
 allowed-tools: Read, Glob, Grep
 version: 1.1.0
 ---
@@ -54,6 +54,7 @@ Before responding, classify the request and select the correct Meridian agent. S
 | User story / board | "user story", "US-", "kanban", `board_snapshots` | `story-maker` (create/refine) or `story-checker` (review/complete) | yes |
 | Implement US / code | "implement", "build", `/implement-us` | `developer` | **block** if `ready` not true |
 | Create US | `/create-us`, "new user story" | `story-maker` | yes |
+| Backlog gaps / missing US | "US faltando", "buraco no backlog", "reconciliar backlog", "criar US pendentes", `/survey-backlog` | `backlog-surveyor` | yes |
 | Refine US | `/refine-us` | `story-maker` | yes |
 | Review US / ready | `/review-us`, "audit US", "ready for implement" | `story-checker` | yes |
 | Close US | `/complete-us`, "close story" | `story-checker` | yes |

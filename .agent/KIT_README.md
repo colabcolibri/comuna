@@ -19,7 +19,7 @@ Default `./install.sh` syncs Cursor, Claude Code, Codex, and OpenCode adapters. 
 
 ## What gets installed
 
-The full `.agent/` tree — **16 agents**, **skills** (procedures), rules, scripts, references, and HTML board (`python3 .agent/board`). Kit v3 has **no workflows folder** — procedures live in `.agent/skills/{name}/SKILL.md`.
+The full `.agent/` tree — **17 agents**, **skills** (procedures), rules, scripts, references, and HTML board (`python3 .agent/board`). Kit v3 has **no workflows folder** — procedures live in `.agent/skills/{name}/SKILL.md`.
 
 See [DISTRIBUTION.md](DISTRIBUTION.md) for kit vs extension.
 

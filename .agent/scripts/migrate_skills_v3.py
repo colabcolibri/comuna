@@ -15,6 +15,7 @@ WORKFLOWS = AGENT / "workflows"
 
 AGENT_SKILL_OWNERSHIP: dict[str, tuple[str, ...]] = {
     "code-investigator": ("investigate-codebase",),
+    "backlog-surveyor": ("backlog-reconcile", "us-create", "investigate-codebase"),
     "data-engineer": ("data-engineering",),
     "design-system-owner": (
         "accessibility",
@@ -94,6 +95,7 @@ WORKFLOW_ROUTES: dict[str, tuple[str, str | tuple[str, ...]]] = {
     "implement-us": ("developer", "us-implement"),
     "init-meridian": ("scrum-master", "init-project"),
     "investigate": ("code-investigator", "investigate-codebase"),
+    "survey-backlog": ("backlog-surveyor", "backlog-reconcile"),
     "migrate-delivery": ("scrum-master", "meridian-routing"),
     "payment-pass": ("security-champion", "payment-integration"),
     "perf-pass": ("quality-owner", "performance-budget"),

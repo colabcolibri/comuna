@@ -10,7 +10,7 @@ Meridian operators use **slug** in routing (`@developer`, `/implement-us`) and a
 
 Slug stays canonical for tools and SQLite. Call sign is optional but encouraged in chat and handoffs.
 
-## Registry (16 stations)
+## Registry (17 stations)
 
 | Slug | Call sign | Domain | One-line epithet |
 | ---- | --------- | ------ | ---------------- |
@@ -30,6 +30,7 @@ Slug stays canonical for tools and SQLite. Call sign is optional but encouraged 
 | `story-checker` | **Argus** | US attest | All-seeing verifier |
 | `developer` | **Hephaestus** | Increment | Smith of the build |
 | `code-investigator` | **Hermes** | Code facts | Walker of paths and imports |
+| `backlog-surveyor` | **Metis** | Backlog reconcile | Unveiler of missing work |
 
 ## Naming rules (for future agents)
 

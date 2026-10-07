@@ -11,7 +11,7 @@ Explicit map of **who does what**, **which group they belong to**, and **which s
 | **This file** | Agents, slash commands, skills, step order |
 | Scrum mapping | [scrum-meridian-map.md](../scrum/scrum-meridian-map.md) |
 | **Station map** | [agent-station-map.md](../agents/agent-station-map.md) — cook vs attest |
-| Call signs | [agent-personas.md](../agents/agent-personas.md) — mythic names for all 16 agents |
+| Call signs | [agent-personas.md](../agents/agent-personas.md) — mythic names for all 17 agents |
 | **Station skills** | [station-references.md](../protocol/station-references.md) — agents + skills (kit v3) |
 | **Upgrade from 2.x** | [kit-v3-migration.md](../protocol/kit-v3-migration.md) |
 | **Areas** | [agent-areas.md](../agents/agent-areas.md) — discovery, standards, planning, build, attest |
@@ -45,7 +45,7 @@ docs/
 
 ## Agent groups
 
-Sixteen live actors. Line: [agent-station-map.md](../agents/agent-station-map.md). Call signs: [agent-personas.md](../agents/agent-personas.md). `deus-ex` allocates; the others cook or attest.
+Seventeen live actors. Line: [agent-station-map.md](../agents/agent-station-map.md). Call signs: [agent-personas.md](../agents/agent-personas.md). `deus-ex` allocates; the others cook or attest.
 
 ### Group 1 — Orchestration
 
@@ -132,7 +132,7 @@ Owns the executable backlog and honest execution state.
 
 | Agent | Serves for | Primary artifacts | Does not |
 | ----- | ---------- | ----------------- | -------- |
-| **`story-maker`** | Cook US Intent/Plan | SQLite `user_stories` | Set `ready` or `✅`; product code |
+| **`story-maker`** | Cook intent-led US Intent/Plan | SQLite `user_stories` | Set `ready` or `✅`; product code; gap reconcile |
 | **`story-checker`** | Attest DoR (`ready`) and DoD (`✅`) | SQLite `user_stories` | Cook Plan; implement |
 
 **When to use:** `/create-us`, `/refine-us` → maker; `/review-us`, `/complete-us` → checker.
@@ -142,7 +142,21 @@ Owns the executable backlog and honest execution state.
 
 ---
 
-### Group 7 — Code investigation (read-only)
+### Group 7 — Backlog reconcile
+
+Finds traceability debt and creates **gap-derived** US (`ready: false`) after evidence review.
+
+| Agent | Serves for | Primary artifacts | Does not |
+| ----- | ---------- | ----------------- | -------- |
+| **`backlog-surveyor`** | Reconcile docs, inventory, SQLite, optional code vs backlog | Gap report; gap-led US in SQLite | Set `ready` or `✅`; product code; create epics; intent-led `/create-us` |
+
+**When to use:** `/survey-backlog` (default `report`); `/survey-backlog apply` after you approve gap ids; after `/document-project` or before `/complete-epic`.
+
+**Skills:** `backlog-reconcile`, `us-create` (apply only), `investigate-codebase` (narrow consult), `update-decisions-log`, `meridian-routing`
+
+---
+
+### Group 8 — Code investigation (read-only)
 
 Trace flows and explain behavior before refine, spike, or architecture updates.
 
@@ -213,6 +227,7 @@ Complete in order: `00` → `01` → `02` → `03` → `04` → **`05`** → `06
 | C13 | **`/investigate`** | `code-investigator` (Hermes) | Report | Read-only codebase trace and explanation. **No code.** |
 | C15 | **`/document-project`** | `technical-writer` (Calliope) | `docs/` + `inventory/as-is.md` | Brownfield baseline in phase docs. **No US.** |
 | C16 | **`/audit-docs`** | `technical-writer` (Calliope) | Report | Phase docs depth and drift vs code. **Report only** unless `apply`. |
+| C17 | **`/survey-backlog`** | `backlog-surveyor` (Metis) | Report and/or US | Reconcile backlog gaps. **`report`** default; **`apply`** creates US (`ready: false`) for approved gaps. |
 
 **HAR (ação humana necessária):** agents stop for external accounts, OAuth/PAT, billing, production credentials — see `rules/MERIDIAN.md`. Not a slash command; applies during any workflow.
 
@@ -235,6 +250,7 @@ Complete in order: `00` → `01` → `02` → `03` → `04` → **`05`** → `06
 | D3 | **`/plan-sprint`** | `sprint-planner` | `vX-SY` in SQLite | Time-boxed goal + story list. |
 | D4 | **`/complete-sprint vX-SY`** | `sprint-planner` | sprint `status: complete` | Sprint review + Retrospective filled. |
 | D5 | **`/complete-epic EPIC-XX`** | `sprint-planner` | epic `status: complete` | No open Must US; outcome confirmed. |
+| D6 | **`/survey-backlog`** | `backlog-surveyor` | Gap report and/or US | After `05` approved; optional after `/document-project`. Use **`apply`** only after approving gap rows. |
 
 Order: **Epic → Version → Sprint** (sprint optional but recommended) → User story → **`/complete-us` cascade invites** `/complete-sprint` / `/complete-epic` when containers are eligible (slash commands remain for recovery).
 
@@ -303,18 +319,20 @@ Use this as the canonical sequence. Skip steps only when the artifact already ex
  7. /create-epic                            [Group D]  product-owner
  8. /create-version                         [Group D]  sprint-planner
  9. /plan-sprint                            [Group D]  sprint-planner
-10. /create-us                               [Group E]  story-maker
-11. /refine-us US-XXXX                       [Group E]  story-maker  (Plan; ready stays false)
-12. /review-us US-XXXX                       [Group E]  story-checker → ready: true
-13. /implement-us US-XXXX                    [Group E]  developer → gate then code
-14. /design-review (UI US)                   [Group C]  design-system-owner → before close
-14b. /security-review (sensitive US)          [Group C]  security-champion → before close
-14c. /test-review (tests: required)           [Group C]  quality-owner → before close
-15. Manager review diff + tests              [Group E]  human
-16. /complete-us US-XXXX                     [Group E]  story-checker
-17. git commit (human)                       [Group F]  you — one US per commit
-18. /status or /daily-with-ai                [Group B]  scrum-master → back to step 10
-19. /complete-sprint vX-SY (when sprint done) [Group D]  sprint-planner — after US in sprint closed
+10. /survey-backlog report                    [Group D]  backlog-surveyor  (optional; brownfield / hygiene)
+10b. /survey-backlog apply                    [Group D]  backlog-surveyor  (gap-derived US; ready false)
+11. /create-us                               [Group E]  story-maker
+12. /refine-us US-XXXX                       [Group E]  story-maker  (Plan; ready stays false)
+13. /review-us US-XXXX                       [Group E]  story-checker → ready: true
+14. /implement-us US-XXXX                    [Group E]  developer → gate then code
+15. /design-review (UI US)                   [Group C]  design-system-owner → before close
+15b. /security-review (sensitive US)          [Group C]  security-champion → before close
+15c. /test-review (tests: required)           [Group C]  quality-owner → before close
+16. Manager review diff + tests              [Group E]  human
+17. /complete-us US-XXXX                     [Group E]  story-checker
+18. git commit (human)                       [Group F]  you — one US per commit
+19. /status or /daily-with-ai                [Group B]  scrum-master → back to step 11
+20. /complete-sprint vX-SY (when sprint done) [Group D]  sprint-planner — after US in sprint closed
 ```
 
 ---
@@ -369,6 +387,7 @@ Full contract: [station-references.md](../protocol/station-references.md).
 | New epic | D | `product-owner` | `/create-epic` |
 | New version / sprint | D | `sprint-planner` | `/create-version`, `/plan-sprint`, `/complete-sprint` |
 | New / refine / review / close US | E | `story-maker` / `story-checker` / `developer` | `/create-us`, `/refine-us`, `/review-us`, `/implement-us`, `/complete-us` |
+| Backlog gaps / missing US | D | `backlog-surveyor` (Metis) | `/survey-backlog`, `/survey-backlog apply` |
 | Board refresh | — | Extension reads SQLite on save |
 | Log a decision | F | any | `/update-decisions-log` |
 | Design contract (`09`) | C | `design-system-owner` | `/design-pass`, `/design-pass bootstrap` |
