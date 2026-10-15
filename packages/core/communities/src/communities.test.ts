@@ -25,7 +25,7 @@ describe('communities', () => {
         slug: 'demo',
         name: 'Demo',
         type: 'alumni',
-        settings: { description: '', showcase_title: '', showcase_description: '', default_locale: 'pt-BR' },
+        settings: { description: '', showcase_title: '', showcase_description: '', default_locale: 'pt-BR', talent_exposure: 'internal' },
       },
     ]);
   });

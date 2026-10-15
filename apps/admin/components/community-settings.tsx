@@ -29,6 +29,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   saved: 'community.saved',
   error: 'community.save_error',
   publicShowcase: 'community.public_showcase',
+  talentCeiling: 'community.talent_ceiling',
 });
 
 export function CommunitySettings({
@@ -38,6 +39,7 @@ export function CommunitySettings({
   type,
   isPublicShowcase,
   settings,
+  talentOn,
 }: {
   communityId: string;
   name: string;
@@ -45,6 +47,7 @@ export function CommunitySettings({
   type: string;
   isPublicShowcase: boolean;
   settings: CommunitySettingsValue;
+  talentOn: boolean;
 }) {
   const copy = pickContent(CONTENT, useLocale());
   const router = useRouter();
@@ -57,6 +60,7 @@ export function CommunitySettings({
   const [showcaseDescription, setShowcaseDescription] = useState(settings.showcase_description);
   const [defaultLocale, setDefaultLocale] = useState(settings.default_locale);
   const [publicShowcase, setPublicShowcase] = useState(isPublicShowcase);
+  const [talentExposure, setTalentExposure] = useState(settings.talent_exposure || 'internal');
   const [busy, setBusy] = useState(false);
   const typeLabels: Record<string, string> = {
     alumni: copy.typeAlumni,
@@ -80,6 +84,7 @@ export function CommunitySettings({
           showcase_title: showcaseTitle,
           showcase_description: showcaseDescription,
           default_locale: defaultLocale,
+          talent_exposure: talentExposure,
         },
       }),
     });
@@ -158,6 +163,23 @@ export function CommunitySettings({
             </SelectContent>
           </Select>
         </div>
+        {talentOn ? (
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <span className="text-sm">{copy.talentCeiling}</span>
+            {(['hidden', 'internal', 'external'] as const).map((item) => (
+              <button
+                key={item}
+                type="button"
+                aria-pressed={talentExposure === item}
+                title={item === 'hidden' ? 'Oculto' : item === 'internal' ? 'Interno' : 'Externo'}
+                className={`inline-flex size-9 items-center justify-center rounded-md border text-sm ${talentExposure === item ? 'border-foreground' : 'border-input'}`}
+                onClick={() => setTalentExposure(item)}
+              >
+                {item === 'hidden' ? '⊘' : item === 'internal' ? '👥' : '🌐'}
+              </button>
+            ))}
+          </div>
+        ) : null}
         <label className="flex min-h-11 items-center gap-2 text-sm">
           <Checkbox checked={publicShowcase} onCheckedChange={(checked) => setPublicShowcase(checked === true)} />
           {copy.publicShowcase}

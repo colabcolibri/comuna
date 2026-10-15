@@ -10,6 +10,42 @@ import { FieldControl } from '@/components/app/FieldControl';
 import { uiCatalog } from '@/lang/catalog';
 import { cardBodyFromFields, groupsForScope, personBodyFromFields, readFieldValue } from '@/lib/profile-bindings';
 
+function AudienceMark({
+  value,
+  ceiling,
+  labels,
+  onChange,
+}: {
+  value: string;
+  ceiling: CatalogField['exposure'];
+  labels: Record<'private' | 'internal' | 'external', string>;
+  onChange: (next: string) => void;
+}) {
+  const options = (['private', 'internal', 'external'] as const).filter((item) => {
+    if (!ceiling || ceiling === 'hidden') return item === 'private';
+    if (ceiling === 'internal') return item !== 'external';
+    return true;
+  });
+  const marks = { private: '🔒', internal: '👥', external: '🌐' };
+  return (
+    <div className="flex min-w-0 flex-wrap gap-1">
+      {options.map((item) => (
+        <button
+          key={item}
+          type="button"
+          title={labels[item]}
+          aria-pressed={value === item}
+          className={`inline-flex size-9 items-center justify-center rounded-md border text-sm ${value === item ? 'border-foreground' : 'border-input'}`}
+          onClick={() => onChange(item)}
+        >
+          <span aria-hidden>{marks[item]}</span>
+          <span className="sr-only">{labels[item]}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function initialsFrom(value: unknown) {
   const name = typeof value === 'string' ? value.trim() : '';
   const parts = name.split(/\s+/).slice(0, 2);
@@ -23,7 +59,7 @@ function splitIdentity(fields: CatalogField[]) {
   };
 }
 
-export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
+export function ProfileForm({ scope, embedded = false }: { scope: 'person' | 'community'; embedded?: boolean }) {
   const locale = useLocale();
   const copy = pickContent(
     contentFromCatalog(uiCatalog, 'core_identity', {
@@ -167,33 +203,19 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
           initials={initialsFrom(values.full_name)}
         />
         {key ? (
-          <label className="block min-w-0 text-sm text-muted-foreground">
-            <span className="mb-1 block">{copy.audience}</span>
-            <select
-              className="h-11 w-full max-w-full rounded-md border border-input bg-background px-3"
-              value={String(values[key] || 'private')}
-              onChange={(event) =>
-                setValues((current) => ({ ...current, [key]: event.target.value }))
-              }
-            >
-              <option value="private">{copy.audiencePrivate}</option>
-              <option value="internal">{copy.audienceInternal}</option>
-              <option value="external">{copy.audienceExternal}</option>
-            </select>
-          </label>
+          <AudienceMark
+            value={String(values[key] || 'private')}
+            ceiling={field.exposure}
+            labels={{ private: copy.audiencePrivate, internal: copy.audienceInternal, external: copy.audienceExternal }}
+            onChange={(next) => setValues((current) => ({ ...current, [key]: next }))}
+          />
         ) : null}
       </div>
     );
   };
 
-  return (
-    <AppPageTemplate
-      kicker={copy.kicker}
-      title={copy.title}
-      subtitle={copy.subtitle || undefined}
-      stickyHeader
-      actions={saveControl('min-h-11')}
-    >
+  const form = (
+    <>
       {ready ? (
         <form id="profile-form" onSubmit={handleSave} className="min-w-0">
           <AppProfileStack>
@@ -238,6 +260,22 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
           <Skeleton className="h-24 w-full" />
         </div>
       )}
+    </>
+  );
+
+  if (embedded) {
+    return form;
+  }
+
+  return (
+    <AppPageTemplate
+      kicker={copy.kicker}
+      title={copy.title}
+      subtitle={copy.subtitle || undefined}
+      stickyHeader
+      actions={saveControl('min-h-11')}
+    >
+      {form}
     </AppPageTemplate>
   );
 }

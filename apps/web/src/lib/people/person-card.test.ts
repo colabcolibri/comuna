@@ -14,4 +14,14 @@ describe('person card projection', () => {
     expect(card.bio).toEqual([]);
     expect(card.contacts).toEqual({ linkedin: 'https://linkedin.com/in/x' });
   });
+
+  it('hides an external headline when the ceiling is internal', () => {
+    const card = toPersonCard(
+      { id: 'm1', full_name: 'Ada', headline: [{ locale: 'pt-BR', value: 'Olá' }], headline_audience: 'external' },
+      [],
+      'external',
+      { headline: 'internal' }
+    );
+    expect(card.headline).toEqual([]);
+  });
 });

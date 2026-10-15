@@ -15,6 +15,7 @@ const SIZE = {
   md: 'sm:max-w-lg',
   lg: 'sm:max-w-2xl',
   xl: 'sm:max-w-4xl',
+  full: 'app-dialog-fill top-1/2 left-1/2 h-[95dvh] max-h-[95dvh] w-[95vw] max-w-[95vw] -translate-x-1/2 -translate-y-1/2 rounded-xl sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:h-[95dvh] sm:max-h-[95dvh] sm:w-[95vw] sm:max-w-[95vw] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-xl',
 } as const;
 
 export type AppDialogSize = keyof typeof SIZE;
@@ -35,8 +36,10 @@ export function AppDialog({
       <DialogContent
         showCloseButton={false}
         className={cn(
-          'grid max-h-[min(90svh,40rem)] w-full grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0',
-          'top-auto bottom-0 translate-y-0 rounded-t-xl sm:top-[50%] sm:bottom-auto sm:translate-y-[-50%] sm:rounded-xl',
+          'grid w-full grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden p-0',
+          size === 'full'
+            ? null
+            : 'max-h-[min(90svh,40rem)] top-auto bottom-0 translate-y-0 rounded-t-xl sm:top-[50%] sm:bottom-auto sm:translate-y-[-50%] sm:rounded-xl',
           SIZE[size]
         )}
       >
@@ -71,7 +74,7 @@ export function AppDialogHeader({
 
 export function AppDialogBody({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <ScrollArea type="always" className={cn('app-scroll app-dialog-scroll', className)}>
+    <ScrollArea type="always" className={cn('app-scroll app-dialog-scroll h-full min-h-0', className)}>
       <div className="px-5 py-4 sm:px-6">{children}</div>
     </ScrollArea>
   );

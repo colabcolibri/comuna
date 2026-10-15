@@ -6,6 +6,7 @@ import { PeopleCohortSelect, PeopleFilters } from '@/components/app/PeopleFilter
 import { PeopleMap } from '@/components/app/PeopleMap';
 import { PeopleMapToggle } from '@/components/app/PeopleMapToggle';
 import { PeoplePlaceFilters } from '@/components/app/PeoplePlaceFilters';
+import { inspectSections } from '@/components/app/inspect-sections';
 import { PersonInspect } from '@/components/app/PersonInspect';
 import { uiCatalog } from '@/lang/catalog';
 import { activeFilterCount, directoryQueryString, type ListQueryExtras } from '@/lib/people/directory-query';
@@ -312,6 +313,7 @@ export function DirectoryPanel({
                     photoUrl={view.photoUrl}
                     headline={view.headline}
                     city={view.city}
+                    talentLine={profile.offerings?.[0]?.title || null}
                     languages={view.languages.map((item) => item.label)}
                     actionLabel={copy.view}
                     onOpen={() => setSelected(profile)}
@@ -329,6 +331,7 @@ export function DirectoryPanel({
         copy={copy}
         locale={locale}
         canContact={canContact}
+        sections={inspectSections(enabled, selected, copy)}
         onClose={() => setSelected(null)}
       />
     </AppPageTemplate>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queryAsMember } from '@community/db';
 import { parseLocalized } from '@community/identity';
-import { missingRequiredFields, parseAudience, parseField, validateCustomAttributes } from '@community/directory';
+import { audienceAllowedByCeiling, missingRequiredFields, parseAudience, parseField, validateCustomAttributes } from '@community/directory';
 import { canWriteCards } from '@/modules/registry';
 import { moduleRuntime } from '@/lib/server/membership';
 import { memberCommunityFromRequest } from '@/lib/server/member-community';
@@ -54,7 +54,7 @@ export async function PUT(req: NextRequest) {
   const bio = parseLocalized(body.bio);
   const catalog = await queryAsMember(
     { userId: resolved.userId, communityId: resolved.seat.id },
-    `SELECT f.name, f.type, f.options, f.storage, f.column_key, f.required, f.localized, f.span, f.sort_order, f.label
+    `SELECT f.name, f.type, f.options, f.storage, f.column_key, f.required, f.localized, f.span, f.sort_order, f.label, f.exposure
      FROM plugin_directory.fields f
      JOIN plugin_directory.field_groups g ON g.id = f.group_id
      WHERE g.community_id = $1 AND g.enabled AND f.enabled`,
@@ -67,9 +67,27 @@ export async function PUT(req: NextRequest) {
   if (attributes.ok === false) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: attributes.message } }, { status: 400 });
   }
-  const audiences = body.audiences && typeof body.audiences === 'object' ? body.audiences : {};
+  const audiences = body.audiences && typeof body.audiences === 'object' ? (body.audiences as Record<string, unknown>) : {};
   const attributeAudience =
-    audiences.attributes && typeof audiences.attributes === 'object' ? audiences.attributes : {};
+    audiences.attributes && typeof audiences.attributes === 'object' ? (audiences.attributes as Record<string, unknown>) : {};
+  const above = fields.some((field) => {
+    const chosen =
+      field.column_key === 'headline'
+        ? audiences.headline
+        : field.column_key === 'bio'
+          ? audiences.bio
+          : field.storage === 'attributes'
+            ? attributeAudience[field.name]
+            : undefined;
+    if (chosen === undefined) return false;
+    return !audienceAllowedByCeiling(parseAudience(chosen), field.exposure);
+  });
+  if (above) {
+    return NextResponse.json(
+      { error: { code: 'VALIDATION_ERROR', message: 'Audiência acima do teto da comunidade.' } },
+      { status: 400 }
+    );
+  }
   const values: Record<string, unknown> = {
     headline,
     bio,

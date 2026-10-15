@@ -1,3 +1,5 @@
+import { effectiveAudience, parseAudience, parseExposure } from '@community/directory';
+
 const PUBLIC_CONTACT_KEYS = ['linkedin', 'github', 'portfolio'] as const;
 
 export type PersonCard = {
@@ -42,27 +44,42 @@ export function publicAttributes(raw: unknown, allowed: string[]): Record<string
   return out;
 }
 
-function audienceAllows(audience: unknown, level: 'internal' | 'external' | 'owner') {
-  if (level === 'owner' || typeof audience !== 'string') {
-    return true;
+function audienceAllows(audience: unknown, exposure: unknown, level: 'internal' | 'external' | 'owner') {
+  if (level === 'owner') return true;
+  const ceiling = parseExposure(exposure);
+  const person = parseAudience(audience, 'private');
+  const effective = ceiling ? effectiveAudience(person, ceiling) : person;
+  if (!effective) return false;
+  if (level === 'external') return effective === 'external';
+  return effective === 'internal' || effective === 'external';
+}
+
+export function ceilingsFrom(
+  fields: { column_key: string | null; name: string; storage: string; exposure: string | null }[]
+) {
+  const attributes: Record<string, string | null> = {};
+  let headline: string | null | undefined;
+  let bio: string | null | undefined;
+  for (const field of fields) {
+    if (field.column_key === 'headline') headline = field.exposure;
+    else if (field.column_key === 'bio') bio = field.exposure;
+    else if (field.storage === 'attributes') attributes[field.name] = field.exposure;
   }
-  if (level === 'external') {
-    return audience === 'external';
-  }
-  return audience === 'internal' || audience === 'external';
+  return { headline, bio, attributes };
 }
 
 export function toPersonCard(
   row: Record<string, unknown>,
   attributeKeys: string[] = [],
-  level: 'internal' | 'external' | 'owner' = 'owner'
+  level: 'internal' | 'external' | 'owner' = 'owner',
+  ceilings: { headline?: unknown; bio?: unknown; attributes?: Record<string, unknown> } = {}
 ): PersonCard {
   const hasAudienceMap = Boolean(row.attribute_audience && typeof row.attribute_audience === 'object');
   const audienceMap = hasAudienceMap ? (row.attribute_audience as Record<string, unknown>) : {};
   const attributes = publicAttributes(row.custom_attributes, attributeKeys);
   if (hasAudienceMap) {
     for (const key of Object.keys(attributes)) {
-      if (!audienceAllows(audienceMap[key] ?? 'private', level)) {
+      if (!audienceAllows(audienceMap[key] ?? 'private', ceilings.attributes?.[key], level)) {
         delete attributes[key];
       }
     }
@@ -74,8 +91,8 @@ export function toPersonCard(
     current_city: row.current_city ?? null,
     languages: row.languages ?? [],
     contacts: publicContacts(row.contacts),
-    headline: audienceAllows(row.headline_audience, level) ? (row.headline ?? []) : [],
-    bio: audienceAllows(row.bio_audience, level) ? (row.bio ?? []) : [],
+    headline: audienceAllows(row.headline_audience, ceilings.headline, level) ? (row.headline ?? []) : [],
+    bio: audienceAllows(row.bio_audience, ceilings.bio, level) ? (row.bio ?? []) : [],
     custom_attributes: attributes,
     offerings: Array.isArray(row.offerings) ? (row.offerings as PersonCard['offerings']) : undefined,
   };

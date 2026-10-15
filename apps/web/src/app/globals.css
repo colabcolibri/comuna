@@ -38,6 +38,12 @@
     min-width: 100%;
   }
 
+  .app-dialog-fill .app-dialog-scroll,
+  .app-dialog-fill .app-dialog-scroll [data-slot="scroll-area-viewport"] {
+    height: 100% !important;
+    max-height: none !important;
+  }
+
   .app-sheet-scroll {
     min-height: 0;
     flex: 1 1 auto;

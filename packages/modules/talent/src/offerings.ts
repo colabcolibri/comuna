@@ -48,10 +48,21 @@ export function parseOffering(body: Record<string, unknown>): { ok: true; value:
   };
 }
 
+export type TalentCeiling = 'hidden' | 'internal' | 'external';
+
+export function talentCeiling(settings: unknown): TalentCeiling {
+  const value = settings && typeof settings === 'object' ? (settings as { talent_exposure?: unknown }).talent_exposure : null;
+  return value === 'hidden' || value === 'internal' || value === 'external' ? value : 'internal';
+}
+
 export function visibleOfferings<T extends { audience: string }>(
   rows: T[],
-  level: 'owner' | 'internal' | 'external'
+  level: 'owner' | 'internal' | 'external',
+  ceiling: TalentCeiling = 'external'
 ) {
+  if (level !== 'owner' && (ceiling === 'hidden' || (ceiling === 'internal' && level === 'external'))) {
+    return [];
+  }
   if (level === 'owner') {
     return rows;
   }

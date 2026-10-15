@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queryAsMember } from '@community/db';
-import { parseOffering, talentContribution } from '@community/talent';
+import { parseOffering, talentCeiling, talentContribution } from '@community/talent';
 import { memberCommunityFromRequest } from '@/lib/server/member-community';
 import { moduleRuntime } from '@/lib/server/membership';
 
@@ -17,6 +17,17 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   const parsed = parseOffering(await req.json());
   if (!parsed.ok) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: parsed.message } }, { status: 400 });
+  }
+  const settings = await queryAsMember<{ settings: unknown }>(
+    { userId: resolved.userId, communityId: resolved.seat.id },
+    `SELECT settings FROM network_core.communities WHERE id = $1`,
+    [resolved.seat.id]
+  );
+  if (talentCeiling(settings.rows[0]?.settings) === 'internal' && parsed.value.audience === 'external') {
+    return NextResponse.json(
+      { error: { code: 'VALIDATION_ERROR', message: 'Audiência acima do teto da comunidade.' } },
+      { status: 400 }
+    );
   }
   const value = parsed.value;
   const updated = await queryAsMember(

@@ -70,8 +70,8 @@ export function MemberShell({
             </span>
             <span className="truncate font-semibold tracking-tight">{brand}</span>
           </Link>
-          {headerNav.map((item) => {
-            const href = slug ? communityPath(slug, item.href) : item.href;
+          {slug ? headerNav.map((item) => {
+            const href = communityPath(slug, item.href);
             const active = pathname === href || pathname.startsWith(`${href}/`);
             return (
           <Link
@@ -89,7 +89,7 @@ export function MemberShell({
             </span>
           </Link>
             );
-          })}
+          }) : null}
           <div className="ml-auto flex items-center gap-1">
             <LocaleSwitcher />
             <ThemeToggle className="size-8" toDark={copy.toDark} toLight={copy.toLight} />

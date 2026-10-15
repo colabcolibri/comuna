@@ -51,10 +51,11 @@ export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGro
     options: unknown;
     label: unknown;
     description: unknown;
+    exposure: string | null;
   }>(
     `SELECT g.id AS group_id, g.slug AS group_slug, g.label AS group_label, g.columns AS group_columns,
             g.enabled AS group_enabled,
-            f.id AS field_id, f.name, f.type, f.storage, f.span, f.required, f.localized, f.enabled, f.options, f.label, f.description
+            f.id AS field_id, f.name, f.type, f.storage, f.span, f.required, f.localized, f.enabled, f.options, f.label, f.description, f.exposure
      FROM plugin_directory.field_groups g
      LEFT JOIN plugin_directory.fields f ON f.group_id = g.id
      WHERE g.community_id = $1
@@ -93,6 +94,7 @@ export async function listOpsCatalog(communityId: string): Promise<OpsCatalogGro
       optionsText: optionsToText(row.options),
       label: parseLocalized(row.label),
       description: parseLocalized(row.description),
+      exposure: row.exposure === 'hidden' || row.exposure === 'internal' || row.exposure === 'external' ? row.exposure : null,
     });
   }
   return order.map((id) => groups.get(id)!);

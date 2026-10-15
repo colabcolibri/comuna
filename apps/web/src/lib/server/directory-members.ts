@@ -9,10 +9,10 @@ import {
   attributeFacets,
 } from '@community/directory';
 import type { AppQueryCtx } from '@/lib/server/app-ctx';
-import { toPersonCard } from '@/lib/people/person-card';
+import { ceilingsFrom, toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
 import { loadOfferingsAsMember, offeringsByMembership } from '@/lib/server/talent-offers';
-import { talentContribution } from '@community/talent';
+import { talentCeiling, talentContribution } from '@community/talent';
 
 export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSearchParams) {
   const on = await moduleRuntime.isEnabled(ctx.communityId, directoryContribution.slug);
@@ -35,8 +35,16 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
     : { rows: [{ total: 0 }] };
   const result = await queryAsMember(ctx, built.text, built.params);
   const talentOn = await moduleRuntime.isEnabled(ctx.communityId, talentContribution.slug);
+  const ceilingRow = talentOn
+    ? await queryAsMember<{ settings: unknown }>(ctx, `SELECT settings FROM network_core.communities WHERE id = $1`, [ctx.communityId])
+    : { rows: [] as { settings: unknown }[] };
   const rows = talentOn
-    ? await offeringsByMembership(result.rows as Record<string, unknown>[], 'internal', loadOfferingsAsMember(ctx))
+    ? await offeringsByMembership(
+        result.rows as Record<string, unknown>[],
+        'internal',
+        loadOfferingsAsMember(ctx),
+        talentCeiling(ceilingRow.rows[0]?.settings)
+      )
     : result.rows;
   const countriesQuery = peopleListCountriesQuery({ communityId: ctx.communityId, scope: 'directory' });
   const countries = await queryAsMember<{ country: string }>(ctx, countriesQuery.text, countriesQuery.params);
@@ -44,7 +52,7 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
   return {
     status: 200 as const,
     body: {
-      data: (rows as Record<string, unknown>[]).map((row) => toPersonCard(row, keys, 'internal')),
+      data: (rows as Record<string, unknown>[]).map((row) => toPersonCard(row, keys, 'internal', ceilingsFrom(listFields))),
       facets: attributeFacets(listFields),
       listFields,
       countries: countries.rows.map((row) => row.country).filter(Boolean),

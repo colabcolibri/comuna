@@ -6,6 +6,6 @@ export const talentContribution: ModuleContribution = {
   requires: ['directory'],
   routes: [{ path: '/talents' }],
   chrome: [{ slot: 'sidebar', href: '/talents', copyKey: 'talent', memberOnly: true, icon: 'users' }],
-  slots: [],
+  slots: [{ id: 'inspect.section' }],
   writesCards: false,
 };

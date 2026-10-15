@@ -53,8 +53,9 @@ export async function listOpsListFields(communityId: string, rawKey: unknown): P
     label: unknown;
     filterable: boolean;
     placement: string;
+    exposure: string | null;
   }>(
-    `SELECT f.id, f.name, f.type, f.column_key, f.label, lf.filterable, lf.placement
+    `SELECT f.id, f.name, f.type, f.column_key, f.label, f.exposure, lf.filterable, lf.placement
      FROM plugin_directory.fields f
      JOIN plugin_directory.field_groups g ON g.id = f.group_id
      JOIN plugin_directory.list_fields lf ON lf.field_id = f.id AND lf.list_key = $2
@@ -62,10 +63,12 @@ export async function listOpsListFields(communityId: string, rawKey: unknown): P
      ORDER BY g.sort_order, f.sort_order`,
     [communityId, listKey]
   );
-  return result.rows.map((row) => {
+  return result.rows.flatMap((row) => {
+    if (listKey === 'showcase' && row.exposure != null && row.exposure !== 'external') return [];
+    if (listKey === 'directory' && row.exposure === 'hidden') return [];
     const field = { name: row.name, column_key: row.column_key, type: row.type };
     const forbidden = listKey === 'showcase' && showcaseFieldForbidden(field);
-    return {
+    return [{
       fieldId: row.id,
       name: row.name,
       type: row.type,
@@ -75,7 +78,7 @@ export async function listOpsListFields(communityId: string, rawKey: unknown): P
       placement: parseListPlacement(row.placement),
       placementLocked: identityPlacementLocked(field) || forbidden,
       forbidden,
-    };
+    }];
   });
 }
 

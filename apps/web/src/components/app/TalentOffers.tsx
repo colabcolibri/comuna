@@ -51,6 +51,7 @@ export function TalentOffers() {
   const [draft, setDraft] = useState(EMPTY);
   const [editing, setEditing] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [ceiling, setCeiling] = useState<'hidden' | 'internal' | 'external'>('internal');
 
   async function load() {
     const response = await fetch('/api/talent/offerings');
@@ -59,6 +60,7 @@ export function TalentOffers() {
       return;
     }
     const body = await response.json();
+    setCeiling(body.ceiling === 'hidden' || body.ceiling === 'external' ? body.ceiling : 'internal');
     setOffers(Array.isArray(body.data) ? body.data : []);
   }
 
@@ -151,18 +153,22 @@ export function TalentOffers() {
               />
             </label>
           ) : null}
-          <label className="grid gap-1 text-sm">
-            {copy.audience}
-            <select
-              className="h-11 w-full rounded-md border border-input bg-background px-3"
-              value={draft.audience}
-              onChange={(event) => setDraft({ ...draft, audience: event.target.value })}
-            >
-              <option value="private">{copy.audiencePrivate}</option>
-              <option value="internal">{copy.audienceInternal}</option>
-              <option value="external">{copy.audienceExternal}</option>
-            </select>
-          </label>
+          <div className="flex min-w-0 flex-wrap gap-1">
+            {(['private', 'internal', 'external'] as const)
+              .filter((item) => (ceiling === 'internal' ? item !== 'external' : true))
+              .map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  title={item === 'private' ? copy.audiencePrivate : item === 'internal' ? copy.audienceInternal : copy.audienceExternal}
+                  aria-pressed={draft.audience === item}
+                  className={`inline-flex size-9 items-center justify-center rounded-md border text-sm ${draft.audience === item ? 'border-foreground' : 'border-input'}`}
+                  onClick={() => setDraft({ ...draft, audience: item })}
+                >
+                  {item === 'private' ? '🔒' : item === 'internal' ? '👥' : '🌐'}
+                </button>
+              ))}
+          </div>
           <Button type="submit" className="min-h-11 w-full sm:w-auto">
             {copy.save}
           </Button>

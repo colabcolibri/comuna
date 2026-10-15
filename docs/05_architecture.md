@@ -130,7 +130,7 @@ Criar comunidade, pessoas da rede (listar **e criar** conta por e-mail), members
 
 ## Audiência do conteúdo publicado
 
-Conteúdo que o membro publica na comunidade usa `private | internal | external`. Externo inclui interno. O default de conteúdo novo é `private`. Diretório lê `internal` e `external`. Vitrine lê só `external`, com o plugin showcase ligado e `communities.is_public_showcase`. Nome, foto, e-mail, telefone, gênero e cidades ficam fora do enum. `public_directory` e `public_showcase` deixam de ser o modelo. Talento é plugin e usa a mesma audiência. Skills do diagrama não são tabela.
+Conteúdo que o membro publica na comunidade usa `private | internal | external`. Externo inclui interno. O default de conteúdo novo é `private`. A comunidade tem um teto separado, `hidden | internal | external` (oculto, interno, externo), em `fields.exposure` e em `communities.settings.talent_exposure`. A leitura usa o menor dos dois e não apaga a escolha da pessoa. Diretório lê o nível efetivo interno ou externo. Vitrine lê só o efetivo externo, com o plugin showcase ligado e `communities.is_public_showcase`. Nome, foto, e-mail, telefone, gênero e cidades ficam fora das duas escalas. Presença na superfície é layout (`off`, `detail`, `card`): não aparece, só na ficha, no cartão. No cartão inclui a ficha. Oculto não é presença. As superfícies se chamam Diretório e Vitrine. O diálogo da ficha é cabeçalho, texto, fatos e depois seções de plugin. O cartão da grade leva no máximo uma linha de talento.
 
 ## Profile field catalog
 

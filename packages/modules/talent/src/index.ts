@@ -1,3 +1,3 @@
 export { talentContribution } from './contribution';
 export { TALENT_CATEGORIES, categoryLabel } from './categories';
-export { parseOffering, visibleOfferings, OFFERING_LIMIT } from './offerings';
+export { parseOffering, visibleOfferings, talentCeiling, OFFERING_LIMIT, type TalentCeiling } from './offerings';

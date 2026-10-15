@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queryAsMember } from '@community/db';
-import { OFFERING_LIMIT, parseOffering, talentContribution } from '@community/talent';
+import { OFFERING_LIMIT, parseOffering, talentCeiling, talentContribution } from '@community/talent';
 import { memberCommunityFromRequest } from '@/lib/server/member-community';
 import { moduleRuntime } from '@/lib/server/membership';
 
@@ -33,7 +33,12 @@ export async function GET(req: NextRequest) {
      ORDER BY created_at`,
     [resolved.seat.membership_id]
   );
-  return NextResponse.json({ data: rows.rows });
+  const settings = await queryAsMember<{ settings: unknown }>(
+    { userId: resolved.userId, communityId: resolved.seat.id },
+    `SELECT settings FROM network_core.communities WHERE id = $1`,
+    [resolved.seat.id]
+  );
+  return NextResponse.json({ data: rows.rows, ceiling: talentCeiling(settings.rows[0]?.settings) });
 }
 
 export async function POST(req: NextRequest) {
@@ -53,6 +58,18 @@ export async function POST(req: NextRequest) {
   );
   if ((count.rows[0]?.total ?? 0) >= OFFERING_LIMIT) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: 'Limite de ofertas atingido.' } }, { status: 400 });
+  }
+  const settings = await queryAsMember<{ settings: unknown }>(
+    { userId: resolved.userId, communityId: resolved.seat.id },
+    `SELECT settings FROM network_core.communities WHERE id = $1`,
+    [resolved.seat.id]
+  );
+  const ceiling = talentCeiling(settings.rows[0]?.settings);
+  if (ceiling === 'internal' && parsed.value.audience === 'external') {
+    return NextResponse.json(
+      { error: { code: 'VALIDATION_ERROR', message: 'Audiência acima do teto da comunidade.' } },
+      { status: 400 }
+    );
   }
   const value = parsed.value;
   const inserted = await queryAsMember(

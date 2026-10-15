@@ -42,8 +42,10 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
   }
   const card = await query<{ listed: boolean }>(
-    `SELECT ${showcaseScopeSql('c')} AS listed
-     FROM plugin_directory.cards c WHERE c.membership_id = $1`,
+    `SELECT ${showcaseScopeSql('c', 'm.community_id')} AS listed
+     FROM plugin_directory.cards c
+     JOIN network_core.memberships m ON m.id = c.membership_id
+     WHERE c.membership_id = $1`,
     [id]
   );
   if (!card.rows[0]?.listed) {

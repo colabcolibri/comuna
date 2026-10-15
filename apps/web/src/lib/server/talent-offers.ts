@@ -9,9 +9,10 @@ const SQL = `SELECT membership_id, title, description, url, category_id, categor
 export async function offeringsByMembership(
   rows: Record<string, unknown>[],
   level: 'internal' | 'external',
-  load: (sql: string, params: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>
+  load: (sql: string, params: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>,
+  ceiling: 'hidden' | 'internal' | 'external' = 'external'
 ) {
-  if (!rows.length) {
+  if (!rows.length || ceiling === 'hidden' || (ceiling === 'internal' && level === 'external')) {
     return rows;
   }
   const ids = rows.map((row) => String(row.id));

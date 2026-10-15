@@ -33,7 +33,8 @@ describe('peopleListQuery', () => {
     }
     expect(built.text).toContain('JOIN person_core.profiles p');
     expect(built.text).toContain('JOIN plugin_directory.cards c');
-    expect(built.text.match(/JOIN/g)?.length).toBe(2);
+    expect(built.text.match(/JOIN person_core.profiles p/g)?.length).toBe(1);
+    expect(built.text.match(/JOIN plugin_directory.cards c/g)?.length).toBe(1);
     expect(built.text).toContain('custom_attributes @>');
     expect(built.text).toContain("m.network_status = 'active'");
     expect(built.text).toContain("headline_audience IN ('internal', 'external')");

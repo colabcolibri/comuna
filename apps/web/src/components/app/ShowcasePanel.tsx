@@ -29,6 +29,7 @@ import { PeopleFilters } from '@/components/app/PeopleFilters';
 import { PeopleMap } from '@/components/app/PeopleMap';
 import { PeopleMapToggle } from '@/components/app/PeopleMapToggle';
 import { PeoplePlaceFilters } from '@/components/app/PeoplePlaceFilters';
+import { inspectSections } from '@/components/app/inspect-sections';
 import { PersonInspect } from '@/components/app/PersonInspect';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
 import { SHOWCASE_MAP_VIEW } from '@community/map';
@@ -302,6 +303,7 @@ export function ShowcasePanel({
                     headline={view.headline}
                     summary={view.summary}
                     city={view.city}
+                    talentLine={profile.offerings?.[0]?.title || null}
                     languagesLabel={view.languagesHeading || copy.languages}
                     languages={view.languages.map((item) => item.label)}
                     facts={view.facts}
@@ -335,6 +337,7 @@ export function ShowcasePanel({
         copy={copy}
         locale={locale}
         canContact={canContact}
+        sections={inspectSections(enabled, selected, copy)}
         onClose={() => setSelected(null)}
       />
     </AppShowcasePortal>

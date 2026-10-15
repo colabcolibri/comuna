@@ -142,6 +142,23 @@ export function CommunityFieldsField({
             <p className="text-sm font-medium wrap-break-word">
               {pickLocalizedText(field.label, locale) || field.name}
             </p>
+            {field.exposure ? (
+              <button
+                type="button"
+                className="inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-input text-sm"
+                title={field.exposure === 'hidden' ? 'Oculto' : field.exposure === 'internal' ? 'Interno' : 'Externo'}
+                onClick={() => {
+                  const order = ['hidden', 'internal', 'external'] as const;
+                  const next = order[(order.indexOf(field.exposure!) + 1) % order.length];
+                  void patchField({ exposure: next }).then((ok) => {
+                    if (!ok) toast.error(copy.error);
+                    else onChanged();
+                  });
+                }}
+              >
+                {field.exposure === 'hidden' ? '⊘' : field.exposure === 'internal' ? '👥' : '🌐'}
+              </button>
+            ) : null}
             {field.locked ? <OpsBadge>{copy.locked}</OpsBadge> : null}
             {field.enabled ? null : <OpsBadge>{copy.inactive}</OpsBadge>}
           </div>

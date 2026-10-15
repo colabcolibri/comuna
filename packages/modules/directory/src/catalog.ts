@@ -1,4 +1,5 @@
 import { parseLocalized, type LocalizedText } from '@community/identity';
+import { parseExposure } from './audience';
 
 export const FIELD_TYPES = [
   'text',
@@ -39,6 +40,7 @@ export type CatalogField = {
   column_key: string | null;
   enabled: boolean;
   module_slug: string | null;
+  exposure: 'hidden' | 'internal' | 'external' | null;
 };
 
 export function visibleCatalog(groups: CatalogGroup[], enabled: Iterable<string>): CatalogGroup[] {
@@ -118,6 +120,7 @@ export function parseField(row: Record<string, unknown>): CatalogField | null {
     column_key: columnKey,
     enabled: row.enabled !== false,
     module_slug: moduleSlug,
+    exposure: parseExposure(row.exposure),
   };
 }
 

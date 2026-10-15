@@ -14,6 +14,7 @@ export type OpsField = {
   optionsText: string;
   label: LocalizedText;
   description: LocalizedText;
+  exposure: 'hidden' | 'internal' | 'external' | null;
 };
 
 export type OpsGroup = {
