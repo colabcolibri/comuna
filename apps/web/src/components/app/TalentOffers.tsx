@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button } from '@community/ui';
+import { AudienceMark } from '@/components/app/AudienceMark';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { TALENT_CATEGORIES } from '@community/talent';
 import { useLocale } from '@/components/app/LocaleProvider';
@@ -26,7 +27,7 @@ const EMPTY = {
   audience: 'private',
 };
 
-export function TalentOffers() {
+export function TalentOffers({ heading = true }: { heading?: boolean }) {
   const locale = useLocale();
   const copy = pickContent(
     contentFromCatalog(uiCatalog, 'core_identity', {
@@ -94,9 +95,9 @@ export function TalentOffers() {
   }
 
   return (
-    <section className="mx-auto mt-8 w-full min-w-0 max-w-3xl space-y-4 px-4 sm:px-6">
+    <section className="mt-12 w-full min-w-0 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold">{copy.title}</h2>
+        {heading ? <h2 className="text-2xl font-semibold tracking-tight">{copy.title}</h2> : <span />}
         <Button type="button" className="min-h-11" onClick={() => setOpen((value) => !value)}>
           {copy.add}
         </Button>
@@ -153,21 +154,13 @@ export function TalentOffers() {
               />
             </label>
           ) : null}
-          <div className="flex min-w-0 flex-wrap gap-1">
-            {(['private', 'internal', 'external'] as const)
-              .filter((item) => (ceiling === 'internal' ? item !== 'external' : true))
-              .map((item) => (
-                <button
-                  key={item}
-                  type="button"
-                  title={item === 'private' ? copy.audiencePrivate : item === 'internal' ? copy.audienceInternal : copy.audienceExternal}
-                  aria-pressed={draft.audience === item}
-                  className={`inline-flex size-9 items-center justify-center rounded-md border text-sm ${draft.audience === item ? 'border-foreground' : 'border-input'}`}
-                  onClick={() => setDraft({ ...draft, audience: item })}
-                >
-                  {item === 'private' ? '🔒' : item === 'internal' ? '👥' : '🌐'}
-                </button>
-              ))}
+          <div className="flex min-w-0 justify-end">
+            <AudienceMark
+              value={draft.audience}
+              ceiling={ceiling}
+              labels={{ private: copy.audiencePrivate, internal: copy.audienceInternal, external: copy.audienceExternal }}
+              onChange={(audience) => setDraft({ ...draft, audience })}
+            />
           </div>
           <Button type="submit" className="min-h-11 w-full sm:w-auto">
             {copy.save}

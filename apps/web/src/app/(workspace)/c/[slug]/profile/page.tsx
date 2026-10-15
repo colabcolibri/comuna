@@ -5,9 +5,6 @@ import { TalentOffers } from '@/components/app/TalentOffers';
 
 export default function CommunityProfilePage() {
   return (
-    <>
-      <ProfileForm scope="community" />
-      <TalentOffers />
-    </>
+    <ProfileForm scope="community" extra={<TalentOffers />} />
   );
 }

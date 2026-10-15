@@ -12,5 +12,5 @@ export { AppPersonCard, AppShowcaseCard, AppShowcaseGrid } from './app-showcase-
 export { AppShowcaseEmpty, AppShowcasePager, AppShowcasePortal } from './app-showcase-portal';
 export { AppPublicChrome } from './app-public-chrome';
 export { FieldGrid, fieldSpanClass } from './field-grid';
-export { AppFormDock, AppProfileSection, AppProfileStack } from './app-profile-section';
+export { AppFormDock, AppProfileItem, AppProfileSection, AppProfileStack } from './app-profile-section';
 export { AppSwitcher } from './app-switcher';

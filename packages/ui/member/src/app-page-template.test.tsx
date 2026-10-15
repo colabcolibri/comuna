@@ -53,7 +53,7 @@ describe('AppPersonRow', () => {
 });
 
 describe('AppProfileSection', () => {
-  it('renders a section heading without wrapping the fields in a card', () => {
+  it('renders the section heading above the fields', () => {
     render(
       <AppProfileStack>
         <AppProfileSection title="Identidade" description="Nome e foto.">

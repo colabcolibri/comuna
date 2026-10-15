@@ -39,7 +39,7 @@ export function LocalizedCopyField({
   return (
     <div className="min-w-0 space-y-2">
       <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
-        <div role="tablist" className="inline-flex rounded-lg border border-border bg-muted/40 p-0.5">
+        <div role="tablist" className="inline-flex items-center gap-3">
           {LOCALES.map((item) => {
             const selected = locale === item.id;
             const empty = !textAt(value, item.id).trim();
@@ -49,7 +49,7 @@ export function LocalizedCopyField({
                 type="button"
                 role="tab"
                 aria-selected={selected}
-                className={`inline-flex min-h-8 items-center gap-1.5 rounded-md px-2.5 text-sm ${selected ? 'bg-background font-medium text-foreground shadow-xs' : 'text-muted-foreground'}`}
+                className={`inline-flex min-h-8 items-center gap-1.5 border-b-2 text-sm ${selected ? 'border-foreground font-medium text-foreground' : 'border-transparent text-muted-foreground'}`}
                 onClick={() => setLocale(item.id)}
               >
                 {item.label}

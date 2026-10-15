@@ -1,55 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { AppPageTemplate, AppProfileSection, AppProfileStack, FieldGrid, fieldSpanClass } from '@community/ui-member';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { AppPageTemplate, AppProfileItem, AppProfileSection, AppProfileStack, FieldGrid, fieldSpanClass } from '@community/ui-member';
 import { Button, Skeleton, toast } from '@community/ui';
-import { Globe, Lock, Users } from 'lucide-react';
 import { contentFromCatalog, pickContent, pickLocalizedText } from '@community/identity';
 import { communityCopyLimit, coreCatalog, missingRequiredFields, type CatalogField, type CatalogGroup } from '@community/directory';
+import { AudienceMark } from '@/components/app/AudienceMark';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { FieldControl } from '@/components/app/FieldControl';
 import { uiCatalog } from '@/lang/catalog';
 import { cardBodyFromFields, groupsForScope, personBodyFromFields, readFieldValue } from '@/lib/profile-bindings';
-
-function AudienceMark({
-  value,
-  ceiling,
-  labels,
-  onChange,
-}: {
-  value: string;
-  ceiling: CatalogField['exposure'];
-  labels: Record<'private' | 'internal' | 'external', string>;
-  onChange: (next: string) => void;
-}) {
-  const options = (['private', 'internal', 'external'] as const).filter((item) => {
-    if (!ceiling || ceiling === 'hidden') return item === 'private';
-    if (ceiling === 'internal') return item !== 'external';
-    return true;
-  });
-  const icons = { private: Lock, internal: Users, external: Globe };
-  return (
-    <div role="group" className="inline-flex shrink-0 rounded-lg border border-border bg-muted/40 p-0.5">
-      {options.map((item) => {
-        const Icon = icons[item];
-        const selected = value === item;
-        return (
-          <button
-            key={item}
-            type="button"
-            title={labels[item]}
-            aria-pressed={selected}
-            className={`inline-flex size-8 items-center justify-center rounded-md ${selected ? 'bg-background text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'}`}
-            onClick={() => onChange(item)}
-          >
-            <Icon className="size-4" aria-hidden />
-            <span className="sr-only">{labels[item]}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 function initialsFrom(value: unknown) {
   const name = typeof value === 'string' ? value.trim() : '';
@@ -64,7 +24,15 @@ function splitIdentity(fields: CatalogField[]) {
   };
 }
 
-export function ProfileForm({ scope, embedded = false }: { scope: 'person' | 'community'; embedded?: boolean }) {
+export function ProfileForm({
+  scope,
+  embedded = false,
+  extra,
+}: {
+  scope: 'person' | 'community';
+  embedded?: boolean;
+  extra?: ReactNode;
+}) {
   const locale = useLocale();
   const copy = pickContent(
     contentFromCatalog(uiCatalog, 'core_identity', {
@@ -195,7 +163,7 @@ export function ProfileForm({ scope, embedded = false }: { scope: 'person' | 'co
   const renderField = (field: CatalogField) => {
     const key = scope === 'community' ? audienceKey(field) : '';
     return (
-      <div className="min-w-0 space-y-2">
+      <AppProfileItem>
         <FieldControl
           field={field}
           locale={locale}
@@ -214,7 +182,7 @@ export function ProfileForm({ scope, embedded = false }: { scope: 'person' | 'co
             ) : null
           }
         />
-      </div>
+      </AppProfileItem>
     );
   };
 
@@ -225,17 +193,18 @@ export function ProfileForm({ scope, embedded = false }: { scope: 'person' | 'co
           <AppProfileStack>
             {groups.map((group) => {
               const title = pickLocalizedText(group.label, locale) || group.slug;
+              const description = pickLocalizedText(group.description, locale);
               const identity = group.slug === 'identity' ? splitIdentity(group.fields) : null;
               return (
-                <AppProfileSection key={group.slug} title={title}>
+                <AppProfileSection key={group.slug} title={title} description={description || undefined}>
                   {identity && identity.photos.length ? (
-                    <div className="flex min-w-0 flex-col gap-6 rounded-xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:p-6">
+                    <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start">
                       {identity.photos.map((field) => (
                         <div key={field.name} className="shrink-0">
                           {renderField(field)}
                         </div>
                       ))}
-                      <div className="min-w-0 w-full flex-1">
+                      <div className="flex min-w-0 w-full flex-1 flex-col gap-3">
                         {identity.rest.map((field) => (
                           <div key={field.name} className="min-w-0">
                             {renderField(field)}
@@ -280,6 +249,7 @@ export function ProfileForm({ scope, embedded = false }: { scope: 'person' | 'co
       actions={saveControl('min-h-11')}
     >
       {form}
+      {extra}
     </AppPageTemplate>
   );
 }

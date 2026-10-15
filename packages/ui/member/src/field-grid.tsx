@@ -9,9 +9,9 @@ export function fieldSpanClass(span: 1 | 2 | 3, columns: 1 | 2 | 3) {
 }
 
 export function fieldGridClass(columns: 1 | 2 | 3) {
-  if (columns >= 3) return 'grid grid-cols-1 md:grid-cols-3 gap-4';
-  if (columns === 2) return 'grid grid-cols-1 md:grid-cols-2 gap-4';
-  return 'grid grid-cols-1 gap-4';
+  if (columns >= 3) return 'grid grid-cols-1 md:grid-cols-3 gap-3';
+  if (columns === 2) return 'grid grid-cols-1 md:grid-cols-2 gap-3';
+  return 'flex flex-col gap-3';
 }
 
 export function FieldGrid({

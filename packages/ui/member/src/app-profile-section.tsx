@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { cn } from '@community/ui';
 
 export function AppProfileStack({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('divide-y divide-border min-w-0', className)}>{children}</div>;
+  return <div className={cn('flex min-w-0 flex-col gap-12 pb-16', className)}>{children}</div>;
 }
 
 export function AppProfileSection({
@@ -15,13 +15,19 @@ export function AppProfileSection({
   children: ReactNode;
 }) {
   return (
-    <section className="min-w-0 py-8 first:pt-0">
-      <h2 className="text-xl font-semibold tracking-tight text-foreground">{title}</h2>
-      {description ? (
-        <p className="mt-1 text-base text-muted-foreground max-w-[40rem] leading-relaxed">{description}</p>
-      ) : null}
-      <div className="mt-6 min-w-0">{children}</div>
+    <section className="min-w-0">
+      <header className="mb-4">
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground">{title}</h2>
+        {description ? <p className="mt-1 text-base leading-relaxed text-muted-foreground">{description}</p> : null}
+      </header>
+      {children}
     </section>
+  );
+}
+
+export function AppProfileItem({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <div className={cn('min-w-0 rounded-xl border border-border bg-card px-4 py-4 sm:px-5', className)}>{children}</div>
   );
 }
 
