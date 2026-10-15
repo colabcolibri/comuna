@@ -81,6 +81,9 @@ importers:
       '@community/showcase':
         specifier: workspace:*
         version: link:../../packages/modules/showcase
+      '@community/talent':
+        specifier: workspace:*
+        version: link:../../packages/modules/talent
       '@community/ui':
         specifier: workspace:*
         version: link:../../packages/ui/primitives
@@ -153,6 +156,9 @@ importers:
       '@community/showcase':
         specifier: workspace:*
         version: link:../../packages/modules/showcase
+      '@community/talent':
+        specifier: workspace:*
+        version: link:../../packages/modules/talent
       '@community/ui':
         specifier: workspace:*
         version: link:../../packages/ui/primitives
@@ -306,6 +312,12 @@ importers:
       '@community/identity':
         specifier: workspace:*
         version: link:../../core/identity
+      '@community/module-runtime':
+        specifier: workspace:*
+        version: link:../../core/module-runtime
+
+  packages/modules/talent:
+    dependencies:
       '@community/module-runtime':
         specifier: workspace:*
         version: link:../../core/module-runtime

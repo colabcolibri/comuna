@@ -126,10 +126,15 @@ Criar comunidade, pessoas da rede (listar **e criar** conta por e-mail), members
 | `showcase` | Projeção pública | Sem vitrine |
 | `contact-mediated` | Formulário sem expor e-mail | Sem hiring mail |
 | `map` | Vista mapa nas listas (Leaflet + OSM) | Sem toggle mapa; grelha continua |
+| `talent` | Ofertas do membro (título, descrição, link, categoria, audiência) | Sem mural; API de oferta responde 404 |
+
+## Audiência do conteúdo publicado
+
+Conteúdo que o membro publica na comunidade usa `private | internal | external`. Externo inclui interno. O default de conteúdo novo é `private`. Diretório lê `internal` e `external`. Vitrine lê só `external`, com o plugin showcase ligado e `communities.is_public_showcase`. Nome, foto, e-mail, telefone, gênero e cidades ficam fora do enum. `public_directory` e `public_showcase` deixam de ser o modelo. Talento é plugin e usa a mesma audiência. Skills do diagrama não são tabela.
 
 ## Profile field catalog
 
-Detalhe: `docs/architecture/profile-fields.md` e `docs/architecture/list-surfaces.md`. Resumo: definições em `field_groups` / `fields`; política de cada lista em `list_fields`; valores custom em `cards.custom_attributes` (escalares, GIN); built-ins via `storage` `person` ou `card_column`; UI de perfil só orquestra grupos e `FieldControl` por tipo.
+Detalhe: `docs/architecture/profile-fields.md` e `docs/architecture/list-surfaces.md`. Resumo: definições em `field_groups` / `fields`; política de cada lista em `list_fields`; valores custom em `cards.custom_attributes` (escalares, GIN); audiência dos atributos em `cards.attribute_audience`; built-ins via `storage` `person` ou `card_column` com `headline_audience`, `bio_audience` e `availability_audience`; UI de perfil só orquestra grupos e `FieldControl` por tipo.
 
 ## Component boundary
 

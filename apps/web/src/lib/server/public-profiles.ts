@@ -10,8 +10,10 @@ import {
   type ListField,
 } from '@community/directory';
 import { showcaseContribution } from '@community/showcase';
+import { talentContribution } from '@community/talent';
 import { toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
+import { loadOfferingsPublic, offeringsByMembership } from '@/lib/server/talent-offers';
 
 export async function listPublicListFields(communityId: string): Promise<ListField[]> {
   const result = await query(LIST_FIELDS_SQL, [communityId, 'showcase']);
@@ -47,11 +49,15 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
     ? await query<{ total: number }>(built.countText, built.countParams)
     : { rows: [{ total: 0 }] };
   const result = await query(built.text, built.params);
+  const talentOn = await moduleRuntime.isEnabled(communityId, talentContribution.slug);
+  const rows = talentOn
+    ? await offeringsByMembership(result.rows as Record<string, unknown>[], 'external', loadOfferingsPublic())
+    : result.rows;
   const countriesQuery = peopleListCountriesQuery({ communityId, scope: 'showcase' });
   const countries = await query<{ country: string }>(countriesQuery.text, countriesQuery.params);
   return {
     status: 200 as const,
-    data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, keys)),
+    data: (rows as Record<string, unknown>[]).map((row) => toPersonCard(row, keys, 'external')),
     facets,
     listFields,
     countries: countries.rows.map((row) => row.country).filter(Boolean),

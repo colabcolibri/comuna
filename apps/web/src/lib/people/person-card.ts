@@ -10,6 +10,7 @@ export type PersonCard = {
   headline: unknown;
   bio: unknown;
   custom_attributes: Record<string, unknown>;
+  offerings?: { title: string; description?: string; url?: string | null; category_other?: string | null }[];
 };
 
 export function publicContacts(raw: unknown): Record<string, string> {
@@ -41,7 +42,31 @@ export function publicAttributes(raw: unknown, allowed: string[]): Record<string
   return out;
 }
 
-export function toPersonCard(row: Record<string, unknown>, attributeKeys: string[] = []): PersonCard {
+function audienceAllows(audience: unknown, level: 'internal' | 'external' | 'owner') {
+  if (level === 'owner' || typeof audience !== 'string') {
+    return true;
+  }
+  if (level === 'external') {
+    return audience === 'external';
+  }
+  return audience === 'internal' || audience === 'external';
+}
+
+export function toPersonCard(
+  row: Record<string, unknown>,
+  attributeKeys: string[] = [],
+  level: 'internal' | 'external' | 'owner' = 'owner'
+): PersonCard {
+  const hasAudienceMap = Boolean(row.attribute_audience && typeof row.attribute_audience === 'object');
+  const audienceMap = hasAudienceMap ? (row.attribute_audience as Record<string, unknown>) : {};
+  const attributes = publicAttributes(row.custom_attributes, attributeKeys);
+  if (hasAudienceMap) {
+    for (const key of Object.keys(attributes)) {
+      if (!audienceAllows(audienceMap[key] ?? 'private', level)) {
+        delete attributes[key];
+      }
+    }
+  }
   return {
     id: String(row.id),
     full_name: String(row.full_name || ''),
@@ -49,8 +74,9 @@ export function toPersonCard(row: Record<string, unknown>, attributeKeys: string
     current_city: row.current_city ?? null,
     languages: row.languages ?? [],
     contacts: publicContacts(row.contacts),
-    headline: row.headline ?? [],
-    bio: row.bio ?? [],
-    custom_attributes: publicAttributes(row.custom_attributes, attributeKeys),
+    headline: audienceAllows(row.headline_audience, level) ? (row.headline ?? []) : [],
+    bio: audienceAllows(row.bio_audience, level) ? (row.bio ?? []) : [],
+    custom_attributes: attributes,
+    offerings: Array.isArray(row.offerings) ? (row.offerings as PersonCard['offerings']) : undefined,
   };
 }

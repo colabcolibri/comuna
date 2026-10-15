@@ -21,6 +21,7 @@
     "@community/module-runtime": "workspace:*",
     "@community/places": "workspace:*",
     "@community/showcase": "workspace:*",
+    "@community/talent": "workspace:*",
     "@community/ui": "workspace:*",
     "@community/ui-member": "workspace:*",
     "@tailwindcss/postcss": "^4.3.3",

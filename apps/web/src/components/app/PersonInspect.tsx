@@ -122,6 +122,21 @@ export function PersonInspect({
       <AppDialogBody>
         {view ? (
           <div className={split ? 'grid min-w-0 gap-8 md:grid-cols-[minmax(0,1fr)_minmax(13rem,18rem)] md:items-start md:gap-10' : 'min-w-0'}>
+            {profile?.offerings?.length ? (
+              <ul className="mt-4 grid min-w-0 gap-2">
+                {profile.offerings.map((offer) => (
+                  <li key={offer.title} className="min-w-0 break-words text-sm">
+                    <span className="font-medium">{offer.title}</span>
+                    {offer.category_other ? <span className="text-muted-foreground"> · {offer.category_other}</span> : null}
+                    {offer.url ? (
+                      <a href={offer.url} target="_blank" rel="noopener noreferrer" className="mt-1 block break-all underline">
+                        {offer.url}
+                      </a>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             {view.headline || view.summary ? (
               <div className="min-w-0">
                 {view.headline ? (

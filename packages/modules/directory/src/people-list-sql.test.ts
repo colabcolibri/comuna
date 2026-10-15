@@ -36,8 +36,8 @@ describe('peopleListQuery', () => {
     expect(built.text.match(/JOIN/g)?.length).toBe(2);
     expect(built.text).toContain('custom_attributes @>');
     expect(built.text).toContain("m.network_status = 'active'");
-    expect(built.text).toContain('c.public_directory = true');
-    expect(built.text).not.toContain('c.public_showcase = true');
+    expect(built.text).toContain("headline_audience IN ('internal', 'external')");
+    expect(built.text).not.toContain("headline_audience = 'external'");
     expect(built.params).toEqual(['c1', '{"host_at_home":true}', '%ana%', 24, 0]);
     expect(built.text).toContain('LIMIT $');
     expect(built.pageSize).toBe(24);
@@ -54,8 +54,8 @@ describe('peopleListQuery', () => {
     if (built.ok === false) {
       return;
     }
-    expect(built.text).toContain('c.public_showcase = true');
-    expect(built.text).not.toContain('c.public_directory = true');
+    expect(built.text).toContain("headline_audience = 'external'");
+    expect(built.text).not.toContain("headline_audience IN ('internal', 'external')");
     expect(built.text).not.toContain('cohort_id');
   });
 
@@ -193,7 +193,7 @@ describe('peopleListQuery', () => {
   it('lists distinct countries without search or radius', () => {
     const built = peopleListCountriesQuery({ communityId: 'c1', scope: 'directory' });
     expect(built.text).toContain('DISTINCT p.current_country');
-    expect(built.text).toContain('c.public_directory = true');
+    expect(built.text).toContain("headline_audience IN ('internal', 'external')");
     expect(built.text).not.toContain('ILIKE');
     expect(built.text).not.toContain('6371');
     expect(built.params).toEqual(['c1']);

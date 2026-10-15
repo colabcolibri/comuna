@@ -36,6 +36,10 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
       requiredMissing: 'profile.required_missing',
       pairPt: 'profile.pair_pt',
       pairEn: 'profile.pair_en',
+      audience: 'profile.audience',
+      audiencePrivate: 'profile.audience_private',
+      audienceInternal: 'profile.audience_internal',
+      audienceExternal: 'profile.audience_external',
     }),
     locale
   );
@@ -71,6 +75,18 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
             profile: profileJson.profile,
             card: membershipJson.card,
           });
+          if (scope === 'community' && field.storage !== 'person') {
+            const card = membershipJson.card || {};
+            const column = field.column_key || field.name;
+            if (column === 'headline') {
+              next.headline_audience = card.headline_audience || 'private';
+            } else if (column === 'bio') {
+              next.bio_audience = card.bio_audience || 'private';
+            } else if (field.storage === 'attributes') {
+              const map = card.attribute_audience || {};
+              next[`audience:${field.name}`] = map[field.name] || 'private';
+            }
+          }
         }
         setValues(next);
         setReady(true);
@@ -123,17 +139,52 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
     </Button>
   );
 
-  const renderField = (field: CatalogField) => (
-    <FieldControl
-      field={field}
-      locale={locale}
-      value={values[field.name]}
-      onChange={(next) => setValues((current) => ({ ...current, [field.name]: next }))}
-      pairPt={copy.pairPt}
-      pairEn={copy.pairEn}
-      initials={initialsFrom(values.full_name)}
-    />
-  );
+  const audienceKey = (field: CatalogField) => {
+    const column = field.column_key || field.name;
+    if (column === 'headline') {
+      return 'headline_audience';
+    }
+    if (column === 'bio') {
+      return 'bio_audience';
+    }
+    if (field.storage === 'attributes') {
+      return `audience:${field.name}`;
+    }
+    return '';
+  };
+
+  const renderField = (field: CatalogField) => {
+    const key = scope === 'community' ? audienceKey(field) : '';
+    return (
+      <div className="min-w-0 space-y-2">
+        <FieldControl
+          field={field}
+          locale={locale}
+          value={values[field.name]}
+          onChange={(next) => setValues((current) => ({ ...current, [field.name]: next }))}
+          pairPt={copy.pairPt}
+          pairEn={copy.pairEn}
+          initials={initialsFrom(values.full_name)}
+        />
+        {key ? (
+          <label className="block min-w-0 text-sm text-muted-foreground">
+            <span className="mb-1 block">{copy.audience}</span>
+            <select
+              className="h-11 w-full max-w-full rounded-md border border-input bg-background px-3"
+              value={String(values[key] || 'private')}
+              onChange={(event) =>
+                setValues((current) => ({ ...current, [key]: event.target.value }))
+              }
+            >
+              <option value="private">{copy.audiencePrivate}</option>
+              <option value="internal">{copy.audienceInternal}</option>
+              <option value="external">{copy.audienceExternal}</option>
+            </select>
+          </label>
+        ) : null}
+      </div>
+    );
+  };
 
   return (
     <AppPageTemplate

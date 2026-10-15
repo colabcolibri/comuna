@@ -26,7 +26,7 @@ Campo novo: diretório `detail` + filtro off; vitrine `off` + filtro off. Não e
 
 ## Travas
 
-Vitrine: `gender`, `birth_city`, `public_directory`, `public_showcase` ficam `off` / filtro false. Nome e foto (`full_name`, `avatar_url`) ficam `card` nas duas listas. Presença na lista não vem de `list_fields`: diretório exige `cards.public_directory`; vitrine exige `cards.public_showcase`.
+Vitrine: `gender`, `birth_city`, `public_directory`, `public_showcase` ficam `off` / filtro false. Nome e foto (`full_name`, `avatar_url`) ficam `card` nas duas listas. Presença na lista não vem de `list_fields`. Diretório exige membership `active` e ao menos um bloco `internal` ou `external`. Vitrine exige ao menos um bloco `external`. O detalhe omite o que está abaixo desse nível e não devolve a chave do bloco privado.
 
 ## Projeção
 

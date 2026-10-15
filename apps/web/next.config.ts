@@ -52,6 +52,7 @@ const nextConfig: NextConfig = {
     '@community/files',
     '@community/showcase',
     '@community/map',
+    '@community/talent',
     '@community/contact-mediated',
     '@community/module-runtime',
     '@community/places',

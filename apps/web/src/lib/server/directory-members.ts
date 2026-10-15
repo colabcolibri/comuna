@@ -11,6 +11,8 @@ import {
 import type { AppQueryCtx } from '@/lib/server/app-ctx';
 import { toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
+import { loadOfferingsAsMember, offeringsByMembership } from '@/lib/server/talent-offers';
+import { talentContribution } from '@community/talent';
 
 export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSearchParams) {
   const on = await moduleRuntime.isEnabled(ctx.communityId, directoryContribution.slug);
@@ -32,13 +34,17 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
     ? await queryAsMember<{ total: number }>(ctx, built.countText, built.countParams)
     : { rows: [{ total: 0 }] };
   const result = await queryAsMember(ctx, built.text, built.params);
+  const talentOn = await moduleRuntime.isEnabled(ctx.communityId, talentContribution.slug);
+  const rows = talentOn
+    ? await offeringsByMembership(result.rows as Record<string, unknown>[], 'internal', loadOfferingsAsMember(ctx))
+    : result.rows;
   const countriesQuery = peopleListCountriesQuery({ communityId: ctx.communityId, scope: 'directory' });
   const countries = await queryAsMember<{ country: string }>(ctx, countriesQuery.text, countriesQuery.params);
   const keys = listedAttributeNames(listFields);
   return {
     status: 200 as const,
     body: {
-      data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, keys)),
+      data: (rows as Record<string, unknown>[]).map((row) => toPersonCard(row, keys, 'internal')),
       facets: attributeFacets(listFields),
       listFields,
       countries: countries.rows.map((row) => row.country).filter(Boolean),

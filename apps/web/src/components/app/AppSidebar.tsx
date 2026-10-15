@@ -32,6 +32,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   showcase: 'chrome.showcase',
   signin: 'chrome.signin',
   directory: 'chrome.directory',
+  talent: 'chrome.talent',
   profile: 'chrome.profile',
   communityProfile: 'chrome.community_profile',
   coord: 'chrome.coord',

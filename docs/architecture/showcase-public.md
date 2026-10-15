@@ -10,7 +10,7 @@ Volta: `docs/05_architecture.md`. Lista: `GET /api/profiles/public`. Detalhe: o 
 
 A vitrine é uma **página pública**, não o workspace. Chrome: `AppPublicChrome` — **sem sidebar**. Header: marca da comunidade, locale, tema, e um CTA: **Entrar** (visitante) ou **Comunidade** (sessão; vai ao diretório do assento). O documento rola na página; não há `SidebarProvider` nem `ScrollArea` de app.
 
-Título e texto vêm do admin (`settings.showcase_title`, `settings.showcase_description`). Vazio: título = `communities.name`; texto = `settings.description` ou o pack. Opt-in da vitrine é o predicado dos dados (`cards.public_showcase = true` **e** plugin `showcase` enabled). `public_directory` não entra nesta query.
+Título e texto vêm do admin (`settings.showcase_title`, `settings.showcase_description`). Vazio: título = `communities.name`; texto = `settings.description` ou o pack. A pessoa entra na vitrine quando tem ao menos um bloco `external` (título, apresentação, disponibilidade ou atributo) **e** o plugin `showcase` está ligado **e** `is_public_showcase`. `internal` e `private` não entram nessa query. Oferta de talento `external` não coloca a pessoa na grade sozinha.
 
 Só entra quem optou. Sem e-mail, WhatsApp, gênero, cidade de nascimento. Mensagem pela plataforma; o e-mail nunca entra na lista nem no diálogo.
 
@@ -27,7 +27,7 @@ O cartão e o diálogo **projetam** `list_fields` com `list_key = showcase` (`do
 | `languages` | slot próprio (não mistura com availability) |
 | `availability_status` | status, não chip de idioma |
 | facts | `custom_attributes` com placement ≠ `off`; **rótulo do catálogo** + valores (não badge solto) |
-| links | `linkedin` / `github` / `portfolio` se `https://` e placement no detalhe |
+| links | só se a comunidade tiver um campo `url` com presença na ficha. O perfil padrão não traz LinkedIn, GitHub nem portfólio |
 
 Query: `search` (nome, headline, bio), `status` (só se availability for filtrável na vitrine), `attr.*` (só `list_fields.filterable` da vitrine), `page`, `size`. Página padrão **24**; `size` só 24, 48 ou 96. `{ data, meta: { page, pageSize, total } }`. A página Server Component chama `listPublicProfiles`; o cliente só muda a URL e abre o diálogo.
 

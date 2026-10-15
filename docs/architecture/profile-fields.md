@@ -28,7 +28,7 @@ Plugin off **não** mostra campos daquele plugin. O dono é `fields.module_id` (
 Cada campo tem `storage`:
 
 - `person` — coluna/json conhecido em `person_core.profiles` (`column_key`: `full_name`, `gender`, `birth_city`, `avatar_url`, …). Avatar: o valor é URL estável da app; o ficheiro está no store (`docs/architecture/media.md`).
-- `card_column` — `headline`, `bio`, `public_directory`, `public_showcase`. `public_directory` e `public_showcase` são independentes: um não implica o outro.
+- `card_column` — `headline`, `bio`, `availability_status`. Cada um tem audiência própria (`headline_audience`, `bio_audience`, `availability_audience`): `private` (só o dono), `internal` (membros da comunidade) ou `external` (vitrine e membros). Externo inclui interno. Default `private`. Nome, foto, e-mail, telefone, gênero e cidades não usam esse enum.
 - `attributes` — chave em `custom_attributes`. Valor **escalar** (`true`, `"yes"`, texto curto). Sem LocalizedText aninhado no blob.
 
 `storage` **não** implica plugin. `module_id` null = núcleo. Directory e showcase marcam o próprio `module_id` no seed (ex.: `public_showcase` é `card_column` no schema directory e **módulo** showcase).
@@ -40,9 +40,9 @@ Escrita valida tipo e opções contra o catálogo. Chave não declarada é rejei
 | slug | Origem | Campos | Storage |
 | --- | --- | --- | --- |
 | `identity` | core (não some) | nome, avatar (`image`) | `person` |
-| `community_copy` | directory + showcase | título, apresentação, `public_directory` (`directory`), `public_showcase` (`showcase`) | `card_column` |
+| `community_copy` | directory + showcase | título, apresentação, disponibilidade | `card_column` |
 | `person` | core | gênero, cidades, idiomas (12 códigos + nível) | `person` |
-| `links` | core | linkedin, github, portfólio | `person` |
+| `links` | — | saiu do perfil padrão. URL livre fica para uma história futura, não como LinkedIn, GitHub e portfólio fixos | — |
 | (custom) | directory | o que a comunidade pedir | `attributes` |
 
 Hospitalidade (`host_at_home`) **não** é seed de plataforma. Só a comunidade `demo` (Alumni Instituto Atlântico) ganha esse grupo no `db:seed`. As outras cinco casas de demo trazem grupos `attributes` próprios (negócio incubado, prática de dados, mentoria, ofício artístico, território). Comunidade nova criada no admin: núcleo + `community_copy` (título, apresentação, opt-ins) + grupo `custom` vazio. O seed reconcilia o grupo legado `availability` (sem `availability_status`) movendo `public_directory` / `public_showcase` para `community_copy` e apagando o grupo vazio. Ops cria extras por tenant.
