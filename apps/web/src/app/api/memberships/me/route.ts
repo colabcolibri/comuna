@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { queryAsMember } from '@community/db';
 import { parseLocalized } from '@community/identity';
-import { audienceAllowedByCeiling, missingRequiredFields, parseAudience, parseField, validateCustomAttributes } from '@community/directory';
+import { COMMUNITY_COPY_LIMITS, audienceAllowedByCeiling, localizedOverLimit, missingRequiredFields, parseAudience, parseField, validateCustomAttributes } from '@community/directory';
 import { canWriteCards } from '@/modules/registry';
 import { moduleRuntime } from '@/lib/server/membership';
 import { memberCommunityFromRequest } from '@/lib/server/member-community';
@@ -52,6 +52,12 @@ export async function PUT(req: NextRequest) {
   }
   const headline = parseLocalized(body.headline);
   const bio = parseLocalized(body.bio);
+  if (localizedOverLimit(headline, COMMUNITY_COPY_LIMITS.headline) || localizedOverLimit(bio, COMMUNITY_COPY_LIMITS.bio)) {
+    return NextResponse.json(
+      { error: { code: 'VALIDATION_ERROR', message: 'Título até 100 caracteres. Apresentação até 600.' } },
+      { status: 400 }
+    );
+  }
   const catalog = await queryAsMember(
     { userId: resolved.userId, communityId: resolved.seat.id },
     `SELECT f.name, f.type, f.options, f.storage, f.column_key, f.required, f.localized, f.span, f.sort_order, f.label, f.exposure

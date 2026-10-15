@@ -3,8 +3,9 @@
 import React, { useState } from 'react';
 import { Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast, cn } from '@community/ui';
 import { AppSwitcher } from '@community/ui-member';
-import { contentFromCatalog, interpolate, pickContent, pickLocalizedText, type LocalizedText } from '@community/identity';
+import { contentFromCatalog, pickContent, pickLocalizedText, type LocalizedText } from '@community/identity';
 import type { CatalogField } from '@community/directory';
+import { LocalizedCopyField } from '@/components/app/LocalizedCopyField';
 import type { GeoPlace } from '@community/places';
 import { CitySearchField } from '@/components/app/CitySearchField';
 import { LanguagesField } from '@/components/app/LanguagesField';
@@ -26,17 +27,17 @@ export function FieldControl({
   locale,
   value,
   onChange,
-  pairPt,
-  pairEn,
   initials,
+  aside,
+  maxLength,
 }: {
   field: CatalogField;
   locale: string;
   value: unknown;
   onChange: (value: unknown) => void;
-  pairPt: string;
-  pairEn: string;
   initials?: string;
+  aside?: React.ReactNode;
+  maxLength?: number;
 }) {
   const label = pickLocalizedText(field.label, locale) || field.name;
   const description = pickLocalizedText(field.description, locale);
@@ -47,6 +48,7 @@ export function FieldControl({
     required: field.required,
     requiredLabel: copy.required,
     optionalLabel: copy.optional,
+    end: aside,
   };
 
   if (field.type === 'image') {
@@ -81,37 +83,18 @@ export function FieldControl({
 
   if (field.localized || field.type === 'localized_text') {
     const entries = Array.isArray(value) ? (value as LocalizedText) : [];
-    const pt = valueAtSafe(entries, 'pt-BR');
-    const en = valueAtSafe(entries, 'en');
-    const multiline = field.type === 'textarea' || field.name === 'bio';
-    const Field = multiline ? Textarea : Input;
-    const extra = multiline ? { rows: 4 as const } : {};
     return (
-      <div className="space-y-2 min-w-0">
-        <FieldMeta htmlFor={undefined} {...meta} />
-        {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2 min-w-0">
-            <Label htmlFor={`${id}-pt`}>{interpolate(pairPt, { label })}</Label>
-            <Field
-              id={`${id}-pt`}
-              className={multiline ? 'min-h-32 w-full' : 'min-h-11 w-full'}
-              value={pt}
-              onChange={(e) => onChange(pairFrom(pt, en, 'pt-BR', e.target.value))}
-              {...extra}
-            />
-          </div>
-          <div className="space-y-2 min-w-0">
-            <Label htmlFor={`${id}-en`}>{interpolate(pairEn, { label })}</Label>
-            <Field
-              id={`${id}-en`}
-              className={multiline ? 'min-h-32 w-full' : 'min-h-11 w-full'}
-              value={en}
-              onChange={(e) => onChange(pairFrom(pt, en, 'en', e.target.value))}
-              {...extra}
-            />
-          </div>
-        </div>
+      <div className="min-w-0 space-y-2">
+        <FieldMeta htmlFor={id} {...meta} />
+        {description ? <p className="text-sm leading-relaxed text-muted-foreground">{description}</p> : null}
+        <LocalizedCopyField
+          id={id}
+          value={entries}
+          multiline={field.type === 'textarea' || field.name === 'bio'}
+          maxLength={maxLength}
+          uiLocale={locale}
+          onChange={onChange}
+        />
       </div>
     );
   }
@@ -220,19 +203,24 @@ function FieldMeta({
   required,
   requiredLabel,
   optionalLabel,
+  end,
 }: {
   htmlFor?: string;
   label: string;
   required: boolean;
   requiredLabel: string;
   optionalLabel: string;
+  end?: React.ReactNode;
 }) {
   const status = required ? requiredLabel : optionalLabel;
   return (
-    <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
-      {htmlFor ? <Label htmlFor={htmlFor}>{label}</Label> : <span className="text-sm font-medium">{label}</span>}
-      <span className="text-xs text-muted-foreground">{status}</span>
-    </span>
+    <div className="flex min-w-0 items-center justify-between gap-3">
+      <span className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+        {htmlFor ? <Label htmlFor={htmlFor}>{label}</Label> : <span className="text-sm font-medium">{label}</span>}
+        <span className="text-xs text-muted-foreground">{status}</span>
+      </span>
+      {end}
+    </div>
   );
 }
 
@@ -307,15 +295,3 @@ function ImageControl({
   );
 }
 
-function valueAtSafe(entries: LocalizedText, locale: 'pt-BR' | 'en') {
-  return entries.find((entry) => entry.locale === locale)?.value || '';
-}
-
-function pairFrom(pt: string, en: string, which: 'pt-BR' | 'en', next: string): LocalizedText {
-  const nextPt = which === 'pt-BR' ? next : pt;
-  const nextEn = which === 'en' ? next : en;
-  return [
-    ...(nextPt ? [{ locale: 'pt-BR' as const, value: nextPt }] : []),
-    ...(nextEn ? [{ locale: 'en' as const, value: nextEn }] : []),
-  ];
-}

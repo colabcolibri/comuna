@@ -25,8 +25,6 @@ describe('FieldControl', () => {
         locale="pt-BR"
         value
         onChange={() => {}}
-        pairPt="{label} (pt-BR)"
-        pairEn="{label} (en)"
       />
     );
 

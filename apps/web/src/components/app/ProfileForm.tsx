@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AppPageTemplate, AppProfileSection, AppProfileStack, FieldGrid, fieldSpanClass } from '@community/ui-member';
 import { Button, Skeleton, toast } from '@community/ui';
+import { Globe, Lock, Users } from 'lucide-react';
 import { contentFromCatalog, pickContent, pickLocalizedText } from '@community/identity';
-import { coreCatalog, missingRequiredFields, type CatalogField, type CatalogGroup } from '@community/directory';
+import { communityCopyLimit, coreCatalog, missingRequiredFields, type CatalogField, type CatalogGroup } from '@community/directory';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { FieldControl } from '@/components/app/FieldControl';
 import { uiCatalog } from '@/lang/catalog';
@@ -26,22 +27,26 @@ function AudienceMark({
     if (ceiling === 'internal') return item !== 'external';
     return true;
   });
-  const marks = { private: '🔒', internal: '👥', external: '🌐' };
+  const icons = { private: Lock, internal: Users, external: Globe };
   return (
-    <div className="flex min-w-0 flex-wrap gap-1">
-      {options.map((item) => (
-        <button
-          key={item}
-          type="button"
-          title={labels[item]}
-          aria-pressed={value === item}
-          className={`inline-flex size-9 items-center justify-center rounded-md border text-sm ${value === item ? 'border-foreground' : 'border-input'}`}
-          onClick={() => onChange(item)}
-        >
-          <span aria-hidden>{marks[item]}</span>
-          <span className="sr-only">{labels[item]}</span>
-        </button>
-      ))}
+    <div role="group" className="inline-flex shrink-0 rounded-lg border border-border bg-muted/40 p-0.5">
+      {options.map((item) => {
+        const Icon = icons[item];
+        const selected = value === item;
+        return (
+          <button
+            key={item}
+            type="button"
+            title={labels[item]}
+            aria-pressed={selected}
+            className={`inline-flex size-8 items-center justify-center rounded-md ${selected ? 'bg-background text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'}`}
+            onClick={() => onChange(item)}
+          >
+            <Icon className="size-4" aria-hidden />
+            <span className="sr-only">{labels[item]}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -70,8 +75,6 @@ export function ProfileForm({ scope, embedded = false }: { scope: 'person' | 'co
       saved: 'profile.saved',
       error: 'profile.error',
       requiredMissing: 'profile.required_missing',
-      pairPt: 'profile.pair_pt',
-      pairEn: 'profile.pair_en',
       audience: 'profile.audience',
       audiencePrivate: 'profile.audience_private',
       audienceInternal: 'profile.audience_internal',
@@ -198,18 +201,19 @@ export function ProfileForm({ scope, embedded = false }: { scope: 'person' | 'co
           locale={locale}
           value={values[field.name]}
           onChange={(next) => setValues((current) => ({ ...current, [field.name]: next }))}
-          pairPt={copy.pairPt}
-          pairEn={copy.pairEn}
           initials={initialsFrom(values.full_name)}
+          maxLength={communityCopyLimit(field.column_key)}
+          aside={
+            key ? (
+              <AudienceMark
+                value={String(values[key] || 'private')}
+                ceiling={field.exposure}
+                labels={{ private: copy.audiencePrivate, internal: copy.audienceInternal, external: copy.audienceExternal }}
+                onChange={(next) => setValues((current) => ({ ...current, [key]: next }))}
+              />
+            ) : null
+          }
         />
-        {key ? (
-          <AudienceMark
-            value={String(values[key] || 'private')}
-            ceiling={field.exposure}
-            labels={{ private: copy.audiencePrivate, internal: copy.audienceInternal, external: copy.audienceExternal }}
-            onChange={(next) => setValues((current) => ({ ...current, [key]: next }))}
-          />
-        ) : null}
       </div>
     );
   };

@@ -167,8 +167,8 @@ const PLATFORM_CATALOG_GROUPS = [
       slug: 'community_copy',
       label: loc('Nesta comunidade', 'This community'),
       description: loc(
-        'Texto desta casa. A mesma pessoa pode se apresentar de outro jeito na incubadora e no alumni.',
-        'Copy for this house. The same person can introduce themselves differently in the incubator and the alumni network.'
+        'Título e apresentação que as pessoas veem nesta comunidade.',
+        'The title and introduction people see in this community.'
       ),
       sort: 20,
       columns: 1,
@@ -179,8 +179,8 @@ const PLATFORM_CATALOG_GROUPS = [
           localized: true,
           label: loc('Título', 'Title'),
           description: loc(
-            'Uma linha, no tom desta comunidade. Diga o ofício, não o slogan da empresa.',
-            'One line, in the tone of this community. Name the craft, not the company slogan.'
+            'Uma linha que apresenta você nesta comunidade. Até 100 caracteres.',
+            'One line that introduces you in this community. Up to 100 characters.'
           ),
           span: 1,
           storage: 'card_column',
@@ -195,8 +195,8 @@ const PLATFORM_CATALOG_GROUPS = [
           localized: true,
           label: loc('Apresentação', 'About'),
           description: loc(
-            'Duas ou três frases: o que você faz, para quem, e como a rede pode te procurar. Sem currículo colado.',
-            'Two or three sentences: what you do, for whom, and how the network can reach you. Not a pasted CV.'
+            'Um texto curto que apresenta você: o que faz e para quem. Até 600 caracteres.',
+            'A short text that introduces you: what you do and for whom. Up to 600 characters.'
           ),
           span: 1,
           storage: 'card_column',

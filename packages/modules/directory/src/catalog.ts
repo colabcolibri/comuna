@@ -43,6 +43,23 @@ export type CatalogField = {
   exposure: 'hidden' | 'internal' | 'external' | null;
 };
 
+export const COMMUNITY_COPY_LIMITS = { headline: 100, bio: 600 } as const;
+
+export function communityCopyLimit(columnKey: string | null): number | undefined {
+  if (columnKey === 'headline') return COMMUNITY_COPY_LIMITS.headline;
+  if (columnKey === 'bio') return COMMUNITY_COPY_LIMITS.bio;
+  return undefined;
+}
+
+export function localizedOverLimit(value: unknown, max: number): boolean {
+  if (!Array.isArray(value)) return false;
+  return value.some((entry) => {
+    if (!entry || typeof entry !== 'object') return false;
+    const text = String((entry as { value?: unknown }).value ?? '').trim();
+    return text.length > max;
+  });
+}
+
 export function visibleCatalog(groups: CatalogGroup[], enabled: Iterable<string>): CatalogGroup[] {
   const on = new Set(enabled);
   return groups
