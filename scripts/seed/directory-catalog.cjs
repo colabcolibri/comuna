@@ -229,7 +229,8 @@ const PLATFORM_CATALOG_GROUPS = [
       fields: [
         {
           name: 'headline',
-          type: 'localized_text',
+          type: 'text',
+          localized: true,
           label: loc('Título', 'Title'),
           description: loc(
             'Uma linha, no tom desta comunidade. Diga o ofício, não o slogan da empresa.',
@@ -244,7 +245,8 @@ const PLATFORM_CATALOG_GROUPS = [
         },
         {
           name: 'bio',
-          type: 'localized_text',
+          type: 'textarea',
+          localized: true,
           label: loc('Apresentação', 'About'),
           description: loc(
             'Duas ou três frases: o que você faz, para quem, e como a rede pode te procurar. Sem currículo colado.',
@@ -433,11 +435,11 @@ async function upsertCatalogGroups(client, communityId, groups) {
     for (const field of group.fields) {
       const row = await client.query(
         `INSERT INTO plugin_directory.fields (
-           group_id, name, type, label, description, options, span, required, sort_order,
+           group_id, name, type, label, description, options, span, required, localized, sort_order,
            storage, column_key, module_id
          ) VALUES (
-           $1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8, $9, $10, $11,
-           (SELECT id FROM plugin_core.modules WHERE slug = $12)
+           $1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8, $9, $10, $11, $12,
+           (SELECT id FROM plugin_core.modules WHERE slug = $13)
          )
          ON CONFLICT (group_id, name) DO UPDATE SET
            type = EXCLUDED.type,
@@ -446,6 +448,7 @@ async function upsertCatalogGroups(client, communityId, groups) {
            options = EXCLUDED.options,
            span = EXCLUDED.span,
            required = EXCLUDED.required,
+           localized = EXCLUDED.localized,
            sort_order = EXCLUDED.sort_order,
            storage = EXCLUDED.storage,
            column_key = EXCLUDED.column_key,
@@ -460,6 +463,7 @@ async function upsertCatalogGroups(client, communityId, groups) {
           JSON.stringify(field.options || []),
           field.span,
           Boolean(field.required),
+          Boolean(field.localized),
           field.sort,
           field.storage,
           field.column_key || null,

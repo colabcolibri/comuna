@@ -130,14 +130,14 @@ function PreviewCell({
             <span className="truncate text-sm font-medium">{name}</span>
             <span className="shrink-0 text-xs text-muted-foreground">{status}</span>
           </span>
-          <FakeControl type={field.type} name={field.name} />
+          <FakeControl type={field.type} name={field.name} localized={field.localized} />
         </div>
       )}
     </div>
   );
 }
 
-function FakeControl({ type, name }: { type: string; name: string }) {
+function FakeControl({ type, name, localized }: { type: string; name: string; localized?: boolean }) {
   if (type === 'boolean') {
     return (
       <span aria-hidden className="flex min-h-11 items-center gap-3">
@@ -154,11 +154,8 @@ function FakeControl({ type, name }: { type: string; name: string }) {
       </span>
     );
   }
-  if (type === 'textarea') {
-    return <span aria-hidden className="block min-h-24 w-full rounded-md border border-input bg-background" />;
-  }
-  if (type === 'localized_text') {
-    const box = name === 'bio' ? 'min-h-24' : 'h-11';
+  if ((type === 'textarea' || type === 'text' || type === 'localized_text') && (localized || type === 'localized_text')) {
+    const box = type === 'textarea' || name === 'bio' ? 'min-h-24' : 'h-11';
     return (
       <span aria-hidden className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <span className="min-w-0 space-y-1">
@@ -181,6 +178,9 @@ function FakeControl({ type, name }: { type: string; name: string }) {
         <span className="size-2 rotate-45 border-r border-b border-muted-foreground" />
       </span>
     );
+  }
+  if (type === 'textarea') {
+    return <span aria-hidden className="block min-h-24 w-full rounded-md border border-input bg-background" />;
   }
   return <span aria-hidden className="block h-11 w-full rounded-md border border-input bg-background" />;
 }

@@ -33,6 +33,7 @@ export type CatalogField = {
   options: FieldOption[];
   span: 1 | 2 | 3;
   required: boolean;
+  localized: boolean;
   sort_order: number;
   storage: StorageKind;
   column_key: string | null;
@@ -111,6 +112,7 @@ export function parseField(row: Record<string, unknown>): CatalogField | null {
     options: parseOptions(row.options),
     span: asSpan(row.span),
     required: Boolean(row.required),
+    localized: Boolean(row.localized) || type === 'localized_text',
     sort_order: Number(row.sort_order) || 0,
     storage: storage as StorageKind,
     column_key: columnKey,
@@ -175,7 +177,7 @@ export function validateCustomAttributes(
   return { ok: true, value };
 }
 
-function coerceAttribute(field: Pick<CatalogField, 'name' | 'type' | 'options'>, raw: unknown): CoerceResult {
+function coerceAttribute(field: Pick<CatalogField, 'name' | 'type' | 'options' | 'localized'>, raw: unknown): CoerceResult {
   if (field.type === 'boolean') {
     if (raw === true || raw === false) {
       return { ok: true, value: raw };
@@ -202,6 +204,10 @@ function coerceAttribute(field: Pick<CatalogField, 'name' | 'type' | 'options'>,
       return { ok: false, message: `${field.name} opção inválida` };
     }
     return { ok: true, value };
+  }
+  if (field.localized || field.type === 'localized_text') {
+    const parsed = parseLocalized(raw);
+    return { ok: true, value: parsed.length > 0 ? parsed : undefined };
   }
   if (typeof raw === 'string') {
     const value = raw.trim();
@@ -257,7 +263,7 @@ export function fieldValueIsBlank(field: CatalogField, value: unknown): boolean 
     const place = value as { osm_id?: unknown; name?: unknown };
     return place.osm_id == null && !String(place.name || '').trim();
   }
-  if (field.type === 'localized_text') {
+  if (field.localized || field.type === 'localized_text') {
     if (!Array.isArray(value)) {
       return true;
     }

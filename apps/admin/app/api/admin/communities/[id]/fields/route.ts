@@ -33,6 +33,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
       options: Array.isArray(body.options) ? body.options : undefined,
       span: Number(body.span || 1),
       required: Boolean(body.required),
+      localized: Boolean(body.localized),
     });
     return NextResponse.json(field, { status: 201 });
   } catch (err) {

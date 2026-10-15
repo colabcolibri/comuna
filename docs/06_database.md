@@ -152,7 +152,8 @@ erDiagram
         uuid id PK
         uuid group_id FK
         string name "slug de armazenamento"
-        string type "text | textarea | localized_text | select | radio | checkbox | boolean | city | url"
+        string type "text | textarea | select | radio | checkbox | boolean | city | url"
+        boolean localized "texto e texto longo podem guardar pt-BR e en"
         jsonb label "LocalizedText"
         jsonb description "LocalizedText"
         jsonb options "[{value, label LocalizedText}]"

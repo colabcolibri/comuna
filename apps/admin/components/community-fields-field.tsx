@@ -41,6 +41,7 @@ export function CommunityFieldsField({
   const [descriptionPt, setDescriptionPt] = useState(pickLocalizedText(field.description, 'pt-BR'));
   const [descriptionEn, setDescriptionEn] = useState(pickLocalizedText(field.description, 'en'));
   const [required, setRequired] = useState(field.required);
+  const [localized, setLocalized] = useState(field.localized);
   const [span, setSpan] = useState(clampFieldSpan(field.span, groupColumns));
   const [busy, setBusy] = useState(false);
   const [pendingGroupId, setPendingGroupId] = useState<string | null>(null);
@@ -57,6 +58,7 @@ export function CommunityFieldsField({
     setDescriptionPt(pickLocalizedText(field.description, 'pt-BR'));
     setDescriptionEn(pickLocalizedText(field.description, 'en'));
     setRequired(field.required);
+    setLocalized(field.localized);
     setSpan(clampFieldSpan(field.span, groupColumns));
   }, [field, groupColumns]);
 
@@ -102,6 +104,9 @@ export function CommunityFieldsField({
     if (ok && required !== field.required) {
       ok = await patchField({ required });
     }
+    if (ok && localized !== field.localized) {
+      ok = await patchField({ localized });
+    }
     if (ok && showSpan && nextSpan !== clampFieldSpan(field.span, groupColumns)) {
       ok = await patchField({ span: nextSpan });
     }
@@ -141,7 +146,10 @@ export function CommunityFieldsField({
             {field.enabled ? null : <OpsBadge>{copy.inactive}</OpsBadge>}
           </div>
           <p className="text-xs text-muted-foreground wrap-break-word">
-            {fieldTypeLabel(field.type, copy)} · {field.required ? copy.required : copy.optional}
+            {fieldTypeLabel(field.type === 'localized_text' ? (field.name === 'bio' ? 'textarea' : 'text') : field.type, copy)}
+            {' · '}
+            {field.required ? copy.required : copy.optional}
+            {field.localized || field.type === 'localized_text' ? ` · ${copy.localized}` : ''}
           </p>
         </div>
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
@@ -213,7 +221,9 @@ export function CommunityFieldsField({
             <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="min-w-0 space-y-2">
                 <Label>{copy.type}</Label>
-                <p className="flex h-11 items-center text-sm text-foreground">{fieldTypeLabel(field.type, copy)}</p>
+                <p className="flex h-11 items-center text-sm text-foreground">
+                  {fieldTypeLabel(field.type === 'localized_text' ? (field.name === 'bio' ? 'textarea' : 'text') : field.type, copy)}
+                </p>
               </div>
               <div className="min-w-0 space-y-2">
                 <Label>{copy.name}</Label>
@@ -221,16 +231,30 @@ export function CommunityFieldsField({
               </div>
               <div className="min-w-0 space-y-2">
                 <Label htmlFor={requiredId}>{copy.requirement}</Label>
-                <Select value={required ? 'required' : 'optional'} onValueChange={(next) => setRequired(next === 'required')}>
+                <Select value={required ? 'yes' : 'no'} onValueChange={(next) => setRequired(next === 'yes')}>
                   <SelectTrigger id={requiredId}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="optional">{copy.optional}</SelectItem>
-                    <SelectItem value="required">{copy.required}</SelectItem>
+                    <SelectItem value="no">{copy.no}</SelectItem>
+                    <SelectItem value="yes">{copy.yes}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+              {field.type === 'text' || field.type === 'textarea' || field.type === 'localized_text' ? (
+                <div className="min-w-0 space-y-2">
+                  <Label htmlFor={`ops-field-localized-${field.id}`}>{copy.localized}</Label>
+                  <Select value={localized ? 'yes' : 'no'} onValueChange={(next) => setLocalized(next === 'yes')}>
+                    <SelectTrigger id={`ops-field-localized-${field.id}`}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="no">{copy.no}</SelectItem>
+                      <SelectItem value="yes">{copy.yes}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
               {showSpan ? (
                 <div className="min-w-0 space-y-2 sm:col-span-2">
                   <Label htmlFor={spanId}>{copy.span}</Label>

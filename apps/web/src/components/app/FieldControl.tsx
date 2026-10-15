@@ -79,12 +79,13 @@ export function FieldControl({
     );
   }
 
-  if (field.type === 'localized_text') {
+  if (field.localized || field.type === 'localized_text') {
     const entries = Array.isArray(value) ? (value as LocalizedText) : [];
     const pt = valueAtSafe(entries, 'pt-BR');
     const en = valueAtSafe(entries, 'en');
-    const Field = field.name === 'bio' ? Textarea : Input;
-    const extra = field.name === 'bio' ? { rows: 4 as const } : {};
+    const multiline = field.type === 'textarea' || field.name === 'bio';
+    const Field = multiline ? Textarea : Input;
+    const extra = multiline ? { rows: 4 as const } : {};
     return (
       <div className="space-y-2 min-w-0">
         <FieldMeta htmlFor={undefined} {...meta} />
@@ -94,7 +95,7 @@ export function FieldControl({
             <Label htmlFor={`${id}-pt`}>{interpolate(pairPt, { label })}</Label>
             <Field
               id={`${id}-pt`}
-              className={field.name === 'bio' ? 'min-h-32 w-full' : 'min-h-11 w-full'}
+              className={multiline ? 'min-h-32 w-full' : 'min-h-11 w-full'}
               value={pt}
               onChange={(e) => onChange(pairFrom(pt, en, 'pt-BR', e.target.value))}
               {...extra}
@@ -104,7 +105,7 @@ export function FieldControl({
             <Label htmlFor={`${id}-en`}>{interpolate(pairEn, { label })}</Label>
             <Field
               id={`${id}-en`}
-              className={field.name === 'bio' ? 'min-h-32 w-full' : 'min-h-11 w-full'}
+              className={multiline ? 'min-h-32 w-full' : 'min-h-11 w-full'}
               value={en}
               onChange={(e) => onChange(pairFrom(pt, en, 'en', e.target.value))}
               {...extra}

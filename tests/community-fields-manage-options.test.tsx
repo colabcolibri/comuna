@@ -10,6 +10,7 @@ const field = {
   locked: false,
   span: 1,
   required: false,
+  localized: false,
   enabled: true,
   options: [
     { value: 'mvp', labelPt: 'MVP', labelEn: 'MVP' },

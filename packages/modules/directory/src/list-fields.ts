@@ -86,7 +86,7 @@ export function identityPlacementLocked(field: { name: string; column_key: strin
   return IDENTITY_LOCKED_NAMES.has(field.name) || IDENTITY_LOCKED_NAMES.has(field.column_key || '');
 }
 
-export const LIST_FIELDS_SQL = `SELECT f.name, f.type, f.options, f.storage, f.column_key, f.required, f.span, f.sort_order, f.label, f.enabled, f.description,
+export const LIST_FIELDS_SQL = `SELECT f.name, f.type, f.options, f.storage, f.column_key, f.required, f.localized, f.span, f.sort_order, f.label, f.enabled, f.description,
        lf.filterable, lf.placement
  FROM plugin_directory.fields f
  JOIN plugin_directory.field_groups g ON g.id = f.group_id

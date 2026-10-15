@@ -9,6 +9,7 @@ function field(partial: Partial<OpsField> & Pick<OpsField, 'id' | 'name' | 'type
     locked: true,
     span: 1,
     required: false,
+    localized: false,
     enabled: true,
     options: [],
     optionsText: '',

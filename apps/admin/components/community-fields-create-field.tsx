@@ -1,8 +1,8 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { Button, Checkbox, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast } from '@community/ui';
-import { OpsCheckboxFrame, OpsIconButton, OpsSheet } from '@community/ui-admin';
+import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast } from '@community/ui';
+import { OpsIconButton, OpsSheet } from '@community/ui-admin';
 import { Plus } from 'lucide-react';
 import { fieldNeedsOptions, type CatalogCopy } from './community-fields-types';
 import { CommunityFieldsOptionsEditor, emptyOptionRow, type OptionRow } from './community-fields-options';
@@ -27,6 +27,7 @@ export function CommunityFieldsCreateField({
   const [descriptionEn, setDescriptionEn] = useState('');
   const [options, setOptions] = useState<OptionRow[]>([emptyOptionRow()]);
   const [required, setRequired] = useState(false);
+  const [localized, setLocalized] = useState(false);
   const [busy, setBusy] = useState(false);
   const idPrefix = `ops-new-field-${groupId}`;
   const formId = `${idPrefix}-form`;
@@ -39,6 +40,7 @@ export function CommunityFieldsCreateField({
     setDescriptionEn('');
     setOptions([emptyOptionRow()]);
     setRequired(false);
+    setLocalized(false);
   };
 
   const create = async (e: FormEvent) => {
@@ -57,6 +59,7 @@ export function CommunityFieldsCreateField({
         descriptionEn,
         options,
         required,
+        localized: type === 'text' || type === 'textarea' ? localized : false,
       }),
     });
     setBusy(false);
@@ -141,7 +144,6 @@ export function CommunityFieldsCreateField({
                 <SelectItem value="checkbox">{copy.typeCheckbox}</SelectItem>
                 <SelectItem value="text">{copy.typeText}</SelectItem>
                 <SelectItem value="textarea">{copy.typeTextarea}</SelectItem>
-                <SelectItem value="localized_text">{copy.typeLocalized}</SelectItem>
                 <SelectItem value="url">{copy.typeUrl}</SelectItem>
                 <SelectItem value="city">{copy.typeCity}</SelectItem>
               </SelectContent>
@@ -160,14 +162,30 @@ export function CommunityFieldsCreateField({
           </div>
           <div className="min-w-0 space-y-2">
             <Label htmlFor={`${idPrefix}-required`}>{copy.requirement}</Label>
-            <OpsCheckboxFrame htmlFor={`${idPrefix}-required`}>
-              <Checkbox
-                id={`${idPrefix}-required`}
-                checked={required}
-                onCheckedChange={(checked) => setRequired(checked === true)}
-              />
-            </OpsCheckboxFrame>
+            <Select value={required ? 'yes' : 'no'} onValueChange={(next) => setRequired(next === 'yes')}>
+              <SelectTrigger id={`${idPrefix}-required`}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="no">{copy.no}</SelectItem>
+                <SelectItem value="yes">{copy.yes}</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          {type === 'text' || type === 'textarea' ? (
+            <div className="min-w-0 space-y-2">
+              <Label htmlFor={`${idPrefix}-localized`}>{copy.localized}</Label>
+              <Select value={localized ? 'yes' : 'no'} onValueChange={(next) => setLocalized(next === 'yes')}>
+                <SelectTrigger id={`${idPrefix}-localized`}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="no">{copy.no}</SelectItem>
+                  <SelectItem value="yes">{copy.yes}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
         </div>
         {fieldNeedsOptions(type) ? (
           <CommunityFieldsOptionsEditor idPrefix={`${idPrefix}-opt`} rows={options} onChange={setOptions} copy={copy} />

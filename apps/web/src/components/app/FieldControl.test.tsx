@@ -7,6 +7,7 @@ const booleanField = {
   label: [{ locale: 'pt-BR' as const, value: 'Mostrar no diretório interno' }],
   description: [{ locale: 'pt-BR' as const, value: 'Não controla a vitrine.' }],
   required: false,
+  localized: false,
   options: [],
   storage: 'card_column' as const,
   column_key: 'public_directory',

@@ -8,6 +8,7 @@ export type OpsField = {
   locked: boolean;
   span: 1 | 2 | 3;
   required: boolean;
+  localized: boolean;
   enabled: boolean;
   options: { value: string; labelPt: string; labelEn: string }[];
   optionsText: string;
@@ -79,6 +80,9 @@ export type CatalogCopy = {
   layoutPreview: string;
   layoutPreviewHelp: string;
   requirement: string;
+  localized: string;
+  yes: string;
+  no: string;
   required: string;
   optional: string;
   deactivate: string;

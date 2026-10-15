@@ -12,7 +12,6 @@ export const ATTRIBUTE_FIELD_TYPES = [
   'select',
   'url',
   'city',
-  'localized_text',
   'radio',
   'checkbox',
 ] as const;
@@ -35,6 +34,10 @@ export function isSeedGroup(slug: string): boolean {
 
 export function fieldNeedsOptions(type: string): boolean {
   return type === 'select' || type === 'radio' || type === 'checkbox';
+}
+
+export function fieldCanLocalize(type: string): boolean {
+  return type === 'text' || type === 'textarea';
 }
 
 export function fieldCanFilter(type: string): boolean {

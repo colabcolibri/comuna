@@ -3,6 +3,7 @@ import { localizedPair, parseLocalized, pickLocalizedText, type LocalizedText } 
 import {
   ATTRIBUTE_FIELD_TYPES,
   CatalogWriteError,
+  fieldCanLocalize,
   fieldNeedsOptions,
   isFieldLocked,
   parseCatalogSpan,
@@ -23,6 +24,7 @@ export type OpsCatalogField = {
   locked: boolean;
   span: 1 | 2 | 3;
   required: boolean;
+  localized: boolean;
   enabled: boolean;
   options: OpsChoiceOption[];
   optionsText: string;
@@ -136,6 +138,7 @@ function asOpsField(row: {
   storage: string;
   span: number;
   required: boolean;
+  localized?: boolean;
   enabled: boolean;
   options: unknown;
   label: unknown;
@@ -149,6 +152,7 @@ function asOpsField(row: {
     locked: isFieldLocked(row.storage),
     span: parseCatalogSpan(row.span, 1),
     required: Boolean(row.required),
+    localized: Boolean(row.localized) || row.type === 'localized_text',
     enabled: row.enabled !== false,
     options: storedOptionsToOps(row.options),
     optionsText: optionsToText(row.options),
@@ -171,6 +175,7 @@ export async function createAttributeField(
     optionsText?: string;
     span?: number;
     required?: boolean;
+    localized?: boolean;
   }
 ): Promise<OpsCatalogField> {
   if (!input.groupId) {
@@ -213,6 +218,7 @@ export async function createAttributeField(
     throw new CatalogWriteError('DUPLICATE_FIELD');
   }
   const span = parseCatalogSpan(input.span, 1);
+  const localized = fieldCanLocalize(type) && input.localized === true;
   const inserted = await query<{
     id: string;
     name: string;
@@ -220,21 +226,22 @@ export async function createAttributeField(
     storage: string;
     span: number;
     required: boolean;
+    localized: boolean;
     enabled: boolean;
     options: unknown;
     label: unknown;
     description: unknown;
   }>(
     `INSERT INTO plugin_directory.fields (
-       group_id, name, type, label, description, options, span, required, sort_order,
+       group_id, name, type, label, description, options, span, required, localized, sort_order,
        storage, column_key, module_id
      ) VALUES (
-       $1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8,
+       $1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8, $9,
        (SELECT coalesce(max(sort_order), 0) + 10 FROM plugin_directory.fields WHERE group_id = $1),
        'attributes', null,
        (SELECT id FROM plugin_core.modules WHERE slug = 'directory')
      )
-     RETURNING id, name, type, storage, span, required, enabled, options, label, description`,
+     RETURNING id, name, type, storage, span, required, localized, enabled, options, label, description`,
     [
       input.groupId,
       name,
@@ -244,6 +251,7 @@ export async function createAttributeField(
       JSON.stringify(options),
       span,
       Boolean(input.required),
+      localized,
     ]
   );
   const field = inserted.rows[0];
@@ -294,6 +302,31 @@ export async function updateCatalogFieldRequired(
     throw new CatalogWriteError('NOT_FOUND');
   }
   await query(`UPDATE plugin_directory.fields SET required = $2 WHERE id = $1`, [fieldId, required]);
+}
+
+export async function updateCatalogFieldLocalized(
+  communityId: string,
+  fieldId: string,
+  localized: unknown
+): Promise<void> {
+  if (typeof localized !== 'boolean') {
+    throw new CatalogWriteError('VALIDATION_ERROR');
+  }
+  const found = await query<{ id: string; type: string }>(
+    `SELECT f.id, f.type
+     FROM plugin_directory.fields f
+     JOIN plugin_directory.field_groups g ON g.id = f.group_id
+     WHERE f.id = $1 AND g.community_id = $2`,
+    [fieldId, communityId]
+  );
+  const row = found.rows[0];
+  if (!row) {
+    throw new CatalogWriteError('NOT_FOUND');
+  }
+  if (localized && !fieldCanLocalize(row.type) && row.type !== 'localized_text') {
+    throw new CatalogWriteError('VALIDATION_ERROR');
+  }
+  await query(`UPDATE plugin_directory.fields SET localized = $2 WHERE id = $1`, [fieldId, localized]);
 }
 
 export async function updateCatalogFieldEnabled(
