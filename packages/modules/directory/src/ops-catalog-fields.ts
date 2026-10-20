@@ -30,6 +30,7 @@ export type OpsCatalogField = {
   optionsText: string;
   label: LocalizedText;
   description: LocalizedText;
+  exposure: 'hidden' | 'internal' | 'external' | null;
 };
 
 export function storedOptionsToOps(raw: unknown): OpsChoiceOption[] {
@@ -234,12 +235,13 @@ export async function createAttributeField(
   }>(
     `INSERT INTO plugin_directory.fields (
        group_id, name, type, label, description, options, span, required, localized, sort_order,
-       storage, column_key, module_id
+       storage, column_key, module_id, exposure
      ) VALUES (
        $1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8, $9,
        (SELECT coalesce(max(sort_order), 0) + 10 FROM plugin_directory.fields WHERE group_id = $1),
        'attributes', null,
-       (SELECT id FROM plugin_core.modules WHERE slug = 'directory')
+       (SELECT id FROM plugin_core.modules WHERE slug = 'directory'),
+       'internal'
      )
      RETURNING id, name, type, storage, span, required, localized, enabled, options, label, description`,
     [

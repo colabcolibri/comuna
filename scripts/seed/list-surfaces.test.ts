@@ -41,13 +41,8 @@ describe('seed list surfaces', () => {
       'birth_city',
       'current_city',
       'languages',
-      'linkedin',
-      'github',
-      'portfolio',
       'headline',
       'bio',
-      'public_directory',
-      'public_showcase',
     ]);
     for (const field of fields) {
       expect(field.lists, field.name).toEqual(listsFor(field));
@@ -64,12 +59,7 @@ describe('seed list surfaces', () => {
     expect(platformFields().some((field) => field.name === 'availability_status')).toBe(false);
     expect(PLATFORM_CATALOG_GROUPS.map((group) => group.slug)).not.toContain('availability');
     const communityCopy = PLATFORM_CATALOG_GROUPS.find((group) => group.slug === 'community_copy');
-    expect(communityCopy?.fields.map((field) => field.name)).toEqual([
-      'headline',
-      'bio',
-      'public_directory',
-      'public_showcase',
-    ]);
+    expect(communityCopy?.fields.map((field) => field.name)).toEqual(['headline', 'bio']);
   });
 
   it('maps tenant extras with listFilterable onto both lists as detail + filter', () => {
@@ -146,7 +136,7 @@ describe('seed list surfaces', () => {
       cityLabel: 'São Paulo',
     });
     expect(detail.facts.some((item) => item.name === 'host_at_home')).toBe(true);
-    expect(detail.links.map((item) => item.key).sort()).toEqual(['github', 'linkedin', 'portfolio']);
+    expect(detail.links).toEqual([]);
     expect(detail.facts.some((item) => item.name === 'gender')).toBe(false);
   });
 

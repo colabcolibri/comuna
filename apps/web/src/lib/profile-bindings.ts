@@ -1,3 +1,4 @@
+import { parseAudience, type Audience } from '@community/directory';
 import { parseContacts, parseLanguages, valueAt, type LocalizedText } from '@community/identity';
 import { parsePlace, type GeoPlace } from '@community/places';
 import type { CatalogField, CatalogGroup } from '@community/directory';
@@ -73,11 +74,24 @@ export function cardBodyFromFields(fields: CatalogField[], values: Record<string
   return {
     headline: (values.headline as LocalizedText) || [],
     bio: (values.bio as LocalizedText) || [],
-    public_directory: values.public_directory === undefined ? true : Boolean(values.public_directory),
-    public_showcase: Boolean(values.public_showcase),
     custom_attributes: attributes,
+    audiences: {
+      headline: parseAudience(values.headline_audience),
+      bio: parseAudience(values.bio_audience),
+      availability: parseAudience(values.availability_audience),
+      attributes: Object.fromEntries(
+        Object.keys(attributes).map((key) => [key, parseAudience(values[`audience:${key}`])])
+      ),
+    },
   };
 }
+
+export type CardAudiences = {
+  headline: Audience;
+  bio: Audience;
+  availability: Audience;
+  attributes: Record<string, Audience>;
+};
 
 export function groupsForScope(groups: CatalogGroup[], scope: 'person' | 'community') {
   return groups

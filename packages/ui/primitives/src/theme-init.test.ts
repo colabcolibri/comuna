@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { THEME_INIT_SCRIPT, THEME_INIT_SCRIPT_ID } from './theme-init';
+import { THEME_INIT_SCRIPT, THEME_INIT_SCRIPT_ID, themeClassFromCookie } from './theme-init';
 
 describe('theme init script', () => {
   it('applies class and color-scheme from localStorage before paint', () => {
@@ -8,5 +8,12 @@ describe('theme init script', () => {
     expect(THEME_INIT_SCRIPT).toContain('classList');
     expect(THEME_INIT_SCRIPT).toContain('colorScheme');
     expect(THEME_INIT_SCRIPT).not.toContain('<script');
+  });
+
+  it('reads only light or dark from the color cookie', () => {
+    expect(themeClassFromCookie('dark')).toBe('dark');
+    expect(themeClassFromCookie('light')).toBe('light');
+    expect(themeClassFromCookie('system')).toBeNull();
+    expect(themeClassFromCookie(undefined)).toBeNull();
   });
 });

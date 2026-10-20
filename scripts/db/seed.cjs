@@ -15,6 +15,7 @@ const {
 } = require('../seed/communities.cjs');
 const { membershipCard } = require('../seed/membership-cards.cjs');
 const { seedDemoAvatarsForPeople, seedDemoAvatarsEnabled } = require('../seed/demo-avatars.cjs');
+const { seedDemoTalents } = require('../seed/talent-demo.cjs');
 
 const MODULES = ['directory', 'showcase', 'contact-mediated', 'map'];
 
@@ -172,25 +173,30 @@ async function seed(url, email) {
         const card = membershipCard(slug, person);
         await client.query(
           `INSERT INTO plugin_directory.cards (
-             membership_id, headline, bio, public_showcase, custom_attributes
-           ) VALUES ($1, $2::jsonb, $3::jsonb, $4, $5::jsonb)
+             membership_id, headline, bio, public_showcase, custom_attributes,
+             headline_audience, bio_audience
+           ) VALUES ($1, $2::jsonb, $3::jsonb, $4, $5::jsonb, $6, $6)
            ON CONFLICT (membership_id) DO UPDATE SET
              headline = EXCLUDED.headline,
              bio = EXCLUDED.bio,
              public_showcase = EXCLUDED.public_showcase,
-             custom_attributes = EXCLUDED.custom_attributes`,
+             custom_attributes = EXCLUDED.custom_attributes,
+             headline_audience = EXCLUDED.headline_audience,
+             bio_audience = EXCLUDED.bio_audience`,
           [
             membership.rows[0].id,
             JSON.stringify(card.headline),
             JSON.stringify(card.bio),
             card.public_showcase,
             JSON.stringify(card.attributes),
+            card.public_showcase ? 'external' : 'internal',
           ]
         );
         membershipCount += 1;
       }
     }
     const avatarCount = await seedDemoAvatarsForPeople(client, people, async (person) => memberIds.get(person.n));
+    await seedDemoTalents(client, tenants, memberIds);
     const demoId = tenants.demo.id;
     const avatarNote = seedDemoAvatarsEnabled() ? ` avatars=${avatarCount}` : '';
     console.log(

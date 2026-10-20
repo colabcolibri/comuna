@@ -40,6 +40,7 @@ export default defineConfig({
       { find: '@community/showcase', replacement: path.resolve(__dirname, './packages/modules/showcase/src/index.ts') },
       { find: '@community/contact-mediated', replacement: path.resolve(__dirname, './packages/modules/contact-mediated/src/index.ts') },
       { find: '@community/map', replacement: path.resolve(__dirname, './packages/modules/map/src/index.ts') },
+      { find: '@community/talent', replacement: path.resolve(__dirname, './packages/modules/talent/src/index.ts') },
       { find: '@community/ui/theme-init', replacement: path.resolve(__dirname, './packages/ui/primitives/src/theme-init.ts') },
       { find: '@community/ui', replacement: path.resolve(__dirname, './packages/ui/primitives/src/index.ts') },
       { find: '@community/ui-member', replacement: path.resolve(__dirname, './packages/ui/member/src/index.ts') },

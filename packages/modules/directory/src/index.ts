@@ -6,3 +6,4 @@ export * from './language-filter';
 export { projectPersonView, type PersonView, type PersonViewProfile } from './list-view';
 export { coreCatalog } from './core-catalog';
 export { directoryContribution } from './contribution';
+export { migratedBlockAudience, parseAudience, parseExposure, effectiveAudience, audienceAllowedByCeiling, exposureFromPlacement, audienceVisible, showcaseScopeSql, directoryScopeSql, type Audience, type Exposure } from './audience';

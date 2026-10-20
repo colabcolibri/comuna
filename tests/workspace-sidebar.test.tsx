@@ -54,7 +54,8 @@ describe('workspace sidebar', () => {
     expect(screen.getByRole('link', { name: /Perfil nesta comunidade/ }).getAttribute('href')).toBe(
       '/c/lab/profile'
     );
-    expect(screen.getByRole('link', { name: /Meu perfil/ }).getAttribute('href')).toBe('/profile');
+    expect(screen.getByRole('button', { name: /Meu perfil/ })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: /Meu perfil/ })).toBeNull();
     const trigger = screen.getByRole('button', { name: /Lab/ });
     fireEvent.pointerDown(trigger);
     fireEvent.click(trigger);

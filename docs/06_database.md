@@ -132,9 +132,11 @@ erDiagram
         jsonb headline "LocalizedText"
         jsonb bio "LocalizedText"
         string availability_status "available_for_hire | project_partner | mentor | unavailable"
-        boolean public_directory "Opt-in do diretório interno; default true"
-        boolean public_showcase "Opt-in da vitrine; independente do diretório"
+        text headline_audience "private | internal | external; default private"
+        text bio_audience "private | internal | external; default private"
+        text availability_audience "private | internal | external; default private"
         jsonb custom_attributes "escalares; chaves = fields.name"
+        jsonb attribute_audience "chave do atributo → private | internal | external"
     }
 
     "plugin_directory.field_groups" {
@@ -204,7 +206,7 @@ erDiagram
 ### 1. Uma Pessoa (perfil-base), Múltiplas Comunidades (`memberships`)
 - Uma conta `users` + perfil-base (identidade + demografia + cidades geocodificadas).
 - A mesma pessoa pode ser `member` numa comunidade e `coordinator` noutra.
-- Headline, bio, availability, `public_directory` e `public_showcase`: colunas de `plugin_directory.cards`. Os dois opt-ins são independentes. Catálogo em `field_groups` / `fields`. `custom_attributes` guarda só valores escalares de campos `storage=attributes`; não substitui LocalizedText nem a definição do campo.
+- Headline, bio e availability guardam audiência própria (`private | internal | external`, default `private`). Atributos guardam o valor em `custom_attributes` e a audiência em `attribute_audience`. Externo inclui interno. Diretório lê `internal` e `external`. Vitrine lê só `external`. Identidade (nome, foto, e-mail, telefone, gênero, cidades) fica fora do enum.
 
 ### 2. Isolamento por `community_id` (Tenant ID)
 - Todas as consultas, buscas no diretório e ações administrativas filtram obrigatoriamente pelo `community_id`.

@@ -1,6 +1,7 @@
 import { DEFAULT_LIST_RADIUS_KM, parseCountryCode, parseListRadius, parseNearLatLon } from '@community/places';
 import { parseAttrFilters } from './catalog';
 import { languagesIsFilterable, parseLanguageFilter } from './language-filter';
+import { directoryScopeSql, showcaseScopeSql } from './audience';
 import type { ListField } from './list-fields';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -14,7 +15,7 @@ function parseShowcasePageSize(raw: string | null) {
   return (SHOWCASE_PAGE_SIZES as readonly number[]).includes(n) ? n : SHOWCASE_PAGE_SIZE;
 }
 
-const SELECT = `SELECT m.id, p.full_name, p.avatar_url, p.current_city, p.languages, p.contacts, c.headline, c.bio, c.custom_attributes`;
+const SELECT = `SELECT m.id, p.full_name, p.avatar_url, p.current_city, p.languages, p.contacts, c.headline, c.bio, c.headline_audience, c.bio_audience, c.attribute_audience, c.custom_attributes`;
 const FROM = `FROM network_core.memberships m JOIN person_core.profiles p ON p.user_id = m.user_id JOIN plugin_directory.cards c ON c.membership_id = m.id`;
 const COORD = `pg_input_is_valid(p.current_city->>'lat', 'float8') AND pg_input_is_valid(p.current_city->>'lon', 'float8')`;
 
@@ -24,8 +25,8 @@ function haversineKm(latSlot: number, lonSlot: number) {
 
 function scopeClauses(scope: PeopleListScope) {
   return scope === 'directory'
-    ? [`m.network_status = 'active'`, 'c.public_directory = true']
-    : ['c.public_showcase = true'];
+    ? [`m.network_status = 'active'`, directoryScopeSql('c')]
+    : [showcaseScopeSql('c')];
 }
 
 export type PeopleListScope = 'directory' | 'showcase';
@@ -45,6 +46,7 @@ export function peopleListQuery(input: {
   searchParams: URLSearchParams;
   fields: ListField[];
   scope: PeopleListScope;
+  talentAudiences?: string[];
 }): PeopleListQuery | { ok: false; message: string } {
   const parsed = parseAttrFilters(input.searchParams, input.fields);
   if (parsed.ok === false) {
@@ -59,8 +61,15 @@ export function peopleListQuery(input: {
   const search = input.searchParams.get('search')?.trim() || '';
   if (search) {
     params.push(`%${search}%`);
+    const searchSlot = params.length;
+    const audiences = input.talentAudiences?.filter(Boolean) || [];
+    let talent = '';
+    if (audiences.length) {
+      params.push(audiences);
+      talent = ` OR EXISTS (SELECT 1 FROM plugin_talent.offerings o WHERE o.membership_id = m.id AND o.audience = ANY($${params.length}::text[]) AND (o.title ILIKE $${searchSlot} OR o.description ILIKE $${searchSlot}))`;
+    }
     clauses.push(
-      `(p.full_name ILIKE $${params.length} OR c.headline::text ILIKE $${params.length} OR c.bio::text ILIKE $${params.length})`
+      `(p.full_name ILIKE $${searchSlot} OR c.headline::text ILIKE $${searchSlot} OR c.bio::text ILIKE $${searchSlot}${talent})`
     );
   }
   if (input.scope === 'directory') {

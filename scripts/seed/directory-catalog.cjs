@@ -164,65 +164,11 @@ const PLATFORM_CATALOG_GROUPS = [
       ],
     },
     {
-      slug: 'links',
-      label: loc('Links', 'Links'),
-      description: loc(
-        'Endereços públicos. Nenhum é obrigatório. E-mail da conta não entra aqui de propósito.',
-        'Public URLs. None are required. The account email stays out of this group on purpose.'
-      ),
-      sort: 35,
-      columns: 1,
-      fields: [
-        {
-          name: 'linkedin',
-          type: 'url',
-          label: loc('LinkedIn', 'LinkedIn'),
-          description: loc(
-            'Cole o endereço completo do perfil, não o nome de usuário sozinho.',
-            'Paste the full profile URL, not the username alone.'
-          ),
-          span: 1,
-          storage: 'person',
-          column_key: 'contacts.linkedin',
-          sort: 10,
-          lists: LISTS.links,
-        },
-        {
-          name: 'github',
-          type: 'url',
-          label: loc('GitHub', 'GitHub'),
-          description: loc(
-            'Perfil público. Se o repositório que importa é da organização, ainda assim use o seu usuário.',
-            'A public profile. If the repo that matters belongs to an org, still use your own user.'
-          ),
-          span: 1,
-          storage: 'person',
-          column_key: 'contacts.github',
-          sort: 20,
-          lists: LISTS.links,
-        },
-        {
-          name: 'portfolio',
-          type: 'url',
-          label: loc('Portfólio', 'Portfolio'),
-          description: loc(
-            'Site, Notion público, Behance ou página da pesquisa. Evite login obrigatório.',
-            'A site, public Notion, Behance, or a research page. Avoid anything behind a login.'
-          ),
-          span: 1,
-          storage: 'person',
-          column_key: 'contacts.portfolio',
-          sort: 30,
-          lists: LISTS.links,
-        },
-      ],
-    },
-    {
       slug: 'community_copy',
       label: loc('Nesta comunidade', 'This community'),
       description: loc(
-        'Texto desta casa. A mesma pessoa pode se apresentar de outro jeito na incubadora e no alumni.',
-        'Copy for this house. The same person can introduce themselves differently in the incubator and the alumni network.'
+        'Título e apresentação que as pessoas veem nesta comunidade.',
+        'The title and introduction people see in this community.'
       ),
       sort: 20,
       columns: 1,
@@ -233,8 +179,8 @@ const PLATFORM_CATALOG_GROUPS = [
           localized: true,
           label: loc('Título', 'Title'),
           description: loc(
-            'Uma linha, no tom desta comunidade. Diga o ofício, não o slogan da empresa.',
-            'One line, in the tone of this community. Name the craft, not the company slogan.'
+            'Uma linha que apresenta você nesta comunidade. Até 100 caracteres.',
+            'One line that introduces you in this community. Up to 100 characters.'
           ),
           span: 1,
           storage: 'card_column',
@@ -249,8 +195,8 @@ const PLATFORM_CATALOG_GROUPS = [
           localized: true,
           label: loc('Apresentação', 'About'),
           description: loc(
-            'Duas ou três frases: o que você faz, para quem, e como a rede pode te procurar. Sem currículo colado.',
-            'Two or three sentences: what you do, for whom, and how the network can reach you. Not a pasted CV.'
+            'Um texto curto que apresenta você: o que faz e para quem. Até 600 caracteres.',
+            'A short text that introduces you: what you do and for whom. Up to 600 characters.'
           ),
           span: 1,
           storage: 'card_column',
@@ -258,36 +204,6 @@ const PLATFORM_CATALOG_GROUPS = [
           sort: 20,
           module_slug: 'directory',
           lists: LISTS.bio,
-        },
-        {
-          name: 'public_directory',
-          type: 'boolean',
-          label: loc('Mostrar no diretório interno', 'Show in the internal directory'),
-          description: loc(
-            'Só quem liga aparece na lista desta comunidade. Desligado, os outros membros não te veem no diretório. Não controla a vitrine.',
-            'Only people who turn this on appear in this community list. When off, other members do not see you in the directory. It does not control the showcase.'
-          ),
-          span: 1,
-          storage: 'card_column',
-          column_key: 'public_directory',
-          sort: 25,
-          module_slug: 'directory',
-          lists: LISTS.pii,
-        },
-        {
-          name: 'public_showcase',
-          type: 'boolean',
-          label: loc('Mostrar na vitrine pública', 'Show on the public showcase'),
-          description: loc(
-            'Se esta comunidade tem vitrine, o cartão só entra com o seu sim. Não controla o diretório interno.',
-            'If this community has a showcase, the card only appears with your yes. It does not control the internal directory.'
-          ),
-          span: 1,
-          storage: 'card_column',
-          column_key: 'public_showcase',
-          sort: 30,
-          module_slug: 'showcase',
-          lists: LISTS.pii,
         },
       ],
     },
@@ -368,22 +284,6 @@ async function reconcileLegacyAvailabilityGroup(client, communityId) {
 
 async function seedDirectoryCatalog(client, communityId) {
   await upsertCatalogGroups(client, communityId, PLATFORM_CATALOG_GROUPS);
-
-  await client.query(
-    `UPDATE plugin_directory.fields f
-     SET group_id = links.id,
-         sort_order = CASE f.name WHEN 'linkedin' THEN 10 WHEN 'github' THEN 20 WHEN 'portfolio' THEN 30 ELSE f.sort_order END,
-         span = 1
-     FROM plugin_directory.field_groups person
-     JOIN plugin_directory.field_groups links
-       ON links.community_id = person.community_id AND links.slug = 'links'
-     WHERE person.community_id = $1
-       AND person.slug = 'person'
-       AND f.group_id = person.id
-       AND f.name IN ('linkedin', 'github', 'portfolio')`,
-    [communityId]
-  );
-
   await reconcileLegacyAvailabilityGroup(client, communityId);
 }
 

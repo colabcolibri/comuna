@@ -10,8 +10,10 @@ import {
   type ListField,
 } from '@community/directory';
 import { showcaseContribution } from '@community/showcase';
-import { toPersonCard } from '@/lib/people/person-card';
+import { talentCeiling, talentContribution } from '@community/talent';
+import { ceilingsFrom, toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
+import { loadOfferingsPublic, offeringsByMembership } from '@/lib/server/talent-offers';
 
 export async function listPublicListFields(communityId: string): Promise<ListField[]> {
   const result = await query(LIST_FIELDS_SQL, [communityId, 'showcase']);
@@ -27,11 +29,17 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
   const listFields = await listPublicListFields(communityId);
   const facets = attributeFacets(listFields);
   const keys = listedAttributeNames(listFields);
+  const talentOn = await moduleRuntime.isEnabled(communityId, talentContribution.slug);
+  const ceilingRow = talentOn
+    ? await query<{ settings: unknown }>(`SELECT settings FROM network_core.communities WHERE id = $1`, [communityId])
+    : { rows: [] as { settings: unknown }[] };
+  const ceiling = talentCeiling(ceilingRow.rows[0]?.settings);
   const built = peopleListQuery({
     communityId,
     searchParams,
     fields: listFields,
     scope: 'showcase',
+    talentAudiences: talentOn && ceiling === 'external' ? ['external'] : [],
   });
   if (built.ok === false) {
     return {
@@ -47,11 +55,19 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
     ? await query<{ total: number }>(built.countText, built.countParams)
     : { rows: [{ total: 0 }] };
   const result = await query(built.text, built.params);
+  const rows = talentOn
+    ? await offeringsByMembership(
+        result.rows as Record<string, unknown>[],
+        'external',
+        loadOfferingsPublic(),
+        ceiling
+      )
+    : result.rows;
   const countriesQuery = peopleListCountriesQuery({ communityId, scope: 'showcase' });
   const countries = await query<{ country: string }>(countriesQuery.text, countriesQuery.params);
   return {
     status: 200 as const,
-    data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, keys)),
+    data: (rows as Record<string, unknown>[]).map((row) => toPersonCard(row, keys, 'external', ceilingsFrom(listFields))),
     facets,
     listFields,
     countries: countries.rows.map((row) => row.country).filter(Boolean),

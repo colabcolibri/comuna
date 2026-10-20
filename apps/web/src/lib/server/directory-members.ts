@@ -9,8 +9,10 @@ import {
   attributeFacets,
 } from '@community/directory';
 import type { AppQueryCtx } from '@/lib/server/app-ctx';
-import { toPersonCard } from '@/lib/people/person-card';
+import { ceilingsFrom, toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
+import { loadOfferingsAsMember, offeringsByMembership } from '@/lib/server/talent-offers';
+import { talentCeiling, talentContribution } from '@community/talent';
 
 export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSearchParams) {
   const on = await moduleRuntime.isEnabled(ctx.communityId, directoryContribution.slug);
@@ -19,11 +21,17 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
   }
   const catalog = await queryAsMember(ctx, LIST_FIELDS_SQL, [ctx.communityId, 'directory']);
   const listFields = parseListFields(catalog.rows);
+  const talentOn = await moduleRuntime.isEnabled(ctx.communityId, talentContribution.slug);
+  const ceilingRow = talentOn
+    ? await queryAsMember<{ settings: unknown }>(ctx, `SELECT settings FROM network_core.communities WHERE id = $1`, [ctx.communityId])
+    : { rows: [] as { settings: unknown }[] };
+  const ceiling = talentCeiling(ceilingRow.rows[0]?.settings);
   const built = peopleListQuery({
     communityId: ctx.communityId,
     searchParams,
     fields: listFields,
     scope: 'directory',
+    talentAudiences: talentOn && ceiling !== 'hidden' ? ['internal', 'external'] : [],
   });
   if (built.ok === false) {
     return { status: 400 as const, body: { error: { code: 'VALIDATION_ERROR', message: built.message } } };
@@ -32,13 +40,21 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
     ? await queryAsMember<{ total: number }>(ctx, built.countText, built.countParams)
     : { rows: [{ total: 0 }] };
   const result = await queryAsMember(ctx, built.text, built.params);
+  const rows = talentOn
+    ? await offeringsByMembership(
+        result.rows as Record<string, unknown>[],
+        'internal',
+        loadOfferingsAsMember(ctx),
+        ceiling
+      )
+    : result.rows;
   const countriesQuery = peopleListCountriesQuery({ communityId: ctx.communityId, scope: 'directory' });
   const countries = await queryAsMember<{ country: string }>(ctx, countriesQuery.text, countriesQuery.params);
   const keys = listedAttributeNames(listFields);
   return {
     status: 200 as const,
     body: {
-      data: result.rows.map((row) => toPersonCard(row as Record<string, unknown>, keys)),
+      data: (rows as Record<string, unknown>[]).map((row) => toPersonCard(row, keys, 'internal', ceilingsFrom(listFields))),
       facets: attributeFacets(listFields),
       listFields,
       countries: countries.rows.map((row) => row.country).filter(Boolean),

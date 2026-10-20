@@ -65,7 +65,9 @@ blocks: []
 | `POST` | `/api/profiles/me/avatar` | Upload de foto | Member | jpeg/png/webp; sem SVG; máximo 2 MB | `{ "avatar_url" }` |
 | `GET` | `/api/media/person/:userId/avatar` | Bytes da foto | Public se o objecto existir | — | image/* |
 | `GET` | `/api/places/cities` | Busca cidade (Nominatim) | Member | `?q=` | `{ "data": GeoPlace[] }` |
-| `PUT` | `/api/memberships/me` | Card do directory | Member; 404 se plugin off | LocalizedText headline/bio, availability, `public_directory`, `public_showcase`, `custom_attributes` (só chaves do catálogo) | `{ ok }` |
+| `PUT` | `/api/memberships/me` | Card do directory | Member; 404 se plugin off | LocalizedText headline/bio, `audiences` (`headline`, `bio`, `availability`, `attributes`), `custom_attributes` (só chaves do catálogo). `public_directory` e `public_showcase` são rejeitados | `{ ok }` |
+| `GET` `POST` | `/api/talent/offerings` | Ofertas do membership | Member; 404 se talent off | título, categoria, audiência; descrição e url opcionais | lista ou oferta |
+| `PATCH` `DELETE` | `/api/talent/offerings/:id` | Edita ou apaga oferta própria | Member; 404 se talent off ou oferta alheia | mesmos campos do POST | `{ ok }` |
 | `GET` | `/api/me/communities` | Comunidades com membership `active` da pessoa | Member | — | `{ "data": [{ id, slug, name, network_role }] }` |
 | `GET` | `/api/community/modules` | Slugs enabled da comunidade do contexto (cookie `community_slug` ou vitrine pública) | Public / member | — | `{ "enabled": ["directory", "showcase"] }` |
 | `GET` | `/api/directory/catalog` | Grupos e campos; API **omite** campos cujo `module_id` não está enabled (núcleo sempre). 404 só se o plugin **directory** está off | Member | — | `{ "groups": [ { fields } ] }` |

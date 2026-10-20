@@ -17,8 +17,10 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@community/ui';
-import { contentFromCatalog, pickContent } from '@community/identity';
-import { AppAlertDialog } from '@community/ui-member';
+import { contentFromCatalog, mergeContent, pickContent } from '@community/identity';
+import { AppAlertDialog, AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader } from '@community/ui-member';
+import { Button } from '@community/ui';
+import { ProfileForm } from '@/components/app/ProfileForm';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { useEnabledModules } from '@/components/app/EnabledModulesProvider';
 import { CommunitySwitcher } from '@/components/app/CommunitySwitcher';
@@ -28,10 +30,13 @@ import { copyFrom, visibleChrome } from '@/modules/registry';
 import { communityPath, slugFromPathname } from '@/lib/people/community-path';
 import type { MyCommunity } from '@community/memberships';
 
-const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
+const CONTENT = mergeContent(
+  contentFromCatalog(uiCatalog, 'core_identity', { save: 'profile.save' }),
+  contentFromCatalog(uiCatalog, 'core_web', {
   showcase: 'chrome.showcase',
   signin: 'chrome.signin',
   directory: 'chrome.directory',
+  talent: 'chrome.talent',
   profile: 'chrome.profile',
   communityProfile: 'chrome.community_profile',
   coord: 'chrome.coord',
@@ -40,7 +45,8 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   signoutBody: 'chrome.signout_body',
   cancel: 'chrome.cancel',
   here: 'chrome.here',
-});
+  })
+);
 
 export function AppSidebar({ email, seats }: { email: string | null; seats: MyCommunity[] }) {
   const pathname = usePathname();
@@ -48,10 +54,10 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
   const enabled = useEnabledModules();
   const pluginNav = visibleChrome(enabled, 'sidebar', Boolean(email));
   const [signOutOpen, setSignOutOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const slug = slugFromPathname(pathname);
   const current = seats.find((seat) => seat.slug === slug);
   const isCoordinator = current?.network_role === 'coordinator';
-  const accountActive = pathname === '/profile' || pathname.startsWith('/profile/');
   const communityProfileHref = slug ? communityPath(slug, '/profile') : null;
   const communityProfileActive = Boolean(
     communityProfileHref && (pathname === communityProfileHref || pathname.startsWith(`${communityProfileHref}/`))
@@ -74,10 +80,10 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
           {seats.length > 0 ? <SidebarGroupLabel>{copy.here}</SidebarGroupLabel> : null}
           <SidebarGroupContent>
             <SidebarMenu>
-              {pluginNav.map((item) => {
+              {slug ? pluginNav.map((item) => {
                 const Icon = chromeIcon(item.icon);
-                const href = slug ? communityPath(slug, item.href) : item.href;
-                const active = Boolean(slug) && pathname.startsWith(href);
+                const href = communityPath(slug, item.href);
+                const active = pathname.startsWith(href);
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton asChild isActive={active} tooltip={copyFrom(copy, item.copyKey)}>
@@ -88,7 +94,7 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
-              })}
+              }) : null}
               {communityProfileHref ? (
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild isActive={communityProfileActive} tooltip={copy.communityProfile}>
@@ -118,11 +124,9 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
           {email ? (
             <>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={accountActive} tooltip={copy.profile}>
-                  <Link href="/profile">
-                    <UserRound />
-                    <span className="group-data-[collapsible=icon]:hidden">{copy.profile}</span>
-                  </Link>
+                <SidebarMenuButton tooltip={copy.profile} onClick={() => setAccountOpen(true)}>
+                  <UserRound />
+                  <span className="group-data-[collapsible=icon]:hidden">{copy.profile}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -145,6 +149,20 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
         </SidebarMenu>
       </SidebarFooter>
       <SidebarRail />
+      <AppDialog open={accountOpen} onClose={() => setAccountOpen(false)} size="full">
+        <AppDialogHeader title={copy.profile} />
+        <AppDialogBody>
+          {accountOpen ? <ProfileForm scope="person" embedded /> : null}
+        </AppDialogBody>
+        <AppDialogFooter>
+          <Button type="button" variant="outline" className="min-h-11" onClick={() => setAccountOpen(false)}>
+            {copy.cancel}
+          </Button>
+          <Button type="submit" form="profile-form" className="min-h-11">
+            {copy.save}
+          </Button>
+        </AppDialogFooter>
+      </AppDialog>
       <AppAlertDialog
         isOpen={signOutOpen}
         onClose={() => setSignOutOpen(false)}

@@ -54,6 +54,7 @@ Deep link de rota que não está em `ui.routes` → redirect `/`. API do plugin:
 | `showcase` | `/showcase`, link vitrine | — | `public_showcase` (coluna em `cards`, **dono é showcase**) |
 | `contact-mediated` | — | `showcase.rowAction` | nenhum |
 | `map` | — | `directory.mapView`, `showcase.mapView` | nenhum |
+| `talent` | — | seção no perfil da comunidade | ofertas em `plugin_talent`; audiência `private \| internal \| external` |
 
 `storage` continua sendo **binding de valor** (`person` / `card_column` / `attributes`). Não é dono de plugin. Um `card_column` pode ser directory (`headline`) ou showcase (`public_showcase`). O seed é quem marca o dono.
 

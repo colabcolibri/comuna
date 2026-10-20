@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { THEME_STORAGE_KEY } from './theme-init';
+import { THEME_COLOR_COOKIE, THEME_STORAGE_KEY } from './theme-init';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
@@ -46,6 +46,7 @@ function applyResolved(resolved: ResolvedTheme) {
   root.classList.remove('light', 'dark');
   root.classList.add(resolved);
   root.style.colorScheme = resolved;
+  document.cookie = `${THEME_COLOR_COOKIE}=${resolved}; Path=/; Max-Age=31536000; SameSite=Lax`;
   window.getComputedStyle(document.body);
   setTimeout(() => style.remove(), 1);
 }

@@ -11,7 +11,16 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   const { id, fieldId } = await ctx.params;
   const body = await req.json();
   try {
-    if (body.labelPt !== undefined) {
+    if (body.exposure === 'hidden' || body.exposure === 'internal' || body.exposure === 'external') {
+      const { query } = await import('@community/db');
+      await query(
+        `UPDATE plugin_directory.fields f
+         SET exposure = $3
+         FROM plugin_directory.field_groups g
+         WHERE f.id = $1 AND f.group_id = g.id AND g.community_id = $2 AND f.exposure IS NOT NULL`,
+        [fieldId, id, body.exposure]
+      );
+    } else if (body.labelPt !== undefined) {
       await updateOpsField(id, fieldId, {
         labelPt: typeof body.labelPt === 'string' ? body.labelPt : undefined,
         labelEn: typeof body.labelEn === 'string' ? body.labelEn : undefined,

@@ -28,7 +28,7 @@ export function AppShowcasePortal({
   return (
     <main className="w-full min-w-0 flex-1 overflow-x-hidden">
       <section className="border-b border-border bg-card">
-        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6 sm:py-20">
           <div className="flex min-w-0 flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0 max-w-3xl">
               <h1 className="text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
@@ -42,7 +42,7 @@ export function AppShowcasePortal({
           </div>
         </div>
       </section>
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-12">
         {toolbar}
         {children}
       </div>

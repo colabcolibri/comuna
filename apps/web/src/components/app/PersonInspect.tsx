@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader, AppPersonFieldGroup, AppSheet, personInitials } from '@community/ui-member';
 import { Button, DialogTitle, Input, Label, Textarea, toast } from '@community/ui';
 import { CONTACT_MESSAGE_MIN, parseContactPayload } from '@community/contact-mediated';
@@ -16,6 +16,7 @@ export function PersonInspect({
   copy,
   locale,
   canContact,
+  sections,
   onClose,
 }: {
   profile: PersonCard | null;
@@ -23,6 +24,7 @@ export function PersonInspect({
   copy: Record<string, string>;
   locale: string;
   canContact: boolean;
+  sections?: ReactNode;
   onClose: () => void;
 }) {
   const [senderName, setSenderName] = useState('');
@@ -122,18 +124,17 @@ export function PersonInspect({
       <AppDialogBody>
         {view ? (
           <div className={split ? 'grid min-w-0 gap-8 md:grid-cols-[minmax(0,1fr)_minmax(13rem,18rem)] md:items-start md:gap-10' : 'min-w-0'}>
-            {view.headline || view.summary ? (
-              <div className="min-w-0">
-                {view.headline ? (
-                  <p className="text-xl font-semibold leading-snug tracking-tight text-foreground">{view.headline}</p>
-                ) : null}
-                {view.summary ? (
-                  <p className={`text-base leading-relaxed text-muted-foreground ${view.headline ? 'mt-4' : ''}`}>
-                    {view.summary}
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
+            <div className="min-w-0">
+              {view.headline ? (
+                <p className="text-xl font-semibold leading-snug tracking-tight text-foreground">{view.headline}</p>
+              ) : null}
+              {view.summary ? (
+                <p className={`text-base leading-relaxed text-muted-foreground ${view.headline ? 'mt-4' : ''}`}>
+                  {view.summary}
+                </p>
+              ) : null}
+              {sections}
+            </div>
             {hasMeta ? (
               <aside className={split ? 'min-w-0 space-y-5 md:border-l md:border-border md:pl-8' : 'min-w-0 space-y-5'}>
                 {view.languages.length > 0 ? (

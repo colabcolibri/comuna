@@ -19,6 +19,7 @@
     "@community/memberships": "workspace:*",
     "@community/platform": "workspace:*",
     "@community/showcase": "workspace:*",
+    "@community/talent": "workspace:*",
     "@community/ui": "workspace:*",
     "@community/ui-admin": "workspace:*",
     "lucide-react": "^1.45.0",

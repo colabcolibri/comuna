@@ -42,6 +42,17 @@ export function chromeOf(
   );
 }
 
+export const INSPECT_SECTION = 'inspect.section';
+
+export function inspectSectionsOf(
+  registry: ModuleContribution[],
+  enabled: Iterable<string>
+): ModuleContribution[] {
+  return contributionsOn(registry, enabled).filter((module) =>
+    module.slots.some((slot) => slot.id === INSPECT_SECTION)
+  );
+}
+
 export function hasSlot(
   registry: ModuleContribution[],
   enabled: Iterable<string>,

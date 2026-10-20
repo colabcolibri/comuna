@@ -9,15 +9,19 @@ import {
   type ChromeSlot,
 } from '@community/module-runtime';
 import { showcaseContribution } from '@community/showcase';
+import { talentContribution } from '@community/talent';
 
 export const firstPartyModules = [
   directoryContribution,
   showcaseContribution,
   contactMediatedContribution,
   mapContribution,
+  talentContribution,
 ];
 
 export const firstPartySlugs = slugsOf(firstPartyModules);
+
+export const defaultEnabledSlugs = firstPartySlugs.filter((slug) => slug !== 'talent');
 
 export function visibleChrome(enabled: Iterable<string>, slot: ChromeSlot, signedIn: boolean) {
   return chromeOf(firstPartyModules, enabled, slot).filter((item) => !item.memberOnly || signedIn);

@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { AppPageTemplate, AppProfileSection, AppProfileStack, FieldGrid, fieldSpanClass } from '@community/ui-member';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { AppPageTemplate, AppProfileItem, AppProfileSection, AppProfileStack, FieldGrid, fieldSpanClass } from '@community/ui-member';
 import { Button, Skeleton, toast } from '@community/ui';
 import { contentFromCatalog, pickContent, pickLocalizedText } from '@community/identity';
-import { coreCatalog, missingRequiredFields, type CatalogField, type CatalogGroup } from '@community/directory';
+import { communityCopyLimit, coreCatalog, missingRequiredFields, type CatalogField, type CatalogGroup } from '@community/directory';
+import { AudienceMark } from '@/components/app/AudienceMark';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { FieldControl } from '@/components/app/FieldControl';
 import { uiCatalog } from '@/lang/catalog';
@@ -23,7 +24,15 @@ function splitIdentity(fields: CatalogField[]) {
   };
 }
 
-export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
+export function ProfileForm({
+  scope,
+  embedded = false,
+  extra,
+}: {
+  scope: 'person' | 'community';
+  embedded?: boolean;
+  extra?: ReactNode;
+}) {
   const locale = useLocale();
   const copy = pickContent(
     contentFromCatalog(uiCatalog, 'core_identity', {
@@ -34,8 +43,10 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
       saved: 'profile.saved',
       error: 'profile.error',
       requiredMissing: 'profile.required_missing',
-      pairPt: 'profile.pair_pt',
-      pairEn: 'profile.pair_en',
+      audience: 'profile.audience',
+      audiencePrivate: 'profile.audience_private',
+      audienceInternal: 'profile.audience_internal',
+      audienceExternal: 'profile.audience_external',
     }),
     locale
   );
@@ -71,6 +82,18 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
             profile: profileJson.profile,
             card: membershipJson.card,
           });
+          if (scope === 'community' && field.storage !== 'person') {
+            const card = membershipJson.card || {};
+            const column = field.column_key || field.name;
+            if (column === 'headline') {
+              next.headline_audience = card.headline_audience || 'private';
+            } else if (column === 'bio') {
+              next.bio_audience = card.bio_audience || 'private';
+            } else if (field.storage === 'attributes') {
+              const map = card.attribute_audience || {};
+              next[`audience:${field.name}`] = map[field.name] || 'private';
+            }
+          }
         }
         setValues(next);
         setReady(true);
@@ -123,42 +146,65 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
     </Button>
   );
 
-  const renderField = (field: CatalogField) => (
-    <FieldControl
-      field={field}
-      locale={locale}
-      value={values[field.name]}
-      onChange={(next) => setValues((current) => ({ ...current, [field.name]: next }))}
-      pairPt={copy.pairPt}
-      pairEn={copy.pairEn}
-      initials={initialsFrom(values.full_name)}
-    />
-  );
+  const audienceKey = (field: CatalogField) => {
+    const column = field.column_key || field.name;
+    if (column === 'headline') {
+      return 'headline_audience';
+    }
+    if (column === 'bio') {
+      return 'bio_audience';
+    }
+    if (field.storage === 'attributes') {
+      return `audience:${field.name}`;
+    }
+    return '';
+  };
 
-  return (
-    <AppPageTemplate
-      kicker={copy.kicker}
-      title={copy.title}
-      subtitle={copy.subtitle || undefined}
-      stickyHeader
-      actions={saveControl('min-h-11')}
-    >
+  const renderField = (field: CatalogField) => {
+    const key = scope === 'community' ? audienceKey(field) : '';
+    return (
+      <AppProfileItem>
+        <FieldControl
+          field={field}
+          locale={locale}
+          value={values[field.name]}
+          onChange={(next) => setValues((current) => ({ ...current, [field.name]: next }))}
+          initials={initialsFrom(values.full_name)}
+          maxLength={communityCopyLimit(field.column_key)}
+          aside={
+            key ? (
+              <AudienceMark
+                value={String(values[key] || 'private')}
+                ceiling={field.exposure}
+                labels={{ private: copy.audiencePrivate, internal: copy.audienceInternal, external: copy.audienceExternal }}
+                onChange={(next) => setValues((current) => ({ ...current, [key]: next }))}
+              />
+            ) : null
+          }
+        />
+      </AppProfileItem>
+    );
+  };
+
+  const form = (
+    <>
       {ready ? (
         <form id="profile-form" onSubmit={handleSave} className="min-w-0">
           <AppProfileStack>
             {groups.map((group) => {
               const title = pickLocalizedText(group.label, locale) || group.slug;
+              const description = pickLocalizedText(group.description, locale);
               const identity = group.slug === 'identity' ? splitIdentity(group.fields) : null;
               return (
-                <AppProfileSection key={group.slug} title={title}>
+                <AppProfileSection key={group.slug} title={title} description={description || undefined}>
                   {identity && identity.photos.length ? (
-                    <div className="flex min-w-0 flex-col gap-6 rounded-xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:p-6">
+                    <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start">
                       {identity.photos.map((field) => (
                         <div key={field.name} className="shrink-0">
                           {renderField(field)}
                         </div>
                       ))}
-                      <div className="min-w-0 w-full flex-1">
+                      <div className="flex min-w-0 w-full flex-1 flex-col gap-3">
                         {identity.rest.map((field) => (
                           <div key={field.name} className="min-w-0">
                             {renderField(field)}
@@ -187,6 +233,23 @@ export function ProfileForm({ scope }: { scope: 'person' | 'community' }) {
           <Skeleton className="h-24 w-full" />
         </div>
       )}
+    </>
+  );
+
+  if (embedded) {
+    return form;
+  }
+
+  return (
+    <AppPageTemplate
+      kicker={copy.kicker}
+      title={copy.title}
+      subtitle={copy.subtitle || undefined}
+      stickyHeader
+      actions={saveControl('min-h-11')}
+    >
+      {form}
+      {extra}
     </AppPageTemplate>
   );
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@community/db';
 import { sendKindEmail } from '@community/mail';
 import { contactMediatedContribution, parseContactPayload } from '@community/contact-mediated';
+import { showcaseScopeSql } from '@community/directory';
 import { moduleRuntime } from '@/lib/server/membership';
 
 const hits = new Map<string, number[]>();
@@ -40,11 +41,14 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
   if (!on) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
   }
-  const card = await query<{ public_showcase: boolean }>(
-    `SELECT public_showcase FROM plugin_directory.cards WHERE membership_id = $1`,
+  const card = await query<{ listed: boolean }>(
+    `SELECT ${showcaseScopeSql('c', 'm.community_id')} AS listed
+     FROM plugin_directory.cards c
+     JOIN network_core.memberships m ON m.id = c.membership_id
+     WHERE c.membership_id = $1`,
     [id]
   );
-  if (!card.rows[0]?.public_showcase) {
+  if (!card.rows[0]?.listed) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Perfil não encontrado' } }, { status: 404 });
   }
   const body = await req.json();

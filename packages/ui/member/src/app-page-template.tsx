@@ -24,7 +24,7 @@ export function AppPageTemplate({
   return (
     <main
       className={cn(
-        'flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10',
+        'flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10',
         pinSave && 'sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start sm:gap-x-4',
         className
       )}

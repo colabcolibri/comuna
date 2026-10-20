@@ -59,7 +59,7 @@ export function MemberShell({
       <AppSidebar email={sessionEmail} seats={seats} />
       <SidebarInset className="h-full max-h-full min-h-0 overflow-hidden">
         <header className="flex h-16 shrink-0 items-center border-b border-border bg-card">
-          <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-2 px-4 sm:px-6">
+          <div className="mx-auto flex h-16 w-full max-w-4xl items-center gap-2 px-4 sm:px-6">
           <ShellMenuTrigger openLabel={copy.openMenu} closeLabel={copy.closeMenu} />
           <Link
             href={slug ? communityPath(slug, '/directory') : '/'}
@@ -70,8 +70,8 @@ export function MemberShell({
             </span>
             <span className="truncate font-semibold tracking-tight">{brand}</span>
           </Link>
-          {headerNav.map((item) => {
-            const href = slug ? communityPath(slug, item.href) : item.href;
+          {slug ? headerNav.map((item) => {
+            const href = communityPath(slug, item.href);
             const active = pathname === href || pathname.startsWith(`${href}/`);
             return (
           <Link
@@ -89,7 +89,7 @@ export function MemberShell({
             </span>
           </Link>
             );
-          })}
+          }) : null}
           <div className="ml-auto flex items-center gap-1">
             <LocaleSwitcher />
             <ThemeToggle className="size-8" toDark={copy.toDark} toLight={copy.toLight} />

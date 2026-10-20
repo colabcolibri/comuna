@@ -126,10 +126,15 @@ Criar comunidade, pessoas da rede (listar **e criar** conta por e-mail), members
 | `showcase` | Projeção pública | Sem vitrine |
 | `contact-mediated` | Formulário sem expor e-mail | Sem hiring mail |
 | `map` | Vista mapa nas listas (Leaflet + OSM) | Sem toggle mapa; grelha continua |
+| `talent` | Ofertas do membro (título, descrição, link, categoria, audiência) | Sem mural; API de oferta responde 404 |
+
+## Audiência do conteúdo publicado
+
+Conteúdo que o membro publica na comunidade usa `private | internal | external`. Externo inclui interno. O default de conteúdo novo é `private`. A comunidade tem um teto separado, `hidden | internal | external` (oculto, interno, externo), em `fields.exposure` e em `communities.settings.talent_exposure`. A leitura usa o menor dos dois e não apaga a escolha da pessoa. Diretório lê o nível efetivo interno ou externo. Vitrine lê só o efetivo externo, com o plugin showcase ligado e `communities.is_public_showcase`. Nome, foto, e-mail, telefone, gênero e cidades ficam fora das duas escalas. Presença na superfície é layout (`off`, `detail`, `card`): não aparece, só na ficha, no cartão. No cartão inclui a ficha. Oculto não é presença. As superfícies se chamam Diretório e Vitrine. O diálogo da ficha é cabeçalho, texto, fatos e depois seções de plugin. O cartão da grade leva no máximo uma linha de talento.
 
 ## Profile field catalog
 
-Detalhe: `docs/architecture/profile-fields.md` e `docs/architecture/list-surfaces.md`. Resumo: definições em `field_groups` / `fields`; política de cada lista em `list_fields`; valores custom em `cards.custom_attributes` (escalares, GIN); built-ins via `storage` `person` ou `card_column`; UI de perfil só orquestra grupos e `FieldControl` por tipo.
+Detalhe: `docs/architecture/profile-fields.md` e `docs/architecture/list-surfaces.md`. Resumo: definições em `field_groups` / `fields`; política de cada lista em `list_fields`; valores custom em `cards.custom_attributes` (escalares, GIN); audiência dos atributos em `cards.attribute_audience`; built-ins via `storage` `person` ou `card_column` com `headline_audience`, `bio_audience` e `availability_audience`; UI de perfil só orquestra grupos e `FieldControl` por tipo.
 
 ## Component boundary
 

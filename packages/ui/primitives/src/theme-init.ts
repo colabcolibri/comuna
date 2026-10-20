@@ -1,4 +1,9 @@
 export const THEME_STORAGE_KEY = 'theme';
+export const THEME_COLOR_COOKIE = 'theme-color';
+
+export function themeClassFromCookie(value: string | undefined): 'light' | 'dark' | null {
+  return value === 'light' || value === 'dark' ? value : null;
+}
 export const THEME_INIT_SCRIPT_ID = 'theme-init';
 
 /** Inline body for `next/script` `beforeInteractive` on the root layout (RSC). */

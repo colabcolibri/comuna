@@ -43,7 +43,7 @@ describe('AppShowcaseCard', () => {
       />
     );
     expect(screen.getByRole('heading', { name: 'Marina Silva' })).toBeTruthy();
-    expect(screen.getByText('São Paulo, Brasil').compareDocumentPosition(screen.getByText('Produto'))).toBe(
+    expect(screen.getByText('Produto').compareDocumentPosition(screen.getByText('São Paulo, Brasil'))).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
     );
     expect(screen.getByText('Produto').compareDocumentPosition(screen.getByText('Desenha produtos para redes profissionais.'))).toBe(

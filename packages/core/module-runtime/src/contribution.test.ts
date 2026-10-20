@@ -1,4 +1,4 @@
-import { chromeOf, hasSlot, slugsOf, type ModuleContribution } from './contribution';
+import { chromeOf, hasSlot, inspectSectionsOf, slugsOf, type ModuleContribution } from './contribution';
 
 const directory: ModuleContribution = {
   slug: 'directory',
@@ -44,6 +44,17 @@ describe('module contributions', () => {
   it('filters chrome by enabled slug, not by field heuristics', () => {
     expect(chromeOf(registry, ['showcase'], 'header').map((item) => item.href)).toEqual(['/showcase']);
     expect(chromeOf(registry, [], 'sidebar')).toEqual([]);
+  });
+
+  it('lists inspect sections in registry order when enabled', () => {
+    const withSections = registry.map((module, index) =>
+      index === 0 || index === 2 ? { ...module, slots: [...module.slots, { id: 'inspect.section' }] } : module
+    );
+    expect(inspectSectionsOf(withSections, ['directory', 'contact-mediated']).map((item) => item.slug)).toEqual([
+      'directory',
+      'contact-mediated',
+    ]);
+    expect(inspectSectionsOf(withSections, ['showcase'])).toEqual([]);
   });
 
   it('exposes slots only when the contributing plugin is on', () => {
