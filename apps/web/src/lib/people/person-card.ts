@@ -12,7 +12,13 @@ export type PersonCard = {
   headline: unknown;
   bio: unknown;
   custom_attributes: Record<string, unknown>;
-  offerings?: { title: string; description?: string; url?: string | null; category_other?: string | null }[];
+  offerings?: {
+    title: string;
+    description?: string;
+    url?: string | null;
+    category_id?: string | null;
+    category_other?: string | null;
+  }[];
 };
 
 export function publicContacts(raw: unknown): Record<string, string> {

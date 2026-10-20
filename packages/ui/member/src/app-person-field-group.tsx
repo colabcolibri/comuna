@@ -8,7 +8,7 @@ export function AppPersonFieldGroup({
   const chips = values?.length ? values : [];
   return (
     <section className="min-w-0">
-      {label ? <h3 className="text-sm font-medium text-foreground">{label}</h3> : null}
+      {label ? <h3 className="text-sm text-muted-foreground">{label}</h3> : null}
       {chips.length > 0 ? (
         <ul className={`flex flex-wrap gap-2 ${label ? 'mt-2' : ''}`}>
           {chips.map((item) => (

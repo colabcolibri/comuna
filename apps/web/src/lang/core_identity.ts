@@ -71,6 +71,7 @@ export const coreIdentityPack = definePack({
     'talent.save': 'Salvar oferta',
     'talent.edit': 'Editar',
     'talent.remove': 'Remover',
+    'talent.open': 'Abrir link',
   },
   en: {
     'profile.kicker': 'Account',
@@ -142,5 +143,6 @@ export const coreIdentityPack = definePack({
     'talent.save': 'Save offer',
     'talent.edit': 'Edit',
     'talent.remove': 'Remove',
+    'talent.open': 'Open link',
   },
 });

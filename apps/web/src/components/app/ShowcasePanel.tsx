@@ -42,6 +42,7 @@ import { PeopleSearchField } from '@/components/app/PeopleSearchField';
 const EMPTY_EXTRAS: ListQueryExtras = {};
 
 const CONTENT = mergeContent(
+  mergeContent(
   contentFromCatalog(uiCatalog, 'plugin_showcase', {
     title: 'page.title',
     subtitle: 'page.subtitle',
@@ -94,6 +95,11 @@ const CONTENT = mergeContent(
     messageMin: 'form.message_min',
     messageCount: 'form.message_count',
     sendTo: 'form.send_to',
+  })
+),
+contentFromCatalog(uiCatalog, 'core_identity', {
+    talents: 'talent.title',
+    openLink: 'talent.open',
   })
 );
 
@@ -337,7 +343,7 @@ export function ShowcasePanel({
         copy={copy}
         locale={locale}
         canContact={canContact}
-        sections={inspectSections(enabled, selected, copy)}
+        sections={inspectSections(enabled, selected, copy, locale)}
         onClose={() => setSelected(null)}
       />
     </AppShowcasePortal>

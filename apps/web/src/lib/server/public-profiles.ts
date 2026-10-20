@@ -29,11 +29,17 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
   const listFields = await listPublicListFields(communityId);
   const facets = attributeFacets(listFields);
   const keys = listedAttributeNames(listFields);
+  const talentOn = await moduleRuntime.isEnabled(communityId, talentContribution.slug);
+  const ceilingRow = talentOn
+    ? await query<{ settings: unknown }>(`SELECT settings FROM network_core.communities WHERE id = $1`, [communityId])
+    : { rows: [] as { settings: unknown }[] };
+  const ceiling = talentCeiling(ceilingRow.rows[0]?.settings);
   const built = peopleListQuery({
     communityId,
     searchParams,
     fields: listFields,
     scope: 'showcase',
+    talentAudiences: talentOn && ceiling === 'external' ? ['external'] : [],
   });
   if (built.ok === false) {
     return {
@@ -49,16 +55,12 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
     ? await query<{ total: number }>(built.countText, built.countParams)
     : { rows: [{ total: 0 }] };
   const result = await query(built.text, built.params);
-  const talentOn = await moduleRuntime.isEnabled(communityId, talentContribution.slug);
-  const ceilingRow = talentOn
-    ? await query<{ settings: unknown }>(`SELECT settings FROM network_core.communities WHERE id = $1`, [communityId])
-    : { rows: [] as { settings: unknown }[] };
   const rows = talentOn
     ? await offeringsByMembership(
         result.rows as Record<string, unknown>[],
         'external',
         loadOfferingsPublic(),
-        talentCeiling(ceilingRow.rows[0]?.settings)
+        ceiling
       )
     : result.rows;
   const countriesQuery = peopleListCountriesQuery({ communityId, scope: 'showcase' });

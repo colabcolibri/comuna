@@ -21,11 +21,17 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
   }
   const catalog = await queryAsMember(ctx, LIST_FIELDS_SQL, [ctx.communityId, 'directory']);
   const listFields = parseListFields(catalog.rows);
+  const talentOn = await moduleRuntime.isEnabled(ctx.communityId, talentContribution.slug);
+  const ceilingRow = talentOn
+    ? await queryAsMember<{ settings: unknown }>(ctx, `SELECT settings FROM network_core.communities WHERE id = $1`, [ctx.communityId])
+    : { rows: [] as { settings: unknown }[] };
+  const ceiling = talentCeiling(ceilingRow.rows[0]?.settings);
   const built = peopleListQuery({
     communityId: ctx.communityId,
     searchParams,
     fields: listFields,
     scope: 'directory',
+    talentAudiences: talentOn && ceiling !== 'hidden' ? ['internal', 'external'] : [],
   });
   if (built.ok === false) {
     return { status: 400 as const, body: { error: { code: 'VALIDATION_ERROR', message: built.message } } };
@@ -34,16 +40,12 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
     ? await queryAsMember<{ total: number }>(ctx, built.countText, built.countParams)
     : { rows: [{ total: 0 }] };
   const result = await queryAsMember(ctx, built.text, built.params);
-  const talentOn = await moduleRuntime.isEnabled(ctx.communityId, talentContribution.slug);
-  const ceilingRow = talentOn
-    ? await queryAsMember<{ settings: unknown }>(ctx, `SELECT settings FROM network_core.communities WHERE id = $1`, [ctx.communityId])
-    : { rows: [] as { settings: unknown }[] };
   const rows = talentOn
     ? await offeringsByMembership(
         result.rows as Record<string, unknown>[],
         'internal',
         loadOfferingsAsMember(ctx),
-        talentCeiling(ceilingRow.rows[0]?.settings)
+        ceiling
       )
     : result.rows;
   const countriesQuery = peopleListCountriesQuery({ communityId: ctx.communityId, scope: 'directory' });

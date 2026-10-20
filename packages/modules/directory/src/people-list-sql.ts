@@ -46,6 +46,7 @@ export function peopleListQuery(input: {
   searchParams: URLSearchParams;
   fields: ListField[];
   scope: PeopleListScope;
+  talentAudiences?: string[];
 }): PeopleListQuery | { ok: false; message: string } {
   const parsed = parseAttrFilters(input.searchParams, input.fields);
   if (parsed.ok === false) {
@@ -60,8 +61,15 @@ export function peopleListQuery(input: {
   const search = input.searchParams.get('search')?.trim() || '';
   if (search) {
     params.push(`%${search}%`);
+    const searchSlot = params.length;
+    const audiences = input.talentAudiences?.filter(Boolean) || [];
+    let talent = '';
+    if (audiences.length) {
+      params.push(audiences);
+      talent = ` OR EXISTS (SELECT 1 FROM plugin_talent.offerings o WHERE o.membership_id = m.id AND o.audience = ANY($${params.length}::text[]) AND (o.title ILIKE $${searchSlot} OR o.description ILIKE $${searchSlot}))`;
+    }
     clauses.push(
-      `(p.full_name ILIKE $${params.length} OR c.headline::text ILIKE $${params.length} OR c.bio::text ILIKE $${params.length})`
+      `(p.full_name ILIKE $${searchSlot} OR c.headline::text ILIKE $${searchSlot} OR c.bio::text ILIKE $${searchSlot}${talent})`
     );
   }
   if (input.scope === 'directory') {

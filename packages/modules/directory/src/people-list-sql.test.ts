@@ -84,12 +84,31 @@ describe('peopleListQuery', () => {
       return;
     }
     expect(built.text).toContain('c.bio::text ILIKE');
+    expect(built.text).not.toContain('plugin_talent.offerings');
     expect(built.text).toContain('LIMIT $');
     expect(built.page).toBe(2);
     expect(built.pageSize).toBe(24);
     expect(built.params.at(-2)).toBe(24);
     expect(built.params.at(-1)).toBe(24);
     expect(built.countText).toContain('count(*)');
+  });
+
+  it('searches talent title and description for the audiences the surface can show', () => {
+    const built = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams('search=mentoria'),
+      fields: [host],
+      scope: 'directory',
+      talentAudiences: ['internal', 'external'],
+    });
+    expect(built.ok).toBe(true);
+    if (built.ok === false) {
+      return;
+    }
+    expect(built.text).toContain('o.title ILIKE');
+    expect(built.text).toContain('o.description ILIKE');
+    expect(built.text).toContain('plugin_talent.offerings');
+    expect(built.params).toContainEqual(['internal', 'external']);
   });
 
   it('accepts showcase size 48 and rejects 12', () => {

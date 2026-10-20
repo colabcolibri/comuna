@@ -42,6 +42,7 @@ const EMPTY_EXTRAS: ListQueryExtras = {};
 
 const CONTENT = mergeContent(
   mergeContent(
+  mergeContent(
     contentFromCatalog(uiCatalog, 'plugin_directory', {
       kicker: 'page.kicker',
       title: 'page.title',
@@ -101,6 +102,11 @@ const CONTENT = mergeContent(
     messageCount: 'form.message_count',
     sendTo: 'form.send_to',
   })
+),
+contentFromCatalog(uiCatalog, 'core_identity', {
+  talents: 'talent.title',
+  openLink: 'talent.open',
+})
 );
 
 export function DirectoryPanel({
@@ -331,7 +337,7 @@ export function DirectoryPanel({
         copy={copy}
         locale={locale}
         canContact={canContact}
-        sections={inspectSections(enabled, selected, copy)}
+        sections={inspectSections(enabled, selected, copy, locale)}
         onClose={() => setSelected(null)}
       />
     </AppPageTemplate>
