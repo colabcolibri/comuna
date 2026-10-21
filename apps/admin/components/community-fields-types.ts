@@ -49,6 +49,7 @@ export type CatalogCopy = {
   create: string;
   createGroup: string;
   locked: string;
+  added: string;
   lockedHint: string;
   saved: string;
   rename: string;
@@ -80,8 +81,16 @@ export type CatalogCopy = {
   spanHelp: string;
   layoutPreview: string;
   layoutPreviewHelp: string;
+  organize: string;
+  translate: string;
+  actions: string;
+  exposure: string;
+  exposureHidden: string;
+  exposureInternal: string;
+  exposureExternal: string;
   requirement: string;
   localized: string;
+  filledBoth: string;
   yes: string;
   no: string;
   required: string;

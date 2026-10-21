@@ -5,7 +5,7 @@ import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger,
 import { OpsAlertDialog, OpsBadge, OpsIconButton, OpsMoveButtons, OpsSheet } from '@community/ui-admin';
 import { pickLocalizedText } from '@community/identity';
 import { Eye, EyeOff, Pencil, Trash2 } from 'lucide-react';
-import { clampFieldSpan, fieldNeedsOptions, fieldSpanChoices, fieldTypeLabel, type CatalogCopy, type OpsField, type OpsGroup } from './community-fields-types';
+import { fieldNeedsOptions, fieldTypeLabel, type CatalogCopy, type OpsField, type OpsGroup } from './community-fields-types';
 import { CommunityFieldsManageOptions } from './community-fields-manage-options';
 
 export function CommunityFieldsField({
@@ -20,7 +20,6 @@ export function CommunityFieldsField({
   onRemove,
   groups,
   currentGroupId,
-  groupColumns,
 }: {
   communityId: string;
   field: OpsField;
@@ -42,13 +41,12 @@ export function CommunityFieldsField({
   const [descriptionEn, setDescriptionEn] = useState(pickLocalizedText(field.description, 'en'));
   const [required, setRequired] = useState(field.required);
   const [localized, setLocalized] = useState(field.localized);
-  const [span, setSpan] = useState(clampFieldSpan(field.span, groupColumns));
   const [busy, setBusy] = useState(false);
   const [pendingGroupId, setPendingGroupId] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState(false);
-  const spanChoices = fieldSpanChoices(groupColumns);
-  const showSpan = groupColumns > 1;
-  const spanId = `ops-field-span-${field.id}`;
+  const [translate, setTranslate] = useState(false);
+  const [exposure, setExposure] = useState(field.exposure);
+  const english = locale === 'en';
   const requiredId = `ops-field-required-${field.id}`;
   const showOptions = !field.locked && fieldNeedsOptions(field.type);
 
@@ -59,8 +57,8 @@ export function CommunityFieldsField({
     setDescriptionEn(pickLocalizedText(field.description, 'en'));
     setRequired(field.required);
     setLocalized(field.localized);
-    setSpan(clampFieldSpan(field.span, groupColumns));
-  }, [field, groupColumns]);
+    setExposure(field.exposure);
+  }, [field]);
 
   const setGroup = async (groupId: string) => {
     const res = await fetch(`/api/admin/communities/${communityId}/fields/${field.id}/move`, {
@@ -89,7 +87,6 @@ export function CommunityFieldsField({
 
   const save = async () => {
     setBusy(true);
-    const nextSpan = clampFieldSpan(span, groupColumns);
     let ok = true;
     if (!field.locked) {
       ok = await patchField({
@@ -107,8 +104,8 @@ export function CommunityFieldsField({
     if (ok && localized !== field.localized) {
       ok = await patchField({ localized });
     }
-    if (ok && showSpan && nextSpan !== clampFieldSpan(field.span, groupColumns)) {
-      ok = await patchField({ span: nextSpan });
+    if (ok && exposure !== field.exposure && exposure) {
+      ok = await patchField({ exposure });
     }
     setBusy(false);
     if (!ok) {
@@ -135,39 +132,23 @@ export function CommunityFieldsField({
   };
 
   return (
-    <li className="min-w-0 py-3">
+    <li className={field.locked ? 'min-w-0 rounded-md px-3 py-2.5' : 'min-w-0 rounded-md bg-muted/60 px-3 py-2.5'}>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <p className="text-sm font-medium wrap-break-word">
               {pickLocalizedText(field.label, locale) || field.name}
             </p>
-            {field.exposure ? (
-              <button
-                type="button"
-                className="inline-flex size-8 shrink-0 items-center justify-center rounded-md border border-input text-sm"
-                title={field.exposure === 'hidden' ? 'Oculto' : field.exposure === 'internal' ? 'Interno' : 'Externo'}
-                onClick={() => {
-                  const order = ['hidden', 'internal', 'external'] as const;
-                  const next = order[(order.indexOf(field.exposure!) + 1) % order.length];
-                  void patchField({ exposure: next }).then((ok) => {
-                    if (!ok) toast.error(copy.error);
-                    else onChanged();
-                  });
-                }}
-              >
-                {field.exposure === 'hidden' ? '⊘' : field.exposure === 'internal' ? '👥' : '🌐'}
-              </button>
-            ) : null}
-            {field.locked ? <OpsBadge>{copy.locked}</OpsBadge> : null}
-            {field.enabled ? null : <OpsBadge>{copy.inactive}</OpsBadge>}
+            {field.locked ? <OpsBadge tone="fixed" title={copy.lockedHint}>{copy.locked}</OpsBadge> : <OpsBadge tone="added">{copy.added}</OpsBadge>}
+            {field.enabled ? null : <OpsBadge tone="off">{copy.inactive}</OpsBadge>}
           </div>
-          <p className="text-xs text-muted-foreground wrap-break-word">
-            {fieldTypeLabel(field.type === 'localized_text' ? (field.name === 'bio' ? 'textarea' : 'text') : field.type, copy)}
-            {' · '}
-            {field.required ? copy.required : copy.optional}
-            {field.localized || field.type === 'localized_text' ? ` · ${copy.localized}` : ''}
-          </p>
+          <div className="mt-1.5 flex min-w-0 flex-wrap items-center gap-1.5">
+            <OpsBadge>
+              {fieldTypeLabel(field.type === 'localized_text' ? (field.name === 'bio' ? 'textarea' : 'text') : field.type, copy)}
+            </OpsBadge>
+            <OpsBadge tone={field.required ? 'required' : 'optional'}>{field.required ? copy.required : copy.optional}</OpsBadge>
+            {field.localized || field.type === 'localized_text' ? <OpsBadge tone="locale">{copy.filledBoth}</OpsBadge> : null}
+          </div>
         </div>
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:justify-end">
           <OpsMoveButtons
@@ -196,44 +177,52 @@ export function CommunityFieldsField({
             }
           >
             {field.locked ? null : (
-              <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-                <div className="min-w-0 space-y-2">
-                  <Label htmlFor={`ops-field-pt-${field.id}`}>{copy.labelPt}</Label>
-                  <Input
-                    id={`ops-field-pt-${field.id}`}
-                    value={labelPt}
-                    onChange={(ev) => setLabelPt(ev.target.value)}
-                  />
-                </div>
-                <div className="min-w-0 space-y-2">
-                  <Label htmlFor={`ops-field-en-${field.id}`}>{copy.labelEn}</Label>
-                  <Input
-                    id={`ops-field-en-${field.id}`}
-                    value={labelEn}
-                    onChange={(ev) => setLabelEn(ev.target.value)}
-                  />
-                </div>
+              <div className="min-w-0 space-y-2">
+                <Label htmlFor={`ops-field-label-${field.id}`}>{english ? copy.labelEn : copy.labelPt}</Label>
+                <Input
+                  id={`ops-field-label-${field.id}`}
+                  value={english ? labelEn : labelPt}
+                  onChange={(ev) => (english ? setLabelEn(ev.target.value) : setLabelPt(ev.target.value))}
+                />
               </div>
             )}
             <div className="grid min-w-0 gap-4">
               <div className="min-w-0 space-y-2">
-                <Label htmlFor={`ops-field-desc-pt-${field.id}`}>{copy.descriptionPt}</Label>
+                <Label htmlFor={`ops-field-desc-${field.id}`}>{english ? copy.descriptionEn : copy.descriptionPt}</Label>
                 <Textarea
-                  id={`ops-field-desc-pt-${field.id}`}
-                  value={descriptionPt}
-                  onChange={(ev) => setDescriptionPt(ev.target.value)}
+                  id={`ops-field-desc-${field.id}`}
+                  value={english ? descriptionEn : descriptionPt}
+                  onChange={(ev) => (english ? setDescriptionEn(ev.target.value) : setDescriptionPt(ev.target.value))}
                   required
                 />
                 <p className="text-xs text-muted-foreground">{copy.descriptionHelp}</p>
               </div>
-              <div className="min-w-0 space-y-2">
-                <Label htmlFor={`ops-field-desc-en-${field.id}`}>{copy.descriptionEn}</Label>
-                <Textarea
-                  id={`ops-field-desc-en-${field.id}`}
-                  value={descriptionEn}
-                  onChange={(ev) => setDescriptionEn(ev.target.value)}
-                />
-              </div>
+              {translate ? (
+                <>
+                  {field.locked ? null : (
+                    <div className="min-w-0 space-y-2">
+                      <Label htmlFor={`ops-field-label-other-${field.id}`}>{english ? copy.labelPt : copy.labelEn}</Label>
+                      <Input
+                        id={`ops-field-label-other-${field.id}`}
+                        value={english ? labelPt : labelEn}
+                        onChange={(ev) => (english ? setLabelPt(ev.target.value) : setLabelEn(ev.target.value))}
+                      />
+                    </div>
+                  )}
+                  <div className="min-w-0 space-y-2">
+                    <Label htmlFor={`ops-field-desc-other-${field.id}`}>{english ? copy.descriptionPt : copy.descriptionEn}</Label>
+                    <Textarea
+                      id={`ops-field-desc-other-${field.id}`}
+                      value={english ? descriptionPt : descriptionEn}
+                      onChange={(ev) => (english ? setDescriptionPt(ev.target.value) : setDescriptionEn(ev.target.value))}
+                    />
+                  </div>
+                </>
+              ) : (
+                <Button type="button" variant="outline" onClick={() => setTranslate(true)}>
+                  {copy.translate}
+                </Button>
+              )}
             </div>
             <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="min-w-0 space-y-2">
@@ -272,22 +261,19 @@ export function CommunityFieldsField({
                   </Select>
                 </div>
               ) : null}
-              {showSpan ? (
-                <div className="min-w-0 space-y-2 sm:col-span-2">
-                  <Label htmlFor={spanId}>{copy.span}</Label>
-                  <Select value={String(span)} onValueChange={(next) => setSpan(clampFieldSpan(Number(next), groupColumns))}>
-                    <SelectTrigger id={spanId}>
+              {field.exposure ? (
+                <div className="min-w-0 space-y-2">
+                  <Label htmlFor={`ops-field-exposure-${field.id}`}>{copy.exposure}</Label>
+                  <Select value={exposure || field.exposure} onValueChange={(next) => setExposure(next as OpsField['exposure'])}>
+                    <SelectTrigger id={`ops-field-exposure-${field.id}`}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {spanChoices.map((choice) => (
-                        <SelectItem key={choice} value={String(choice)}>
-                          {choice}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="hidden">{copy.exposureHidden}</SelectItem>
+                      <SelectItem value="internal">{copy.exposureInternal}</SelectItem>
+                      <SelectItem value="external">{copy.exposureExternal}</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="text-xs text-muted-foreground">{copy.spanHelp}</p>
                 </div>
               ) : null}
             </div>

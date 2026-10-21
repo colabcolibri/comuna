@@ -1,23 +1,25 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
+import { Button, Input, Label, toast } from '@community/ui';
+import { OpsDialog, OpsDialogBody, OpsDialogHeader } from '@community/ui-admin';
 import type { CatalogCopy } from './community-fields-types';
 
 export function CommunityFieldsCreateGroup({
   communityId,
+  locale,
   copy,
   onCreated,
 }: {
   communityId: string;
+  locale: string | undefined;
   copy: CatalogCopy;
   onCreated: () => void;
 }) {
   const [open, setOpen] = useState(false);
-  const [labelPt, setLabelPt] = useState('');
-  const [labelEn, setLabelEn] = useState('');
-  const [columns, setColumns] = useState('1');
+  const [label, setLabel] = useState('');
   const [busy, setBusy] = useState(false);
+  const english = locale === 'en';
 
   const create = async (e: FormEvent) => {
     e.preventDefault();
@@ -25,7 +27,11 @@ export function CommunityFieldsCreateGroup({
     const res = await fetch(`/api/admin/communities/${communityId}/groups`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ labelPt, labelEn, columns: Number(columns) }),
+      body: JSON.stringify({
+        labelPt: english ? '' : label,
+        labelEn: english ? label : '',
+        columns: 1,
+      }),
     });
     setBusy(false);
     if (res.status === 409) {
@@ -36,9 +42,7 @@ export function CommunityFieldsCreateGroup({
       toast.error(copy.error);
       return;
     }
-    setLabelPt('');
-    setLabelEn('');
-    setColumns('1');
+    setLabel('');
     setOpen(false);
     toast.success(copy.saved);
     onCreated();
@@ -46,43 +50,28 @@ export function CommunityFieldsCreateGroup({
 
   return (
     <div className="min-w-0">
-      <Button type="button" variant="outline" onClick={() => setOpen((value) => !value)}>
+      <Button type="button" onClick={() => setOpen(true)}>
         {copy.addGroup}
       </Button>
-      {open ? (
-        <form onSubmit={create} className="mt-4 grid max-w-lg gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="ops-group-pt">{copy.labelPt}</Label>
-            <Input id="ops-group-pt" value={labelPt} onChange={(ev) => setLabelPt(ev.target.value)} required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="ops-group-en">{copy.labelEn}</Label>
-            <Input id="ops-group-en" value={labelEn} onChange={(ev) => setLabelEn(ev.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="ops-group-columns">{copy.columns}</Label>
-            <Select value={columns} onValueChange={setColumns}>
-              <SelectTrigger id="ops-group-columns">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">{copy.columns1}</SelectItem>
-                <SelectItem value="2">{copy.columns2}</SelectItem>
-                <SelectItem value="3">{copy.columns3}</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">{copy.columnsHelp}</p>
-          </div>
-          <div className="flex min-w-0 flex-wrap gap-2">
-            <Button type="submit" disabled={busy}>
-              {copy.createGroup}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              {copy.cancel}
-            </Button>
-          </div>
-        </form>
-      ) : null}
+      <OpsDialog open={open} onClose={() => setOpen(false)}>
+        <OpsDialogHeader title={copy.addGroup} />
+        <OpsDialogBody>
+          <form onSubmit={create} className="grid gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="ops-group-label">{english ? copy.labelEn : copy.labelPt}</Label>
+              <Input id="ops-group-label" value={label} onChange={(ev) => setLabel(ev.target.value)} required />
+            </div>
+            <div className="flex min-w-0 flex-wrap gap-2">
+              <Button type="submit" disabled={busy}>
+                {copy.createGroup}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                {copy.cancel}
+              </Button>
+            </div>
+          </form>
+        </OpsDialogBody>
+      </OpsDialog>
     </div>
   );
 }

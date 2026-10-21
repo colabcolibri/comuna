@@ -35,6 +35,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   create: 'community.fields_create',
   createGroup: 'community.fields_create_group',
   locked: 'community.fields_locked',
+  added: 'community.fields_added',
   lockedHint: 'community.fields_locked_hint',
   saved: 'community.fields_saved',
   rename: 'community.fields_rename',
@@ -59,8 +60,16 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   spanHelp: 'community.fields_span_help',
   layoutPreview: 'community.fields_layout_preview',
   layoutPreviewHelp: 'community.fields_layout_preview_help',
+  organize: 'community.fields_organize',
+  translate: 'community.fields_translate',
+  actions: 'community.fields_actions',
+  exposure: 'community.fields_exposure',
+  exposureHidden: 'community.fields_exposure_hidden',
+  exposureInternal: 'community.fields_exposure_internal',
+  exposureExternal: 'community.fields_exposure_external',
   requirement: 'community.fields_requirement',
   localized: 'community.fields_localized',
+  filledBoth: 'community.fields_filled_both',
   yes: 'community.fields_yes',
   no: 'community.fields_no',
   required: 'community.fields_required',
@@ -135,7 +144,7 @@ export function CommunityFields({ communityId }: { communityId: string }) {
   return (
     <OpsSection title={copy.title} description={copy.help}>
       <div className="mb-8 flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
-        <CommunityFieldsCreateGroup communityId={communityId} copy={copy} onCreated={load} />
+        <CommunityFieldsCreateGroup communityId={communityId} locale={locale} copy={copy} onCreated={load} />
         {groups.length > 0 ? (
           <OpsIconButton label={copy.resetOrder} onClick={() => setPendingReset(true)}>
             <RotateCcw />
@@ -145,7 +154,7 @@ export function CommunityFields({ communityId }: { communityId: string }) {
       {groups.length === 0 ? (
         <p className="text-sm text-muted-foreground">{copy.pageEmpty}</p>
       ) : (
-        <div className="grid gap-2">
+        <div className="grid gap-6">
           {groups.map((group, index) => (
             <CommunityFieldsGroup
               key={group.id}

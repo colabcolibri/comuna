@@ -2,23 +2,26 @@
 
 import { FormEvent, useState } from 'react';
 import { Button, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea, toast } from '@community/ui';
-import { OpsIconButton, OpsSheet } from '@community/ui-admin';
-import { Plus } from 'lucide-react';
+import { OpsSheet } from '@community/ui-admin';
 import { fieldNeedsOptions, type CatalogCopy } from './community-fields-types';
 import { CommunityFieldsOptionsEditor, emptyOptionRow, type OptionRow } from './community-fields-options';
 
 export function CommunityFieldsCreateField({
   communityId,
   groupId,
+  locale,
   copy,
   onCreated,
 }: {
   communityId: string;
   groupId: string;
+  locale: string | undefined;
   copy: CatalogCopy;
   onCreated: () => void;
 }) {
+  const english = locale === 'en';
   const [open, setOpen] = useState(false);
+  const [translate, setTranslate] = useState(false);
   const [name, setName] = useState('');
   const [type, setType] = useState('boolean');
   const [labelPt, setLabelPt] = useState('');
@@ -41,6 +44,7 @@ export function CommunityFieldsCreateField({
     setOptions([emptyOptionRow()]);
     setRequired(false);
     setLocalized(false);
+    setTranslate(false);
   };
 
   const create = async (e: FormEvent) => {
@@ -83,9 +87,9 @@ export function CommunityFieldsCreateField({
       onOpenChange={setOpen}
       className="sm:max-w-lg"
       trigger={
-        <OpsIconButton label={copy.add}>
-          <Plus />
-        </OpsIconButton>
+        <Button type="button" variant="outline" size="sm">
+          {copy.add}
+        </Button>
       }
       title={copy.add}
       closeLabel={copy.cancel}
@@ -96,31 +100,50 @@ export function CommunityFieldsCreateField({
       }
     >
       <form id={formId} onSubmit={create} className="grid min-w-0 gap-6">
-        <div className="grid min-w-0 gap-4 sm:grid-cols-2">
-          <div className="min-w-0 space-y-2">
-            <Label htmlFor={`${idPrefix}-pt`}>{copy.labelPt}</Label>
-            <Input id={`${idPrefix}-pt`} value={labelPt} onChange={(ev) => setLabelPt(ev.target.value)} required />
-          </div>
-          <div className="min-w-0 space-y-2">
-            <Label htmlFor={`${idPrefix}-en`}>{copy.labelEn}</Label>
-            <Input id={`${idPrefix}-en`} value={labelEn} onChange={(ev) => setLabelEn(ev.target.value)} />
-          </div>
-        </div>
         <div className="grid min-w-0 gap-4">
           <div className="min-w-0 space-y-2">
-            <Label htmlFor={`${idPrefix}-desc-pt`}>{copy.descriptionPt}</Label>
+            <Label htmlFor={`${idPrefix}-label`}>{english ? copy.labelEn : copy.labelPt}</Label>
+            <Input
+              id={`${idPrefix}-label`}
+              value={english ? labelEn : labelPt}
+              onChange={(ev) => (english ? setLabelEn(ev.target.value) : setLabelPt(ev.target.value))}
+              required
+            />
+          </div>
+          <div className="min-w-0 space-y-2">
+            <Label htmlFor={`${idPrefix}-desc`}>{english ? copy.descriptionEn : copy.descriptionPt}</Label>
             <Textarea
-              id={`${idPrefix}-desc-pt`}
-              value={descriptionPt}
-              onChange={(ev) => setDescriptionPt(ev.target.value)}
+              id={`${idPrefix}-desc`}
+              value={english ? descriptionEn : descriptionPt}
+              onChange={(ev) => (english ? setDescriptionEn(ev.target.value) : setDescriptionPt(ev.target.value))}
               required
             />
             <p className="text-xs text-muted-foreground">{copy.descriptionHelp}</p>
           </div>
-          <div className="min-w-0 space-y-2">
-            <Label htmlFor={`${idPrefix}-desc-en`}>{copy.descriptionEn}</Label>
-            <Textarea id={`${idPrefix}-desc-en`} value={descriptionEn} onChange={(ev) => setDescriptionEn(ev.target.value)} />
-          </div>
+          {translate ? (
+            <>
+              <div className="min-w-0 space-y-2">
+                <Label htmlFor={`${idPrefix}-label-other`}>{english ? copy.labelPt : copy.labelEn}</Label>
+                <Input
+                  id={`${idPrefix}-label-other`}
+                  value={english ? labelPt : labelEn}
+                  onChange={(ev) => (english ? setLabelPt(ev.target.value) : setLabelEn(ev.target.value))}
+                />
+              </div>
+              <div className="min-w-0 space-y-2">
+                <Label htmlFor={`${idPrefix}-desc-other`}>{english ? copy.descriptionPt : copy.descriptionEn}</Label>
+                <Textarea
+                  id={`${idPrefix}-desc-other`}
+                  value={english ? descriptionPt : descriptionEn}
+                  onChange={(ev) => (english ? setDescriptionPt(ev.target.value) : setDescriptionEn(ev.target.value))}
+                />
+              </div>
+            </>
+          ) : (
+            <Button type="button" variant="outline" onClick={() => setTranslate(true)}>
+              {copy.translate}
+            </Button>
+          )}
         </div>
         <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="min-w-0 space-y-2">
