@@ -8,6 +8,7 @@ export type ListQueryExtras = {
   view?: string;
   nearLabel?: string;
   lang?: string;
+  talentCategory?: string;
 };
 
 export function directoryQueryString(
@@ -50,6 +51,10 @@ export function directoryQueryString(
   const lang = languageFilterQueryValue(parseLanguageFilter(extras.lang || ''));
   if (lang) {
     params.set('lang', lang);
+  }
+  const talentCategory = (extras.talentCategory || '').trim();
+  if (talentCategory) {
+    params.set('talent_category', talentCategory);
   }
   if (page > 1) {
     params.set('page', String(page));
@@ -106,5 +111,6 @@ export function extrasFromSearchParams(params: URLSearchParams): ListQueryExtras
     view: params.get('view') === 'map' ? 'map' : '',
     nearLabel: near ? (params.get('near_label') || '').trim() : '',
     lang: languageFilterQueryValue(parseLanguageFilter(params.get('lang'))),
+    talentCategory: (params.get('talent_category') || '').trim(),
   };
 }

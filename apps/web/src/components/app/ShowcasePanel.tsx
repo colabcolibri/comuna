@@ -37,6 +37,7 @@ import { uiCatalog } from '@/lang/catalog';
 import { slotOn } from '@/modules/registry';
 import { activeFilterCount, directoryQueryString, type ListQueryExtras } from '@/lib/people/directory-query';
 import type { PersonCard } from '@/lib/people/person-card';
+import { primaryOfferingLabels } from '@/lib/people/offering-label';
 import { PeopleSearchField } from '@/components/app/PeopleSearchField';
 
 const EMPTY_EXTRAS: ListQueryExtras = {};
@@ -97,9 +98,10 @@ const CONTENT = mergeContent(
     sendTo: 'form.send_to',
   })
 ),
-contentFromCatalog(uiCatalog, 'core_identity', {
+  contentFromCatalog(uiCatalog, 'core_identity', {
     talents: 'talent.title',
     openLink: 'talent.open',
+    talentFilter: 'talent.title',
   })
 );
 
@@ -117,6 +119,7 @@ export function ShowcasePanel({
   page = 1,
   pageSize = SHOWCASE_PAGE_SIZE,
   total = 0,
+  talentFilterEnabled = false,
 }: {
   rows: PersonCard[];
   lead?: ReactNode;
@@ -131,6 +134,7 @@ export function ShowcasePanel({
   page?: number;
   pageSize?: number;
   total?: number;
+  talentFilterEnabled?: boolean;
 }) {
   const locale = useLocale();
   const copy = pickContent(CONTENT, locale);
@@ -140,9 +144,14 @@ export function ShowcasePanel({
   const router = useRouter();
   const pathname = usePathname();
   const [selected, setSelected] = useState<PersonCard | null>(null);
-  const hasFacetSheet = facets.length > 0 || languagesIsFilterable(listFields);
+  const hasFacetSheet = facets.length > 0 || languagesIsFilterable(listFields) || talentFilterEnabled;
   const mapView = canMap && extras.view === 'map';
-  const count = activeFilterCount(facetValues, [extras.lang || '', extras.country || '', extras.near || '']);
+  const count = activeFilterCount(facetValues, [
+    extras.lang || '',
+    extras.country || '',
+    extras.near || '',
+    talentFilterEnabled ? extras.talentCategory || '' : '',
+  ]);
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
 
@@ -207,7 +216,7 @@ export function ShowcasePanel({
               description={copy.filtersHint}
               clearLabel={copy.filtersClear}
               closeLabel={copy.close}
-              onClear={() => go(search, {}, 1, pageSize, { view: extras.view, lang: '' })}
+              onClear={() => go(search, {}, 1, pageSize, { view: extras.view, lang: '', talentCategory: '' })}
             >
               <div className="lg:hidden">
                 <PeoplePlaceFilters
@@ -236,6 +245,13 @@ export function ShowcasePanel({
                       : undefined
                   }
                   languagesLabel={copy.languages}
+                  talentCategory={talentFilterEnabled ? extras.talentCategory || '' : undefined}
+                  talentCategoryLabel={talentFilterEnabled ? copy.talentFilter : undefined}
+                  onTalentCategory={
+                    talentFilterEnabled
+                      ? (next) => go(search, facetValues, 1, pageSize, { ...extras, talentCategory: next })
+                      : undefined
+                  }
                 />
               ) : null}
             </AppFilterSheet>
@@ -301,6 +317,7 @@ export function ShowcasePanel({
                   locale,
                   cityLabel: displayPlaceLocality(profile.current_city, locale),
                 });
+                const talent = primaryOfferingLabels(profile.offerings, locale);
                 return (
                   <AppShowcaseCard
                     key={profile.id}
@@ -309,7 +326,8 @@ export function ShowcasePanel({
                     headline={view.headline}
                     summary={view.summary}
                     city={view.city}
-                    talentLine={profile.offerings?.[0]?.title || null}
+                    talentCategory={talent.category}
+                    talentLine={talent.title}
                     languagesLabel={view.languagesHeading || copy.languages}
                     languages={view.languages.map((item) => item.label)}
                     facts={view.facts}

@@ -55,6 +55,23 @@ export function talentCeiling(settings: unknown): TalentCeiling {
   return value === 'hidden' || value === 'internal' || value === 'external' ? value : 'internal';
 }
 
+export type TalentListSurface = 'directory' | 'showcase';
+
+/** Whether list UI (category filter, talent-aware search bind) applies for this community and surface. */
+export function talentListFiltersEnabled(input: {
+  talentOn: boolean;
+  ceiling: TalentCeiling;
+  surface: TalentListSurface;
+}): boolean {
+  if (!input.talentOn || input.ceiling === 'hidden') {
+    return false;
+  }
+  if (input.surface === 'showcase') {
+    return input.ceiling === 'external';
+  }
+  return true;
+}
+
 export function visibleOfferings<T extends { audience: string }>(
   rows: T[],
   level: 'owner' | 'internal' | 'external',

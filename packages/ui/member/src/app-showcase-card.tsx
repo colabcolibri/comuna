@@ -14,6 +14,7 @@ type AppPersonCardProps = {
   photoUrl?: string | null;
   headline?: string | null;
   city?: string | null;
+  talentCategory?: string | null;
   talentLine?: string | null;
   summary?: string | null;
   languagesLabel?: string;
@@ -29,6 +30,7 @@ export function AppPersonCard({
   photoUrl,
   headline,
   city,
+  talentCategory,
   talentLine,
   summary,
   languagesLabel,
@@ -79,12 +81,31 @@ export function AppPersonCard({
               <p className={`mt-1 text-base leading-snug text-foreground ${compact ? 'line-clamp-2' : ''}`}>{headline}</p>
             ) : null}
             {city ? <p className="mt-1 truncate text-sm text-muted-foreground">{city}</p> : null}
+            {compact && (talentCategory || talentLine) ? (
+              <div className="mt-2 min-w-0 space-y-1">
+                {talentCategory ? (
+                  <span className="inline-flex max-w-full truncate rounded-md border border-border bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
+                    {talentCategory}
+                  </span>
+                ) : null}
+                {talentLine ? <p className="truncate text-sm text-foreground">{talentLine}</p> : null}
+              </div>
+            ) : null}
           </div>
         </div>
-        {!compact && (summary || talentLine) ? (
+        {!compact && (summary || talentCategory || talentLine) ? (
           <div className="mt-4 space-y-2 border-t border-border pt-4">
             {summary ? <p className="line-clamp-3 text-base leading-relaxed text-muted-foreground">{summary}</p> : null}
-            {talentLine ? <p className="truncate text-sm text-foreground">{talentLine}</p> : null}
+            {talentCategory || talentLine ? (
+              <div className="min-w-0 space-y-1">
+                {talentCategory ? (
+                  <span className="inline-flex max-w-full truncate rounded-md border border-border bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
+                    {talentCategory}
+                  </span>
+                ) : null}
+                {talentLine ? <p className="truncate text-sm text-foreground">{talentLine}</p> : null}
+              </div>
+            ) : null}
           </div>
         ) : null}
         {meta.length > 0 ? (

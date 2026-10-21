@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { visibleOfferings } from './offerings';
+import { talentListFiltersEnabled, visibleOfferings } from './offerings';
 
 const rows = [
   { title: 'privado', audience: 'private' },
@@ -18,5 +18,24 @@ describe('visibleOfferings', () => {
 
   it('returns every offer to the owner', () => {
     expect(visibleOfferings(rows, 'owner')).toHaveLength(3);
+  });
+});
+
+describe('talentListFiltersEnabled', () => {
+  it('is off when the talent module is disabled', () => {
+    expect(talentListFiltersEnabled({ talentOn: false, ceiling: 'external', surface: 'directory' })).toBe(false);
+  });
+
+  it('is off on directory when exposure is hidden', () => {
+    expect(talentListFiltersEnabled({ talentOn: true, ceiling: 'hidden', surface: 'directory' })).toBe(false);
+  });
+
+  it('is on on directory when talent is enabled and not hidden', () => {
+    expect(talentListFiltersEnabled({ talentOn: true, ceiling: 'internal', surface: 'directory' })).toBe(true);
+  });
+
+  it('is off on showcase unless exposure is external', () => {
+    expect(talentListFiltersEnabled({ talentOn: true, ceiling: 'internal', surface: 'showcase' })).toBe(false);
+    expect(talentListFiltersEnabled({ talentOn: true, ceiling: 'external', surface: 'showcase' })).toBe(true);
   });
 });

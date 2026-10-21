@@ -12,7 +12,12 @@ import type { AppQueryCtx } from '@/lib/server/app-ctx';
 import { ceilingsFrom, toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
 import { loadOfferingsAsMember, offeringsByMembership } from '@/lib/server/talent-offers';
-import { talentCeiling, talentContribution } from '@community/talent';
+import {
+  parseTalentCategoryFilter,
+  talentCeiling,
+  talentContribution,
+  talentListFiltersEnabled,
+} from '@community/talent';
 
 export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSearchParams) {
   const on = await moduleRuntime.isEnabled(ctx.communityId, directoryContribution.slug);
@@ -26,12 +31,14 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
     ? await queryAsMember<{ settings: unknown }>(ctx, `SELECT settings FROM network_core.communities WHERE id = $1`, [ctx.communityId])
     : { rows: [] as { settings: unknown }[] };
   const ceiling = talentCeiling(ceilingRow.rows[0]?.settings);
+  const talentFilterEnabled = talentListFiltersEnabled({ talentOn, ceiling, surface: 'directory' });
   const built = peopleListQuery({
     communityId: ctx.communityId,
     searchParams,
     fields: listFields,
     scope: 'directory',
-    talentAudiences: talentOn && ceiling !== 'hidden' ? ['internal', 'external'] : [],
+    talentAudiences: talentFilterEnabled ? ['internal', 'external'] : [],
+    talentCategory: talentFilterEnabled ? parseTalentCategoryFilter(searchParams.get('talent_category')) : '',
   });
   if (built.ok === false) {
     return { status: 400 as const, body: { error: { code: 'VALIDATION_ERROR', message: built.message } } };
@@ -62,6 +69,7 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
         page: built.page,
         pageSize: built.pageSize,
         total: counted.rows[0]?.total ?? 0,
+        talentFilterEnabled,
       },
     },
   };

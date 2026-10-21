@@ -27,7 +27,7 @@ export function WorkspaceModules({
   children: ReactNode;
 }) {
   const slug = slugFromPathname(usePathname());
-  const enabled = (slug && enabledBySlug[slug]) || publicEnabled;
+  const enabled = slug ? (enabledBySlug[slug] ?? []) : publicEnabled;
   return (
     <EnabledBySlugContext.Provider value={enabledBySlug}>
       <EnabledModulesProvider enabled={enabled}>{children}</EnabledModulesProvider>

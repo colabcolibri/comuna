@@ -10,7 +10,12 @@ import {
   type ListField,
 } from '@community/directory';
 import { showcaseContribution } from '@community/showcase';
-import { talentCeiling, talentContribution } from '@community/talent';
+import {
+  parseTalentCategoryFilter,
+  talentCeiling,
+  talentContribution,
+  talentListFiltersEnabled,
+} from '@community/talent';
 import { ceilingsFrom, toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
 import { loadOfferingsPublic, offeringsByMembership } from '@/lib/server/talent-offers';
@@ -21,7 +26,7 @@ export async function listPublicListFields(communityId: string): Promise<ListFie
 }
 
 export async function listPublicProfiles(communityId: string, searchParams: URLSearchParams = new URLSearchParams()) {
-  const emptyMeta = { page: 1, pageSize: SHOWCASE_PAGE_SIZE, total: 0 };
+  const emptyMeta = { page: 1, pageSize: SHOWCASE_PAGE_SIZE, total: 0, talentFilterEnabled: false };
   const on = await moduleRuntime.isEnabled(communityId, showcaseContribution.slug);
   if (!on) {
     return { status: 404 as const, data: [], facets: [], listFields: [] as ListField[], meta: emptyMeta };
@@ -34,12 +39,14 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
     ? await query<{ settings: unknown }>(`SELECT settings FROM network_core.communities WHERE id = $1`, [communityId])
     : { rows: [] as { settings: unknown }[] };
   const ceiling = talentCeiling(ceilingRow.rows[0]?.settings);
+  const talentFilterEnabled = talentListFiltersEnabled({ talentOn, ceiling, surface: 'showcase' });
   const built = peopleListQuery({
     communityId,
     searchParams,
     fields: listFields,
     scope: 'showcase',
-    talentAudiences: talentOn && ceiling === 'external' ? ['external'] : [],
+    talentAudiences: talentFilterEnabled ? ['external'] : [],
+    talentCategory: talentFilterEnabled ? parseTalentCategoryFilter(searchParams.get('talent_category')) : '',
   });
   if (built.ok === false) {
     return {
@@ -71,6 +78,11 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
     facets,
     listFields,
     countries: countries.rows.map((row) => row.country).filter(Boolean),
-    meta: { page: built.page, pageSize: built.pageSize, total: counted.rows[0]?.total ?? 0 },
+    meta: {
+      page: built.page,
+      pageSize: built.pageSize,
+      total: counted.rows[0]?.total ?? 0,
+      talentFilterEnabled,
+    },
   };
 }

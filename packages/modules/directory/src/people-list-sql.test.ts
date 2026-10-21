@@ -107,8 +107,43 @@ describe('peopleListQuery', () => {
     }
     expect(built.text).toContain('o.title ILIKE');
     expect(built.text).toContain('o.description ILIKE');
+    expect(built.text).toContain('o.category_other');
+    expect(built.text).toContain('plugin_talent.categories');
     expect(built.text).toContain('plugin_talent.offerings');
     expect(built.params).toContainEqual(['internal', 'external']);
+  });
+
+  it('does not bind talent audiences when talent is on but search and category are empty', () => {
+    const built = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams(),
+      fields: [host],
+      scope: 'directory',
+      talentAudiences: ['internal', 'external'],
+    });
+    expect(built.ok).toBe(true);
+    if (built.ok === false) {
+      return;
+    }
+    expect(built.params).toEqual(['c1', 24, 0]);
+    expect(built.text).not.toContain('plugin_talent.offerings');
+  });
+
+  it('filters members by talent category when the module audiences apply', () => {
+    const built = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams(),
+      fields: [host],
+      scope: 'directory',
+      talentAudiences: ['internal', 'external'],
+      talentCategory: 'mentorship',
+    });
+    expect(built.ok).toBe(true);
+    if (built.ok === false) {
+      return;
+    }
+    expect(built.text).toContain('o.category_id = $');
+    expect(built.params).toContain('mentorship');
   });
 
   it('accepts showcase size 48 and rejects 12', () => {

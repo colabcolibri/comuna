@@ -47,6 +47,7 @@ export function peopleListQuery(input: {
   fields: ListField[];
   scope: PeopleListScope;
   talentAudiences?: string[];
+  talentCategory?: string | null;
 }): PeopleListQuery | { ok: false; message: string } {
   const parsed = parseAttrFilters(input.searchParams, input.fields);
   if (parsed.ok === false) {
@@ -58,16 +59,28 @@ export function peopleListQuery(input: {
     params.push(JSON.stringify(filter));
     clauses.push(`c.custom_attributes @> $${params.length}::jsonb`);
   });
+  const audiences = input.talentAudiences?.filter(Boolean) || [];
   const search = input.searchParams.get('search')?.trim() || '';
+  const talentCategory = (input.talentCategory || '').trim();
+  const needsTalentBind = audiences.length > 0 && (Boolean(talentCategory) || Boolean(search));
+  let talentAudienceSlot: number | null = null;
+  if (needsTalentBind) {
+    params.push(audiences);
+    talentAudienceSlot = params.length;
+  }
+  if (talentCategory && talentAudienceSlot) {
+    params.push(talentCategory);
+    clauses.push(
+      `EXISTS (SELECT 1 FROM plugin_talent.offerings o WHERE o.membership_id = m.id AND o.audience = ANY($${talentAudienceSlot}::text[]) AND o.category_id = $${params.length})`
+    );
+  }
   if (search) {
     params.push(`%${search}%`);
     const searchSlot = params.length;
-    const audiences = input.talentAudiences?.filter(Boolean) || [];
-    let talent = '';
-    if (audiences.length) {
-      params.push(audiences);
-      talent = ` OR EXISTS (SELECT 1 FROM plugin_talent.offerings o WHERE o.membership_id = m.id AND o.audience = ANY($${params.length}::text[]) AND (o.title ILIKE $${searchSlot} OR o.description ILIKE $${searchSlot}))`;
-    }
+    const talent =
+      talentAudienceSlot
+        ? ` OR EXISTS (SELECT 1 FROM plugin_talent.offerings o LEFT JOIN plugin_talent.categories cat ON cat.id = o.category_id WHERE o.membership_id = m.id AND o.audience = ANY($${talentAudienceSlot}::text[]) AND (o.title ILIKE $${searchSlot} OR o.description ILIKE $${searchSlot} OR coalesce(o.category_other, '') ILIKE $${searchSlot} OR cat.label::text ILIKE $${searchSlot}))`
+        : '';
     clauses.push(
       `(p.full_name ILIKE $${searchSlot} OR c.headline::text ILIKE $${searchSlot} OR c.bio::text ILIKE $${searchSlot}${talent})`
     );

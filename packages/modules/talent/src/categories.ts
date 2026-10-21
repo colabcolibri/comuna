@@ -13,3 +13,11 @@ export function categoryLabel(id: string, locale: 'pt-BR' | 'en') {
   const row = TALENT_CATEGORIES.find((item) => item.id === id);
   return row ? row.label[locale] : id;
 }
+
+export function parseTalentCategoryFilter(raw: string | null | undefined): TalentCategoryId | '' {
+  const id = (raw || '').trim();
+  if (!id) {
+    return '';
+  }
+  return TALENT_CATEGORIES.some((item) => item.id === id) ? id : '';
+}

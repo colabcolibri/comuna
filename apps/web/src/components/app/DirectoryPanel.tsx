@@ -11,6 +11,7 @@ import { PersonInspect } from '@/components/app/PersonInspect';
 import { uiCatalog } from '@/lang/catalog';
 import { activeFilterCount, directoryQueryString, type ListQueryExtras } from '@/lib/people/directory-query';
 import type { PersonCard } from '@/lib/people/person-card';
+import { primaryOfferingLabels } from '@/lib/people/offering-label';
 import { PeopleSearchField } from '@/components/app/PeopleSearchField';
 import { slotOn } from '@/modules/registry';
 import {
@@ -106,6 +107,7 @@ const CONTENT = mergeContent(
 contentFromCatalog(uiCatalog, 'core_identity', {
   talents: 'talent.title',
   openLink: 'talent.open',
+  talentFilter: 'talent.title',
 })
 );
 
@@ -122,6 +124,7 @@ export function DirectoryPanel({
   page = 1,
   pageSize = SHOWCASE_PAGE_SIZE,
   total = 0,
+  talentFilterEnabled = false,
 }: {
   rows: PersonCard[];
   facets: CatalogField[];
@@ -135,6 +138,7 @@ export function DirectoryPanel({
   page?: number;
   pageSize?: number;
   total?: number;
+  talentFilterEnabled?: boolean;
 }) {
   const locale = useLocale();
   const copy = pickContent(CONTENT, locale);
@@ -145,8 +149,13 @@ export function DirectoryPanel({
   const pathname = usePathname();
   const [selected, setSelected] = useState<PersonCard | null>(null);
   const mapView = canMap && extras.view === 'map';
-  const count = activeFilterCount(facetValues, [extras.lang || '', extras.country || '', extras.near || '']);
-  const hasFacetSheet = facets.length > 0 || languagesIsFilterable(listFields);
+  const count = activeFilterCount(facetValues, [
+    extras.lang || '',
+    extras.country || '',
+    extras.near || '',
+    talentFilterEnabled ? extras.talentCategory || '' : '',
+  ]);
+  const hasFacetSheet = facets.length > 0 || languagesIsFilterable(listFields) || talentFilterEnabled;
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
   const sliced = Boolean(search || count || cohort || extras.lang);
@@ -234,7 +243,9 @@ export function DirectoryPanel({
             description={copy.filtersHint}
             clearLabel={copy.filtersClear}
             closeLabel={copy.close}
-            onClear={() => go(search, {}, cohort, 1, pageSize, { view: extras.view, lang: '' })}
+            onClear={() =>
+              go(search, {}, cohort, 1, pageSize, { view: extras.view, lang: '', talentCategory: '' })
+            }
           >
             <div className="grid gap-6 lg:hidden">
               <PeoplePlaceFilters
@@ -263,6 +274,13 @@ export function DirectoryPanel({
                     : undefined
                 }
                 languagesLabel={copy.languages}
+                talentCategory={talentFilterEnabled ? extras.talentCategory || '' : undefined}
+                talentCategoryLabel={talentFilterEnabled ? copy.talentFilter : undefined}
+                onTalentCategory={
+                  talentFilterEnabled
+                    ? (next) => go(search, facetValues, cohort, 1, pageSize, { ...extras, talentCategory: next })
+                    : undefined
+                }
               />
             ) : null}
           </AppFilterSheet>
@@ -311,6 +329,7 @@ export function DirectoryPanel({
                   locale,
                   cityLabel: displayPlaceLocality(profile.current_city, locale),
                 });
+                const talent = primaryOfferingLabels(profile.offerings, locale);
                 return (
                   <AppPersonCard
                     key={profile.id}
@@ -319,7 +338,8 @@ export function DirectoryPanel({
                     photoUrl={view.photoUrl}
                     headline={view.headline}
                     city={view.city}
-                    talentLine={profile.offerings?.[0]?.title || null}
+                    talentCategory={talent.category}
+                    talentLine={talent.title}
                     languages={view.languages.map((item) => item.label)}
                     actionLabel={copy.view}
                     onOpen={() => setSelected(profile)}

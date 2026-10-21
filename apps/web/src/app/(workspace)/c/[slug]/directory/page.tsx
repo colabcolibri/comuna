@@ -46,6 +46,7 @@ export default async function DirectoryPage({
       page={listed.body.meta.page}
       pageSize={listed.body.meta.pageSize}
       total={listed.body.meta.total}
+      talentFilterEnabled={listed.body.meta.talentFilterEnabled}
     />
   );
 }
