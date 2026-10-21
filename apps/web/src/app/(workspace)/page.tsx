@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { LOCALE_COOKIE, contentFromCatalog, pickContent, resolveUiLocale } from '@community/identity';
-import { listPublicCommunities } from '@community/communities';
+import { displayCommunityName, listPublicCommunities } from '@community/communities';
 import { listMyCommunities } from '@community/memberships';
 import { AppPageTemplate } from '@community/ui-member';
 import { getMemberSession } from '@/lib/server/member-session';
@@ -64,7 +64,7 @@ export default async function HomePage() {
                   key={seat.id}
                   className="flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <span className="font-medium">{seat.name}</span>
+                  <span className="font-medium">{displayCommunityName(seat.name, seat.name_en, locale)}</span>
                   <div className="flex flex-wrap gap-2">
                     {enabled.has('directory') ? (
                       <Link href={communityPath(seat.slug, '/directory')} className={ctaClass}>
@@ -94,7 +94,7 @@ export default async function HomePage() {
             {publics.map((community) => (
               <li key={community.id} className="min-w-0 rounded-lg border border-border bg-card p-4">
                 <div className="mb-3 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="font-medium">{community.name}</span>
+                  <span className="font-medium">{displayCommunityName(community.name, community.settings.name_en, locale)}</span>
                   <Link href={communityPath(community.slug, '/showcase')} className={outlineClass}>
                     {copy.showcase}
                   </Link>

@@ -144,6 +144,7 @@ describe('pickCommunitySeat', () => {
     id: 'c1',
     slug: 'alumni',
     name: 'Alumni',
+    name_en: '',
     network_role: 'member' as const,
     membership_id: 'm1',
   };
@@ -151,6 +152,7 @@ describe('pickCommunitySeat', () => {
     id: 'c2',
     slug: 'lab',
     name: 'Lab',
+    name_en: '',
     network_role: 'coordinator' as const,
     membership_id: 'm2',
   };

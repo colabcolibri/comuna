@@ -25,7 +25,16 @@ describe('communities', () => {
         slug: 'demo',
         name: 'Demo',
         type: 'alumni',
-        settings: { description: '', showcase_title: '', showcase_description: '', default_locale: 'pt-BR', talent_exposure: 'internal' },
+        settings: {
+          description: '',
+          showcase_title: '',
+          showcase_title_en: '',
+          showcase_description: '',
+          showcase_description_en: '',
+          name_en: '',
+          default_locale: 'pt-BR',
+          talent_exposure: 'internal',
+        },
       },
     ]);
   });
@@ -85,6 +94,20 @@ describe('communities', () => {
         }),
       })
     ).toEqual({ title: 'Pessoas da rede', lede: 'Quem optou por aparecer.' });
+    expect(
+      publicShowcaseHero(
+        {
+          name: 'Rede',
+          settings: parseCommunitySettings({
+            name_en: 'Network',
+            showcase_title: 'Pessoas',
+            showcase_title_en: 'People',
+            showcase_description_en: 'Who chose to appear.',
+          }),
+        },
+        'en'
+      )
+    ).toEqual({ title: 'People', lede: 'Who chose to appear.' });
     expect(
       publicShowcaseHero({
         name: 'Alumni Instituto Atlântico',

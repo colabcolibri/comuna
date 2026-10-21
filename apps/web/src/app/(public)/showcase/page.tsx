@@ -34,7 +34,7 @@ export default async function ShowcasePage({
     if (listed.status === 404) {
       redirect('/');
     }
-    const hero = publicShowcaseHero(community);
+    const hero = publicShowcaseHero(community, locale);
     return (
       <ShowcasePanel
         communityName={hero.title}
@@ -65,7 +65,7 @@ export default async function ShowcasePage({
     <AppShowcasePortal title={copy.pick} lede={copy.pickSubtitle}>
       <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {communities.map((community) => {
-          const hero = publicShowcaseHero(community);
+          const hero = publicShowcaseHero(community, locale);
           return (
             <li key={community.id} className="min-w-0">
               <Link

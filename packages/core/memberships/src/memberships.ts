@@ -231,13 +231,14 @@ export type MyCommunity = {
   id: string;
   slug: string;
   name: string;
+  name_en: string;
   network_role: NetworkRole;
   membership_id: string;
 };
 
 export async function listMyCommunities(userId: string): Promise<MyCommunity[]> {
   const result = await query<MyCommunity>(
-    `SELECT c.id, c.slug, c.name, m.network_role, m.id AS membership_id
+    `SELECT c.id, c.slug, c.name, coalesce(c.settings->>'name_en', '') AS name_en, m.network_role, m.id AS membership_id
      FROM network_core.memberships m
      JOIN network_core.communities c ON c.id = m.community_id
      WHERE m.user_id = $1 AND m.network_status = 'active'

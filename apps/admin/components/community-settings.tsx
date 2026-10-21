@@ -30,6 +30,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   error: 'community.save_error',
   publicShowcase: 'community.public_showcase',
   talentCeiling: 'community.talent_ceiling',
+  translate: 'community.fields_translate',
 });
 
 export function CommunitySettings({
@@ -49,15 +50,21 @@ export function CommunitySettings({
   settings: CommunitySettingsValue;
   talentOn: boolean;
 }) {
-  const copy = pickContent(CONTENT, useLocale());
+  const locale = useLocale();
+  const copy = pickContent(CONTENT, locale);
+  const english = locale === 'en';
   const router = useRouter();
-  const [nameValue, setNameValue] = useState(name);
+  const [namePt, setNamePt] = useState(name);
+  const [nameEn, setNameEn] = useState(settings.name_en || '');
   const [typeValue, setTypeValue] = useState(
     COMMUNITY_TYPES.includes(type as (typeof COMMUNITY_TYPES)[number]) ? type : 'alumni'
   );
   const [description, setDescription] = useState(settings.description);
   const [showcaseTitle, setShowcaseTitle] = useState(settings.showcase_title);
+  const [showcaseTitleEn, setShowcaseTitleEn] = useState(settings.showcase_title_en || '');
   const [showcaseDescription, setShowcaseDescription] = useState(settings.showcase_description);
+  const [showcaseDescriptionEn, setShowcaseDescriptionEn] = useState(settings.showcase_description_en || '');
+  const [translate, setTranslate] = useState(false);
   const [defaultLocale, setDefaultLocale] = useState(settings.default_locale);
   const [publicShowcase, setPublicShowcase] = useState(isPublicShowcase);
   const [talentExposure, setTalentExposure] = useState(settings.talent_exposure || 'internal');
@@ -76,13 +83,16 @@ export function CommunitySettings({
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: nameValue,
+        name: namePt.trim() || nameEn.trim(),
         type: typeValue,
         is_public_showcase: publicShowcase,
         settings: {
           description,
+          name_en: nameEn,
           showcase_title: showcaseTitle,
+          showcase_title_en: showcaseTitleEn,
           showcase_description: showcaseDescription,
+          showcase_description_en: showcaseDescriptionEn,
           default_locale: defaultLocale,
           talent_exposure: talentExposure,
         },
@@ -102,7 +112,12 @@ export function CommunitySettings({
       <form onSubmit={(ev) => void save(ev)} className="grid max-w-lg gap-4">
         <div className="space-y-2">
           <Label htmlFor="ops-community-name">{copy.name}</Label>
-          <Input id="ops-community-name" value={nameValue} onChange={(ev) => setNameValue(ev.target.value)} required />
+          <Input
+            id="ops-community-name"
+            value={english ? nameEn : namePt}
+            onChange={(ev) => (english ? setNameEn(ev.target.value) : setNamePt(ev.target.value))}
+            required
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="ops-community-slug">{copy.slug}</Label>
@@ -136,8 +151,8 @@ export function CommunitySettings({
           <Label htmlFor="ops-showcase-title">{copy.showcaseTitle}</Label>
           <Input
             id="ops-showcase-title"
-            value={showcaseTitle}
-            onChange={(ev) => setShowcaseTitle(ev.target.value)}
+            value={english ? showcaseTitleEn : showcaseTitle}
+            onChange={(ev) => (english ? setShowcaseTitleEn(ev.target.value) : setShowcaseTitle(ev.target.value))}
             maxLength={80}
           />
         </div>
@@ -145,12 +160,47 @@ export function CommunitySettings({
           <Label htmlFor="ops-showcase-description">{copy.showcaseDescription}</Label>
           <Textarea
             id="ops-showcase-description"
-            value={showcaseDescription}
-            onChange={(ev) => setShowcaseDescription(ev.target.value)}
+            value={english ? showcaseDescriptionEn : showcaseDescription}
+            onChange={(ev) => (english ? setShowcaseDescriptionEn(ev.target.value) : setShowcaseDescription(ev.target.value))}
             rows={4}
             maxLength={500}
           />
         </div>
+        {translate ? (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="ops-community-name-other">{english ? copy.localePt : copy.localeEn}</Label>
+              <Input
+                id="ops-community-name-other"
+                value={english ? namePt : nameEn}
+                onChange={(ev) => (english ? setNamePt(ev.target.value) : setNameEn(ev.target.value))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ops-showcase-title-other">{copy.showcaseTitle}</Label>
+              <Input
+                id="ops-showcase-title-other"
+                value={english ? showcaseTitle : showcaseTitleEn}
+                onChange={(ev) => (english ? setShowcaseTitle(ev.target.value) : setShowcaseTitleEn(ev.target.value))}
+                maxLength={80}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ops-showcase-description-other">{copy.showcaseDescription}</Label>
+              <Textarea
+                id="ops-showcase-description-other"
+                value={english ? showcaseDescription : showcaseDescriptionEn}
+                onChange={(ev) => (english ? setShowcaseDescription(ev.target.value) : setShowcaseDescriptionEn(ev.target.value))}
+                rows={4}
+                maxLength={500}
+              />
+            </div>
+          </>
+        ) : (
+          <Button type="button" variant="outline" onClick={() => setTranslate(true)}>
+            {copy.translate}
+          </Button>
+        )}
         <div className="space-y-2">
           <Label htmlFor="ops-community-locale">{copy.locale}</Label>
           <Select value={defaultLocale} onValueChange={(next) => setDefaultLocale(next === 'en' ? 'en' : 'pt-BR')}>

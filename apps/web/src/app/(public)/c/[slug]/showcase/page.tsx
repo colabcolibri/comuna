@@ -2,6 +2,8 @@ import { redirect, notFound } from 'next/navigation';
 import { ShowcasePanel } from '@/components/app/ShowcasePanel';
 import { CommunityJoinBar } from '@/components/app/CommunityJoinBar';
 import { listPublicProfiles } from '@/lib/server/public-profiles';
+import { cookies } from 'next/headers';
+import { LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
 import { getCommunityBySlug, publicShowcaseHero } from '@community/communities';
 import { extrasFromSearchParams, facetsFromSearchParams, searchParamsFromRecord } from '@/lib/people/directory-query';
 
@@ -22,7 +24,8 @@ export default async function CommunityShowcasePage({
   if (listed.status === 404) {
     redirect('/');
   }
-  const hero = publicShowcaseHero(community);
+  const locale = resolveUiLocale((await cookies()).get(LOCALE_COOKIE)?.value);
+  const hero = publicShowcaseHero(community, locale);
   return (
     <ShowcasePanel
       communityName={hero.title}

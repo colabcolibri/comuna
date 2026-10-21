@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { getCommunity } from '@community/communities';
+import { displayCommunityName, getCommunity } from '@community/communities';
+import { LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
 import { CommunityWorkspace } from '@/components/community-workspace';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +20,14 @@ export default async function CommunityLayout({
     notFound();
   }
   return (
-    <CommunityWorkspace name={community.name} slug={community.slug}>
+    <CommunityWorkspace
+      name={displayCommunityName(
+        community.name,
+        community.settings.name_en,
+        resolveUiLocale((await cookies()).get(LOCALE_COOKIE)?.value)
+      )}
+      slug={community.slug}
+    >
       {children}
     </CommunityWorkspace>
   );

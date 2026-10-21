@@ -53,10 +53,12 @@ export function CommunitySwitcher({
   pathname: string;
   slug: string | null;
 }) {
-  const copy = pickContent(CONTENT, useLocale());
+  const locale = useLocale();
+  const copy = pickContent(CONTENT, locale);
   const { isMobile } = useSidebar();
   const enabled = useEnabledModules();
   const enabledBySlug = useEnabledBySlug();
+  const nameOf = (seat: MyCommunity) => (locale === 'en' && seat.name_en.trim() ? seat.name_en.trim() : seat.name);
   const shown = seats.find((seat) => seat.slug === slug) ?? seats[0];
 
   if (!shown) {
@@ -65,9 +67,9 @@ export function CommunitySwitcher({
 
   const trigger = (
     <>
-      <CommunityGlyph name={shown.name} />
+      <CommunityGlyph name={nameOf(shown)} />
       <span className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-        <span className="truncate font-medium">{shown.name}</span>
+        <span className="truncate font-medium">{nameOf(shown)}</span>
         <span className="truncate text-xs text-muted-foreground">{roleLabel(shown, copy)}</span>
       </span>
     </>
@@ -77,7 +79,7 @@ export function CommunitySwitcher({
     return (
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton size="lg" tooltip={shown.name} className="pointer-events-none">
+          <SidebarMenuButton size="lg" tooltip={nameOf(shown)} className="pointer-events-none">
             {trigger}
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -92,7 +94,7 @@ export function CommunitySwitcher({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              tooltip={shown.name}
+              tooltip={nameOf(shown)}
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               {trigger}
@@ -117,8 +119,8 @@ export function CommunitySwitcher({
               return (
                 <DropdownMenuItem key={seat.id} asChild className="gap-2 p-2">
                   <Link href={href} aria-current={active ? 'page' : undefined}>
-                    <CommunityGlyph name={seat.name} compact />
-                    <span className="min-w-0 flex-1 truncate">{seat.name}</span>
+                    <CommunityGlyph name={nameOf(seat)} compact />
+                    <span className="min-w-0 flex-1 truncate">{nameOf(seat)}</span>
                   </Link>
                 </DropdownMenuItem>
               );
