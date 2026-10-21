@@ -19,6 +19,7 @@ const SEED_COMMUNITIES = [
     slug: 'demo',
     name: 'Alumni Instituto Atlântico',
     type: 'alumni',
+    enable_talent: true,
     is_public_showcase: true,
     settings: settings(
       'Rede de egressos do Instituto Atlântico: formação técnica com passagem por empresa, escola pública, pesquisa e política. O diretório é o mapa da turma ao longo do tempo, não um feed. Hospitalidade (receber em casa) existe só nesta casa.',

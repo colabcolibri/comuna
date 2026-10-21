@@ -1,5 +1,7 @@
 'use strict';
 
+const { seedTalentCategories } = require('./talent-categories.cjs');
+
 const OFFERS = [
   {
     category: 'mentorship',
@@ -57,16 +59,7 @@ async function seedDemoTalents(client, tenants, memberIds) {
   if (!demo) {
     return;
   }
-  await client.query(
-    `INSERT INTO plugin_core.modules (slug, version) VALUES ('talent', '1.0.0')
-     ON CONFLICT (slug) DO NOTHING`
-  );
-  await client.query(
-    `INSERT INTO network_core.community_modules (community_id, module_id, enabled)
-     SELECT $1, id, true FROM plugin_core.modules WHERE slug = 'talent'
-     ON CONFLICT (community_id, module_id) DO UPDATE SET enabled = true`,
-    [demo.id]
-  );
+  await seedTalentCategories(client, demo.id);
   const people = [...memberIds.entries()].filter(([n]) => {
     const number = Number(n);
     return number <= 48 && number % 2 === 1;

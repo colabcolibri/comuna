@@ -19,9 +19,10 @@ const { seedDemoTalents } = require('../seed/talent-demo.cjs');
 const { seedTalentCategories } = require('../seed/talent-categories.cjs');
 
 const MODULES = ['directory', 'showcase', 'contact-mediated', 'map'];
+const PLUGIN_SLUGS = [...MODULES, 'talent'];
 
 async function ensureModules(client) {
-  for (const slug of MODULES) {
+  for (const slug of PLUGIN_SLUGS) {
     await client.query(
       `INSERT INTO plugin_core.modules (slug, version) VALUES ($1, '1.0.0')
        ON CONFLICT (slug) DO NOTHING`,
@@ -43,13 +44,23 @@ async function upsertCommunity(client, spec) {
     [spec.slug, spec.name, spec.type, spec.is_public_showcase, JSON.stringify(spec.settings)]
   );
   const communityId = community.rows[0].id;
+  const enabledSlugs = spec.enable_talent ? PLUGIN_SLUGS : MODULES;
   await client.query(
     `INSERT INTO network_core.community_modules (community_id, module_id, enabled)
      SELECT $1, id, true FROM plugin_core.modules
      WHERE slug = ANY($2::text[])
      ON CONFLICT (community_id, module_id) DO UPDATE SET enabled = true`,
-    [communityId, MODULES]
+    [communityId, enabledSlugs]
   );
+  if (!spec.enable_talent) {
+    await client.query(
+      `INSERT INTO network_core.community_modules (community_id, module_id, enabled)
+       SELECT $1, m.id, false FROM plugin_core.modules m
+       WHERE m.slug = 'talent'
+       ON CONFLICT (community_id, module_id) DO UPDATE SET enabled = false`,
+      [communityId]
+    );
+  }
   await seedDirectoryCatalog(client, communityId);
   await seedTalentCategories(client, communityId);
   await seedTenantExtras(client, communityId, spec.extras);

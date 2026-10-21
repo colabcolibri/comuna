@@ -149,4 +149,16 @@ describe('demo member seed list', () => {
     expect(source).toContain("'contact-mediated', 'map'");
     expect(source).not.toContain('OPTIONAL_MODULES');
   });
+
+  it('embeds talent module and default categories on the demo community', () => {
+    const demo = SEED_COMMUNITIES.find((row) => row.slug === 'demo');
+    expect(demo?.enable_talent).toBe(true);
+    const seed = fs.readFileSync(path.join(import.meta.dirname, 'seed.cjs'), 'utf8');
+    expect(seed).toContain('seedTalentCategories');
+    expect(seed).toContain('enable_talent');
+    const { DEFAULTS } = require('../seed/talent-categories.cjs');
+    expect(DEFAULTS).toHaveLength(6);
+    const talentDemo = fs.readFileSync(path.join(import.meta.dirname, '../seed/talent-demo.cjs'), 'utf8');
+    expect(talentDemo).toContain('seedTalentCategories');
+  });
 });

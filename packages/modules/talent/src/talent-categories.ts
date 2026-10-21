@@ -32,6 +32,7 @@ export async function ensureDefaultTalentCategories(query: QueryFn, communityId:
 }
 
 export async function listTalentCategories(query: QueryFn, communityId: string, opts?: { enabledOnly?: boolean }) {
+  await ensureDefaultTalentCategories(query, communityId);
   const enabledOnly = opts?.enabledOnly !== false;
   const result = await query(
     `SELECT id, sort_order, label, allows_other_text, enabled
