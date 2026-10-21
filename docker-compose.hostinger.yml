@@ -1,10 +1,8 @@
-# Produção no VPS Hostinger (Debian + Traefik em network_mode: host).
-# Não substitui o docker-compose.yml local (Postgres 5433 + Mailpit).
+# VPS nova (Ubuntu + Docker). Não substitui o docker-compose.yml local
+# (Postgres 5433 + Mailpit).
 #
-# Traefik e Whisper já ocupam 80/443 e 127.0.0.1:9000. Esta stack:
-# - não publica 80/443/5432
-# - web/admin só em 127.0.0.1 (mesmo padrão do Whisper)
-# - não sobe Mailpit
+# Caddy publica 80/443 e termina TLS. Web e admin ficam só na rede
+# interna. Postgres não publica porta. Sem Mailpit.
 #
 # Na raiz do clone, no servidor:
 #   cp deploy/hostinger/env.example .env.hostinger
@@ -98,8 +96,6 @@ services:
       DATABASE_READ_ONLY: ${DATABASE_READ_ONLY:-}
     volumes:
       - comuna_media:/data/storage
-    ports:
-      - '127.0.0.1:3014:3014'
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -145,11 +141,29 @@ services:
       SMTP_PASS: ${SMTP_PASS:-}
       ALLOW_DEV_OTP: ${ALLOW_DEV_OTP:-}
       DATABASE_READ_ONLY: ${DATABASE_READ_ONLY:-}
-    ports:
-      - '127.0.0.1:3015:3015'
     depends_on:
       migrate:
         condition: service_completed_successfully
+    networks:
+      - comuna_internal
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: comuna_caddy
+    restart: unless-stopped
+    environment:
+      COMUNA_HOST: ${COMUNA_HOST}
+      COMUNA_OPS_HOST: ${COMUNA_OPS_HOST}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./deploy/hostinger/Caddyfile:/etc/caddy/Caddyfile:ro
+      - comuna_caddy_data:/data
+      - comuna_caddy_config:/config
+    depends_on:
+      - web
+      - admin
     networks:
       - comuna_internal
 
@@ -161,3 +175,5 @@ networks:
 volumes:
   comuna_pgdata:
   comuna_media:
+  comuna_caddy_data:
+  comuna_caddy_config:

@@ -16,6 +16,7 @@ const {
 const { membershipCard } = require('../seed/membership-cards.cjs');
 const { seedDemoAvatarsForPeople, seedDemoAvatarsEnabled } = require('../seed/demo-avatars.cjs');
 const { seedDemoTalents } = require('../seed/talent-demo.cjs');
+const { seedTalentCategories } = require('../seed/talent-categories.cjs');
 
 const MODULES = ['directory', 'showcase', 'contact-mediated', 'map'];
 
@@ -50,6 +51,7 @@ async function upsertCommunity(client, spec) {
     [communityId, MODULES]
   );
   await seedDirectoryCatalog(client, communityId);
+  await seedTalentCategories(client, communityId);
   await seedTenantExtras(client, communityId, spec.extras);
   const cohorts = {};
   for (const cohort of spec.cohorts) {

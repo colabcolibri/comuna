@@ -318,6 +318,12 @@ importers:
 
   packages/modules/talent:
     dependencies:
+      '@community/db':
+        specifier: workspace:*
+        version: link:../../core/db
+      '@community/identity':
+        specifier: workspace:*
+        version: link:../../core/identity
       '@community/module-runtime':
         specifier: workspace:*
         version: link:../../core/module-runtime

@@ -37,7 +37,7 @@ import { uiCatalog } from '@/lang/catalog';
 import { slotOn } from '@/modules/registry';
 import { activeFilterCount, directoryQueryString, type ListQueryExtras } from '@/lib/people/directory-query';
 import type { PersonCard } from '@/lib/people/person-card';
-import { primaryOfferingLabels } from '@/lib/people/offering-label';
+import { primaryOfferingLabels, type TalentCategoryView } from '@/lib/people/offering-label';
 import { PeopleSearchField } from '@/components/app/PeopleSearchField';
 
 const EMPTY_EXTRAS: ListQueryExtras = {};
@@ -120,6 +120,7 @@ export function ShowcasePanel({
   pageSize = SHOWCASE_PAGE_SIZE,
   total = 0,
   talentFilterEnabled = false,
+  talentCategories = [],
 }: {
   rows: PersonCard[];
   lead?: ReactNode;
@@ -135,6 +136,7 @@ export function ShowcasePanel({
   pageSize?: number;
   total?: number;
   talentFilterEnabled?: boolean;
+  talentCategories?: TalentCategoryView[];
 }) {
   const locale = useLocale();
   const copy = pickContent(CONTENT, locale);
@@ -252,6 +254,7 @@ export function ShowcasePanel({
                       ? (next) => go(search, facetValues, 1, pageSize, { ...extras, talentCategory: next })
                       : undefined
                   }
+                  talentCategories={talentFilterEnabled ? talentCategories : []}
                 />
               ) : null}
             </AppFilterSheet>
@@ -317,7 +320,7 @@ export function ShowcasePanel({
                   locale,
                   cityLabel: displayPlaceLocality(profile.current_city, locale),
                 });
-                const talent = primaryOfferingLabels(profile.offerings, locale);
+                const talent = primaryOfferingLabels(profile.offerings, locale, talentCategories);
                 return (
                   <AppShowcaseCard
                     key={profile.id}
@@ -361,7 +364,7 @@ export function ShowcasePanel({
         copy={copy}
         locale={locale}
         canContact={canContact}
-        sections={inspectSections(enabled, selected, copy, locale)}
+        sections={inspectSections(enabled, selected, copy, locale, talentCategories)}
         onClose={() => setSelected(null)}
       />
     </AppShowcasePortal>

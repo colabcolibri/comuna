@@ -1,19 +1,22 @@
-import { TALENT_CATEGORIES, type TalentCategoryId } from './categories';
-
 export const OFFERING_LIMIT = 20;
 const AUDIENCES = ['private', 'internal', 'external'] as const;
 export type OfferingAudience = (typeof AUDIENCES)[number];
+
+export type OfferingCategoryRule = { id: string; allowsOtherText: boolean };
 
 export type OfferingInput = {
   title: string;
   description: string;
   url: string | null;
-  categoryId: TalentCategoryId;
+  categoryId: string;
   categoryOther: string | null;
   audience: OfferingAudience;
 };
 
-export function parseOffering(body: Record<string, unknown>): { ok: true; value: OfferingInput } | { ok: false; message: string } {
+export function parseOffering(
+  body: Record<string, unknown>,
+  categories: OfferingCategoryRule[]
+): { ok: true; value: OfferingInput } | { ok: false; message: string } {
   const title = typeof body.title === 'string' ? body.title.trim() : '';
   if (!title || title.length > 120) {
     return { ok: false, message: 'Título obrigatório (até 120 caracteres).' };
@@ -27,12 +30,13 @@ export function parseOffering(body: Record<string, unknown>): { ok: true; value:
     return { ok: false, message: 'Link inválido.' };
   }
   const categoryId = typeof body.categoryId === 'string' ? body.categoryId : '';
-  if (!TALENT_CATEGORIES.some((item) => item.id === categoryId)) {
+  const category = categories.find((item) => item.id === categoryId);
+  if (!category) {
     return { ok: false, message: 'Categoria desconhecida.' };
   }
   const other = typeof body.categoryOther === 'string' ? body.categoryOther.trim() : '';
-  if (categoryId === 'other' && (other.length < 1 || other.length > 80)) {
-    return { ok: false, message: 'Descreva a categoria Outros (até 80 caracteres).' };
+  if (category.allowsOtherText && (other.length < 1 || other.length > 80)) {
+    return { ok: false, message: 'Descreva a categoria (até 80 caracteres).' };
   }
   const audience = AUDIENCES.includes(body.audience as OfferingAudience) ? (body.audience as OfferingAudience) : 'private';
   return {
@@ -41,8 +45,8 @@ export function parseOffering(body: Record<string, unknown>): { ok: true; value:
       title,
       description,
       url: rawUrl || null,
-      categoryId: categoryId as TalentCategoryId,
-      categoryOther: categoryId === 'other' ? other : null,
+      categoryId,
+      categoryOther: category.allowsOtherText ? other : null,
       audience,
     },
   };

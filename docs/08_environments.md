@@ -149,34 +149,34 @@ Comprar o VPS, apontar DNS, colar secrets no servidor e o primeiro `up` são **H
 
 Pré-requisitos no painel (humano):
 
-1. Plano **VPS**, não hospedagem de site. A Comuna entra como **projeto Compose à parte** (`name: comuna`) ao lado de outro Traefik em `network_mode: host`, se já existir. Não recriar o VPS. Não editar o Compose de outros projetos.
-2. SSH por chave. Firewall: 22, 80, 443. Nada de 5432 na internet. Web/admin só em loopback.
+1. Plano **VPS** novo, não hospedagem de site. Ubuntu 24.04 com Docker. A Comuna é o único Compose desta máquina (`name: comuna`).
+2. SSH por chave. Firewall: 22, 80, 443. Nada de 5432, 3014 ou 3015 na internet.
 3. DNS: `A` do host da vitrine e do host `ops.` para o IP do VPS. Valores reais **não** vão no git.
 
-O MCP Hostinger `createNewProject` só cola um YAML e puxa **imagens**. Não constrói o monorepo. **Não** usar o painel Docker para substituir o projeto `traefik`. Deploy da Comuna: clone + `docker compose --build` no servidor.
+O painel Docker da Hostinger só cola um YAML e puxa **imagens**. Não constrói o monorepo. Deploy: clone + `docker compose --build` no servidor.
 
 ```bash
 # no servidor (não no laptop)
 git clone git@github.com:…/alumni.git /opt/comuna
 cd /opt/comuna
 cp deploy/hostinger/env.example .env.hostinger
-# editar POSTGRES_PASSWORD, JWT_SECRET, NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_OPS_URL
+# editar POSTGRES_PASSWORD, JWT_SECRET, NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_OPS_URL, COMUNA_HOST, COMUNA_OPS_HOST
 # demo: DATABASE_READ_ONLY=1 no env da app (web e admin); seed sem essa flag
 docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger up -d --build
 # uma vez, sem DATABASE_READ_ONLY no env da seed:
 docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger --profile seed run --rm seed
 ```
 
-O `docker-compose.yml` da raiz (Postgres `5433` + Mailpit) é **só laptop**. No VPS usa-se `docker-compose.hostinger.yml`: Postgres interno, sem Mailpit, portas `127.0.0.1:3014` e `127.0.0.1:3015`.
+O `docker-compose.yml` da raiz (Postgres `5433` + Mailpit) é **só laptop**. No VPS usa-se `docker-compose.hostinger.yml`: Postgres interno, sem Mailpit. Web e admin não publicam porta. O Caddy (`deploy/hostinger/Caddyfile`) escuta 80/443, pede o certificado e encaminha:
 
-TLS continua no Traefik que já está. Fundir `deploy/hostinger/traefik-file.yml` no file provider, alinhando `entryPoints` e `certResolver` com o `traefik.yml` da máquina. Upstream:
+| Host | Upstream na rede `comuna_internal` |
+| ---- | ---------------------------------- |
+| `COMUNA_HOST` (`NEXT_PUBLIC_APP_URL`) | `web:3014` |
+| `COMUNA_OPS_HOST` (`NEXT_PUBLIC_OPS_URL`) | `admin:3015` |
 
-| Host | Loopback |
-| ---- | -------- |
-| vitrine (`NEXT_PUBLIC_APP_URL`) | `http://127.0.0.1:3014` |
-| ops (`NEXT_PUBLIC_OPS_URL`) | `http://127.0.0.1:3015` |
+Os dois `A` têm de existir antes do primeiro `up`, senão o Let's Encrypt falha. Certificados ficam no volume `comuna_caddy_data`.
 
-`DATABASE_URL` **dentro** da rede `comuna_internal`: `postgresql://comuna:…@postgres:5432/alumni_db`. `PGSSL=0`. Healthcheck da web: `GET /api/health`. Backup: volume `comuna_pgdata` + `comuna_media`. Rollback: tag git anterior + `compose up -d --build`. Volumes **não** se apagam.
+`DATABASE_URL` **dentro** da rede `comuna_internal`: `postgresql://comuna:…@postgres:5432/alumni_db`. `PGSSL=0`. Healthcheck da web: `GET /api/health` dentro do container. Backup: volumes `comuna_pgdata`, `comuna_media` e `comuna_caddy_data`. Rollback: tag git anterior + `compose up -d --build`. Volumes **não** se apagam.
 
 Demo no VPS: `DATABASE_READ_ONLY=1` só no processo da **app**. Migrate/seed usam `Client` sem essa flag. `proxy` responde `403 READ_ONLY` em writes de `/api/*`. Não ligar read-only numa base com contas reais.
 

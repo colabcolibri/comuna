@@ -11,7 +11,7 @@ import { PersonInspect } from '@/components/app/PersonInspect';
 import { uiCatalog } from '@/lang/catalog';
 import { activeFilterCount, directoryQueryString, type ListQueryExtras } from '@/lib/people/directory-query';
 import type { PersonCard } from '@/lib/people/person-card';
-import { primaryOfferingLabels } from '@/lib/people/offering-label';
+import { primaryOfferingLabels, type TalentCategoryView } from '@/lib/people/offering-label';
 import { PeopleSearchField } from '@/components/app/PeopleSearchField';
 import { slotOn } from '@/modules/registry';
 import {
@@ -125,6 +125,7 @@ export function DirectoryPanel({
   pageSize = SHOWCASE_PAGE_SIZE,
   total = 0,
   talentFilterEnabled = false,
+  talentCategories = [],
 }: {
   rows: PersonCard[];
   facets: CatalogField[];
@@ -139,6 +140,7 @@ export function DirectoryPanel({
   pageSize?: number;
   total?: number;
   talentFilterEnabled?: boolean;
+  talentCategories?: TalentCategoryView[];
 }) {
   const locale = useLocale();
   const copy = pickContent(CONTENT, locale);
@@ -281,6 +283,7 @@ export function DirectoryPanel({
                     ? (next) => go(search, facetValues, cohort, 1, pageSize, { ...extras, talentCategory: next })
                     : undefined
                 }
+                talentCategories={talentFilterEnabled ? talentCategories : []}
               />
             ) : null}
           </AppFilterSheet>
@@ -329,7 +332,7 @@ export function DirectoryPanel({
                   locale,
                   cityLabel: displayPlaceLocality(profile.current_city, locale),
                 });
-                const talent = primaryOfferingLabels(profile.offerings, locale);
+                const talent = primaryOfferingLabels(profile.offerings, locale, talentCategories);
                 return (
                   <AppPersonCard
                     key={profile.id}
@@ -357,7 +360,7 @@ export function DirectoryPanel({
         copy={copy}
         locale={locale}
         canContact={canContact}
-        sections={inspectSections(enabled, selected, copy, locale)}
+        sections={inspectSections(enabled, selected, copy, locale, talentCategories)}
         onClose={() => setSelected(null)}
       />
     </AppPageTemplate>

@@ -56,6 +56,7 @@ describe('peopleListQuery', () => {
       return;
     }
     expect(built.text).toContain("headline_audience = 'external'");
+    expect(built.text).toContain('public_showcase = true');
     expect(built.text).not.toContain("headline_audience IN ('internal', 'external')");
     expect(built.text).not.toContain('cohort_id');
   });

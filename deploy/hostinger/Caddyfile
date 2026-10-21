@@ -1,0 +1,7 @@
+{$COMUNA_HOST} {
+	reverse_proxy web:3014
+}
+
+{$COMUNA_OPS_HOST} {
+	reverse_proxy admin:3015
+}

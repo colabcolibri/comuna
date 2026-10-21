@@ -41,6 +41,7 @@ export default async function CommunityShowcasePage({
       pageSize={listed.meta.pageSize}
       total={listed.meta.total}
       talentFilterEnabled={listed.meta.talentFilterEnabled}
+      talentCategories={listed.meta.talentCategories}
       lead={<CommunityJoinBar communityId={community.id} slug={community.slug} tone="hero" />}
     />
   );

@@ -29,6 +29,14 @@ export function parseExposure(value: unknown): Exposure | null {
   return EXPOSURES.includes(value as Exposure) ? (value as Exposure) : null;
 }
 
+/** UI cap for the private / internal / external picker (null → internal, not hidden). */
+export function audiencePickerCeiling(exposure: Exposure | null): Exposure {
+  if (exposure === 'hidden' || exposure === 'internal' || exposure === 'external') {
+    return exposure;
+  }
+  return 'internal';
+}
+
 export function exposureFromPlacement(input: { directory: string; showcase: string }): Exposure {
   if (input.showcase && input.showcase !== 'off') return 'external';
   if (input.directory && input.directory !== 'off') return 'internal';
@@ -66,7 +74,7 @@ export function directoryScopeSql(card = 'c', community = 'm.community_id') {
       SELECT 1 FROM jsonb_each_text(COALESCE(${card}.attribute_audience, '{}'::jsonb)) aud
       JOIN plugin_directory.fields f ON f.name = aud.key
       JOIN plugin_directory.field_groups g ON g.id = f.group_id AND g.community_id = ${community}
-      WHERE aud.value IN (${levels}) AND f.exposure IN (${levels})
+      WHERE aud.value IN (${levels}) AND coalesce(f.exposure, 'external') IN (${levels})
     )
   )`;
 }
@@ -77,21 +85,24 @@ function fieldCeiling(community: string, columnKey: string, min: string) {
     JOIN plugin_directory.field_groups g ON g.id = f.group_id
     WHERE g.community_id = ${community}
       AND f.column_key = '${columnKey}'
-      AND f.exposure IN (${min})
+      AND coalesce(f.exposure, 'external') IN (${min})
   )`;
 }
 
 export function showcaseScopeSql(card = 'c', community = 'm.community_id') {
   const open = `'external'`;
   return `(
-    (${card}.headline_audience = 'external' AND ${fieldCeiling(community, 'headline', open)})
-    OR (${card}.bio_audience = 'external' AND ${fieldCeiling(community, 'bio', open)})
-    OR (${card}.availability_audience = 'external' AND ${fieldCeiling(community, 'availability_status', open)})
-    OR EXISTS (
-      SELECT 1 FROM jsonb_each_text(COALESCE(${card}.attribute_audience, '{}'::jsonb)) aud
-      JOIN plugin_directory.fields f ON f.name = aud.key
-      JOIN plugin_directory.field_groups g ON g.id = f.group_id AND g.community_id = ${community}
-      WHERE aud.value = 'external' AND f.exposure = 'external'
+    ${card}.public_showcase = true
+    AND (
+      (${card}.headline_audience = 'external' AND ${fieldCeiling(community, 'headline', open)})
+      OR (${card}.bio_audience = 'external' AND ${fieldCeiling(community, 'bio', open)})
+      OR (${card}.availability_audience = 'external' AND ${fieldCeiling(community, 'availability_status', open)})
+      OR EXISTS (
+        SELECT 1 FROM jsonb_each_text(COALESCE(${card}.attribute_audience, '{}'::jsonb)) aud
+        JOIN plugin_directory.fields f ON f.name = aud.key
+        JOIN plugin_directory.field_groups g ON g.id = f.group_id AND g.community_id = ${community}
+        WHERE aud.value = 'external' AND coalesce(f.exposure, 'external') = 'external'
+      )
     )
   )`;
 }

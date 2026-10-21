@@ -3,9 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./ops": "./src/ops.ts"
   },
   "dependencies": {
+    "@community/db": "workspace:*",
+    "@community/identity": "workspace:*",
     "@community/module-runtime": "workspace:*"
   }
 }

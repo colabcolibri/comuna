@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { effectiveAudience, exposureFromPlacement } from './audience';
+import { audiencePickerCeiling, effectiveAudience, exposureFromPlacement } from './audience';
 
 describe('field exposure', () => {
   it('maps placement to a ceiling', () => {
     expect(exposureFromPlacement({ directory: 'card', showcase: 'detail' })).toBe('external');
     expect(exposureFromPlacement({ directory: 'detail', showcase: 'off' })).toBe('internal');
     expect(exposureFromPlacement({ directory: 'off', showcase: 'off' })).toBe('hidden');
+  });
+
+  it('defaults null exposure to internal for the audience picker', () => {
+    expect(audiencePickerCeiling(null)).toBe('internal');
+    expect(audiencePickerCeiling('hidden')).toBe('hidden');
   });
 
   it('keeps the lower of person audience and ceiling', () => {

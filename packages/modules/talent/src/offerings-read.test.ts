@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import { DEFAULT_TALENT_CATEGORY_SEED } from './category-seed';
 import { talentListFiltersEnabled, visibleOfferings } from './offerings';
+
+const CATEGORY_RULES = DEFAULT_TALENT_CATEGORY_SEED.map((item) => ({
+  id: item.id,
+  allowsOtherText: item.allowsOtherText,
+}));
 
 const rows = [
   { title: 'privado', audience: 'private' },

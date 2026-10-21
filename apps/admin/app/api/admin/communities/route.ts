@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createCommunity, DuplicateCommunitySlugError, listCommunities } from '@community/communities';
 import { enableFirstPartyModules, ensureDisabledModule } from '@community/module-runtime';
 import { seedCommunityCatalog } from '@community/directory/ops';
+import { ensureDefaultTalentCategories } from '@community/talent/ops';
 import { query } from '@community/db';
 import { jsonError } from '@/lib/http';
 import { isOpsClaims, requireOps } from '@/lib/require-ops';
@@ -32,6 +33,7 @@ export async function POST(req: NextRequest) {
     await enableFirstPartyModules(query, community.id, defaultEnabledSlugs);
     await ensureDisabledModule(query, community.id, 'talent');
     await seedCommunityCatalog(community.id);
+    await ensureDefaultTalentCategories((sql, params) => query(sql, params), community.id);
     return NextResponse.json(community, { status: 201 });
   } catch (err) {
     if (err instanceof DuplicateCommunitySlugError) {

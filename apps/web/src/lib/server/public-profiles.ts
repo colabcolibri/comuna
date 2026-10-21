@@ -19,6 +19,8 @@ import {
 import { ceilingsFrom, toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
 import { loadOfferingsPublic, offeringsByMembership } from '@/lib/server/talent-offers';
+import { publicTalentCategories } from '@/lib/server/talent-categories';
+import type { TalentCategory } from '@community/talent';
 
 export async function listPublicListFields(communityId: string): Promise<ListField[]> {
   const result = await query(LIST_FIELDS_SQL, [communityId, 'showcase']);
@@ -26,7 +28,13 @@ export async function listPublicListFields(communityId: string): Promise<ListFie
 }
 
 export async function listPublicProfiles(communityId: string, searchParams: URLSearchParams = new URLSearchParams()) {
-  const emptyMeta = { page: 1, pageSize: SHOWCASE_PAGE_SIZE, total: 0, talentFilterEnabled: false };
+  const emptyMeta = {
+    page: 1,
+    pageSize: SHOWCASE_PAGE_SIZE,
+    total: 0,
+    talentFilterEnabled: false,
+    talentCategories: [] as { id: string; label: unknown; allowsOtherText: boolean }[],
+  };
   const on = await moduleRuntime.isEnabled(communityId, showcaseContribution.slug);
   if (!on) {
     return { status: 404 as const, data: [], facets: [], listFields: [] as ListField[], meta: emptyMeta };
@@ -40,13 +48,17 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
     : { rows: [] as { settings: unknown }[] };
   const ceiling = talentCeiling(ceilingRow.rows[0]?.settings);
   const talentFilterEnabled = talentListFiltersEnabled({ talentOn, ceiling, surface: 'showcase' });
+  const talentCategories: TalentCategory[] = talentOn ? await publicTalentCategories(communityId, { enabledOnly: false }) : [];
+  const allowedCategoryIds = talentCategories.filter((item) => item.enabled).map((item) => item.id);
   const built = peopleListQuery({
     communityId,
     searchParams,
     fields: listFields,
     scope: 'showcase',
     talentAudiences: talentFilterEnabled ? ['external'] : [],
-    talentCategory: talentFilterEnabled ? parseTalentCategoryFilter(searchParams.get('talent_category')) : '',
+    talentCategory: talentFilterEnabled
+      ? parseTalentCategoryFilter(searchParams.get('talent_category'), allowedCategoryIds)
+      : '',
   });
   if (built.ok === false) {
     return {
@@ -83,6 +95,11 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
       pageSize: built.pageSize,
       total: counted.rows[0]?.total ?? 0,
       talentFilterEnabled,
+      talentCategories: talentFilterEnabled
+        ? talentCategories
+            .filter((item) => item.enabled)
+            .map((item) => ({ id: item.id, label: item.label, allowsOtherText: item.allowsOtherText }))
+        : [],
     },
   };
 }

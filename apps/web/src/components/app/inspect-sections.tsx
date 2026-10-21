@@ -1,33 +1,30 @@
 import type { ReactNode } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { inspectSectionsOf } from '@community/module-runtime';
-import { categoryLabel } from '@community/talent';
 import type { PersonCard } from '@/lib/people/person-card';
+import { offeringCategoryDisplay, type TalentCategoryView } from '@/lib/people/offering-label';
 import { firstPartyModules } from '@/modules/registry';
 
 function TalentSection({
   profile,
   copy,
   locale,
+  catalog,
 }: {
   profile: PersonCard;
   copy: Record<string, string>;
   locale: string;
+  catalog: TalentCategoryView[];
 }) {
   if (!profile.offerings?.length) {
     return null;
   }
-  const lang = locale === 'en' ? 'en' : 'pt-BR';
   return (
     <section className="mt-8 min-w-0">
       <h3 className="text-lg font-semibold tracking-tight text-foreground">{copy.talents || 'Talentos'}</h3>
       <ul className="mt-3 grid min-w-0 gap-2">
         {profile.offerings.map((offer) => {
-          const category = offer.category_id === 'other' && offer.category_other
-            ? offer.category_other
-            : offer.category_id
-              ? categoryLabel(offer.category_id, lang)
-              : '';
+          const category = offeringCategoryDisplay(offer, locale, catalog) || '';
           return (
             <li key={offer.title} className="min-w-0 rounded-xl border border-border bg-card">
               <details className="group min-w-0">
@@ -57,21 +54,27 @@ function TalentSection({
   );
 }
 
-const SECTION_BODY: Record<string, (profile: PersonCard, copy: Record<string, string>, locale: string) => ReactNode> = {
-  talent: (profile, copy, locale) => <TalentSection profile={profile} copy={copy} locale={locale} />,
+const SECTION_BODY: Record<
+  string,
+  (profile: PersonCard, copy: Record<string, string>, locale: string, catalog: TalentCategoryView[]) => ReactNode
+> = {
+  talent: (profile, copy, locale, catalog) => (
+    <TalentSection profile={profile} copy={copy} locale={locale} catalog={catalog} />
+  ),
 };
 
 export function inspectSections(
   enabled: Iterable<string>,
   profile: PersonCard | null,
   copy: Record<string, string>,
-  locale: string
+  locale: string,
+  catalog: TalentCategoryView[] = []
 ) {
   if (!profile) {
     return null;
   }
   return inspectSectionsOf(firstPartyModules, enabled).map((module) => {
     const render = SECTION_BODY[module.slug];
-    return render ? <div key={module.slug}>{render(profile, copy, locale)}</div> : null;
+    return render ? <div key={module.slug}>{render(profile, copy, locale, catalog)}</div> : null;
   });
 }

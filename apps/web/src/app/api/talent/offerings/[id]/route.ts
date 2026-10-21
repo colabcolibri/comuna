@@ -3,6 +3,7 @@ import { queryAsMember } from '@community/db';
 import { parseOffering, talentCeiling, talentContribution } from '@community/talent';
 import { memberCommunityFromRequest } from '@/lib/server/member-community';
 import { moduleRuntime } from '@/lib/server/membership';
+import { memberTalentCategories, offeringCategoryRules } from '@/lib/server/talent-categories';
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const resolved = await memberCommunityFromRequest(req);
@@ -14,7 +15,8 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
   }
   const { id } = await ctx.params;
-  const parsed = parseOffering(await req.json());
+  const ctx = { userId: resolved.userId, communityId: resolved.seat.id };
+  const parsed = parseOffering(await req.json(), offeringCategoryRules(await memberTalentCategories(ctx)));
   if (!parsed.ok) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: parsed.message } }, { status: 400 });
   }

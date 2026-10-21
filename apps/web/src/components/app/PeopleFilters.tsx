@@ -1,8 +1,7 @@
 'use client';
 
 import { languageFilterQueryValue, parseLanguageFilter, type CatalogField } from '@community/directory';
-import { TALENT_CATEGORIES } from '@community/talent';
-import { pickLocalizedText, spokenLanguageOptions } from '@community/identity';
+import { pickLocalizedText, spokenLanguageOptions, type LocalizedText } from '@community/identity';
 import { AppFilterListbox } from '@community/ui-member';
 import { Checkbox, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@community/ui';
 
@@ -58,6 +57,7 @@ export function PeopleFilters({
   talentCategory,
   onTalentCategory,
   talentCategoryLabel,
+  talentCategories = [],
 }: {
   locale: string;
   allLabel: string;
@@ -70,8 +70,8 @@ export function PeopleFilters({
   talentCategory?: string;
   onTalentCategory?: (next: string) => void;
   talentCategoryLabel?: string;
+  talentCategories?: { id: string; label: LocalizedText }[];
 }) {
-  const lang = locale === 'en' ? 'en' : 'pt-BR';
   return (
     <div className="min-w-0 space-y-6">
       {onTalentCategory && talentCategoryLabel ? (
@@ -86,9 +86,9 @@ export function PeopleFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{allLabel}</SelectItem>
-              {TALENT_CATEGORIES.map((item) => (
+              {talentCategories.map((item) => (
                 <SelectItem key={item.id} value={item.id}>
-                  {item.label[lang]}
+                  {pickLocalizedText(item.label, locale) || item.id}
                 </SelectItem>
               ))}
             </SelectContent>

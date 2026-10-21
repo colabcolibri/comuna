@@ -85,8 +85,8 @@ async function seedDemoTalents(client, tenants, memberIds) {
     for (const [index, offer] of [first, second].entries()) {
       await client.query(
         `INSERT INTO plugin_talent.offerings
-           (membership_id, title, description, url, category_id, category_other, audience, seed_key)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+           (membership_id, community_id, title, description, url, category_id, category_other, audience, seed_key)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          ON CONFLICT (membership_id, seed_key) DO UPDATE SET
            title = EXCLUDED.title,
            description = EXCLUDED.description,
@@ -96,6 +96,7 @@ async function seedDemoTalents(client, tenants, memberIds) {
            audience = EXCLUDED.audience`,
         [
           membershipId,
+          demo.id,
           offer.title,
           offer.description,
           offer.url,

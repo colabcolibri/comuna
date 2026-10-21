@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@community/ui';
+import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@community/ui';
 import { AudienceMark } from '@/components/app/AudienceMark';
 import { contentFromCatalog, pickContent } from '@community/identity';
-import { TALENT_CATEGORIES } from '@community/talent';
+import { pickLocalizedText, type LocalizedText } from '@community/identity';
+import { parseAudience, type Exposure } from '@community/directory';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { uiCatalog } from '@/lang/catalog';
 
@@ -18,14 +19,20 @@ type Offer = {
   audience: string;
 };
 
-const EMPTY = {
+type CategoryOption = { id: string; label: LocalizedText; allowsOtherText: boolean };
+
+const EMPTY_DRAFT = {
   title: '',
   description: '',
   url: '',
-  categoryId: 'mentorship',
+  categoryId: '',
   categoryOther: '',
   audience: 'private',
 };
+
+function parseCeiling(raw: unknown): Exposure {
+  return raw === 'hidden' || raw === 'internal' || raw === 'external' ? raw : 'internal';
+}
 
 export function TalentOffers({ heading = true }: { heading?: boolean }) {
   const locale = useLocale();
@@ -45,14 +52,21 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
       audiencePrivate: 'profile.audience_private',
       audienceInternal: 'profile.audience_internal',
       audienceExternal: 'profile.audience_external',
+      empty: 'profile.select_empty',
     }),
     locale
   );
+  const audienceLabels = {
+    private: copy.audiencePrivate,
+    internal: copy.audienceInternal,
+    external: copy.audienceExternal,
+  };
   const [offers, setOffers] = useState<Offer[] | null>(null);
-  const [draft, setDraft] = useState(EMPTY);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [draft, setDraft] = useState(EMPTY_DRAFT);
   const [editing, setEditing] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [ceiling, setCeiling] = useState<'hidden' | 'internal' | 'external'>('internal');
+  const [ceiling, setCeiling] = useState<Exposure>('internal');
 
   async function load() {
     const response = await fetch('/api/talent/offerings');
@@ -61,8 +75,12 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
       return;
     }
     const body = await response.json();
-    setCeiling(body.ceiling === 'hidden' || body.ceiling === 'external' ? body.ceiling : 'internal');
+    setCeiling(parseCeiling(body.ceiling));
     setOffers(Array.isArray(body.data) ? body.data : []);
+    const nextCategories = Array.isArray(body.categories) ? body.categories : [];
+    setCategories(nextCategories);
+    const firstId = nextCategories[0]?.id || '';
+    setDraft((value) => (value.categoryId ? value : { ...value, categoryId: firstId }));
   }
 
   useEffect(() => {
@@ -72,6 +90,8 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
   if (offers === null) {
     return null;
   }
+
+  const selectedCategory = categories.find((item) => item.id === draft.categoryId);
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -83,7 +103,7 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
     if (!response.ok) {
       return;
     }
-    setDraft(EMPTY);
+    setDraft({ ...EMPTY_DRAFT, categoryId: categories[0]?.id || '' });
     setEditing(null);
     setOpen(false);
     await load();
@@ -103,9 +123,9 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
         </Button>
       </div>
       {open ? (
-        <form onSubmit={save} className="grid min-w-0 gap-3 rounded-xl border border-border p-4">
-          <label className="grid gap-1 text-sm">
-            {copy.offerTitle}
+        <form onSubmit={save} className="grid min-w-0 gap-4 rounded-xl border border-border p-4">
+          <label className="grid min-w-0 gap-2 text-sm">
+            <Label>{copy.offerTitle}</Label>
             <input
               required
               className="h-11 w-full rounded-md border border-input bg-background px-3"
@@ -113,39 +133,40 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
               onChange={(event) => setDraft({ ...draft, title: event.target.value })}
             />
           </label>
-          <label className="grid gap-1 text-sm">
-            {copy.description}
+          <label className="grid min-w-0 gap-2 text-sm">
+            <Label>{copy.description}</Label>
             <textarea
               className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2"
               value={draft.description}
               onChange={(event) => setDraft({ ...draft, description: event.target.value })}
             />
           </label>
-          <label className="grid gap-1 text-sm">
-            {copy.link}
+          <label className="grid min-w-0 gap-2 text-sm">
+            <Label>{copy.link}</Label>
             <input
               className="h-11 w-full rounded-md border border-input bg-background px-3"
               value={draft.url}
               onChange={(event) => setDraft({ ...draft, url: event.target.value })}
             />
           </label>
-          <label className="grid gap-1 text-sm">
-            {copy.category}
-            <select
-              className="h-11 w-full rounded-md border border-input bg-background px-3"
-              value={draft.categoryId}
-              onChange={(event) => setDraft({ ...draft, categoryId: event.target.value })}
-            >
-              {TALENT_CATEGORIES.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.label[locale === 'en' ? 'en' : 'pt-BR']}
-                </option>
-              ))}
-            </select>
-          </label>
-          {draft.categoryId === 'other' ? (
-            <label className="grid gap-1 text-sm">
-              {copy.other}
+          <div className="min-w-0 space-y-2">
+            <Label>{copy.category}</Label>
+            <Select value={draft.categoryId || undefined} onValueChange={(next) => setDraft({ ...draft, categoryId: next })}>
+              <SelectTrigger className="min-h-11 w-full">
+                <SelectValue placeholder={copy.empty} />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {pickLocalizedText(item.label, locale) || item.id}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {selectedCategory?.allowsOtherText ? (
+            <label className="grid min-w-0 gap-2 text-sm">
+              <Label>{copy.other}</Label>
               <input
                 required
                 className="h-11 w-full rounded-md border border-input bg-background px-3"
@@ -154,14 +175,13 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
               />
             </label>
           ) : null}
-          <div className="flex min-w-0 justify-end">
-            <AudienceMark
-              value={draft.audience}
-              ceiling={ceiling}
-              labels={{ private: copy.audiencePrivate, internal: copy.audienceInternal, external: copy.audienceExternal }}
-              onChange={(audience) => setDraft({ ...draft, audience })}
-            />
-          </div>
+          <AudienceMark
+            value={draft.audience}
+            ceiling={ceiling}
+            labels={audienceLabels}
+            label={copy.audience}
+            onChange={(audience) => setDraft({ ...draft, audience })}
+          />
           <Button type="submit" className="min-h-11 w-full sm:w-auto">
             {copy.save}
           </Button>
@@ -170,39 +190,53 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
       <ul className="grid min-w-0 gap-3">
         {offers.map((offer) => (
           <li key={offer.id} className="min-w-0 rounded-xl border border-border p-4">
-            <div className="flex flex-wrap items-start justify-between gap-2">
-              <p className="font-medium break-words">{offer.title}</p>
-              <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="min-h-11"
-                  onClick={() => {
-                    setEditing(offer.id);
-                    setOpen(true);
-                    setDraft({
-                      title: offer.title,
-                      description: offer.description || '',
-                      url: offer.url || '',
-                      categoryId: offer.category_id,
-                      categoryOther: offer.category_other || '',
-                      audience: offer.audience,
-                    });
-                  }}
-                >
-                  {copy.edit}
-                </Button>
-                <Button type="button" variant="outline" className="min-h-11" onClick={() => remove(offer.id)}>
-                  {copy.remove}
-                </Button>
+            <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0 flex-1">
+                <p className="font-medium break-words">{offer.title}</p>
+                {offer.description ? (
+                  <p className="mt-2 break-words text-sm text-muted-foreground">{offer.description}</p>
+                ) : null}
+                {offer.url ? (
+                  <a
+                    href={offer.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block break-all text-sm underline"
+                  >
+                    {offer.url}
+                  </a>
+                ) : null}
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                <p className="text-xs text-muted-foreground">
+                  {copy.audience}: {audienceLabels[parseAudience(offer.audience)]}
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="min-h-11"
+                    onClick={() => {
+                      setEditing(offer.id);
+                      setOpen(true);
+                      setDraft({
+                        title: offer.title,
+                        description: offer.description || '',
+                        url: offer.url || '',
+                        categoryId: offer.category_id,
+                        categoryOther: offer.category_other || '',
+                        audience: offer.audience,
+                      });
+                    }}
+                  >
+                    {copy.edit}
+                  </Button>
+                  <Button type="button" variant="outline" className="min-h-11" onClick={() => remove(offer.id)}>
+                    {copy.remove}
+                  </Button>
+                </div>
               </div>
             </div>
-            {offer.description ? <p className="mt-2 break-words text-sm text-muted-foreground">{offer.description}</p> : null}
-            {offer.url ? (
-              <a href={offer.url} target="_blank" rel="noopener noreferrer" className="mt-2 inline-block break-all text-sm underline">
-                {offer.url}
-              </a>
-            ) : null}
           </li>
         ))}
       </ul>

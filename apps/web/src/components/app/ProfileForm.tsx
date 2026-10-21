@@ -1,15 +1,34 @@
 'use client';
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { AppPageTemplate, AppProfileItem, AppProfileSection, AppProfileStack, FieldGrid, fieldSpanClass } from '@community/ui-member';
+import {
+  AppPageTemplate,
+  AppProfileItem,
+  AppProfileSection,
+  AppProfileStack,
+  AppSwitcher,
+  FieldGrid,
+  fieldSpanClass,
+} from '@community/ui-member';
 import { Button, Skeleton, toast } from '@community/ui';
 import { contentFromCatalog, pickContent, pickLocalizedText } from '@community/identity';
-import { communityCopyLimit, coreCatalog, missingRequiredFields, type CatalogField, type CatalogGroup } from '@community/directory';
+import {
+  communityAllowsShowcaseListing,
+  communityCopyLimit,
+  coreCatalog,
+  effectiveAudience,
+  missingRequiredFields,
+  parseAudience,
+  type CatalogField,
+  type CatalogGroup,
+} from '@community/directory';
 import { AudienceMark } from '@/components/app/AudienceMark';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { FieldControl } from '@/components/app/FieldControl';
 import { uiCatalog } from '@/lang/catalog';
 import { cardBodyFromFields, groupsForScope, personBodyFromFields, readFieldValue } from '@/lib/profile-bindings';
+import { ProfileVisibilityNotice } from '@/components/app/ProfileVisibilityNotice';
+import type { ListingHint } from '@community/directory';
 
 function initialsFrom(value: unknown) {
   const name = typeof value === 'string' ? value.trim() : '';
@@ -56,7 +75,17 @@ export function ProfileForm({
   const [values, setValues] = useState<Record<string, unknown>>({});
   const [ready, setReady] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [listingHints, setListingHints] = useState<ListingHint[]>([]);
+  const [showcaseModuleOn, setShowcaseModuleOn] = useState(false);
   const fields = useMemo(() => groups.flatMap((group) => group.fields), [groups]);
+  const showcaseListingAllowed = useMemo(() => communityAllowsShowcaseListing(fields), [fields]);
+  const showcaseCopy = pickContent(
+    contentFromCatalog(uiCatalog, 'plugin_directory', {
+      showcaseLabel: 'card.showcase',
+      showcaseDescription: 'card.showcase_description',
+    }),
+    locale
+  );
 
   useEffect(() => {
     Promise.all([
@@ -66,7 +95,13 @@ export function ProfileForm({
     ])
       .then(async ([catalogRes, profileRes, membershipRes]) => {
         const profileJson = await profileRes.json();
-        const membershipJson = membershipRes.ok ? await membershipRes.json() : { card: null };
+        const membershipJson = membershipRes.ok ? await membershipRes.json() : { card: null, listing: [] };
+        if (scope === 'community') {
+          if (Array.isArray(membershipJson.listing)) {
+            setListingHints(membershipJson.listing);
+          }
+          setShowcaseModuleOn(membershipJson.modules?.showcase === true);
+        }
         let nextGroups = coreCatalog();
         if (catalogRes.ok) {
           const catalogJson = await catalogRes.json();
@@ -86,14 +121,19 @@ export function ProfileForm({
             const card = membershipJson.card || {};
             const column = field.column_key || field.name;
             if (column === 'headline') {
-              next.headline_audience = card.headline_audience || 'private';
+              next.headline_audience = effectiveAudience(parseAudience(card.headline_audience), field.exposure) ?? 'private';
             } else if (column === 'bio') {
-              next.bio_audience = card.bio_audience || 'private';
+              next.bio_audience = effectiveAudience(parseAudience(card.bio_audience), field.exposure) ?? 'private';
             } else if (field.storage === 'attributes') {
               const map = card.attribute_audience || {};
-              next[`audience:${field.name}`] = map[field.name] || 'private';
+              next[`audience:${field.name}`] =
+                effectiveAudience(parseAudience(map[field.name]), field.exposure) ?? 'private';
             }
           }
+        }
+        if (scope === 'community') {
+          const card = membershipJson.card || {};
+          next.public_showcase = card.public_showcase === true;
         }
         setValues(next);
         setReady(true);
@@ -138,6 +178,15 @@ export function ProfileForm({
     }
     setSaving(false);
     toast.success(copy.saved);
+    if (scope === 'community') {
+      const refreshed = await fetch('/api/memberships/me');
+      if (refreshed.ok) {
+        const json = await refreshed.json();
+        if (Array.isArray(json.listing)) {
+          setListingHints(json.listing);
+        }
+      }
+    }
   };
 
   const saveControl = (className?: string) => (
@@ -176,6 +225,7 @@ export function ProfileForm({
               <AudienceMark
                 value={String(values[key] || 'private')}
                 ceiling={field.exposure}
+                label={copy.audience}
                 labels={{ private: copy.audiencePrivate, internal: copy.audienceInternal, external: copy.audienceExternal }}
                 onChange={(next) => setValues((current) => ({ ...current, [key]: next }))}
               />
@@ -248,6 +298,18 @@ export function ProfileForm({
       stickyHeader
       actions={saveControl('min-h-11')}
     >
+      {scope === 'community' && listingHints.length ? <ProfileVisibilityNotice hints={listingHints} /> : null}
+      {scope === 'community' && showcaseModuleOn && showcaseListingAllowed ? (
+        <div className="mb-8 min-w-0 rounded-xl border border-border bg-card p-4 sm:p-6">
+          <AppSwitcher
+            id="profile-public-showcase"
+            label={showcaseCopy.showcaseLabel}
+            description={showcaseCopy.showcaseDescription}
+            checked={values.public_showcase === true}
+            onCheckedChange={(checked) => setValues((current) => ({ ...current, public_showcase: checked }))}
+          />
+        </div>
+      ) : null}
       {form}
       {extra}
     </AppPageTemplate>

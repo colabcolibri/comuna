@@ -17,7 +17,9 @@ import {
   talentCeiling,
   talentContribution,
   talentListFiltersEnabled,
+  type TalentCategory,
 } from '@community/talent';
+import { memberTalentCategories } from '@/lib/server/talent-categories';
 
 export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSearchParams) {
   const on = await moduleRuntime.isEnabled(ctx.communityId, directoryContribution.slug);
@@ -32,13 +34,18 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
     : { rows: [] as { settings: unknown }[] };
   const ceiling = talentCeiling(ceilingRow.rows[0]?.settings);
   const talentFilterEnabled = talentListFiltersEnabled({ talentOn, ceiling, surface: 'directory' });
+  const talentCategories: TalentCategory[] =
+    talentOn ? await memberTalentCategories(ctx, { enabledOnly: false }) : [];
+  const allowedCategoryIds = talentCategories.filter((item) => item.enabled).map((item) => item.id);
   const built = peopleListQuery({
     communityId: ctx.communityId,
     searchParams,
     fields: listFields,
     scope: 'directory',
     talentAudiences: talentFilterEnabled ? ['internal', 'external'] : [],
-    talentCategory: talentFilterEnabled ? parseTalentCategoryFilter(searchParams.get('talent_category')) : '',
+    talentCategory: talentFilterEnabled
+      ? parseTalentCategoryFilter(searchParams.get('talent_category'), allowedCategoryIds)
+      : '',
   });
   if (built.ok === false) {
     return { status: 400 as const, body: { error: { code: 'VALIDATION_ERROR', message: built.message } } };
@@ -70,6 +77,11 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
         pageSize: built.pageSize,
         total: counted.rows[0]?.total ?? 0,
         talentFilterEnabled,
+        talentCategories: talentFilterEnabled
+          ? talentCategories
+              .filter((item) => item.enabled)
+              .map((item) => ({ id: item.id, label: item.label, allowsOtherText: item.allowsOtherText }))
+          : [],
       },
     },
   };

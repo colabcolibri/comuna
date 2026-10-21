@@ -3,6 +3,7 @@ import { queryAsMember } from '@community/db';
 import { OFFERING_LIMIT, parseOffering, talentCeiling, talentContribution } from '@community/talent';
 import { memberCommunityFromRequest } from '@/lib/server/member-community';
 import { moduleRuntime } from '@/lib/server/membership';
+import { memberTalentCategories, offeringCategoryRules } from '@/lib/server/talent-categories';
 
 async function gate(req: NextRequest) {
   const resolved = await memberCommunityFromRequest(req);
@@ -25,6 +26,8 @@ export async function GET(req: NextRequest) {
     return gated.response;
   }
   const { resolved } = gated;
+  const ctx = { userId: resolved.userId, communityId: resolved.seat.id };
+  const categories = await memberTalentCategories(ctx, { enabledOnly: true });
   const rows = await queryAsMember(
     { userId: resolved.userId, communityId: resolved.seat.id },
     `SELECT id, title, description, url, category_id, category_other, audience
@@ -38,7 +41,15 @@ export async function GET(req: NextRequest) {
     `SELECT settings FROM network_core.communities WHERE id = $1`,
     [resolved.seat.id]
   );
-  return NextResponse.json({ data: rows.rows, ceiling: talentCeiling(settings.rows[0]?.settings) });
+  return NextResponse.json({
+    data: rows.rows,
+    ceiling: talentCeiling(settings.rows[0]?.settings),
+    categories: categories.map((item) => ({
+      id: item.id,
+      label: item.label,
+      allowsOtherText: item.allowsOtherText,
+    })),
+  });
 }
 
 export async function POST(req: NextRequest) {
@@ -47,7 +58,9 @@ export async function POST(req: NextRequest) {
     return gated.response;
   }
   const { resolved } = gated;
-  const parsed = parseOffering(await req.json());
+  const ctx = { userId: resolved.userId, communityId: resolved.seat.id };
+  const categoryRules = offeringCategoryRules(await memberTalentCategories(ctx));
+  const parsed = parseOffering(await req.json(), categoryRules);
   if (!parsed.ok) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: parsed.message } }, { status: 400 });
   }
@@ -75,11 +88,12 @@ export async function POST(req: NextRequest) {
   const inserted = await queryAsMember(
     { userId: resolved.userId, communityId: resolved.seat.id },
     `INSERT INTO plugin_talent.offerings
-       (membership_id, title, description, url, category_id, category_other, audience)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
+       (membership_id, community_id, title, description, url, category_id, category_other, audience)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING id`,
     [
       resolved.seat.membership_id,
+      resolved.seat.id,
       value.title,
       value.description,
       value.url,

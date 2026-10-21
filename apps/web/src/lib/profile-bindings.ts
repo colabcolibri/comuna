@@ -75,6 +75,7 @@ export function cardBodyFromFields(fields: CatalogField[], values: Record<string
     headline: (values.headline as LocalizedText) || [],
     bio: (values.bio as LocalizedText) || [],
     custom_attributes: attributes,
+    public_showcase: values.public_showcase === true,
     audiences: {
       headline: parseAudience(values.headline_audience),
       bio: parseAudience(values.bio_audience),

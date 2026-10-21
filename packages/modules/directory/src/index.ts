@@ -5,5 +5,25 @@ export * from './list-fields';
 export * from './language-filter';
 export { projectPersonView, type PersonView, type PersonViewProfile } from './list-view';
 export { coreCatalog } from './core-catalog';
+export { memberListingHints, memberListsOnSurface, type ListingHint, type MemberCardSlice } from './member-listing';
+export {
+  communityAllowsDirectoryListing,
+  communityAllowsShowcaseListing,
+  communityListingExposureCap,
+  memberListingFields,
+} from './member-exposure';
 export { directoryContribution } from './contribution';
-export { migratedBlockAudience, parseAudience, parseExposure, effectiveAudience, audienceAllowedByCeiling, exposureFromPlacement, audienceVisible, showcaseScopeSql, directoryScopeSql, type Audience, type Exposure } from './audience';
+export {
+  migratedBlockAudience,
+  parseAudience,
+  parseExposure,
+  audiencePickerCeiling,
+  effectiveAudience,
+  audienceAllowedByCeiling,
+  exposureFromPlacement,
+  audienceVisible,
+  showcaseScopeSql,
+  directoryScopeSql,
+  type Audience,
+  type Exposure,
+} from './audience';
