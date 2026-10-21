@@ -15,8 +15,8 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
   }
   const { id } = await ctx.params;
-  const ctx = { userId: resolved.userId, communityId: resolved.seat.id };
-  const parsed = parseOffering(await req.json(), offeringCategoryRules(await memberTalentCategories(ctx)));
+  const member = { userId: resolved.userId, communityId: resolved.seat.id };
+  const parsed = parseOffering(await req.json(), offeringCategoryRules(await memberTalentCategories(member)));
   if (!parsed.ok) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: parsed.message } }, { status: 400 });
   }
