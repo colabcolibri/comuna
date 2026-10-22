@@ -71,8 +71,8 @@ _N/A até expansão europeia._
 | -------------- | --- | ------ | ------------- |
 | `guest` | Vitrine/contato se plugin on | Diretório, e-mail real | API pública |
 | `member` | Perfil-base + plugins enabled | Aprovar outros | Membership `member` + `community_id` |
-| `coordinator` | Fila da **sua** comunidade | Admin / toggles globais | `network_role` + `community_id` |
-| `super_admin` | Admin: comunidades, papéis, módulos | Navbar Stitch como poder | `apps/admin` + `global_role` |
+| `coordinator` | Fila na web (`/c/{slug}/coord/approvals`); **admin** só dos tenants em que é coordenador (membros, campos, módulos, etc.) | Criar comunidade; pessoas da rede; plataforma; templates de e-mail | `apps/admin` + `network_role` + escopo `community_id`; cookie `ops_token` |
+| `super_admin` | Admin: rede inteira (comunidades, papéis, módulos, plataforma, e-mails) | Navbar Stitch como poder | `apps/admin` + `global_role` |
 
 **Model type:** RBAC + isolamento por `community_id`.
 

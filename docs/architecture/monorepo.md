@@ -13,7 +13,7 @@ Volta: `docs/05_architecture.md` § Overview.
 ```txt
 apps/
   web/                 # Next — membro, visitante, coordenador
-  admin/               # Next — super_admin
+  admin/               # Next — super_admin + coordenador (escopo por community_id)
 packages/
   core/
     auth/              # OTP, sessão, SMTP (nodemailer; config + send)

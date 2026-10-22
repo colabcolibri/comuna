@@ -102,6 +102,6 @@ In the codebase a space is the `community` tenant (`/c/{slug}/…`). Module pack
 | [Architecture](docs/05_architecture.md) | Apps, packages, plugin gate |
 | [Database](docs/06_database.md) | Schema |
 | [API](docs/07_api_contracts.md) | HTTP |
-| [Environments](docs/08_environments.md) | Local, SMTP, deploy |
+| [Environments](docs/08_environments.md) | Local, SMTP, deploy VPS ([runbook](deploy/hostinger/README.md)) |
 | [Design](docs/09_design_system.md) | UI |
 | [Index](docs/README.md) | Full list |

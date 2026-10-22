@@ -1,8 +1,8 @@
 ---
 title: API Contracts
 status: review
-version: 1.20
-updated: 2026-09-15
+version: 1.21
+updated: 2026-10-22
 depends_on: [05_architecture.md, 06_database.md]
 blocks: []
 ---
@@ -24,6 +24,8 @@ blocks: []
 | --------- | --------------- | ----------------------------- |
 | Membro / coord | Cookie `auth_token` HttpOnly | Sim |
 | Admin app | Cookie `ops_token` | App `apps/admin` (porta 3015). Sem `/ops` na web. |
+
+**Ops (admin):** `super_admin` vê a rede inteira. Coordenador com membership `active` e `network_role = coordinator` entra no mesmo app (OTP ops) e usa rotas sob `/api/admin/communities/:id/*` (e memberships daquele tenant) — lista de comunidades filtrada; `POST /api/admin/communities`, `/api/admin/people`, `/api/admin/platform` e `/api/admin/email-templates` continuam só super-admin. Ver `02_security.md`.
 
 ## Error envelope
 
@@ -79,8 +81,8 @@ blocks: []
 | `POST` | `/api/communities/:slug/join` | Pedido `pending_approval` (membro autenticado, sem assento) | Member | `{}` | `201` `{ "data": JoinSeat }` |
 | `GET` | `/api/coord/approvals` | Fila `pending_approval` deste tenant | Coordinator | — | `{ "pending" }` |
 | `POST` | `/api/coord/approvals` | Aprova / recusa | Coordinator | `{ "membershipId", "action": "approve" \| "reject" }` | `{ "status" }` |
-| `POST` | `/api/admin/auth/request-otp` | Envia OTP ops | Public, só se o e-mail é `super_admin` | `{ "email" }` | `{ "message" }` |
-| `POST` | `/api/admin/auth/verify-otp` | Sessão admin | Public, `super_admin` | OTP | cookie `ops_token` |
+| `POST` | `/api/admin/auth/request-otp` | Envia OTP ops | Public, se `super_admin` **ou** coordenador ativo em ≥1 comunidade | `{ "email" }` | `{ "message" }` |
+| `POST` | `/api/admin/auth/verify-otp` | Sessão admin | Public, mesma elegibilidade do request-otp | OTP | cookie `ops_token` |
 | `POST` | `/api/admin/auth/demo-login` | Sessão ops na demo | Só com `DATABASE_READ_ONLY=1`; senão 404 | `{ "email" }` allowlist ops | `200` + `ops_token` |
 | `GET` | `/api/admin/platform` | Settings da instalação + status SMTP | Super-admin | — | settings + `smtp: { configured, host, port, secure, auth }` (sem senha) |
 | `PUT` | `/api/admin/platform` | Grava settings da instalação | Super-admin | identity fields; ignora `smtp` | objeto settings |
@@ -89,10 +91,10 @@ blocks: []
 | `DELETE` | `/api/admin/email-templates/:kind` | Volta ao default | Super-admin | `?locale=` | `{ ok }` |
 | `GET` | `/api/admin/people` | Pessoas da rede + assentos. Página de 50. `q` com ≥2 filtra. | Super-admin | `?q=&offset=` | `{ "data", "meta.hasMore" }` |
 | `POST` | `/api/admin/people` | Cria user+perfil; envia `person_invite` | Super-admin | `{ "email", "full_name" }` | `201` pessoa; e-mail existente = 409 `DUPLICATE_EMAIL` |
-| `GET` | `/api/admin/communities` | Lista comunidades | Super-admin | — | lista |
+| `GET` | `/api/admin/communities` | Lista comunidades | Ops (coordenador: só tenants onde coordena) | — | lista |
 | `POST` | `/api/admin/communities` | Cria comunidade | Super-admin | `{ "slug", "name" }` | `201` |
-| `GET` | `/api/admin/communities/:id` | Lê comunidade | Super-admin | — | `{ id, slug, name, type, is_public_showcase, settings }` |
-| `PUT` | `/api/admin/communities/:id` | Nome, tipo enum, vitrine, settings conhecidas | Super-admin | `{ "name", "type?", "is_public_showcase?", "settings?" }` | comunidade |
+| `GET` | `/api/admin/communities/:id` | Lê comunidade | Ops com escopo no `:id` | — | `{ id, slug, name, type, is_public_showcase, settings }` |
+| `PUT` | `/api/admin/communities/:id` | Nome, tipo enum, vitrine, settings conhecidas | Ops com escopo no `:id` | `{ "name", "type?", "is_public_showcase?", "settings?" }` | comunidade |
 | `GET` | `/api/admin/communities/:id/modules` | Estado dos plugins | Super-admin | — | `{ "data": [{ slug, enabled }] }` |
 | `PUT` | `/api/admin/communities/:id/modules/:slug` | Liga/desliga plugin | Super-admin | `{ "enabled": true }` | `200` |
 | `GET` | `/api/admin/communities/:id/memberships` | Roster paginado (50); `?email=` busca uma; `?q=` filtra se ≥2 | Super-admin | `?q=&offset=` | `{ "data", "meta.hasMore" }` ou membership |

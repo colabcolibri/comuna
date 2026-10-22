@@ -1,8 +1,8 @@
 ---
 title: Environments and Setup
 status: review
-version: 1.11
-updated: 2026-09-16
+version: 1.12
+updated: 2026-10-22
 depends_on: [01_tech_stack.md, 05_architecture.md]
 blocks: []
 ---
@@ -85,7 +85,7 @@ psql postgresql://postgres:postgres@localhost:5433/alumni_db
 Cookie de sessão membro: `Secure` só quando `NODE_ENV=production`. Local HTTP usa `Secure=false` de propósito.
 
 - Web (membros): `http://localhost:3014`
-- Admin: `http://localhost:3015` (`apps/admin`) — login OTP + comunidades + pessoas da rede + módulos + coordenador. Cookie `ops_token`. Seed: `INITIAL_SUPER_ADMIN_EMAIL` (default `admin@example.com`).
+- Admin: `http://localhost:3015` (`apps/admin`) — login OTP. **Super-admin:** rede inteira (comunidades, pessoas, plataforma, e-mails). **Coordenador** (`network_role` ativo): mesma app, só os tenants em que coordena (sem criar comunidade nem telas globais). Cookie `ops_token`. Seed: `INITIAL_SUPER_ADMIN_EMAIL` (default `admin@example.com`).
 - Reset de banco só em dev: `pnpm db:setup` (reset + migrate + seed). **Não** usar em produção.
 
 ## Seed do super-admin
@@ -155,9 +155,12 @@ Pré-requisitos no painel (humano):
 
 O painel Docker da Hostinger só cola um YAML e puxa **imagens**. Não constrói o monorepo. Deploy: clone + `docker compose --build` no servidor.
 
+**Runbook versionado:** [`deploy/hostinger/README.md`](../deploy/hostinger/README.md) (primeira instalação, deploy de rotina, smoke). **Alias SSH, path no VPS e URLs reais** ficam em `deploy/hostinger/MAINTAINER.local.md` na sua máquina (gitignored; modelo: `MAINTAINER.local.md.example`) — não entram em `docs/` nem no GitHub.
+
+Resumo no servidor:
+
 ```bash
-# no servidor (não no laptop)
-git clone git@github.com:…/alumni.git /opt/comuna
+git clone git@github.com:colabcolibri/comuna.git /opt/comuna   # path típico; confirme no MAINTAINER.local.md
 cd /opt/comuna
 cp deploy/hostinger/env.example .env.hostinger
 # editar POSTGRES_PASSWORD, JWT_SECRET, NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_OPS_URL, COMUNA_HOST, COMUNA_OPS_HOST
@@ -166,6 +169,8 @@ docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger up -d -
 # uma vez, sem DATABASE_READ_ONLY no env da seed:
 docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger --profile seed run --rm seed
 ```
+
+Deploy de rotina após `main` publicado: `git pull --ff-only` no clone + mesmo `compose up -d --build` (migrate roda de novo antes de web/admin).
 
 O `docker-compose.yml` da raiz (Postgres `5433` + Mailpit) é **só laptop**. No VPS usa-se `docker-compose.hostinger.yml`: Postgres interno, sem Mailpit. Web e admin não publicam porta. O Caddy (`deploy/hostinger/Caddyfile`) escuta 80/443, pede o certificado e encaminha:
 

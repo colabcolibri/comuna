@@ -4,12 +4,8 @@
 # Caddy publica 80/443 e termina TLS. Web e admin ficam só na rede
 # interna. Postgres não publica porta. Sem Mailpit.
 #
-# Na raiz do clone, no servidor:
-#   cp deploy/hostinger/env.example .env.hostinger
-#   # editar secrets e COMUNA_HOST
-#   docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger up -d --build
-# Seed (uma vez, sem DATABASE_READ_ONLY):
-#   docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger --profile seed run --rm seed
+# Runbook: deploy/hostinger/README.md (primeira vez + deploy de rotina).
+# SSH/alias de prod: deploy/hostinger/MAINTAINER.local.md (gitignored).
 
 name: comuna
 

@@ -15,7 +15,7 @@ blocks: [01_tech_stack.md, 04_principles.md, 05_architecture.md]
 
 Plataforma web **genérica de comunidades** (não um produto “só alumni”). Uma comunidade é um tenant com membros, papéis e um diretório de pessoas. Alumni, turma, prática, incubadora ou mentoria são **tipos** de comunidade e/ou **plugins** de campos — não o núcleo. O núcleo é: identidade, comunidade, membership, perfil-base. Tudo que alimenta diretório especial, vitrine, contato mediado ou campos extras é **módulo ligável** por comunidade (padrão BuddyBoss / Moodle: componente instalado, ligado ou desligado no tenant).
 
-Duas apps no monorepo: **web** (membros, visitantes, coordenadores) e **admin** (super-admin). Mesmo Postgres.
+Duas apps no monorepo: **web** (membros, visitantes, coordenadores) e **admin** (super-admin e coordenadores com escopo por tenant). Mesmo Postgres.
 
 ## Problem it solves
 

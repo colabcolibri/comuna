@@ -1,0 +1,29 @@
+# Mantenedor local — copiar para MAINTAINER.local.md (não commitar)
+
+Preencha e guarde só na sua máquina. O git ignora `MAINTAINER.local.md`.
+
+## Produção
+
+| Campo | Exemplo (trocar pelos reais) |
+| ----- | ---------------------------- |
+| Alias SSH (`~/.ssh/config`) | `meu-vps-prod` |
+| Path do clone no servidor | `/opt/comuna` |
+| URL web (vitrine) | `https://…` |
+| URL admin (ops) | `https://ops.…` |
+
+## Deploy de rotina (laptop)
+
+```bash
+ssh SEU_ALIAS 'cd /opt/comuna && git pull --ff-only origin main && docker compose -f docker-compose.hostinger.yml --env-file .env.hostinger up -d --build'
+```
+
+## Smoke após deploy
+
+```bash
+ssh SEU_ALIAS 'docker logs comuna_migrate 2>&1 | tail -3; docker exec comuna_web node -e "fetch(\"http://127.0.0.1:3014/api/health\").then(r=>r.text()).then(console.log)"'
+```
+
+## Notas
+
+- Aliases SSH antigos ou IPs trocados após reinstall do VPS: atualize `~/.ssh/config` e `known_hosts` (`ssh-keygen -R …`).
+- Secrets ficam só em `.env.hostinger` **no servidor**, nunca no git.
