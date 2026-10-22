@@ -116,6 +116,7 @@ export function ProfileForm({
           next[field.name] = readFieldValue(field, {
             profile: profileJson.profile,
             card: membershipJson.card,
+            membership: membershipJson.membership,
           });
           if (scope === 'community' && field.storage !== 'person') {
             const card = membershipJson.card || {};

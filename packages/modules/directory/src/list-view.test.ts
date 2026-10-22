@@ -137,6 +137,38 @@ describe('projectPersonView', () => {
     });
     expect(detail.links[0]?.href).toContain('linkedin');
   });
+
+  it('shows the cohort on the card and in the detail when the list places it', () => {
+    const cohort = parseListField({
+      name: 'cohort',
+      type: 'select',
+      storage: 'membership',
+      column_key: 'cohort_id',
+      placement: 'card',
+      label: [{ locale: 'pt-BR', value: 'Turma' }],
+    })!;
+    const card = projectPersonView({
+      profile: { ...profile, cohort_name: 'Turma 2019' },
+      fields: [...fields, cohort],
+      density: 'card',
+      locale: 'pt-BR',
+      cityLabel: 'São Paulo',
+    });
+    expect(card.cohort).toBe('Turma 2019');
+    expect(card.facts.some((item) => item.name === 'cohort')).toBe(false);
+    const detail = projectPersonView({
+      profile: { ...profile, cohort_name: 'Turma 2019' },
+      fields: [...fields, cohort],
+      density: 'detail',
+      locale: 'pt-BR',
+      cityLabel: 'São Paulo',
+    });
+    expect(detail.facts.find((item) => item.name === 'cohort')).toEqual({
+      name: 'cohort',
+      label: 'Turma',
+      values: ['Turma 2019'],
+    });
+  });
 });
 
 describe('parseField', () => {

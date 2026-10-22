@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MailValidationError, listEmailTemplates } from '@community/mail';
 import { jsonError } from '@/lib/http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { requireSuperOps } from '@/lib/require-ops';
 
 export async function GET(req: NextRequest) {
-  const ops = await requireOps(req);
-  if (!isOpsClaims(ops)) {
-    return ops;
+  const claims = await requireSuperOps(req);
+  if (claims instanceof NextResponse) {
+    return claims;
   }
   const kind = req.nextUrl.searchParams.get('kind') || 'member_otp';
   const locale = req.nextUrl.searchParams.get('locale') || 'pt-BR';

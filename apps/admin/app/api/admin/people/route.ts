@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { DuplicateEmailError, InvalidEmailError, createNetworkPerson } from '@community/auth';
 import { sendKindEmail } from '@community/mail';
 import { OPS_LIST_LIMIT, listNetworkPeople } from '@community/memberships';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { requireSuperOps } from '@/lib/require-ops';
 import { jsonError } from '@/lib/http';
 
 export async function GET(req: NextRequest) {
-  const ops = await requireOps(req);
-  if (!isOpsClaims(ops)) {
-    return ops;
+  const claims = await requireSuperOps(req);
+  if (claims instanceof NextResponse) {
+    return claims;
   }
   const q = req.nextUrl.searchParams.get('q') || '';
   const offset = Math.max(0, Number(req.nextUrl.searchParams.get('offset') || '0') || 0);
@@ -17,9 +17,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const ops = await requireOps(req);
-  if (!isOpsClaims(ops)) {
-    return ops;
+  const claims = await requireSuperOps(req);
+  if (claims instanceof NextResponse) {
+    return claims;
   }
   const body = await req.json();
   const email = typeof body.email === 'string' ? body.email : '';

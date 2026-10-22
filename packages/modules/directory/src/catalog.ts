@@ -1,4 +1,4 @@
-import { parseLocalized, type LocalizedText } from '@community/identity';
+import { localizedPair, parseLocalized, type LocalizedText } from '@community/identity';
 import { parseExposure } from './audience';
 
 export const FIELD_TYPES = [
@@ -18,7 +18,7 @@ export type FieldType = (typeof FIELD_TYPES)[number];
 
 type CoerceResult = { ok: true; value?: unknown } | { ok: false; message: string };
 
-export const STORAGE_KINDS = ['person', 'card_column', 'attributes'] as const;
+export const STORAGE_KINDS = ['person', 'card_column', 'attributes', 'membership'] as const;
 export type StorageKind = (typeof STORAGE_KINDS)[number];
 
 export type FieldOption = {
@@ -302,3 +302,31 @@ export function missingRequiredFields(fields: CatalogField[], values: Record<str
 }
 
 export const CORE_GROUP_SLUGS = ['identity', 'person'] as const;
+
+export function applyCohortOptions(
+  groups: CatalogGroup[],
+  cohorts: { id: string; name: string }[]
+): CatalogGroup[] {
+  return groups
+    .map((group) => ({
+      ...group,
+      fields: group.fields.flatMap((field) => {
+        if (field.column_key !== 'cohort_id') {
+          return [field];
+        }
+        if (cohorts.length === 0) {
+          return [];
+        }
+        return [
+          {
+            ...field,
+            options: cohorts.map((cohort) => ({
+              value: cohort.id,
+              label: localizedPair(cohort.name, cohort.name),
+            })),
+          },
+        ];
+      }),
+    }))
+    .filter((group) => group.fields.length > 0);
+}

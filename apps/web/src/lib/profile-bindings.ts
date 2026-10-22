@@ -6,9 +6,13 @@ import type { CatalogField, CatalogGroup } from '@community/directory';
 export type ProfileSources = {
   profile: Record<string, unknown> | null;
   card: Record<string, unknown> | null;
+  membership?: { cohort_id?: string | null } | null;
 };
 
 export function readFieldValue(field: CatalogField, sources: ProfileSources): unknown {
+  if (field.column_key === 'cohort_id') {
+    return sources.membership?.cohort_id || '';
+  }
   if (field.storage === 'attributes') {
     const attrs =
       sources.card?.custom_attributes && typeof sources.card.custom_attributes === 'object'
@@ -71,11 +75,14 @@ export function cardBodyFromFields(fields: CatalogField[], values: Record<string
       attributes[field.name] = values[field.name];
     }
   }
+  const cohortField = fields.find((field) => field.column_key === 'cohort_id');
+  const cohortId = cohortField ? String(values[cohortField.name] || '').trim() : undefined;
   return {
     headline: (values.headline as LocalizedText) || [],
     bio: (values.bio as LocalizedText) || [],
     custom_attributes: attributes,
     public_showcase: values.public_showcase === true,
+    ...(cohortField ? { cohort_id: cohortId || null } : {}),
     audiences: {
       headline: parseAudience(values.headline_audience),
       bio: parseAudience(values.bio_audience),

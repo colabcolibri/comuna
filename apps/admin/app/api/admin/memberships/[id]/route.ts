@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MembershipNotFoundError, removeMembership } from '@community/memberships';
 import { jsonError } from '@/lib/http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { isOpsClaims, requireMembershipOps } from '@/lib/require-ops';
 
 export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const ops = await requireOps(req);
+  const { id } = await ctx.params;
+  const ops = await requireMembershipOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id } = await ctx.params;
   try {
     await removeMembership(id);
     return NextResponse.json({ ok: true });

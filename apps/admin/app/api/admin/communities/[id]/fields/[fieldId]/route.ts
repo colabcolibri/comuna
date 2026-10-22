@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { deleteAttributeField, updateCatalogFieldDescription, updateCatalogFieldEnabled, updateCatalogFieldLocalized, updateCatalogFieldRequired, updateCatalogFieldSpan, updateOpsField } from '@community/directory/ops';
 import { catalogWriteResponse } from '@/lib/catalog-http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { isOpsClaims, requireCommunityOps } from '@/lib/require-ops';
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string; fieldId: string }> }) {
-  const ops = await requireOps(req);
+  const {id, fieldId} = await ctx.params;
+  const ops = await requireCommunityOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id, fieldId } = await ctx.params;
   const body = await req.json();
   try {
     if (body.exposure === 'hidden' || body.exposure === 'internal' || body.exposure === 'external') {
@@ -48,11 +48,11 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 }
 
 export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string; fieldId: string }> }) {
-  const ops = await requireOps(req);
+  const {id, fieldId} = await ctx.params;
+  const ops = await requireCommunityOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id, fieldId } = await ctx.params;
   try {
     await deleteAttributeField(id, fieldId);
     return NextResponse.json({ ok: true });

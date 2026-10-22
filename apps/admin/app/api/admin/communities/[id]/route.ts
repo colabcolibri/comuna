@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CommunityNotFoundError, getCommunity, updateCommunity } from '@community/communities';
 import { jsonError } from '@/lib/http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { isOpsClaims, requireCommunityOps } from '@/lib/require-ops';
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const ops = await requireOps(req);
+  const { id } = await ctx.params;
+  const ops = await requireCommunityOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id } = await ctx.params;
   const community = await getCommunity(id);
   if (!community) {
     return jsonError('NOT_FOUND', 'Comunidade inexistente', 404);
@@ -17,11 +17,11 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
 }
 
 export async function PUT(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const ops = await requireOps(req);
+  const { id } = await ctx.params;
+  const ops = await requireCommunityOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id } = await ctx.params;
   const body = await req.json();
   const name = typeof body.name === 'string' ? body.name : '';
   const type = typeof body.type === 'string' ? body.type : undefined;

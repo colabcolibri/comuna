@@ -2,7 +2,7 @@ import { DEFAULT_LIST_RADIUS_KM, parseCountryCode, parseListRadius, parseNearLat
 import { parseAttrFilters } from './catalog';
 import { languagesIsFilterable, parseLanguageFilter } from './language-filter';
 import { directoryScopeSql, showcaseScopeSql } from './audience';
-import type { ListField } from './list-fields';
+import { cohortIsFilterable, type ListField } from './list-fields';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -15,8 +15,8 @@ function parseShowcasePageSize(raw: string | null) {
   return (SHOWCASE_PAGE_SIZES as readonly number[]).includes(n) ? n : SHOWCASE_PAGE_SIZE;
 }
 
-const SELECT = `SELECT m.id, p.full_name, p.avatar_url, p.current_city, p.languages, p.contacts, c.headline, c.bio, c.headline_audience, c.bio_audience, c.attribute_audience, c.custom_attributes`;
-const FROM = `FROM network_core.memberships m JOIN person_core.profiles p ON p.user_id = m.user_id JOIN plugin_directory.cards c ON c.membership_id = m.id`;
+const SELECT = `SELECT m.id, p.full_name, p.avatar_url, p.current_city, p.languages, p.contacts, c.headline, c.bio, c.headline_audience, c.bio_audience, c.attribute_audience, c.custom_attributes, co.name AS cohort_name`;
+const FROM = `FROM network_core.memberships m JOIN person_core.profiles p ON p.user_id = m.user_id JOIN plugin_directory.cards c ON c.membership_id = m.id LEFT JOIN network_core.cohorts co ON co.id = m.cohort_id`;
 const COORD = `pg_input_is_valid(p.current_city->>'lat', 'float8') AND pg_input_is_valid(p.current_city->>'lon', 'float8')`;
 
 function haversineKm(latSlot: number, lonSlot: number) {
@@ -85,7 +85,7 @@ export function peopleListQuery(input: {
       `(p.full_name ILIKE $${searchSlot} OR c.headline::text ILIKE $${searchSlot} OR c.bio::text ILIKE $${searchSlot}${talent})`
     );
   }
-  if (input.scope === 'directory') {
+  if (cohortIsFilterable(input.fields)) {
     const cohort = input.searchParams.get('cohort')?.trim() || '';
     if (UUID.test(cohort)) {
       params.push(cohort);

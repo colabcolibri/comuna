@@ -5,6 +5,7 @@ import { listPublicProfiles } from '@/lib/server/public-profiles';
 import { cookies } from 'next/headers';
 import { LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
 import { getCommunityBySlug, publicShowcaseHero } from '@community/communities';
+import { listCohorts } from '@community/memberships';
 import { extrasFromSearchParams, facetsFromSearchParams, searchParamsFromRecord } from '@/lib/people/directory-query';
 
 export default async function CommunityShowcasePage({
@@ -37,6 +38,8 @@ export default async function CommunityShowcasePage({
       facetValues={facetsFromSearchParams(query)}
       extras={extrasFromSearchParams(query)}
       countries={listed.countries || []}
+      cohorts={await listCohorts(community.id)}
+      cohort={query.get('cohort') || ''}
       page={listed.meta.page}
       pageSize={listed.meta.pageSize}
       total={listed.meta.total}

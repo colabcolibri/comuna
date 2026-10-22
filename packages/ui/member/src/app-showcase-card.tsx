@@ -14,6 +14,7 @@ type AppPersonCardProps = {
   photoUrl?: string | null;
   headline?: string | null;
   city?: string | null;
+  cohort?: string | null;
   talentCategory?: string | null;
   talentLine?: string | null;
   summary?: string | null;
@@ -30,6 +31,7 @@ export function AppPersonCard({
   photoUrl,
   headline,
   city,
+  cohort,
   talentCategory,
   talentLine,
   summary,
@@ -81,6 +83,7 @@ export function AppPersonCard({
               <p className={`mt-1 text-base leading-snug text-foreground ${compact ? 'line-clamp-2' : ''}`}>{headline}</p>
             ) : null}
             {city ? <p className="mt-1 truncate text-sm text-muted-foreground">{city}</p> : null}
+            {cohort ? <p className="mt-1 truncate text-sm text-muted-foreground">{cohort}</p> : null}
             {compact && (talentCategory || talentLine) ? (
               <div className="mt-2 min-w-0 space-y-1">
                 {talentCategory ? (

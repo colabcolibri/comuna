@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CohortNotFoundError, deleteCohort } from '@community/memberships';
 import { jsonError } from '@/lib/http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { isOpsClaims, requireCommunityOps } from '@/lib/require-ops';
 
 export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string; cohortId: string }> }) {
-  const ops = await requireOps(req);
+  const {id, cohortId} = await ctx.params;
+  const ops = await requireCommunityOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id, cohortId } = await ctx.params;
   try {
     await deleteCohort(id, cohortId);
     return NextResponse.json({ ok: true });

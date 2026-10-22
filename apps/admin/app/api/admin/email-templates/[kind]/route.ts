@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MailValidationError, deleteEmailOverlay, isEmailKind, isEmailLocale, upsertEmailOverlay } from '@community/mail';
 import { jsonError } from '@/lib/http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { requireSuperOps } from '@/lib/require-ops';
 
 export async function PUT(req: NextRequest, ctx: { params: Promise<{ kind: string }> }) {
-  const ops = await requireOps(req);
-  if (!isOpsClaims(ops)) {
-    return ops;
+  const claims = await requireSuperOps(req);
+  if (claims instanceof NextResponse) {
+    return claims;
   }
   const { kind } = await ctx.params;
   if (!isEmailKind(kind)) {
@@ -33,9 +33,9 @@ export async function PUT(req: NextRequest, ctx: { params: Promise<{ kind: strin
 }
 
 export async function DELETE(req: NextRequest, ctx: { params: Promise<{ kind: string }> }) {
-  const ops = await requireOps(req);
-  if (!isOpsClaims(ops)) {
-    return ops;
+  const claims = await requireSuperOps(req);
+  if (claims instanceof NextResponse) {
+    return claims;
   }
   const { kind } = await ctx.params;
   const locale = req.nextUrl.searchParams.get('locale') || 'pt-BR';

@@ -10,6 +10,7 @@ export type PersonViewProfile = {
   headline: unknown;
   bio: unknown;
   custom_attributes: Record<string, unknown>;
+  cohort_name?: string | null;
 };
 
 export type PersonView = {
@@ -22,6 +23,7 @@ export type PersonView = {
   languages: { code: string; proficiency: string; label: string }[];
   facts: { name: string; label: string; values: string[] }[];
   links: { key: string; href: string; label: string }[];
+  cohort: string | null;
 };
 
 function visibleFieldLabel(fields: ListField[], name: string, density: ListDensity, locale: string): string | null {
@@ -110,6 +112,18 @@ export function projectPersonView(input: {
       });
     }
   }
+  const cohortField = fields.find((field) => field.column_key === 'cohort_id' || field.name === 'cohort');
+  const cohort =
+    cohortField && visibleOn(cohortField.placement, density)
+      ? String(profile.cohort_name || '').trim() || null
+      : null;
+  if (cohort && cohortField && density === 'detail') {
+    facts.push({
+      name: cohortField.name,
+      label: pickLocalizedText(cohortField.label, locale) || cohortField.name,
+      values: [cohort],
+    });
+  }
   return {
     name: profile.full_name,
     photoUrl: profile.avatar_url,
@@ -120,5 +134,6 @@ export function projectPersonView(input: {
     languages,
     facts,
     links,
+    cohort,
   };
 }

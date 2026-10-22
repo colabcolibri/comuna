@@ -16,6 +16,7 @@ import { displayPlaceLocality, parseNearLatLon } from '@community/places';
 import {
   SHOWCASE_PAGE_SIZE,
   SHOWCASE_PAGE_SIZES,
+  cohortIsFilterable,
   languagesIsFilterable,
   projectPersonView,
   type CatalogField,
@@ -25,7 +26,7 @@ import { ListFilter } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale } from '@/components/app/LocaleProvider';
 import { useEnabledModules } from '@/components/app/EnabledModulesProvider';
-import { PeopleFilters } from '@/components/app/PeopleFilters';
+import { PeopleCohortSelect, PeopleFilters } from '@/components/app/PeopleFilters';
 import { PeopleMap } from '@/components/app/PeopleMap';
 import { PeopleMapToggle } from '@/components/app/PeopleMapToggle';
 import { PeoplePlaceFilters } from '@/components/app/PeoplePlaceFilters';
@@ -66,6 +67,7 @@ const CONTENT = mergeContent(
     filtersHint: 'page.filters_hint',
     languages: 'page.languages',
     all: 'page.all',
+    cohort: 'page.cohort',
     country: 'page.country',
     city: 'page.city',
     radius: 'page.radius',
@@ -116,6 +118,8 @@ export function ShowcasePanel({
   facetValues = {},
   extras = EMPTY_EXTRAS,
   countries = [],
+  cohorts = [],
+  cohort = '',
   page = 1,
   pageSize = SHOWCASE_PAGE_SIZE,
   total = 0,
@@ -132,6 +136,8 @@ export function ShowcasePanel({
   facetValues?: Record<string, string>;
   extras?: ListQueryExtras;
   countries?: string[];
+  cohorts?: { id: string; name: string }[];
+  cohort?: string;
   page?: number;
   pageSize?: number;
   total?: number;
@@ -153,6 +159,7 @@ export function ShowcasePanel({
     extras.country || '',
     extras.near || '',
     talentFilterEnabled ? extras.talentCategory || '' : '',
+    cohortIsFilterable(listFields) ? cohort : '',
   ]);
   const from = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const to = Math.min(page * pageSize, total);
@@ -162,9 +169,17 @@ export function ShowcasePanel({
     nextFacets: Record<string, string>,
     nextPage = 1,
     nextSize = pageSize,
-    nextExtras = extras
+    nextExtras = extras,
+    nextCohort = cohort
   ) {
-    const query = directoryQueryString(nextSearch, nextFacets, '', nextPage, nextSize, nextExtras);
+    const query = directoryQueryString(
+      nextSearch,
+      nextFacets,
+      cohortIsFilterable(listFields) ? nextCohort : '',
+      nextPage,
+      nextSize,
+      nextExtras
+    );
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
 
@@ -194,6 +209,16 @@ export function ShowcasePanel({
               onApply={(term) => go(term, facetValues)}
               onClear={() => go('', facetValues)}
             />
+            {cohortIsFilterable(listFields) ? (
+              <PeopleCohortSelect
+                id="showcase-cohort"
+                label={copy.cohort}
+                allLabel={copy.all}
+                cohorts={cohorts}
+                value={cohort}
+                onChange={(next) => go(search, facetValues, 1, pageSize, extras, next)}
+              />
+            ) : null}
             {canMap ? (
               <PeopleMapToggle
                 mapView={mapView}
@@ -329,6 +354,7 @@ export function ShowcasePanel({
                     headline={view.headline}
                     summary={view.summary}
                     city={view.city}
+                    cohort={view.cohort}
                     talentCategory={talent.category}
                     talentLine={talent.title}
                     languagesLabel={view.languagesHeading || copy.languages}

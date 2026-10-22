@@ -100,4 +100,34 @@ describe('directory panel', () => {
     expect(screen.getByText('Mentora.')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Enviar mensagem' })).toBeTruthy();
   });
+
+  it('shows the cohort filter and the cohort name when the list places the field', () => {
+    const cohortField = parseListField({
+      name: 'cohort',
+      type: 'select',
+      storage: 'membership',
+      column_key: 'cohort_id',
+      filterable: true,
+      placement: 'card',
+      label: [{ locale: 'pt-BR', value: 'Turma' }],
+    })!;
+    render(
+      <LocaleProvider initialLocale="pt-BR">
+        <EnabledModulesProvider enabled={['directory']}>
+          <DirectoryPanel
+            rows={[{ ...marina, cohort_name: 'Turma 2019' }]}
+            facets={[]}
+            listFields={[...listFields, cohortField]}
+            search=""
+            facetValues={{}}
+            cohorts={[{ id: '11111111-1111-4111-8111-111111111111', name: 'Turma 2019' }]}
+            cohort=""
+            total={1}
+          />
+        </EnabledModulesProvider>
+      </LocaleProvider>
+    );
+    expect(screen.getByLabelText('Turma')).toBeTruthy();
+    expect(screen.getByText('Turma 2019')).toBeTruthy();
+  });
 });

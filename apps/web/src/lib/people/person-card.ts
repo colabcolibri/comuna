@@ -12,6 +12,7 @@ export type PersonCard = {
   headline: unknown;
   bio: unknown;
   custom_attributes: Record<string, unknown>;
+  cohort_name?: string | null;
   offerings?: {
     title: string;
     description?: string;
@@ -100,6 +101,7 @@ export function toPersonCard(
     headline: audienceAllows(row.headline_audience, ceilings.headline, level) ? (row.headline ?? []) : [],
     bio: audienceAllows(row.bio_audience, ceilings.bio, level) ? (row.bio ?? []) : [],
     custom_attributes: attributes,
+    cohort_name: typeof row.cohort_name === 'string' && row.cohort_name.trim() ? row.cohort_name.trim() : null,
     offerings: Array.isArray(row.offerings) ? (row.offerings as PersonCard['offerings']) : undefined,
   };
 }

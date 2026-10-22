@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { InvalidCohortError, createCohort, listCohorts } from '@community/memberships';
 import { getCommunity } from '@community/communities';
 import { jsonError } from '@/lib/http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { isOpsClaims, requireCommunityOps } from '@/lib/require-ops';
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const ops = await requireOps(req);
+  const { id } = await ctx.params;
+  const ops = await requireCommunityOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id } = await ctx.params;
   if (!(await getCommunity(id))) {
     return jsonError('NOT_FOUND', 'Comunidade inexistente', 404);
   }
@@ -18,11 +18,11 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
 }
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const ops = await requireOps(req);
+  const { id } = await ctx.params;
+  const ops = await requireCommunityOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id } = await ctx.params;
   if (!(await getCommunity(id))) {
     return jsonError('NOT_FOUND', 'Comunidade inexistente', 404);
   }

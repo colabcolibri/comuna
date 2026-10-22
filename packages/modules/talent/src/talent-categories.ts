@@ -20,7 +20,14 @@ function rowToCategory(row: Record<string, unknown>): TalentCategory {
   };
 }
 
+function databaseIsReadOnly(): boolean {
+  return process.env.DATABASE_READ_ONLY === '1';
+}
+
 export async function ensureDefaultTalentCategories(query: QueryFn, communityId: string) {
+  if (databaseIsReadOnly()) {
+    return;
+  }
   for (const item of DEFAULT_TALENT_CATEGORY_SEED) {
     await query(
       `INSERT INTO plugin_talent.categories (community_id, id, sort_order, label, allows_other_text, enabled)

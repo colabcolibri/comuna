@@ -5,14 +5,14 @@ import {
   setNetworkStatus,
 } from '@community/memberships';
 import { jsonError } from '@/lib/http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { isOpsClaims, requireMembershipOps } from '@/lib/require-ops';
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const ops = await requireOps(req);
+  const { id } = await ctx.params;
+  const ops = await requireMembershipOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id } = await ctx.params;
   const body = await req.json();
   try {
     const row = await setNetworkStatus(id, String(body.network_status || ''));

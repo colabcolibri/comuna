@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createCatalogGroup } from '@community/directory/ops';
 import { catalogWriteResponse } from '@/lib/catalog-http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { isOpsClaims, requireCommunityOps } from '@/lib/require-ops';
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const ops = await requireOps(req);
+  const { id } = await ctx.params;
+  const ops = await requireCommunityOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id } = await ctx.params;
   const body = await req.json();
   try {
     const group = await createCatalogGroup(id, {

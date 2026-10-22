@@ -33,6 +33,11 @@ export {
   setMembershipCohort,
   type CohortRow,
 } from './cohorts';
+export {
+  canAccessOpsPortal,
+  listCoordinatorCommunityIds,
+  membershipCommunityId,
+} from './coordinator-scope';
 export { listNetworkPeople, type NetworkPerson, type NetworkPersonSeat } from './network-people';
 export {
   JoinNotAllowedError,

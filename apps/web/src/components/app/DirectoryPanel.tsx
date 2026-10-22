@@ -17,6 +17,7 @@ import { slotOn } from '@/modules/registry';
 import {
   SHOWCASE_PAGE_SIZE,
   SHOWCASE_PAGE_SIZES,
+  cohortIsFilterable,
   languagesIsFilterable,
   projectPersonView,
   type CatalogField,
@@ -213,14 +214,16 @@ export function DirectoryPanel({
             onApply={(term) => go(term, facetValues, cohort)}
             onClear={() => go('', facetValues, cohort)}
           />
-          <PeopleCohortSelect
-            id="directory-cohort"
-            label={copy.cohort}
-            allLabel={copy.all}
-            cohorts={cohorts}
-            value={cohort}
-            onChange={(next) => go(search, facetValues, next)}
-          />
+          {cohortIsFilterable(listFields) ? (
+            <PeopleCohortSelect
+              id="directory-cohort"
+              label={copy.cohort}
+              allLabel={copy.all}
+              cohorts={cohorts}
+              value={cohort}
+              onChange={(next) => go(search, facetValues, next)}
+            />
+          ) : null}
           {canMap ? (
             <PeopleMapToggle
               mapView={mapView}
@@ -341,6 +344,7 @@ export function DirectoryPanel({
                     photoUrl={view.photoUrl}
                     headline={view.headline}
                     city={view.city}
+                    cohort={view.cohort}
                     talentCategory={talent.category}
                     talentLine={talent.title}
                     languages={view.languages.map((item) => item.label)}

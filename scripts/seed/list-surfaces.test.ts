@@ -43,6 +43,7 @@ describe('seed list surfaces', () => {
       'languages',
       'headline',
       'bio',
+      'cohort',
     ]);
     for (const field of fields) {
       expect(field.lists, field.name).toEqual(listsFor(field));
@@ -59,7 +60,12 @@ describe('seed list surfaces', () => {
     expect(platformFields().some((field) => field.name === 'availability_status')).toBe(false);
     expect(PLATFORM_CATALOG_GROUPS.map((group) => group.slug)).not.toContain('availability');
     const communityCopy = PLATFORM_CATALOG_GROUPS.find((group) => group.slug === 'community_copy');
-    expect(communityCopy?.fields.map((field) => field.name)).toEqual(['headline', 'bio']);
+    expect(communityCopy?.fields.map((field) => field.name)).toEqual(['headline', 'bio', 'cohort']);
+    expect(listsFor({ name: 'cohort', lists: LISTS.cohort }).directory).toEqual({
+      filterable: true,
+      placement: 'card',
+    });
+    expect(listsFor({ name: 'cohort', lists: LISTS.cohort }).showcase.placement).toBe('off');
   });
 
   it('maps tenant extras with listFilterable onto both lists as detail + filter', () => {

@@ -3,11 +3,11 @@ import {
   consumeOtp,
   findUserByEmail,
   InvalidOtpError,
-  isSuperAdmin,
   OPS_COOKIE,
   opsAuthCookieOptions,
   signOpsToken,
 } from '@community/auth';
+import { canAccessOpsPortal } from '@community/memberships';
 import { jsonError } from '@/lib/http';
 
 export async function POST(req: NextRequest) {
@@ -18,11 +18,11 @@ export async function POST(req: NextRequest) {
       return jsonError('VALIDATION_ERROR', 'E-mail e código são obrigatórios.', 400);
     }
     const existing = await findUserByEmail(String(email));
-    if (!existing || !isSuperAdmin(existing.global_role)) {
+    if (!existing || !(await canAccessOpsPortal(existing.id, existing.global_role))) {
       return jsonError('INVALID_OTP', 'Código de verificação incorreto ou expirado', 400);
     }
     const user = await consumeOtp(existing.email, String(code));
-    if (!isSuperAdmin(user.global_role)) {
+    if (!(await canAccessOpsPortal(user.id, user.global_role))) {
       return jsonError('INVALID_OTP', 'Código de verificação incorreto ou expirado', 400);
     }
     const token = await signOpsToken({

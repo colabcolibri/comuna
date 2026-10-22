@@ -7,6 +7,7 @@ import {
   peopleListCountriesQuery,
   peopleListQuery,
   attributeFacets,
+  cohortIsListed,
   type ListField,
 } from '@community/directory';
 import { showcaseContribution } from '@community/showcase';
@@ -86,7 +87,14 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
   const countries = await query<{ country: string }>(countriesQuery.text, countriesQuery.params);
   return {
     status: 200 as const,
-    data: (rows as Record<string, unknown>[]).map((row) => toPersonCard(row, keys, 'external', ceilingsFrom(listFields))),
+    data: (rows as Record<string, unknown>[]).map((row) =>
+      toPersonCard(
+        cohortIsListed(listFields) ? row : { ...row, cohort_name: null },
+        keys,
+        'external',
+        ceilingsFrom(listFields)
+      )
+    ),
     facets,
     listFields,
     countries: countries.rows.map((row) => row.country).filter(Boolean),

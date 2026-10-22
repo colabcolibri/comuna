@@ -25,7 +25,7 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
 
 type Community = { id: string; slug: string; name: string; type: string };
 
-export function CommunitiesPanel() {
+export function CommunitiesPanel({ canCreate = true }: { canCreate?: boolean }) {
   const copy = pickContent(CONTENT, useLocale());
   const [rows, setRows] = useState<Community[]>([]);
   const [slug, setSlug] = useState('');
@@ -74,9 +74,11 @@ export function CommunitiesPanel() {
       title={copy.title}
       subtitle={copy.subtitle}
       actions={
-        <Button type="button" onClick={() => setOpen((value) => !value)}>
-          {copy.add}
-        </Button>
+        canCreate ? (
+          <Button type="button" onClick={() => setOpen((value) => !value)}>
+            {copy.add}
+          </Button>
+        ) : undefined
       }
     >
       {open ? (

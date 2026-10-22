@@ -7,14 +7,14 @@ import {
   updateOpsTalentCategory,
 } from '@community/talent/ops';
 import { jsonError } from '@/lib/http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { isOpsClaims, requireCommunityOps } from '@/lib/require-ops';
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string; categoryId: string }> }) {
-  const ops = await requireOps(req);
+  const {id, categoryId} = await ctx.params;
+  const ops = await requireCommunityOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id, categoryId } = await ctx.params;
   if (!(await getCommunity(id))) {
     return jsonError('NOT_FOUND', 'Comunidade inexistente', 404);
   }
@@ -30,11 +30,11 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 }
 
 export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string; categoryId: string }> }) {
-  const ops = await requireOps(req);
+  const {id, categoryId} = await ctx.params;
+  const ops = await requireCommunityOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id, categoryId } = await ctx.params;
   if (!(await getCommunity(id))) {
     return jsonError('NOT_FOUND', 'Comunidade inexistente', 404);
   }

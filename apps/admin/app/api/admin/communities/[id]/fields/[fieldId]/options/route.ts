@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { applyChoiceOptions, previewChoiceOptions, loadChoiceField } from '@community/directory/ops';
 import { catalogWriteResponse } from '@/lib/catalog-http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { isOpsClaims, requireCommunityOps } from '@/lib/require-ops';
 
 function parseRenames(raw: unknown) {
   if (!Array.isArray(raw)) {
@@ -21,11 +21,11 @@ function parseRenames(raw: unknown) {
 }
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string; fieldId: string }> }) {
-  const ops = await requireOps(req);
+  const { id, fieldId } = await ctx.params;
+  const ops = await requireCommunityOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id, fieldId } = await ctx.params;
   const body = await req.json();
   try {
     const field = await loadChoiceField(id, fieldId);
@@ -48,11 +48,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
 }
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string; fieldId: string }> }) {
-  const ops = await requireOps(req);
+  const { id, fieldId } = await ctx.params;
+  const ops = await requireCommunityOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id, fieldId } = await ctx.params;
   const body = await req.json();
   if (body.applyDataMigration !== true) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: 'applyDataMigration obrigatório' } }, { status: 400 });

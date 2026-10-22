@@ -78,5 +78,19 @@ describe('AppShowcaseCard', () => {
     expect(screen.queryByText('Recebe em casa')).toBeNull();
     expect(screen.queryByText('Mentoria')).toBeNull();
     expect(screen.getByText('Português')).toBeTruthy();
+    expect(screen.queryByText('Turma 2019')).toBeNull();
+  });
+
+  it('shows the cohort line on a compact card', () => {
+    render(
+      <AppPersonCard
+        variant="compact"
+        name="Marina Silva"
+        cohort="Turma 2019"
+        actionLabel="Ver perfil"
+        onOpen={() => undefined}
+      />
+    );
+    expect(screen.getByText('Turma 2019')).toBeTruthy();
   });
 });

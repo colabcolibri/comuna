@@ -1,5 +1,6 @@
 import { queryAsMember } from '@community/db';
-import { directoryContribution, nestCatalog, visibleCatalog } from '@community/directory';
+import { applyCohortOptions, directoryContribution, nestCatalog, visibleCatalog } from '@community/directory';
+import { listCohorts } from '@community/memberships';
 import type { AppQueryCtx } from '@/lib/server/app-ctx';
 import { moduleRuntime } from '@/lib/server/membership';
 
@@ -22,8 +23,14 @@ export async function listDirectoryCatalog(ctx: AppQueryCtx) {
     [ctx.communityId]
   );
   const enabled = await moduleRuntime.listEnabled(ctx.communityId);
+  const cohorts = await listCohorts(ctx.communityId);
   return {
     status: 200 as const,
-    body: { groups: visibleCatalog(nestCatalog(result.rows as Record<string, unknown>[]), enabled) },
+    body: {
+      groups: applyCohortOptions(
+        visibleCatalog(nestCatalog(result.rows as Record<string, unknown>[]), enabled),
+        cohorts
+      ),
+    },
   };
 }

@@ -86,6 +86,18 @@ export function identityPlacementLocked(field: { name: string; column_key: strin
   return IDENTITY_LOCKED_NAMES.has(field.name) || IDENTITY_LOCKED_NAMES.has(field.column_key || '');
 }
 
+export function isCohortField(field: { name: string; column_key: string | null }): boolean {
+  return field.column_key === 'cohort_id' || field.name === 'cohort';
+}
+
+export function cohortIsFilterable(fields: { name: string; column_key: string | null; filterable: boolean }[]): boolean {
+  return fields.some((field) => isCohortField(field) && field.filterable);
+}
+
+export function cohortIsListed(fields: { name: string; column_key: string | null; placement: ListPlacement }[]): boolean {
+  return fields.some((field) => isCohortField(field) && field.placement !== 'off');
+}
+
 export const LIST_FIELDS_SQL = `SELECT f.name, f.type, f.options, f.storage, f.column_key, f.required, f.localized, f.span, f.sort_order, f.label, f.enabled, f.description, f.exposure,
        lf.filterable, lf.placement
  FROM plugin_directory.fields f

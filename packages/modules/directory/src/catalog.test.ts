@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { missingRequiredFields, nestCatalog, parseAttrFilters, parseField, validateCustomAttributes, visibleCatalog } from './catalog';
+import {
+  applyCohortOptions,
+  missingRequiredFields,
+  nestCatalog,
+  parseAttrFilters,
+  parseField,
+  validateCustomAttributes,
+  visibleCatalog,
+  type CatalogGroup,
+} from './catalog';
 import { parseListField } from './list-fields';
 
 describe('directory catalog', () => {
@@ -160,5 +169,35 @@ describe('directory catalog', () => {
       required: true,
     });
     expect(missingRequiredFields([name!, flag!], { full_name: '  ', host_at_home: false })).toEqual([name]);
+  });
+
+  it('fills cohort options from the community cohorts and hides the field when there are none', () => {
+    const cohort = parseField({
+      name: 'cohort',
+      type: 'select',
+      storage: 'membership',
+      column_key: 'cohort_id',
+      label: [{ locale: 'pt-BR', value: 'Turma' }],
+    });
+    const groups: CatalogGroup[] = [
+      {
+        slug: 'community_copy',
+        label: [],
+        description: [],
+        sort_order: 20,
+        columns: 1,
+        enabled: true,
+        fields: [cohort!],
+      },
+    ];
+    expect(applyCohortOptions(groups, []).flatMap((group) => group.fields)).toEqual([]);
+    const filled = applyCohortOptions(groups, [{ id: 'c1', name: 'Turma 2019' }]);
+    expect(filled[0]?.fields[0]?.options[0]).toEqual({
+      value: 'c1',
+      label: [
+        { locale: 'pt-BR', value: 'Turma 2019' },
+        { locale: 'en', value: 'Turma 2019' },
+      ],
+    });
   });
 });

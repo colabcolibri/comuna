@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { findUserByEmail, isSuperAdmin, issueOtp, RateLimitError } from '@community/auth';
+import { findUserByEmail, issueOtp, RateLimitError } from '@community/auth';
+import { canAccessOpsPortal } from '@community/memberships';
 import { LOCALE_COOKIE, resolveUiLocale } from '@community/identity';
 import { sendKindEmail } from '@community/mail';
 import { jsonError } from '@/lib/http';
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
     ipHits.set(ip, recentIp);
 
     const user = await findUserByEmail(email);
-    if (!user || !isSuperAdmin(user.global_role)) {
+    if (!user || !(await canAccessOpsPortal(user.id, user.global_role))) {
       return NextResponse.json({ message: 'Código enviado' });
     }
 

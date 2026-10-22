@@ -31,6 +31,10 @@ const LISTS = {
     directory: { filterable: true, placement: 'card' },
     showcase: { filterable: true, placement: 'card' },
   },
+  cohort: {
+    directory: { filterable: true, placement: 'card' },
+    showcase: { filterable: false, placement: 'off' },
+  },
 };
 
 const PLATFORM_CATALOG_GROUPS = [
@@ -205,6 +209,21 @@ const PLATFORM_CATALOG_GROUPS = [
           module_slug: 'directory',
           lists: LISTS.bio,
         },
+        {
+          name: 'cohort',
+          type: 'select',
+          label: loc('Turma', 'Cohort'),
+          description: loc(
+            'A turma em que você entrou nesta comunidade. Se não souber, deixe em branco.',
+            'The cohort you joined in this community. Leave it blank if you are not sure.'
+          ),
+          span: 1,
+          storage: 'membership',
+          column_key: 'cohort_id',
+          sort: 30,
+          module_slug: 'directory',
+          lists: LISTS.cohort,
+        },
       ],
     },
   ];
@@ -305,7 +324,8 @@ async function syncFieldExposure(client, communityId) {
          OR f.column_key NOT IN (
            'full_name', 'avatar_url', 'email', 'phone', 'gender', 'current_city', 'birth_city'
          )
-       )`,
+       )
+       AND f.column_key IS DISTINCT FROM 'cohort_id'`,
     [communityId]
   );
 }

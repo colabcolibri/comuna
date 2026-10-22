@@ -5,7 +5,7 @@ import { seedCommunityCatalog } from '@community/directory/ops';
 import { ensureDefaultTalentCategories } from '@community/talent/ops';
 import { query } from '@community/db';
 import { jsonError } from '@/lib/http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { isOpsClaims, requireOps, requireSuperOps } from '@/lib/require-ops';
 import { defaultEnabledSlugs } from '@/lib/registry';
 
 export async function GET(req: NextRequest) {
@@ -14,13 +14,15 @@ export async function GET(req: NextRequest) {
     return ops;
   }
   const data = await listCommunities();
-  return NextResponse.json({ data });
+  const scoped =
+    ops.communityIds === null ? data : data.filter((row) => ops.communityIds!.includes(row.id));
+  return NextResponse.json({ data: scoped });
 }
 
 export async function POST(req: NextRequest) {
-  const ops = await requireOps(req);
-  if (!isOpsClaims(ops)) {
-    return ops;
+  const claims = await requireSuperOps(req);
+  if (claims instanceof NextResponse) {
+    return claims;
   }
   const body = await req.json();
   const slug = typeof body.slug === 'string' ? body.slug : '';

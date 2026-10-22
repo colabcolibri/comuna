@@ -57,8 +57,17 @@ export async function GET(req: NextRequest) {
   });
   const listingExposureCap = communityListingExposureCap(fields);
   const showcaseListingAllowed = communityAllowsShowcaseListing(fields);
+  const membership = await queryAsMember<{ cohort_id: string | null }>(
+    { userId: resolved.userId, communityId: resolved.seat.id },
+    `SELECT cohort_id FROM network_core.memberships WHERE id = $1`,
+    [resolved.seat.membership_id]
+  );
   return NextResponse.json({
-    membership: { id: resolved.seat.membership_id, community_id: resolved.seat.id },
+    membership: {
+      id: resolved.seat.membership_id,
+      community_id: resolved.seat.id,
+      cohort_id: membership.rows[0]?.cohort_id ?? null,
+    },
     card: card.rows[0] ?? null,
     listing,
     modules: { showcase: showcaseOn },
@@ -148,7 +157,18 @@ export async function PUT(req: NextRequest) {
     bio,
     ...attributes.value,
   };
-  if (missingRequiredFields(fields.filter((field) => field.storage !== 'person'), values).length) {
+  const cohortWrite = parseCohortWrite(body, fields);
+  if (cohortWrite.ok === false) {
+    return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: cohortWrite.message } }, { status: 400 });
+  }
+  const cohortField = fields.find((field) => field.column_key === 'cohort_id');
+  if (cohortField && cohortWrite.cohortId !== undefined) {
+    values[cohortField.name] = cohortWrite.cohortId || '';
+  }
+  const requiredFields = fields.filter(
+    (field) => field.storage !== 'person' && !(field.column_key === 'cohort_id' && cohortWrite.cohortId === undefined)
+  );
+  if (missingRequiredFields(requiredFields, values).length) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: 'Preencha os campos obrigatórios.' } }, { status: 400 });
   }
   await queryAsMember(
@@ -181,5 +201,50 @@ export async function PUT(req: NextRequest) {
       publicShowcase ?? null,
     ]
   );
+  if (cohortWrite.cohortId !== undefined) {
+    const saved = await queryAsMember(
+      { userId: resolved.userId, communityId: resolved.seat.id },
+      `UPDATE network_core.memberships m
+       SET cohort_id = $2
+       WHERE m.id = $1
+         AND (
+           $2::uuid IS NULL
+           OR EXISTS (
+             SELECT 1 FROM network_core.cohorts c
+             WHERE c.id = $2 AND c.community_id = m.community_id
+           )
+         )
+       RETURNING m.id`,
+      [resolved.seat.membership_id, cohortWrite.cohortId]
+    );
+    if (!saved.rows[0]) {
+      return NextResponse.json(
+        { error: { code: 'VALIDATION_ERROR', message: 'Turma inválida nesta comunidade.' } },
+        { status: 400 }
+      );
+    }
+  }
   return NextResponse.json({ ok: true, membership_id: resolved.seat.membership_id });
+}
+
+const COHORT_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function parseCohortWrite(
+  body: { cohort_id?: unknown },
+  fields: { column_key: string | null }[]
+): { ok: true; cohortId: string | null | undefined } | { ok: false; message: string } {
+  if (!Object.prototype.hasOwnProperty.call(body, 'cohort_id')) {
+    return { ok: true, cohortId: undefined };
+  }
+  if (!fields.some((field) => field.column_key === 'cohort_id')) {
+    return { ok: false, message: 'Esta comunidade não pede turma no perfil.' };
+  }
+  const raw = typeof body.cohort_id === 'string' ? body.cohort_id.trim() : '';
+  if (!raw) {
+    return { ok: true, cohortId: null };
+  }
+  if (!COHORT_UUID.test(raw)) {
+    return { ok: false, message: 'Turma inválida nesta comunidade.' };
+  }
+  return { ok: true, cohortId: raw };
 }

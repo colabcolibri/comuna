@@ -7,6 +7,7 @@ import {
   peopleListCountriesQuery,
   peopleListQuery,
   attributeFacets,
+  cohortIsListed,
 } from '@community/directory';
 import type { AppQueryCtx } from '@/lib/server/app-ctx';
 import { ceilingsFrom, toPersonCard } from '@/lib/people/person-card';
@@ -68,7 +69,14 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
   return {
     status: 200 as const,
     body: {
-      data: (rows as Record<string, unknown>[]).map((row) => toPersonCard(row, keys, 'internal', ceilingsFrom(listFields))),
+      data: (rows as Record<string, unknown>[]).map((row) =>
+        toPersonCard(
+          cohortIsListed(listFields) ? row : { ...row, cohort_name: null },
+          keys,
+          'internal',
+          ceilingsFrom(listFields)
+        )
+      ),
       facets: attributeFacets(listFields),
       listFields,
       countries: countries.rows.map((row) => row.country).filter(Boolean),

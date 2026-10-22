@@ -160,17 +160,20 @@ export function FieldControl({
 
   if (field.type === 'select' || field.type === 'radio') {
     const empty = copy.empty;
+    const cohort = field.column_key === 'cohort_id';
+    const selected = cohort ? String(value || '') || '__none__' : String(value || '') || undefined;
     return (
       <div className="min-w-0 space-y-3">
         <div className="space-y-1">
           <FieldMeta htmlFor={id} {...meta} />
           {description ? <p className="text-base leading-snug text-muted-foreground">{description}</p> : null}
         </div>
-        <Select value={String(value || '') || undefined} onValueChange={onChange}>
+        <Select value={selected} onValueChange={(next) => onChange(cohort && next === '__none__' ? '' : next)}>
           <SelectTrigger id={id} className="w-full min-h-11">
             <SelectValue placeholder={empty} />
           </SelectTrigger>
           <SelectContent>
+            {cohort ? <SelectItem value="__none__">{empty}</SelectItem> : null}
             {field.options.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {pickLocalizedText(option.label, locale) || option.value}

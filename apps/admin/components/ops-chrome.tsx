@@ -40,20 +40,35 @@ function chapterActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function OpsChrome({ children }: { children: ReactNode }) {
+export function OpsChrome({
+  children,
+  canManageNetwork = true,
+}: {
+  children: ReactNode;
+  canManageNetwork?: boolean;
+}) {
   const copy = pickContent(CONTENT, useLocale());
   const router = useRouter();
   const pathname = usePathname();
   const tenantId = tenantIdFromPath(pathname);
+  const networkItems = [
+    { href: '/communities', label: copy.communities, active: pathname === '/communities' },
+    ...(canManageNetwork
+      ? [
+          { href: '/people', label: copy.people, active: pathname === '/people' || pathname.startsWith('/people/') },
+          {
+            href: '/platform',
+            label: copy.platform,
+            active: pathname === '/platform' || pathname.startsWith('/platform/'),
+          },
+          { href: '/emails', label: copy.emails, active: pathname === '/emails' || pathname.startsWith('/emails/') },
+        ]
+      : []),
+  ];
   const groups: OpsNavGroup[] = [
     {
       label: copy.network,
-      items: [
-        { href: '/communities', label: copy.communities, active: pathname === '/communities' },
-        { href: '/people', label: copy.people, active: pathname === '/people' || pathname.startsWith('/people/') },
-        { href: '/platform', label: copy.platform, active: pathname === '/platform' || pathname.startsWith('/platform/') },
-        { href: '/emails', label: copy.emails, active: pathname === '/emails' || pathname.startsWith('/emails/') },
-      ],
+      items: networkItems,
     },
   ];
   if (tenantId) {

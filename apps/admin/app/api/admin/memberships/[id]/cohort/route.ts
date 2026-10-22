@@ -5,14 +5,14 @@ import {
   setMembershipCohort,
 } from '@community/memberships';
 import { jsonError } from '@/lib/http';
-import { isOpsClaims, requireOps } from '@/lib/require-ops';
+import { isOpsClaims, requireMembershipOps } from '@/lib/require-ops';
 
 export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
-  const ops = await requireOps(req);
+  const { id } = await ctx.params;
+  const ops = await requireMembershipOps(req, id);
   if (!isOpsClaims(ops)) {
     return ops;
   }
-  const { id } = await ctx.params;
   const body = await req.json();
   const raw = body.cohortId;
   const cohortId = raw === null || raw === '' ? null : String(raw);

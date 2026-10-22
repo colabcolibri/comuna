@@ -44,6 +44,30 @@ describe('peopleListQuery', () => {
     expect(built.pageSize).toBe(24);
   });
 
+  it('filters by cohort only when the list marks the field as filterable', () => {
+    const cohort = parseListField({
+      name: 'cohort',
+      type: 'select',
+      storage: 'membership',
+      column_key: 'cohort_id',
+      filterable: true,
+      placement: 'card',
+    })!;
+    const id = '11111111-1111-4111-8111-111111111111';
+    const built = peopleListQuery({
+      communityId: 'c1',
+      searchParams: new URLSearchParams(`cohort=${id}`),
+      fields: [cohort],
+      scope: 'showcase',
+    });
+    expect(built.ok).toBe(true);
+    if (built.ok === false) {
+      return;
+    }
+    expect(built.text).toContain('m.cohort_id =');
+    expect(built.params).toContain(id);
+  });
+
   it('scopes showcase with public_showcase and ignores cohort', () => {
     const built = peopleListQuery({
       communityId: 'c1',
@@ -58,7 +82,7 @@ describe('peopleListQuery', () => {
     expect(built.text).toContain("headline_audience = 'external'");
     expect(built.text).toContain('public_showcase = true');
     expect(built.text).not.toContain("headline_audience IN ('internal', 'external')");
-    expect(built.text).not.toContain('cohort_id');
+    expect(built.text).not.toContain('m.cohort_id =');
   });
 
   it('paginates directory and showcase with the same size rules', () => {
