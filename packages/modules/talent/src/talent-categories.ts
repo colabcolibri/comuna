@@ -57,7 +57,22 @@ export function categoryLabel(
   catalog: Pick<TalentCategory, 'id' | 'label'>[]
 ): string {
   const row = catalog.find((item) => item.id === id);
-  return row ? pickLocalizedText(row.label, locale) || id : id;
+  if (row) {
+    return pickLocalizedText(row.label, locale) || pickLocalizedText(row.label, 'pt-BR') || id;
+  }
+  const seed = DEFAULT_TALENT_CATEGORY_SEED.find((item) => item.id === id);
+  if (seed) {
+    let seedLabel = parseLocalized(seed.label);
+    if (!seedLabel.length && seed.label && typeof seed.label === 'object' && !Array.isArray(seed.label)) {
+      const map = seed.label as Record<string, string>;
+      seedLabel = parseLocalized([
+        { locale: 'pt-BR', value: map['pt-BR'] || '' },
+        { locale: 'en', value: map.en || map['pt-BR'] || '' },
+      ]);
+    }
+    return pickLocalizedText(seedLabel, locale) || pickLocalizedText(seedLabel, 'pt-BR') || id;
+  }
+  return id;
 }
 
 export function parseTalentCategoryFilter(raw: string | null | undefined, allowedIds: Iterable<string>): string {

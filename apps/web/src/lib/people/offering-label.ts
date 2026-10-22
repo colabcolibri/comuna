@@ -21,13 +21,10 @@ export function offeringCategoryDisplay(
   if (row?.allowsOtherText && offer.category_other) {
     return offer.category_other;
   }
-  if (catalog?.length) {
-    return categoryLabel(offer.category_id, lang, catalog) || null;
-  }
   if (offer.category_id === 'other' && offer.category_other) {
     return offer.category_other;
   }
-  return offer.category_id ? categoryLabel(offer.category_id, lang, catalog || []) : null;
+  return categoryLabel(offer.category_id, lang, catalog || []);
 }
 
 export function primaryOfferingLabels(
@@ -35,7 +32,7 @@ export function primaryOfferingLabels(
   locale: string,
   catalog?: TalentCategoryView[]
 ): { category: string | null; title: string | null } {
-  const offer = offerings?.[0];
+  const offer = offerings?.find((row) => row.featured_on_card) ?? offerings?.[0];
   if (!offer) {
     return { category: null, title: null };
   }

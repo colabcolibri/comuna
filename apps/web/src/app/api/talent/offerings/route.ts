@@ -30,10 +30,10 @@ export async function GET(req: NextRequest) {
   const categories = await memberTalentCategories(ctx, { enabledOnly: true });
   const rows = await queryAsMember(
     { userId: resolved.userId, communityId: resolved.seat.id },
-    `SELECT id, title, description, url, category_id, category_other, audience
+    `SELECT id, title, description, url, category_id, category_other, audience, featured_on_card
      FROM plugin_talent.offerings
      WHERE membership_id = $1
-     ORDER BY created_at`,
+     ORDER BY featured_on_card DESC, created_at ASC, id ASC`,
     [resolved.seat.membership_id]
   );
   const settings = await queryAsMember<{ settings: unknown }>(
@@ -85,11 +85,15 @@ export async function POST(req: NextRequest) {
     );
   }
   const value = parsed.value;
+  const featuredDefault =
+    (count.rows[0]?.total ?? 0) === 0
+      ? true
+      : false;
   const inserted = await queryAsMember(
     { userId: resolved.userId, communityId: resolved.seat.id },
     `INSERT INTO plugin_talent.offerings
-       (membership_id, community_id, title, description, url, category_id, category_other, audience)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       (membership_id, community_id, title, description, url, category_id, category_other, audience, featured_on_card)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
      RETURNING id`,
     [
       resolved.seat.membership_id,
@@ -100,6 +104,7 @@ export async function POST(req: NextRequest) {
       value.categoryId,
       value.categoryOther,
       value.audience,
+      featuredDefault,
     ]
   );
   return NextResponse.json({ id: inserted.rows[0]?.id }, { status: 201 });

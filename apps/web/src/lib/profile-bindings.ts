@@ -1,4 +1,4 @@
-import { parseAudience, type Audience } from '@community/directory';
+import { defaultMemberAudience, parseAudience, type Audience } from '@community/directory';
 import { parseContacts, parseLanguages, valueAt, type LocalizedText } from '@community/identity';
 import { parsePlace, type GeoPlace } from '@community/places';
 import type { CatalogField, CatalogGroup } from '@community/directory';
@@ -84,11 +84,15 @@ export function cardBodyFromFields(fields: CatalogField[], values: Record<string
     public_showcase: values.public_showcase === true,
     ...(cohortField ? { cohort_id: cohortId || null } : {}),
     audiences: {
-      headline: parseAudience(values.headline_audience),
-      bio: parseAudience(values.bio_audience),
-      availability: parseAudience(values.availability_audience),
+      headline: parseAudience(values.headline_audience, 'internal'),
+      bio: parseAudience(values.bio_audience, 'internal'),
+      availability: parseAudience(values.availability_audience, 'internal'),
       attributes: Object.fromEntries(
-        Object.keys(attributes).map((key) => [key, parseAudience(values[`audience:${key}`])])
+        Object.keys(attributes).map((key) => {
+          const field = fields.find((item) => item.name === key);
+          const fallback = defaultMemberAudience(field?.exposure ?? 'internal');
+          return [key, parseAudience(values[`audience:${key}`], fallback)];
+        })
       ),
     },
   };

@@ -17,6 +17,7 @@ type Offer = {
   category_id: string;
   category_other: string | null;
   audience: string;
+  featured_on_card?: boolean;
 };
 
 type CategoryOption = { id: string; label: LocalizedText; allowsOtherText: boolean };
@@ -27,7 +28,7 @@ const EMPTY_DRAFT = {
   url: '',
   categoryId: '',
   categoryOther: '',
-  audience: 'private',
+  audience: 'internal',
 };
 
 function parseCeiling(raw: unknown): Exposure {
@@ -48,6 +49,8 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
       save: 'talent.save',
       edit: 'talent.edit',
       remove: 'talent.remove',
+      featured: 'talent.featured_on_card',
+      featuredActive: 'talent.featured_on_card_active',
       audience: 'profile.audience',
       audiencePrivate: 'profile.audience_private',
       audienceInternal: 'profile.audience_internal',
@@ -111,6 +114,11 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
 
   async function remove(id: string) {
     await fetch(`/api/talent/offerings/${id}`, { method: 'DELETE' });
+    await load();
+  }
+
+  async function setFeatured(id: string) {
+    await fetch(`/api/talent/offerings/${id}/featured`, { method: 'POST' });
     await load();
   }
 
@@ -212,6 +220,17 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
                   {copy.audience}: {audienceLabels[parseAudience(offer.audience)]}
                 </p>
                 <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant={offer.featured_on_card ? 'default' : 'outline'}
+                    className="min-h-11"
+                    disabled={offer.featured_on_card}
+                    onClick={() => {
+                      void setFeatured(offer.id);
+                    }}
+                  >
+                    {offer.featured_on_card ? copy.featuredActive : copy.featured}
+                  </Button>
                   <Button
                     type="button"
                     variant="outline"

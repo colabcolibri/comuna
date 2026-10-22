@@ -51,9 +51,30 @@ export function effectiveAudience(person: Audience, exposure: Exposure | null): 
   return RANK[person] > RANK[cap] ? cap : person;
 }
 
+/** Default visibility when the member has not chosen yet (community fields with a picker). */
+export function defaultMemberAudience(exposure: Exposure | null): Audience {
+  if (exposure === 'hidden') {
+    return 'private';
+  }
+  return 'internal';
+}
+
+export function resolveMemberAudience(stored: unknown, exposure: Exposure | null): Audience | null {
+  if (exposure === 'hidden') {
+    return null;
+  }
+  const fallback = defaultMemberAudience(exposure);
+  const chosen = parseAudience(stored, fallback);
+  return effectiveAudience(chosen, exposure) ?? fallback;
+}
+
 export function audienceAllowedByCeiling(person: Audience, exposure: Exposure | null): boolean {
-  if (!exposure || exposure === 'hidden') return person === 'private';
-  if (exposure === 'internal') return person !== 'external';
+  if (exposure === 'hidden') {
+    return person === 'private';
+  }
+  if (!exposure || exposure === 'internal') {
+    return person !== 'external';
+  }
   return true;
 }
 

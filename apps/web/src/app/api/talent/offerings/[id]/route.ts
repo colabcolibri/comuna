@@ -73,5 +73,22 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
   if (!removed.rows[0]) {
     return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Oferta não encontrada' } }, { status: 404 });
   }
+  await queryAsMember(
+    { userId: resolved.userId, communityId: resolved.seat.id },
+    `UPDATE plugin_talent.offerings o
+     SET featured_on_card = true
+     WHERE o.membership_id = $1
+       AND NOT EXISTS (
+         SELECT 1 FROM plugin_talent.offerings f
+         WHERE f.membership_id = $1 AND f.featured_on_card
+       )
+       AND o.id = (
+         SELECT id FROM plugin_talent.offerings
+         WHERE membership_id = $1
+         ORDER BY created_at ASC, id ASC
+         LIMIT 1
+       )`,
+    [resolved.seat.membership_id]
+  );
   return NextResponse.json({ ok: true });
 }

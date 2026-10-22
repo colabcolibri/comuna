@@ -19,6 +19,7 @@ export type PersonCard = {
     url?: string | null;
     category_id?: string | null;
     category_other?: string | null;
+    featured_on_card?: boolean;
   }[];
 };
 
@@ -54,7 +55,7 @@ export function publicAttributes(raw: unknown, allowed: string[]): Record<string
 function audienceAllows(audience: unknown, exposure: unknown, level: 'internal' | 'external' | 'owner') {
   if (level === 'owner') return true;
   const ceiling = parseExposure(exposure);
-  const person = parseAudience(audience, 'private');
+  const person = parseAudience(audience, 'internal');
   const effective = ceiling ? effectiveAudience(person, ceiling) : person;
   if (!effective) return false;
   if (level === 'external') return effective === 'external';
@@ -86,7 +87,7 @@ export function toPersonCard(
   const attributes = publicAttributes(row.custom_attributes, attributeKeys);
   if (hasAudienceMap) {
     for (const key of Object.keys(attributes)) {
-      if (!audienceAllows(audienceMap[key] ?? 'private', ceilings.attributes?.[key], level)) {
+      if (!audienceAllows(audienceMap[key] ?? 'internal', ceilings.attributes?.[key], level)) {
         delete attributes[key];
       }
     }

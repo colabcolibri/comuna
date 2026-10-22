@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 import { DEFAULT_TALENT_CATEGORY_SEED } from './category-seed';
-import { ensureDefaultTalentCategories, listTalentCategories, parseTalentCategoryFilter } from './talent-categories';
+import {
+  categoryLabel,
+  ensureDefaultTalentCategories,
+  listTalentCategories,
+  parseTalentCategoryFilter,
+} from './talent-categories';
 
 describe('DEFAULT_TALENT_CATEGORY_SEED', () => {
   it('ships the six demo categories including other', () => {
@@ -50,6 +55,13 @@ describe('listTalentCategories', () => {
         process.env.DATABASE_READ_ONLY = previous;
       }
     }
+  });
+});
+
+describe('categoryLabel', () => {
+  it('resolves default seed ids without a live catalog', () => {
+    expect(categoryLabel('mentorship', 'pt-BR', [])).toBe('Mentoria');
+    expect(categoryLabel('mentorship', 'en', [])).toBe('Mentorship');
   });
 });
 

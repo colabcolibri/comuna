@@ -16,9 +16,9 @@ import {
   communityAllowsShowcaseListing,
   communityCopyLimit,
   coreCatalog,
-  effectiveAudience,
   missingRequiredFields,
-  parseAudience,
+  resolveMemberAudience,
+  defaultMemberAudience,
   type CatalogField,
   type CatalogGroup,
 } from '@community/directory';
@@ -122,13 +122,13 @@ export function ProfileForm({
             const card = membershipJson.card || {};
             const column = field.column_key || field.name;
             if (column === 'headline') {
-              next.headline_audience = effectiveAudience(parseAudience(card.headline_audience), field.exposure) ?? 'private';
+              next.headline_audience = resolveMemberAudience(card.headline_audience, field.exposure) ?? 'internal';
             } else if (column === 'bio') {
-              next.bio_audience = effectiveAudience(parseAudience(card.bio_audience), field.exposure) ?? 'private';
+              next.bio_audience = resolveMemberAudience(card.bio_audience, field.exposure) ?? 'internal';
             } else if (field.storage === 'attributes') {
               const map = card.attribute_audience || {};
               next[`audience:${field.name}`] =
-                effectiveAudience(parseAudience(map[field.name]), field.exposure) ?? 'private';
+                resolveMemberAudience(map[field.name], field.exposure) ?? defaultMemberAudience(field.exposure);
             }
           }
         }
@@ -224,7 +224,7 @@ export function ProfileForm({
           aside={
             key ? (
               <AudienceMark
-                value={String(values[key] || 'private')}
+                value={String(values[key] || defaultMemberAudience(field.exposure))}
                 ceiling={field.exposure}
                 label={copy.audience}
                 labels={{ private: copy.audiencePrivate, internal: copy.audienceInternal, external: copy.audienceExternal }}

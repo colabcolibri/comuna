@@ -19,6 +19,8 @@ export {
   parseExposure,
   audiencePickerCeiling,
   effectiveAudience,
+  defaultMemberAudience,
+  resolveMemberAudience,
   audienceAllowedByCeiling,
   exposureFromPlacement,
   audienceVisible,

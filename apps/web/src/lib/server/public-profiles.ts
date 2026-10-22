@@ -85,6 +85,11 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
     : result.rows;
   const countriesQuery = peopleListCountriesQuery({ communityId, scope: 'showcase' });
   const countries = await query<{ country: string }>(countriesQuery.text, countriesQuery.params);
+  const talentCategoryCatalog = talentOn
+    ? talentCategories
+        .filter((item) => item.enabled)
+        .map((item) => ({ id: item.id, label: item.label, allowsOtherText: item.allowsOtherText }))
+    : [];
   return {
     status: 200 as const,
     data: (rows as Record<string, unknown>[]).map((row) =>
@@ -103,11 +108,7 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
       pageSize: built.pageSize,
       total: counted.rows[0]?.total ?? 0,
       talentFilterEnabled,
-      talentCategories: talentFilterEnabled
-        ? talentCategories
-            .filter((item) => item.enabled)
-            .map((item) => ({ id: item.id, label: item.label, allowsOtherText: item.allowsOtherText }))
-        : [],
+      talentCategories: talentCategoryCatalog,
     },
   };
 }

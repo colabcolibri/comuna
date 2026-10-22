@@ -38,7 +38,7 @@ export function parseOffering(
   if (category.allowsOtherText && (other.length < 1 || other.length > 80)) {
     return { ok: false, message: 'Descreva a categoria (até 80 caracteres).' };
   }
-  const audience = AUDIENCES.includes(body.audience as OfferingAudience) ? (body.audience as OfferingAudience) : 'private';
+  const audience = AUDIENCES.includes(body.audience as OfferingAudience) ? (body.audience as OfferingAudience) : 'internal';
   return {
     ok: true,
     value: {

@@ -71,6 +71,8 @@ export const coreIdentityPack = definePack({
     'talent.save': 'Salvar oferta',
     'talent.edit': 'Editar',
     'talent.remove': 'Remover',
+    'talent.featured_on_card': 'Destaque no card',
+    'talent.featured_on_card_active': 'Em destaque no card',
     'talent.open': 'Abrir link',
   },
   en: {
@@ -143,6 +145,8 @@ export const coreIdentityPack = definePack({
     'talent.save': 'Save offer',
     'talent.edit': 'Edit',
     'talent.remove': 'Remove',
+    'talent.featured_on_card': 'Featured on card',
+    'talent.featured_on_card_active': 'Featured on card',
     'talent.open': 'Open link',
   },
 });

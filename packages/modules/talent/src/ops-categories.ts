@@ -15,7 +15,10 @@ function parseLabelInput(body: Record<string, unknown>) {
   if (!labelPt) {
     throw new TalentCategoryError('Nome em português obrigatório.');
   }
-  return localizedPair(labelPt, labelEn || labelPt);
+  if (!labelEn) {
+    throw new TalentCategoryError('Nome em inglês obrigatório.');
+  }
+  return localizedPair(labelPt, labelEn);
 }
 
 export async function listOpsTalentCategories(communityId: string, query: QueryFn) {

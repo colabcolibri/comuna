@@ -23,7 +23,7 @@ describe('parseOffering', () => {
     expect(parsed.ok).toBe(true);
     if (parsed.ok) {
       expect(parsed.value.categoryOther).toBeNull();
-      expect(parsed.value.audience).toBe('private');
+      expect(parsed.value.audience).toBe('internal');
     }
   });
 

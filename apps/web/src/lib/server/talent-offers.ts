@@ -1,10 +1,10 @@
 import { query, queryAsMember } from '@community/db';
 import type { AppQueryCtx } from '@/lib/server/app-ctx';
 
-const SQL = `SELECT membership_id, title, description, url, category_id, category_other, audience
+const SQL = `SELECT membership_id, title, description, url, category_id, category_other, audience, featured_on_card
   FROM plugin_talent.offerings
   WHERE membership_id = ANY($1::uuid[]) AND audience = ANY($2::text[])
-  ORDER BY created_at`;
+  ORDER BY featured_on_card DESC, created_at ASC, id ASC`;
 
 export async function offeringsByMembership(
   rows: Record<string, unknown>[],

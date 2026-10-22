@@ -4,6 +4,7 @@ import { parseLocalized } from '@community/identity';
 import {
   COMMUNITY_COPY_LIMITS,
   audienceAllowedByCeiling,
+  defaultMemberAudience,
   localizedOverLimit,
   communityAllowsShowcaseListing,
   communityListingExposureCap,
@@ -138,7 +139,8 @@ export async function PUT(req: NextRequest) {
             ? attributeAudience[field.name]
             : undefined;
     if (chosen === undefined) return false;
-    return !audienceAllowedByCeiling(parseAudience(chosen), field.exposure);
+    const fallback = defaultMemberAudience(field.exposure);
+    return !audienceAllowedByCeiling(parseAudience(chosen, fallback), field.exposure);
   });
   if (above) {
     return NextResponse.json(
@@ -189,12 +191,16 @@ export async function PUT(req: NextRequest) {
       resolved.seat.membership_id,
       JSON.stringify(headline),
       JSON.stringify(bio),
-      parseAudience(audiences.headline),
-      parseAudience(audiences.bio),
-      parseAudience(audiences.availability),
+      parseAudience(audiences.headline, 'internal'),
+      parseAudience(audiences.bio, 'internal'),
+      parseAudience(audiences.availability, 'internal'),
       JSON.stringify(
         Object.fromEntries(
-          Object.entries(attributeAudience as Record<string, unknown>).map(([key, value]) => [key, parseAudience(value)])
+          Object.entries(attributeAudience as Record<string, unknown>).map(([key, value]) => {
+            const field = fields.find((item) => item.name === key);
+            const fallback = defaultMemberAudience(field?.exposure ?? 'internal');
+            return [key, parseAudience(value, fallback)];
+          })
         )
       ),
       JSON.stringify(attributes.value),

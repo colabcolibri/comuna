@@ -66,6 +66,11 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
   const countriesQuery = peopleListCountriesQuery({ communityId: ctx.communityId, scope: 'directory' });
   const countries = await queryAsMember<{ country: string }>(ctx, countriesQuery.text, countriesQuery.params);
   const keys = listedAttributeNames(listFields);
+  const talentCategoryCatalog = talentOn
+    ? talentCategories
+        .filter((item) => item.enabled)
+        .map((item) => ({ id: item.id, label: item.label, allowsOtherText: item.allowsOtherText }))
+    : [];
   return {
     status: 200 as const,
     body: {
@@ -85,11 +90,7 @@ export async function listDirectoryMembers(ctx: AppQueryCtx, searchParams: URLSe
         pageSize: built.pageSize,
         total: counted.rows[0]?.total ?? 0,
         talentFilterEnabled,
-        talentCategories: talentFilterEnabled
-          ? talentCategories
-              .filter((item) => item.enabled)
-              .map((item) => ({ id: item.id, label: item.label, allowsOtherText: item.allowsOtherText }))
-          : [],
+        talentCategories: talentCategoryCatalog,
       },
     },
   };
