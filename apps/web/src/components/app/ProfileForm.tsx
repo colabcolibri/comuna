@@ -62,6 +62,9 @@ export function ProfileForm({
       saved: 'profile.saved',
       error: 'profile.error',
       requiredMissing: 'profile.required_missing',
+      progressComplete: 'profile.progress_complete',
+      progressPending: 'profile.progress_pending',
+      unsavedBadge: 'profile.unsaved_badge',
       audience: 'profile.audience',
       audiencePrivate: 'profile.audience_private',
       audienceInternal: 'profile.audience_internal',
@@ -74,6 +77,7 @@ export function ProfileForm({
   );
   const [values, setValues] = useState<Record<string, unknown>>({});
   const [missingNames, setMissingNames] = useState<Set<string>>(new Set());
+  const [isDirty, setIsDirty] = useState(false);
   const [ready, setReady] = useState(false);
   const [saving, setSaving] = useState(false);
   const [listingHints, setListingHints] = useState<ListingHint[]>([]);
@@ -138,6 +142,7 @@ export function ProfileForm({
           next.public_showcase = card.public_showcase === true;
         }
         setValues(next);
+        setIsDirty(false);
         setReady(true);
       })
       .catch(() => {
@@ -145,6 +150,27 @@ export function ProfileForm({
         setReady(true);
       });
   }, [copy.error, scope]);
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [isDirty]);
+
+  const requiredStats = useMemo(() => {
+    const required = fields.filter((field) => field.required);
+    if (!required.length) return null;
+    const pending = missingRequiredFields(fields, values);
+    return {
+      total: required.length,
+      filled: required.length - pending.length,
+      pendingLabels: pending.map((field) => pickLocalizedText(field.label, locale) || field.name),
+    };
+  }, [fields, locale, values]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,6 +211,7 @@ export function ProfileForm({
       }
     }
     setSaving(false);
+    setIsDirty(false);
     toast.success(copy.saved);
     if (scope === 'community') {
       const refreshed = await fetch('/api/memberships/me');
@@ -230,6 +257,7 @@ export function ProfileForm({
             invalid={isInvalid}
             onChange={(next) => {
               setValues((current) => ({ ...current, [field.name]: next }));
+              setIsDirty(true);
               if (missingNames.has(field.name)) {
                 setMissingNames((prev) => {
                   const updated = new Set(prev);
@@ -247,7 +275,10 @@ export function ProfileForm({
                   ceiling={field.exposure}
                   label={copy.audience}
                   labels={{ private: copy.audiencePrivate, internal: copy.audienceInternal, external: copy.audienceExternal }}
-                  onChange={(next) => setValues((current) => ({ ...current, [key]: next }))}
+                  onChange={(next) => {
+                    setValues((current) => ({ ...current, [key]: next }));
+                    setIsDirty(true);
+                  }}
                 />
               ) : null
             }
@@ -261,6 +292,35 @@ export function ProfileForm({
     <>
       {ready ? (
         <form id="profile-form" onSubmit={handleSave} className="min-w-0">
+          {requiredStats ? (
+            <div className="mb-6 rounded-xl border bg-muted/40 px-4 py-3 text-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="font-medium text-foreground">
+                  {requiredStats.pendingLabels.length === 0
+                    ? copy.progressComplete
+                    : `${copy.progressPending}: ${requiredStats.pendingLabels.join(', ')}`}
+                </span>
+                <div className="flex items-center gap-2">
+                  {isDirty ? (
+                    <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
+                      {copy.unsavedBadge}
+                    </span>
+                  ) : null}
+                  <span className="tabular-nums text-xs text-muted-foreground">
+                    {requiredStats.filled}/{requiredStats.total}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-full transition-all duration-300 ${
+                    requiredStats.pendingLabels.length === 0 ? 'bg-emerald-600' : 'bg-primary'
+                  }`}
+                  style={{ width: `${Math.round((requiredStats.filled / requiredStats.total) * 100)}%` }}
+                />
+              </div>
+            </div>
+          ) : null}
           <AppProfileStack>
             {groups.map((group) => {
               const title = pickLocalizedText(group.label, locale) || group.slug;

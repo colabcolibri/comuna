@@ -50,6 +50,7 @@ const nextConfig: NextConfig = {
     '@community/showcase',
     '@community/map',
     '@community/talent',
+    '@community/calendar',
     '@community/contact-mediated',
     '@community/module-runtime',
     '@community/places',

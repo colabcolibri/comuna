@@ -15,6 +15,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
 } from '@community/ui';
 import { contentFromCatalog, mergeContent, pickContent } from '@community/identity';
@@ -36,6 +39,7 @@ const CONTENT = mergeContent(
   showcase: 'chrome.showcase',
   signin: 'chrome.signin',
   directory: 'chrome.directory',
+  calendar: 'chrome.calendar',
   talent: 'chrome.talent',
   profile: 'chrome.profile',
   communityProfile: 'chrome.community_profile',
@@ -45,6 +49,7 @@ const CONTENT = mergeContent(
   signoutBody: 'chrome.signout_body',
   cancel: 'chrome.cancel',
   here: 'chrome.here',
+  publicArea: 'chrome.public_area',
   })
 );
 
@@ -53,6 +58,9 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
   const copy = pickContent(CONTENT, useLocale());
   const enabled = useEnabledModules();
   const pluginNav = visibleChrome(enabled, 'sidebar', Boolean(email));
+  const showcaseItem = pluginNav.find((item) => item.href === '/showcase');
+  const talentItem = pluginNav.find((item) => item.href === '/talents');
+  const workspaceNav = pluginNav.filter((item) => item.href !== '/showcase' && item.href !== '/talents');
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const slug = slugFromPathname(pathname);
@@ -80,7 +88,7 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
           {seats.length > 0 ? <SidebarGroupLabel>{copy.here}</SidebarGroupLabel> : null}
           <SidebarGroupContent>
             <SidebarMenu>
-              {slug ? pluginNav.map((item) => {
+              {slug ? workspaceNav.map((item) => {
                 const Icon = chromeIcon(item.icon);
                 const href = communityPath(slug, item.href);
                 const active = pathname.startsWith(href);
@@ -103,6 +111,20 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
                       <span className="group-data-[collapsible=icon]:hidden">{copy.communityProfile}</span>
                     </Link>
                   </SidebarMenuButton>
+                  {slug && talentItem ? (
+                    <SidebarMenuSub>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={pathname.startsWith(communityPath(slug, talentItem.href))}
+                        >
+                          <Link href={communityPath(slug, talentItem.href)}>
+                            <span>{copyFrom(copy, talentItem.copyKey)}</span>
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    </SidebarMenuSub>
+                  ) : null}
                 </SidebarMenuItem>
               ) : null}
               {email && isCoordinator ? (
@@ -118,6 +140,30 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {slug && showcaseItem ? (
+          <SidebarGroup>
+            <SidebarGroupLabel>{copy.publicArea}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname.startsWith(communityPath(slug, showcaseItem.href))}
+                    tooltip={copyFrom(copy, showcaseItem.copyKey)}
+                  >
+                    <Link href={communityPath(slug, showcaseItem.href)}>
+                      {(() => {
+                        const Icon = chromeIcon(showcaseItem.icon);
+                        return Icon ? <Icon /> : null;
+                      })()}
+                      <span className="group-data-[collapsible=icon]:hidden">{copyFrom(copy, showcaseItem.copyKey)}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : null}
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

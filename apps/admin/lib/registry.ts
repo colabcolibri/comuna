@@ -1,3 +1,4 @@
+import { calendarContribution } from '@community/calendar';
 import { contactMediatedContribution } from '@community/contact-mediated';
 import { directoryContribution } from '@community/directory';
 import { mapContribution } from '@community/map';
@@ -11,6 +12,7 @@ export const firstPartyModules = [
   contactMediatedContribution,
   mapContribution,
   talentContribution,
+  calendarContribution,
 ];
 
 export const firstPartySlugs = slugsOf(firstPartyModules);

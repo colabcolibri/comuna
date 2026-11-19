@@ -12,6 +12,7 @@
     "@community/communities": "workspace:*",
     "@community/contact-mediated": "workspace:*",
     "@community/db": "workspace:*",
+    "@community/calendar": "workspace:*",
     "@community/directory": "workspace:*",
     "@community/files": "workspace:*",
     "@community/identity": "workspace:*",

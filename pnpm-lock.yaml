@@ -51,6 +51,9 @@ importers:
       '@community/auth':
         specifier: workspace:*
         version: link:../../packages/core/auth
+      '@community/calendar':
+        specifier: workspace:*
+        version: link:../../packages/modules/calendar
       '@community/communities':
         specifier: workspace:*
         version: link:../../packages/core/communities
@@ -120,6 +123,9 @@ importers:
       '@community/auth':
         specifier: workspace:*
         version: link:../../packages/core/auth
+      '@community/calendar':
+        specifier: workspace:*
+        version: link:../../packages/modules/calendar
       '@community/communities':
         specifier: workspace:*
         version: link:../../packages/core/communities
@@ -276,6 +282,12 @@ importers:
       '@community/db':
         specifier: workspace:*
         version: link:../db
+
+  packages/modules/calendar:
+    dependencies:
+      '@community/module-runtime':
+        specifier: workspace:*
+        version: link:../../core/module-runtime
 
   packages/modules/contact-mediated:
     dependencies:
