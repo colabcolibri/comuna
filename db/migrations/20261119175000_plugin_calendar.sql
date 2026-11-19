@@ -75,7 +75,7 @@ CREATE POLICY calendar_events_insert ON plugin_calendar.events
       WHERE m.id = plugin_calendar.events.creator_membership_id
         AND m.community_id = plugin_calendar.events.community_id
         AND m.user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
-        AND m.status = 'active'
+        AND m.network_status = 'active'
     )
   );
 
@@ -98,7 +98,7 @@ CREATE POLICY calendar_events_modify ON plugin_calendar.events
         WHERE m.community_id = plugin_calendar.events.community_id
           AND m.user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
           AND m.network_role = 'coordinator'
-          AND m.status = 'active'
+          AND m.network_status = 'active'
       )
     )
   )
@@ -126,7 +126,7 @@ CREATE POLICY calendar_events_delete ON plugin_calendar.events
         WHERE m.community_id = plugin_calendar.events.community_id
           AND m.user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
           AND m.network_role = 'coordinator'
-          AND m.status = 'active'
+          AND m.network_status = 'active'
       )
     )
   );
@@ -159,7 +159,7 @@ CREATE POLICY calendar_rsvps_write ON plugin_calendar.rsvps
       FROM network_core.memberships m
       WHERE m.id = plugin_calendar.rsvps.membership_id
         AND m.user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
-        AND m.status = 'active'
+        AND m.network_status = 'active'
     )
   )
   WITH CHECK (
@@ -170,7 +170,7 @@ CREATE POLICY calendar_rsvps_write ON plugin_calendar.rsvps
       WHERE m.id = plugin_calendar.rsvps.membership_id
         AND m.community_id = e.community_id
         AND m.user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
-        AND m.status = 'active'
+        AND m.network_status = 'active'
     )
   );
 
