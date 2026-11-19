@@ -150,3 +150,48 @@ export function buildIcsContent(event: {
   lines.push('END:VEVENT', 'END:VCALENDAR');
   return `${lines.join('\r\n')}\r\n`;
 }
+
+type CalendarLinkInput = {
+  title: string;
+  description?: string | null;
+  startsAt: string;
+  endsAt?: string | null;
+  location?: string | null;
+  meetingUrl?: string | null;
+};
+
+function resolvedRange(event: CalendarLinkInput) {
+  const startIso = new Date(event.startsAt).toISOString();
+  const endIso = event.endsAt
+    ? new Date(event.endsAt).toISOString()
+    : new Date(Date.parse(startIso) + 60 * 60 * 1000).toISOString();
+  const details = [event.description?.trim(), event.meetingUrl?.trim()].filter(Boolean).join('\n\n');
+  const location = event.location?.trim() || event.meetingUrl?.trim() || '';
+  return { startIso, endIso, details, location };
+}
+
+export function buildGoogleCalendarUrl(event: CalendarLinkInput): string {
+  const { startIso, endIso, details, location } = resolvedRange(event);
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: event.title,
+    dates: `${formatIcsUtc(startIso)}/${formatIcsUtc(endIso)}`,
+  });
+  if (details) params.set('details', details);
+  if (location) params.set('location', location);
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+export function buildOutlookCalendarUrl(event: CalendarLinkInput): string {
+  const { startIso, endIso, details, location } = resolvedRange(event);
+  const params = new URLSearchParams({
+    path: '/calendar/action/compose',
+    rru: 'addevent',
+    subject: event.title,
+    startdt: startIso,
+    enddt: endIso,
+  });
+  if (details) params.set('body', details);
+  if (location) params.set('location', location);
+  return `https://outlook.live.com/calendar/0/deeplink/compose?${params.toString()}`;
+}

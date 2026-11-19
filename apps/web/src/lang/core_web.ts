@@ -118,6 +118,10 @@ export const coreWebPack = definePack({
     'calendar.interested_count': 'interessados',
     'calendar.by': 'Organizado por',
     'calendar.download_ics': 'Adicionar à agenda (.ics)',
+    'calendar.add_to_calendar': 'Adicionar à agenda',
+    'calendar.add_google': 'Google Calendar',
+    'calendar.add_outlook': 'Outlook',
+    'calendar.add_ics': 'Apple / Arquivo .ics',
     'calendar.open_link': 'Entrar no link',
   },
   en: {
@@ -237,6 +241,10 @@ export const coreWebPack = definePack({
     'calendar.interested_count': 'interested',
     'calendar.by': 'Hosted by',
     'calendar.download_ics': 'Add to calendar (.ics)',
+    'calendar.add_to_calendar': 'Add to calendar',
+    'calendar.add_google': 'Google Calendar',
+    'calendar.add_outlook': 'Outlook',
+    'calendar.add_ics': 'Apple / .ics file',
     'calendar.open_link': 'Join link',
   },
 });

@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import {
   CalendarPlus,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -15,9 +16,27 @@ import {
   Users,
   Video,
 } from 'lucide-react';
-import { buildIcsContent, type EventFormat, type RsvpStatus } from '@community/calendar';
+import {
+  buildGoogleCalendarUrl,
+  buildIcsContent,
+  buildOutlookCalendarUrl,
+  type EventFormat,
+  type RsvpStatus,
+} from '@community/calendar';
 import { contentFromCatalog, pickContent } from '@community/identity';
-import { Button, Card, CardContent, Input, Label, Textarea, toast } from '@community/ui';
+import {
+  Button,
+  Card,
+  CardContent,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Input,
+  Label,
+  Textarea,
+  toast,
+} from '@community/ui';
 import {
   AppAlertDialog,
   AppDialog,
@@ -73,7 +92,10 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   goingCount: 'calendar.going_count',
   interestedCount: 'calendar.interested_count',
   by: 'calendar.by',
-  downloadIcs: 'calendar.download_ics',
+  addToCalendar: 'calendar.add_to_calendar',
+  addGoogle: 'calendar.add_google',
+  addOutlook: 'calendar.add_outlook',
+  addIcs: 'calendar.add_ics',
   openLink: 'calendar.open_link',
 });
 
@@ -452,15 +474,41 @@ export function CalendarPanel({ initialEvents }: { initialEvents: CalendarEventI
                     </a>
                   </Button>
                 ) : null}
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => downloadIcs(item)}
-                >
-                  <Download className="size-3.5" />
-                  {copy.downloadIcs}
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button type="button" size="sm" variant="ghost">
+                      <CalendarPlus className="size-3.5" />
+                      {copy.addToCalendar}
+                      <ChevronDown className="size-3.5 opacity-70" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={buildGoogleCalendarUrl(item)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="size-3.5" />
+                        {copy.addGoogle}
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={buildOutlookCalendarUrl(item)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="size-3.5" />
+                        {copy.addOutlook}
+                      </a>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => downloadIcs(item)}>
+                      <Download className="size-3.5" />
+                      {copy.addIcs}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
