@@ -1,6 +1,7 @@
 import { calendarContribution } from '@community/calendar';
 import { contactMediatedContribution } from '@community/contact-mediated';
 import { directoryContribution } from '@community/directory';
+import { invitationsContribution } from '@community/invitations';
 import { mapContribution } from '@community/map';
 import {
   canWriteCards as cardsFromRegistry,
@@ -19,11 +20,14 @@ export const firstPartyModules = [
   mapContribution,
   talentContribution,
   calendarContribution,
+  invitationsContribution,
 ];
 
 export const firstPartySlugs = slugsOf(firstPartyModules);
 
-export const defaultEnabledSlugs = firstPartySlugs.filter((slug) => slug !== 'talent');
+export const defaultEnabledSlugs = firstPartySlugs.filter(
+  (slug) => slug !== 'talent' && slug !== 'invitations'
+);
 
 export function visibleChrome(enabled: Iterable<string>, slot: ChromeSlot, signedIn: boolean) {
   return chromeOf(firstPartyModules, enabled, slot).filter((item) => !item.memberOnly || signedIn);

@@ -13,6 +13,7 @@ export default async function CommunitySettingsPage({ params }: { params: Promis
   if (!community) {
     notFound();
   }
+  const moduleStates = await listCommunityModuleStates(query, community.id, firstPartySlugs);
   return (
     <CommunitySettings
       communityId={community.id}
@@ -21,9 +22,8 @@ export default async function CommunitySettingsPage({ params }: { params: Promis
       type={community.type}
       isPublicShowcase={community.is_public_showcase}
       settings={community.settings}
-      talentOn={(await listCommunityModuleStates(query, community.id, firstPartySlugs)).some(
-        (item) => item.slug === 'talent' && item.enabled
-      )}
+      talentOn={moduleStates.some((item) => item.slug === 'talent' && item.enabled)}
+      invitationsOn={moduleStates.some((item) => item.slug === 'invitations' && item.enabled)}
     />
   );
 }

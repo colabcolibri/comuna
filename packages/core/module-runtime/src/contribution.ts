@@ -1,6 +1,6 @@
 export type ChromeSlot = 'sidebar' | 'header' | 'home';
 
-export type ChromeIcon = 'users' | 'layoutGrid' | 'calendar';
+export type ChromeIcon = 'users' | 'layoutGrid' | 'calendar' | 'userPlus';
 
 export type ChromeItem = {
   slot: ChromeSlot;

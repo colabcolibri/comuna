@@ -10,6 +10,7 @@ export type CommunitySettings = {
   name_en: string;
   default_locale: 'pt-BR' | 'en';
   talent_exposure: 'hidden' | 'internal' | 'external';
+  invite_limit_per_member: number;
 };
 
 export type CommunityRow = {
@@ -36,6 +37,9 @@ export function parseCommunitySettings(raw: unknown): CommunitySettings {
   const default_locale = source.default_locale === 'en' ? 'en' : 'pt-BR';
   const talent_exposure =
     source.talent_exposure === 'hidden' || source.talent_exposure === 'external' ? source.talent_exposure : 'internal';
+  const rawLimit = Number(source.invite_limit_per_member);
+  const invite_limit_per_member =
+    Number.isFinite(rawLimit) && rawLimit >= 1 ? Math.min(100, Math.floor(rawLimit)) : 5;
   return {
     description,
     showcase_title,
@@ -45,6 +49,7 @@ export function parseCommunitySettings(raw: unknown): CommunitySettings {
     name_en,
     default_locale,
     talent_exposure,
+    invite_limit_per_member,
   };
 }
 

@@ -37,6 +37,7 @@ const CONTENT = mergeContent(
   signin: 'chrome.signin',
   directory: 'chrome.directory',
   calendar: 'chrome.calendar',
+  invites: 'chrome.invites',
   talent: 'chrome.talent',
   profile: 'chrome.profile',
   communityProfile: 'chrome.community_profile',

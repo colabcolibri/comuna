@@ -1,10 +1,12 @@
-import crypto from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { memberFromRequest } from '@community/auth';
-import { isSmtpConfigured } from '@community/auth/smtp';
-import { queryAsMember } from '@community/db';
-import { sendKindEmail } from '@community/mail';
+import { parseInviteInput } from '@community/invitations';
 import { memberCommunityFromRequest } from '@/lib/server/member-community';
+import {
+  createCommunityInvitation,
+  listCommunityInvitations,
+  revokeCommunityInvitation,
+} from '@/lib/server/invitations-service';
 
 async function coordinatorFromRequest(req: NextRequest) {
   const claims = await memberFromRequest(req);
@@ -25,75 +27,43 @@ export async function GET(req: NextRequest) {
   const resolved = await coordinatorFromRequest(req);
   if (resolved instanceof NextResponse) return resolved;
 
-  const res = await queryAsMember(
+  const result = await listCommunityInvitations(
     { userId: resolved.userId, communityId: resolved.seat.id },
-    `SELECT id, email, token, expires_at, accepted_at, created_at
-     FROM network_core.invitations
-     WHERE community_id = $1
-     ORDER BY created_at DESC
-     LIMIT 50`,
-    [resolved.seat.id]
+    { scope: 'all' }
   );
-  return NextResponse.json({ invitations: res.rows });
+  return NextResponse.json(result);
 }
 
 export async function POST(req: NextRequest) {
   const resolved = await coordinatorFromRequest(req);
   if (resolved instanceof NextResponse) return resolved;
 
-  let body: { email?: string; locale?: string };
+  let body: { email?: unknown; locale?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: 'JSON inválido' } }, { status: 400 });
   }
 
-  const email = String(body.email || '').trim().toLowerCase();
-  const mailLocale = body.locale === 'en' ? 'en' : 'pt-BR';
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: 'E-mail inválido.' } }, { status: 400 });
+  const parsed = parseInviteInput(body);
+  if (parsed.ok === false) {
+    return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: parsed.message } }, { status: 400 });
   }
 
-  const token = crypto.randomBytes(24).toString('hex');
-  const inserted = await queryAsMember<{
-    id: string;
-    email: string;
-    token: string;
-    expires_at: string;
-    accepted_at: string | null;
-    created_at: string;
-  }>(
+  const created = await createCommunityInvitation(
     { userId: resolved.userId, communityId: resolved.seat.id },
-    `INSERT INTO network_core.invitations (community_id, email, token, invited_by)
-     VALUES ($1, $2, $3, $4)
-     RETURNING id, email, token, expires_at, accepted_at, created_at`,
-    [resolved.seat.id, email, token, resolved.userId]
-  );
-
-  const invitation = inserted.rows[0];
-  const origin = req.nextUrl.origin;
-  const inviteUrl = `${origin}/invite/${token}`;
-
-  let emailSent = false;
-  if (isSmtpConfigured()) {
-    try {
-      const communityName = resolved.seat.name || 'Comunidade';
-      await sendKindEmail({
-        kind: 'community_invite',
-        to: email,
-        locale: mailLocale,
-        vars: {
-          community_name: communityName,
-          login_url: inviteUrl,
-        },
-      });
-      emailSent = true;
-    } catch {
-      emailSent = false;
+    {
+      communityName: resolved.seat.name,
+      email: parsed.email,
+      locale: parsed.locale,
+      origin: req.nextUrl.origin,
+      isCoordinator: true,
     }
+  );
+  if (created.ok === false) {
+    return NextResponse.json({ error: { code: 'FORBIDDEN', message: created.message } }, { status: created.status });
   }
-
-  return NextResponse.json({ invitation, inviteUrl, emailSent }, { status: 201 });
+  return NextResponse.json(created, { status: 201 });
 }
 
 export async function DELETE(req: NextRequest) {
@@ -105,10 +75,9 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: 'ID obrigatório' } }, { status: 400 });
   }
 
-  await queryAsMember(
+  await revokeCommunityInvitation(
     { userId: resolved.userId, communityId: resolved.seat.id },
-    `DELETE FROM network_core.invitations WHERE id = $1 AND community_id = $2`,
-    [id, resolved.seat.id]
+    { id, scope: 'all' }
   );
   return NextResponse.json({ ok: true });
 }

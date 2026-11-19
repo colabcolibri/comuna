@@ -69,6 +69,9 @@ importers:
       '@community/identity':
         specifier: workspace:*
         version: link:../../packages/core/identity
+      '@community/invitations':
+        specifier: workspace:*
+        version: link:../../packages/modules/invitations
       '@community/mail':
         specifier: workspace:*
         version: link:../../packages/core/mail
@@ -144,6 +147,9 @@ importers:
       '@community/identity':
         specifier: workspace:*
         version: link:../../packages/core/identity
+      '@community/invitations':
+        specifier: workspace:*
+        version: link:../../packages/modules/invitations
       '@community/mail':
         specifier: workspace:*
         version: link:../../packages/core/mail
@@ -312,6 +318,12 @@ importers:
       '@community/places':
         specifier: workspace:*
         version: link:../../core/places
+
+  packages/modules/invitations:
+    dependencies:
+      '@community/module-runtime':
+        specifier: workspace:*
+        version: link:../../core/module-runtime
 
   packages/modules/map:
     dependencies:

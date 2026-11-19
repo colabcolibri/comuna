@@ -34,6 +34,7 @@ describe('communities', () => {
           name_en: '',
           default_locale: 'pt-BR',
           talent_exposure: 'internal',
+          invite_limit_per_member: 5,
         },
       },
     ]);

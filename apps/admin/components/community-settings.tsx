@@ -41,6 +41,7 @@ export function CommunitySettings({
   isPublicShowcase,
   settings,
   talentOn,
+  invitationsOn = false,
 }: {
   communityId: string;
   name: string;
@@ -49,6 +50,7 @@ export function CommunitySettings({
   isPublicShowcase: boolean;
   settings: CommunitySettingsValue;
   talentOn: boolean;
+  invitationsOn?: boolean;
 }) {
   const locale = useLocale();
   const copy = pickContent(CONTENT, locale);
@@ -68,6 +70,7 @@ export function CommunitySettings({
   const [defaultLocale, setDefaultLocale] = useState(settings.default_locale);
   const [publicShowcase, setPublicShowcase] = useState(isPublicShowcase);
   const [talentExposure, setTalentExposure] = useState(settings.talent_exposure || 'internal');
+  const [inviteLimit, setInviteLimit] = useState(String(settings.invite_limit_per_member ?? 5));
   const [busy, setBusy] = useState(false);
   const typeLabels: Record<string, string> = {
     alumni: copy.typeAlumni,
@@ -95,6 +98,7 @@ export function CommunitySettings({
           showcase_description_en: showcaseDescriptionEn,
           default_locale: defaultLocale,
           talent_exposure: talentExposure,
+          invite_limit_per_member: Math.max(1, Math.min(100, Number(inviteLimit) || 5)),
         },
       }),
     });
@@ -228,6 +232,20 @@ export function CommunitySettings({
                 {item === 'hidden' ? '⊘' : item === 'internal' ? '👥' : '🌐'}
               </button>
             ))}
+          </div>
+        ) : null}
+        {invitationsOn ? (
+          <div className="space-y-1.5">
+            <Label htmlFor="ops-invite-limit">Limite de convites por membro</Label>
+            <Input
+              id="ops-invite-limit"
+              type="number"
+              min={1}
+              max={100}
+              value={inviteLimit}
+              onChange={(e) => setInviteLimit(e.target.value)}
+              className="max-w-32"
+            />
           </div>
         ) : null}
         <label className="flex min-h-11 items-center gap-2 text-sm">
