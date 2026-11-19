@@ -55,7 +55,6 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
   const copy = pickContent(CONTENT, useLocale());
   const enabled = useEnabledModules();
   const pluginNav = visibleChrome(enabled, 'sidebar', Boolean(email));
-  const showcaseItem = pluginNav.find((item) => item.href === '/showcase');
   const workspaceNav = pluginNav.filter((item) => item.href !== '/showcase' && item.href !== '/talents');
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -122,30 +121,6 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {slug && showcaseItem ? (
-          <SidebarGroup>
-            <SidebarGroupLabel>{copy.publicArea}</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname.startsWith(communityPath(slug, showcaseItem.href))}
-                    tooltip={copyFrom(copy, showcaseItem.copyKey)}
-                  >
-                    <Link href={communityPath(slug, showcaseItem.href)}>
-                      {(() => {
-                        const Icon = chromeIcon(showcaseItem.icon);
-                        return Icon ? <Icon /> : null;
-                      })()}
-                      <span className="group-data-[collapsible=icon]:hidden">{copyFrom(copy, showcaseItem.copyKey)}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ) : null}
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

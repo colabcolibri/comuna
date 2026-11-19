@@ -13,6 +13,7 @@ export type PersonContacts = {
   linkedin: string;
   github: string;
   portfolio: string;
+  instagram: string;
 };
 
 export function parseGender(raw: unknown): Gender | null {
@@ -84,5 +85,6 @@ export function parseContacts(raw: unknown): PersonContacts {
     linkedin: sanitizeHttpUrl(row.linkedin),
     github: sanitizeHttpUrl(row.github),
     portfolio: sanitizeHttpUrl(row.portfolio),
+    instagram: sanitizeHttpUrl(row.instagram),
   };
 }

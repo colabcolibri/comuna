@@ -197,7 +197,7 @@ export function FieldControl({
       </div>
       <Field
         id={id}
-        type={field.type === 'url' ? 'url' : undefined}
+        type={field.type === 'url' && field.name !== 'instagram' ? 'url' : undefined}
         className={field.type === 'textarea' ? 'min-h-32 w-full' : 'min-h-11 w-full'}
         value={String(value || '')}
         required={field.required}

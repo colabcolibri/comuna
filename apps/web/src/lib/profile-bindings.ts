@@ -55,6 +55,7 @@ export function personBodyFromFields(
     linkedin: String(values.linkedin || ''),
     github: String(values.github || ''),
     portfolio: String(values.portfolio || ''),
+    instagram: String(values.instagram || ''),
   };
   return {
     full_name: String(values.full_name || ''),

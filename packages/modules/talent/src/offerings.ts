@@ -13,6 +13,25 @@ export type OfferingInput = {
   audience: OfferingAudience;
 };
 
+function normalizeOfferUrl(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return '';
+  if (/^@[a-zA-Z0-9._]{1,30}$/.test(trimmed)) {
+    return `https://instagram.com/${trimmed.slice(1)}`;
+  }
+  if (/^\+?[\d\s().-]{10,20}$/.test(trimmed)) {
+    const digits = trimmed.replace(/\D/g, '');
+    if (digits.length >= 10 && digits.length <= 15) {
+      const withCountry = !trimmed.startsWith('+') && (digits.length === 10 || digits.length === 11) ? `55${digits}` : digits;
+      return `https://wa.me/${withCountry}`;
+    }
+  }
+  if (!/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed) && /^[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  return trimmed;
+}
+
 export function parseOffering(
   body: Record<string, unknown>,
   categories: OfferingCategoryRule[]
@@ -26,12 +45,9 @@ export function parseOffering(
     return { ok: false, message: 'Descrição longa demais.' };
   }
   const rawUrl = typeof body.url === 'string' ? body.url.trim() : '';
-  const normalizedUrl =
-    rawUrl && !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(rawUrl) && /^[^\s@]+\.[^\s@]+$/.test(rawUrl)
-      ? `https://${rawUrl}`
-      : rawUrl;
+  const normalizedUrl = normalizeOfferUrl(rawUrl);
   if (normalizedUrl && !/^https:\/\/\S+$/i.test(normalizedUrl)) {
-    return { ok: false, message: 'Link inválido. Use uma URL completa (ex: https://...).' };
+    return { ok: false, message: 'Link inválido. Use https://..., @instagram ou WhatsApp.' };
   }
   const categoryId = typeof body.categoryId === 'string' ? body.categoryId : '';
   const category = categories.find((item) => item.id === categoryId);

@@ -117,6 +117,7 @@ const SEED_FIELD_ORDER: Record<string, number> = {
   current_city: 30,
   languages: 40,
   linkedin: 10,
+  instagram: 15,
   github: 20,
   portfolio: 30,
   public_directory: 15,

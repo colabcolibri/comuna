@@ -25,6 +25,7 @@ describe('URL sanitization (US-0135)', () => {
       linkedin: 'https://linkedin.com/in/ana',
       github: '',
       portfolio: '',
+      instagram: '',
     });
   });
 

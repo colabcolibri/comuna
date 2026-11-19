@@ -2,6 +2,12 @@ import { queryAsMember } from '@community/db';
 import type { EventFormat, RsvpStatus } from '@community/calendar';
 import type { AppQueryCtx } from '@/lib/server/app-ctx';
 
+export type CalendarAttendee = {
+  membershipId: string;
+  name: string;
+  status: RsvpStatus;
+};
+
 export type CalendarEventItem = {
   id: string;
   title: string;
@@ -17,6 +23,7 @@ export type CalendarEventItem = {
   goingCount: number;
   interestedCount: number;
   myRsvp: RsvpStatus | null;
+  attendees: CalendarAttendee[];
 };
 
 type EventRow = {
@@ -33,6 +40,7 @@ type EventRow = {
   going_count: number;
   interested_count: number;
   my_rsvp: RsvpStatus | null;
+  attendees: CalendarAttendee[] | null;
 };
 
 export async function listCalendarEvents(
@@ -55,11 +63,24 @@ export async function listCalendarEvents(
        COALESCE(p.full_name, '') AS creator_name,
        COUNT(r.membership_id) FILTER (WHERE r.status = 'going')::int AS going_count,
        COUNT(r.membership_id) FILTER (WHERE r.status = 'interested')::int AS interested_count,
-       MAX(CASE WHEN r.membership_id = $2 THEN r.status ELSE NULL END) AS my_rsvp
+       MAX(CASE WHEN r.membership_id = $2 THEN r.status ELSE NULL END) AS my_rsvp,
+       COALESCE(
+         json_agg(
+           json_build_object(
+             'membershipId', r.membership_id,
+             'name', COALESCE(rp.full_name, ''),
+             'status', r.status
+           )
+           ORDER BY r.created_at ASC
+         ) FILTER (WHERE r.membership_id IS NOT NULL),
+         '[]'::json
+       ) AS attendees
      FROM plugin_calendar.events e
      JOIN network_core.memberships m ON m.id = e.creator_membership_id
      LEFT JOIN person_core.profiles p ON p.user_id = m.user_id
      LEFT JOIN plugin_calendar.rsvps r ON r.event_id = e.id
+     LEFT JOIN network_core.memberships rm ON rm.id = r.membership_id
+     LEFT JOIN person_core.profiles rp ON rp.user_id = rm.user_id
      WHERE e.community_id = $1
      GROUP BY e.id, p.full_name
      ORDER BY e.starts_at ASC, e.id ASC`,
@@ -81,5 +102,6 @@ export async function listCalendarEvents(
     goingCount: Number(row.going_count) || 0,
     interestedCount: Number(row.interested_count) || 0,
     myRsvp: row.my_rsvp ?? null,
+    attendees: Array.isArray(row.attendees) ? row.attendees : [],
   }));
 }

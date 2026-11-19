@@ -79,10 +79,15 @@ export function PersonInspect({
               <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                 {inspectCopy.linksHeading}
               </p>
-              <ul className="flex flex-col gap-2 text-sm">
+              <ul className="flex flex-wrap gap-2 text-sm">
                 {view.links.map((item) => (
                   <li key={item.key} className="min-w-0">
-                    <a href={item.href} className="break-all underline" rel="noreferrer" target="_blank">
+                    <a
+                      href={item.href}
+                      className="inline-flex items-center gap-1.5 rounded-lg border bg-card px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                      rel="noreferrer"
+                      target="_blank"
+                    >
                       {item.label}
                     </a>
                   </li>
@@ -95,14 +100,72 @@ export function PersonInspect({
     });
   }
   if (view && hasCommunityFacts) {
+    const isLongFact = (item: { values: string[] }) =>
+      item.values.length > 3 || item.values.some((v) => v.length > 80 || v.includes('\n'));
+    const shortFacts = view.facts.filter((item) => !isLongFact(item));
+    const longFacts = view.facts.filter((item) => isLongFact(item));
+
     builtTabs.push({
       id: 'community',
       label: inspectCopy.tabCommunity,
       content: (
-        <div className="grid min-w-0 gap-6 sm:grid-cols-2">
-          {view.facts.map((item) => (
-            <AppPersonFieldGroup key={item.name} label={item.label} values={item.values} />
-          ))}
+        <div className="min-w-0 space-y-6">
+          {shortFacts.length > 0 ? (
+            <dl className="grid min-w-0 grid-cols-1 gap-x-8 rounded-xl border border-border/70 bg-card/60 px-5 py-1 sm:grid-cols-2">
+              {shortFacts.map((item) => (
+                <div
+                  key={item.name}
+                  className="flex min-w-0 items-baseline justify-between gap-4 border-b border-border/50 py-3 last:border-b-0 sm:[&:nth-last-child(2):nth-child(odd)]:border-b-0"
+                >
+                  <dt className="shrink-0 text-sm text-muted-foreground">{item.label}</dt>
+                  <dd className="min-w-0 text-right text-sm font-medium text-foreground">
+                    {item.values.length === 1 ? (
+                      <span className="break-words">{item.values[0]}</span>
+                    ) : (
+                      <span className="inline-flex flex-wrap justify-end gap-1.5">
+                        {item.values.map((val) => (
+                          <span
+                            key={val}
+                            className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-foreground"
+                          >
+                            {val}
+                          </span>
+                        ))}
+                      </span>
+                    )}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+
+          {longFacts.length > 0 ? (
+            <div className="space-y-5">
+              {longFacts.map((item) => (
+                <div key={item.name} className="min-w-0 space-y-2 border-b border-border/50 pb-4 last:border-b-0">
+                  <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {item.label}
+                  </h4>
+                  {item.values.length === 1 ? (
+                    <p className="max-w-prose whitespace-pre-line text-sm leading-relaxed text-foreground">
+                      {item.values[0]}
+                    </p>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {item.values.map((val) => (
+                        <span
+                          key={val}
+                          className="inline-flex items-center rounded-md border bg-muted/50 px-2.5 py-1 text-xs font-medium text-foreground"
+                        >
+                          {val}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
       ),
     });

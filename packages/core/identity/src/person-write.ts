@@ -39,11 +39,23 @@ export function personWriteFromBody(body: Record<string, unknown>):
     return { ok: false, message: 'avatar_url inválido' };
   }
   const rawContacts = body.contacts && typeof body.contacts === 'object' ? (body.contacts as Record<string, unknown>) : {};
-  for (const key of ['linkedin', 'github', 'portfolio'] as const) {
-    const val = rawContacts[key];
-    if (val != null && String(val).trim() !== '' && !isSafeHttpUrl(val)) {
+  const normalizedContacts: Record<string, string> = {};
+  for (const key of ['linkedin', 'github', 'portfolio', 'instagram'] as const) {
+    const rawVal = rawContacts[key] == null ? '' : String(rawContacts[key]).trim();
+    if (!rawVal) {
+      normalizedContacts[key] = '';
+      continue;
+    }
+    let candidate = rawVal;
+    if (key === 'instagram' && /^@[a-zA-Z0-9._]{1,30}$/.test(rawVal)) {
+      candidate = `https://instagram.com/${rawVal.slice(1)}`;
+    } else if (!/^[a-zA-Z][a-zA-Z\d+.-]*:/.test(rawVal) && rawVal.includes('.') && !rawVal.includes(' ')) {
+      candidate = `https://${rawVal}`;
+    }
+    if (!isSafeHttpUrl(candidate)) {
       return { ok: false, message: `${key} URL inválida` };
     }
+    normalizedContacts[key] = candidate;
   }
   const birthCity = parsePlace(body.birth_city);
   const currentCity = parsePlace(body.current_city);
@@ -59,7 +71,7 @@ export function personWriteFromBody(body: Record<string, unknown>):
       birth_city: birthCity,
       current_city: currentCity,
       languages: parseLanguages(body.languages),
-      contacts: parseContacts(body.contacts),
+      contacts: parseContacts(normalizedContacts),
     },
   };
 }

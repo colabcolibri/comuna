@@ -59,6 +59,7 @@ export async function PUT(req: NextRequest) {
       linkedin: parsed.write.contacts.linkedin,
       github: parsed.write.contacts.github,
       portfolio: parsed.write.contacts.portfolio,
+      instagram: parsed.write.contacts.instagram,
     };
     if (missingRequiredFields(fields, values).length) {
       return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: 'Preencha os campos obrigatórios.' } }, { status: 400 });

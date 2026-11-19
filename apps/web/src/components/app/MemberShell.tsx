@@ -2,12 +2,15 @@
 
 import type { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
+import { Link2 } from 'lucide-react';
 import {
+  Button,
   ScrollArea,
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
   ThemeToggle,
+  toast,
   useSidebar,
 } from '@community/ui';
 import { contentFromCatalog, pickContent } from '@community/identity';
@@ -26,6 +29,8 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   brand: 'chrome.brand',
   openMenu: 'chrome.open_menu',
   closeMenu: 'chrome.close_menu',
+  copyShowcase: 'chrome.copy_showcase',
+  showcaseCopied: 'chrome.showcase_copied',
   toDark: 'theme.to_dark',
   toLight: 'theme.to_light',
 });
@@ -90,7 +95,23 @@ export function MemberShell({
           </Link>
             );
           }) : null}
-          <div className="ml-auto flex items-center gap-1">
+          <div className="ml-auto flex items-center gap-1.5">
+            {slug && enabled.includes('showcase') ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1.5 px-2.5 text-xs"
+                onClick={async () => {
+                  const url = `${window.location.origin}${communityPath(slug, '/showcase')}`;
+                  await navigator.clipboard?.writeText(url);
+                  toast.success(copy.showcaseCopied);
+                }}
+              >
+                <Link2 className="size-3.5" />
+                <span className="hidden sm:inline">{copy.copyShowcase}</span>
+              </Button>
+            ) : null}
             <LocaleSwitcher />
             <ThemeToggle className="size-8" toDark={copy.toDark} toLight={copy.toLight} />
           </div>

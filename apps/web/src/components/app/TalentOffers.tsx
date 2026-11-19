@@ -384,8 +384,8 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
               <Label htmlFor="talent-link">{copy.link}</Label>
               <Input
                 id="talent-link"
-                type="url"
-                placeholder="https://..."
+                type="text"
+                placeholder="https://..., @instagram ou WhatsApp"
                 value={draft.url}
                 onChange={(event) => {
                   setFormError('');

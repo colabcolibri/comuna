@@ -91,6 +91,10 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_web', {
   rsvpInterested: 'calendar.rsvp_interested',
   goingCount: 'calendar.going_count',
   interestedCount: 'calendar.interested_count',
+  attendeesShow: 'calendar.attendees_show',
+  attendeesHide: 'calendar.attendees_hide',
+  attendeesGoing: 'calendar.attendees_going',
+  attendeesInterested: 'calendar.attendees_interested',
   by: 'calendar.by',
   addToCalendar: 'calendar.add_to_calendar',
   addGoogle: 'calendar.add_google',
@@ -146,6 +150,7 @@ export function CalendarPanel({ initialEvents }: { initialEvents: CalendarEventI
 
   const [deleteTarget, setDeleteTarget] = useState<CalendarEventItem | null>(null);
   const [rsvpPending, setRsvpPending] = useState<string | null>(null);
+  const [expandedAttendees, setExpandedAttendees] = useState<Set<string>>(new Set());
 
   async function reloadEvents() {
     const res = await fetch('/api/calendar/events');
@@ -276,18 +281,7 @@ export function CalendarPanel({ initialEvents }: { initialEvents: CalendarEventI
         toast.error(copy.errorSave);
         return;
       }
-      setEvents((prev) =>
-        prev.map((ev) => {
-          if (ev.id !== item.id) return ev;
-          let going = ev.goingCount;
-          let interested = ev.interestedCount;
-          if (ev.myRsvp === 'going') going = Math.max(0, going - 1);
-          if (ev.myRsvp === 'interested') interested = Math.max(0, interested - 1);
-          if (next === 'going') going += 1;
-          if (next === 'interested') interested += 1;
-          return { ...ev, myRsvp: next, goingCount: going, interestedCount: interested };
-        })
-      );
+      await reloadEvents();
     } finally {
       setRsvpPending(null);
     }
@@ -509,7 +503,51 @@ export function CalendarPanel({ initialEvents }: { initialEvents: CalendarEventI
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+                {(item.goingCount + item.interestedCount) > 0 ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() =>
+                      setExpandedAttendees((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(item.id)) next.delete(item.id);
+                        else next.add(item.id);
+                        return next;
+                      })
+                    }
+                  >
+                    <Users className="size-3.5" />
+                    {expandedAttendees.has(item.id) ? copy.attendeesHide : copy.attendeesShow}
+                  </Button>
+                ) : null}
               </div>
+
+              {expandedAttendees.has(item.id) && item.attendees.length > 0 ? (
+                <div className="mt-2 space-y-2 rounded-lg border border-border/60 bg-muted/30 p-3 text-xs">
+                  {(['going', 'interested'] as const).map((st) => {
+                    const list = item.attendees.filter((a) => a.status === st);
+                    if (!list.length) return null;
+                    return (
+                      <div key={st} className="space-y-1">
+                        <p className="font-semibold text-muted-foreground">
+                          {st === 'going' ? copy.attendeesGoing : copy.attendeesInterested} ({list.length})
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {list.map((person) => (
+                            <span
+                              key={person.membershipId}
+                              className="inline-flex items-center rounded-md border bg-background px-2 py-0.5 text-xs font-medium text-foreground"
+                            >
+                              {person.name || 'Membro'}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
             </div>
           </div>
         </CardContent>
