@@ -14,7 +14,7 @@ const SIZE = {
   sm: 'sm:max-w-sm',
   md: 'sm:max-w-lg',
   lg: 'sm:max-w-2xl',
-  xl: 'sm:max-w-4xl',
+  xl: 'sm:max-w-5xl',
   full: 'app-dialog-fill top-1/2 left-1/2 h-[95dvh] max-h-[95dvh] w-[95vw] max-w-[95vw] -translate-x-1/2 -translate-y-1/2 rounded-xl sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:h-[95dvh] sm:max-h-[95dvh] sm:w-[95vw] sm:max-w-[95vw] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-xl',
 } as const;
 

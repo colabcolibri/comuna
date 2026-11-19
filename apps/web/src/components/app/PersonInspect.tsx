@@ -209,7 +209,7 @@ export function PersonInspect({
         </AppDialogHeader>
         <AppDialogBody>
           {view ? (
-            <div className="mx-auto max-w-4xl space-y-8 py-2">
+            <div className="mx-auto max-w-5xl space-y-8 py-2">
               {view.headline || view.summary ? (
                 <div className="min-w-0 border-b border-border pb-6">
                   {view.headline ? (
