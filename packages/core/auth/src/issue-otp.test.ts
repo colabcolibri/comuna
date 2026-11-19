@@ -16,7 +16,8 @@ describe('issueOtp', () => {
 
   it('throws RateLimitError when three tokens already exist in the last minute', async () => {
     mockedQuery.mockResolvedValueOnce({ rows: [{ n: 3 }] } as never);
-    await expect(issueOtp('member@example.com')).rejects.toBeInstanceOf(RateLimitError);
+    await expect(issueOtp('Member@Example.com')).rejects.toBeInstanceOf(RateLimitError);
+    expect(mockedQuery.mock.calls[0]?.[1]).toEqual(['member@example.com']);
   });
 
   it('inserts a hashed token and does not return a payload with a plaintext key', async () => {

@@ -1,7 +1,11 @@
 import { Pool, QueryResult, QueryResultRow, type PoolConfig } from 'pg';
 import { loadRootEnv } from './load-root-env';
 
-let pool: Pool | null = null;
+const globalForPg = globalThis as unknown as {
+  __communityPgPool?: Pool | null;
+};
+
+let pool: Pool | null = globalForPg.__communityPgPool ?? null;
 
 export function pgSsl(connectionString: string): PoolConfig['ssl'] {
   if (process.env.PGSSL === '0') {
@@ -22,6 +26,9 @@ export function poolConfig(connectionString: string): PoolConfig {
   const readOnly = process.env.DATABASE_READ_ONLY === '1';
   return {
     connectionString,
+    max: 20,
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 5_000,
     ...(ssl ? { ssl } : {}),
     ...(readOnly ? { options: '-c default_transaction_read_only=on' } : {}),
   };
@@ -35,6 +42,7 @@ export function getPool(): Pool {
       throw new Error('DATABASE_URL is required');
     }
     pool = new Pool(poolConfig(connectionString));
+    globalForPg.__communityPgPool = pool;
   }
   return pool;
 }
@@ -53,6 +61,7 @@ export async function healthCheck(): Promise<boolean> {
 
 export function resetPoolForTests(): void {
   pool = null;
+  globalForPg.__communityPgPool = null;
 }
 
 export { loadRootEnv };

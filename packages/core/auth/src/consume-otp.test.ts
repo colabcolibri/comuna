@@ -41,4 +41,16 @@ describe('consumeOtp', () => {
     expect(String(mockedQuery.mock.calls[3]?.[0])).toContain("'user'");
     expect(String(mockedQuery.mock.calls[3]?.[0])).not.toContain('super_admin');
   });
+
+  it('rejects suspended users even with a valid OTP code (US-0136)', async () => {
+    mockedQuery
+      .mockResolvedValueOnce({
+        rows: [{ id: 'tok', code_hash: hashOtp('111111'), attempts: 0 }],
+      } as never)
+      .mockResolvedValueOnce({ rows: [] } as never)
+      .mockResolvedValueOnce({
+        rows: [{ id: 'u1', global_role: 'user', status: 'suspended' }],
+      } as never);
+    await expect(consumeOtp('Suspended@Example.com', '111111')).rejects.toBeInstanceOf(InvalidOtpError);
+  });
 });

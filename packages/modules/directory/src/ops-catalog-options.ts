@@ -175,7 +175,9 @@ export async function previewChoiceOptions(input: {
   renames?: OptionRename[];
 }): Promise<ChoiceOptionsPreview> {
   const before = storedOptionsToOps(input.beforeOptions);
-  const after = normalizeOpsChoiceOptions({ options: input.options, optionsText: input.optionsText });
+  const after = storedOptionsToOps(
+    normalizeOpsChoiceOptions({ options: input.options, optionsText: input.optionsText })
+  );
   const usageValues = [...new Set([...before.map((row) => row.value), ...after.map((row) => row.value)])];
   const usage = await countOptionUsage(input.communityId, input.fieldName, input.fieldType, usageValues);
   const changes = diffChoiceOptions({ before, after, renames: input.renames, usageCounts: usage });

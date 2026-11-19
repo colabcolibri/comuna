@@ -144,6 +144,7 @@ function asOpsField(row: {
   options: unknown;
   label: unknown;
   description?: unknown;
+  exposure?: unknown;
 }): OpsCatalogField {
   return {
     id: row.id,
@@ -159,6 +160,7 @@ function asOpsField(row: {
     optionsText: optionsToText(row.options),
     label: parseLocalized(row.label),
     description: parseLocalized(row.description),
+    exposure: row.exposure === 'hidden' || row.exposure === 'internal' || row.exposure === 'external' ? row.exposure : 'internal',
   };
 }
 

@@ -1,14 +1,22 @@
 'use client';
 
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { AppDialog, AppDialogBody, AppDialogFooter, AppDialogHeader, AppPersonFieldGroup, AppSheet, personInitials } from '@community/ui-member';
-import { Button, DialogTitle, Input, Label, Textarea, toast } from '@community/ui';
+import { Button, DialogTitle, Input, Label, Tabs, TabsContent, TabsList, TabsTrigger, Textarea, toast } from '@community/ui';
 import { CONTACT_MESSAGE_MIN, parseContactPayload } from '@community/contact-mediated';
 import { projectPersonView, type ListField } from '@community/directory';
-import { interpolate } from '@community/identity';
+import { contentFromCatalog, interpolate, pickContent, resolveUiLocale } from '@community/identity';
 import { displayPlaceLocality } from '@community/places';
+import type { InspectTabItem } from '@/components/app/inspect-sections';
+import { uiCatalog } from '@/lang/catalog';
 import { sendPersonContact } from '@/lib/api/contact';
 import type { PersonCard } from '@/lib/people/person-card';
+
+const INSPECT_CONTENT = contentFromCatalog(uiCatalog, 'core_identity', {
+  tabOverview: 'inspect.tab_overview',
+  tabCommunity: 'inspect.tab_community',
+  linksHeading: 'inspect.links',
+});
 
 export function PersonInspect({
   profile,
@@ -17,6 +25,7 @@ export function PersonInspect({
   locale,
   canContact,
   sections,
+  tabs: pluginTabs = [],
   onClose,
 }: {
   profile: PersonCard | null;
@@ -25,6 +34,7 @@ export function PersonInspect({
   locale: string;
   canContact: boolean;
   sections?: ReactNode;
+  tabs?: InspectTabItem[];
   onClose: () => void;
 }) {
   const [senderName, setSenderName] = useState('');
@@ -34,6 +44,78 @@ export function PersonInspect({
   const [fieldError, setFieldError] = useState('');
   const [contactOpen, setContactOpen] = useState(false);
   const [sending, setSending] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+
+  const inspectCopy = pickContent(INSPECT_CONTENT, resolveUiLocale(locale));
+
+  const view = profile
+    ? projectPersonView({
+        profile,
+        fields: listFields,
+        density: 'detail',
+        locale,
+        cityLabel: displayPlaceLocality(profile.current_city, resolveUiLocale(locale)),
+      })
+    : null;
+
+  const hasOverviewDetails = Boolean(view && (view.languages.length > 0 || view.links.length > 0));
+  const hasCommunityFacts = Boolean(view && view.facts.length > 0);
+
+  const builtTabs: InspectTabItem[] = [];
+  if (view && hasOverviewDetails) {
+    builtTabs.push({
+      id: 'overview',
+      label: inspectCopy.tabOverview,
+      content: (
+        <aside className="grid min-w-0 gap-6 sm:grid-cols-2">
+          {view.languages.length > 0 ? (
+            <AppPersonFieldGroup
+              label={view.languagesHeading || copy.languages}
+              values={view.languages.map((item) => item.label)}
+            />
+          ) : null}
+          {view.links.length > 0 ? (
+            <div className="min-w-0 space-y-2">
+              <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                {inspectCopy.linksHeading}
+              </p>
+              <ul className="flex flex-col gap-2 text-sm">
+                {view.links.map((item) => (
+                  <li key={item.key} className="min-w-0">
+                    <a href={item.href} className="break-all underline" rel="noreferrer" target="_blank">
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </aside>
+      ),
+    });
+  }
+  if (view && hasCommunityFacts) {
+    builtTabs.push({
+      id: 'community',
+      label: inspectCopy.tabCommunity,
+      content: (
+        <div className="grid min-w-0 gap-6 sm:grid-cols-2">
+          {view.facts.map((item) => (
+            <AppPersonFieldGroup key={item.name} label={item.label} values={item.values} />
+          ))}
+        </div>
+      ),
+    });
+  }
+  for (const tab of pluginTabs) {
+    builtTabs.push(tab);
+  }
+
+  const firstTabId = builtTabs[0]?.id ?? '';
+
+  useEffect(() => {
+    setActiveTab(firstTabId);
+  }, [profile?.id, firstTabId]);
 
   const resetContact = () => {
     setSenderName('');
@@ -60,7 +142,7 @@ export function PersonInspect({
       sender_phone: senderPhone,
       message,
     });
-    if (!parsed.ok) {
+    if (parsed.ok === false) {
       setFieldError(parsed.reason === 'message_min' ? copy.messageMin : copy.requiredMissing);
       return;
     }
@@ -82,86 +164,76 @@ export function PersonInspect({
     setContactOpen(false);
   };
 
-  const view = profile
-    ? projectPersonView({
-        profile,
-        fields: listFields,
-        density: 'detail',
-        locale,
-        cityLabel: displayPlaceLocality(profile.current_city, locale),
-      })
-    : null;
-  const hasMeta = Boolean(view && (view.languages.length > 0 || view.facts.length > 0 || view.links.length > 0));
-  const split = Boolean((view?.headline || view?.summary) && hasMeta);
   const messageLen = message.trim().length;
   const messageCountLabel = interpolate(copy.messageCount || '{count}/{min}', {
     count: String(messageLen),
     min: String(CONTACT_MESSAGE_MIN),
   });
+  const currentTab = builtTabs.some((t) => t.id === activeTab) ? activeTab : firstTabId;
 
   return (
-    <AppDialog open={!!profile} onClose={closeAll} size="xl">
-      <AppDialogHeader>
-        {profile && view ? (
-          <div className="flex min-w-0 items-start gap-4">
-            {view.photoUrl ? (
-              <img src={view.photoUrl} alt="" className="size-14 shrink-0 rounded-full object-cover" />
-            ) : (
-              <div
-                className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground"
-                aria-hidden
-              >
-                {personInitials(view.name)}
+    <AppDialog open={!!profile} onClose={closeAll} size="full">
+      <Tabs value={currentTab} onValueChange={setActiveTab} className="contents">
+        <AppDialogHeader>
+          {profile && view ? (
+            <div className="space-y-4">
+              <div className="flex min-w-0 items-start gap-4">
+                {view.photoUrl ? (
+                  <img src={view.photoUrl} alt="" className="size-16 shrink-0 rounded-full object-cover" />
+                ) : (
+                  <div
+                    className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary text-base font-medium text-primary-foreground"
+                    aria-hidden
+                  >
+                    {personInitials(view.name)}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <DialogTitle className="text-xl tracking-tight text-foreground sm:text-2xl">{view.name}</DialogTitle>
+                  {view.city ? <p className="mt-1 text-sm text-muted-foreground">{view.city}</p> : null}
+                </div>
               </div>
-            )}
-            <div className="min-w-0 flex-1">
-              <DialogTitle className="tracking-tight text-foreground">{view.name}</DialogTitle>
-              {view.city ? <p className="mt-1 text-sm text-muted-foreground">{view.city}</p> : null}
+              {builtTabs.length > 0 ? (
+                <div className="-mb-4 overflow-x-auto">
+                  <TabsList variant="line" className="h-auto w-max min-w-full justify-start gap-4 pb-1">
+                    {builtTabs.map((tab) => (
+                      <TabsTrigger key={tab.id} value={tab.id} className="flex-none px-1 py-2 text-sm">
+                        {tab.label}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                </div>
+              ) : null}
             </div>
-          </div>
-        ) : null}
-      </AppDialogHeader>
-      <AppDialogBody>
-        {view ? (
-          <div className={split ? 'grid min-w-0 gap-8 md:grid-cols-[minmax(0,1fr)_minmax(13rem,18rem)] md:items-start md:gap-10' : 'min-w-0'}>
-            <div className="min-w-0">
-              {view.headline ? (
-                <p className="text-xl font-semibold leading-snug tracking-tight text-foreground">{view.headline}</p>
+          ) : null}
+        </AppDialogHeader>
+        <AppDialogBody>
+          {view ? (
+            <div className="mx-auto max-w-4xl space-y-8 py-2">
+              {view.headline || view.summary ? (
+                <div className="min-w-0 border-b border-border pb-6">
+                  {view.headline ? (
+                    <p className="text-xl font-semibold leading-snug tracking-tight text-foreground sm:text-2xl">
+                      {view.headline}
+                    </p>
+                  ) : null}
+                  {view.summary ? (
+                    <p className={`max-w-prose text-base leading-relaxed text-muted-foreground ${view.headline ? 'mt-3' : ''}`}>
+                      {view.summary}
+                    </p>
+                  ) : null}
+                </div>
               ) : null}
-              {view.summary ? (
-                <p className={`text-base leading-relaxed text-muted-foreground ${view.headline ? 'mt-4' : ''}`}>
-                  {view.summary}
-                </p>
-              ) : null}
+              {builtTabs.map((tab) => (
+                <TabsContent key={tab.id} value={tab.id} className="mt-0">
+                  {tab.content}
+                </TabsContent>
+              ))}
               {sections}
             </div>
-            {hasMeta ? (
-              <aside className={split ? 'min-w-0 space-y-5 md:border-l md:border-border md:pl-8' : 'min-w-0 space-y-5'}>
-                {view.languages.length > 0 ? (
-                  <AppPersonFieldGroup
-                    label={view.languagesHeading || copy.languages}
-                    values={view.languages.map((item) => item.label)}
-                  />
-                ) : null}
-                {view.facts.map((item) => (
-                  <AppPersonFieldGroup key={item.name} label={item.label} values={item.values} />
-                ))}
-                {view.links.length > 0 ? (
-                  <ul className="flex flex-col gap-2 text-sm">
-                    {view.links.map((item) => (
-                      <li key={item.key} className="min-w-0">
-                        <a href={item.href} className="break-all underline" rel="noreferrer" target="_blank">
-                          {item.label}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-              </aside>
-            ) : null}
-          </div>
-        ) : null}
-      </AppDialogBody>
+          ) : null}
+        </AppDialogBody>
+      </Tabs>
       <AppDialogFooter>
         <Button variant="outline" className="min-h-11" type="button" onClick={closeAll}>
           {copy.close}

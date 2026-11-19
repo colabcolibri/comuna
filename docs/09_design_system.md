@@ -86,7 +86,7 @@ Código: `next/font` `IBM_Plex_Sans` → `--font-body` e `--font-headline`. Sem 
 | `AppAuthFrame` | Login centrado com kicker | `packages/ui/member/src/app-auth-frame.tsx` |
 | `AppIndexList` / `AppPersonRow` | Índice denso (ops / listas que ainda não são grelha) | `packages/ui/member/src/app-person-row.tsx` |
 | `AppAlertDialog` | Confirmação (cancelar / confirmar) | `packages/ui/member/src/app-alert-dialog.tsx` |
-| `AppDialog` | Perfil / detalhe: header e footer fora do scroll; body é `ScrollArea` shadcn com viewport `overflow-y: scroll` limitado (`app-dialog-scroll`) | `packages/ui/member/src/app-dialog.tsx` |
+| `AppDialog` | Perfil / detalhe: `size="full"` (`95vw × 95dvh`) para o inspetor de perfil; header e footer fora do scroll; `TabsList` (`variant="line"`) opcional na base do header quando houver abas; body é `ScrollArea` shadcn com viewport `overflow-y: scroll` limitado (`app-dialog-scroll`) | `packages/ui/member/src/app-dialog.tsx` |
 | `AppSheet` | Sheet shadcn: `SheetTrigger` + `SheetContent` + `SheetClose`. Corpo `grid flex-1 auto-rows-min gap-6 px-4`. Filtros e enviar mensagem usam este template. | `packages/ui/member/src/app-sheet.tsx` |
 | `AppFilterSheet` | `AppSheet` com trigger na página, limpar e fechar no rodapé | `packages/ui/member/src/app-filter-sheet.tsx` |
 | `AppPublicChrome` | Página pública da vitrine: header sem sidebar, documento rola | `packages/ui/member/src/app-public-chrome.tsx` |
@@ -114,7 +114,7 @@ Navegação do **workspace**: sidebar shadcn no desktop; header sem destinos de 
 | ----------------- | --- | ---- | ------ | -------------- | --------------------- |
 | `/showcase` | Portal público | Visitante / membro | `AppPublicChrome` | Sidebar no visitante | Herói admin + cartões; CTA Entrar |
 | `/c/{slug}/showcase` | Homepage pública desta comunidade | Visitante / membro | `AppPublicChrome` | Página interna | Título/texto do admin; sem sidebar |
-| Perfil público | Ler perfil sanitizado | Visitante | `AppDialog` + `ScrollArea` | — | Nome no header; tagline + bio no body; extras na coluna |
+| Perfil público | Ler perfil sanitizado | Visitante | `AppDialog` (`size="full"`) + `Tabs` + `ScrollArea` | — | Nome, cidade, título e mini bio visíveis no topo; restante (Sobre: idiomas/links; Na comunidade: atributos; e seções de plugin como Talentos) em abas distintas |
 | Contato | Pedir contato mediado | Visitante | `AppSheet` (mesmo template dos filtros) | Form no `AppDialog` | Trigger **Enviar mensagem**; sheet com nome, e-mail e mensagem obrigatórios (mensagem ≥ 40), telefone opcional; CTA **Enviar** passa a **Enviando…** e fica `disabled` até a resposta |
 | `/` | Ver assentos e comunidades públicas | Visitante / membro | Header da plataforma | — | Lista de tenants; OTP fica em `/login` |
 | `/login` | Entrar com OTP | Visitante | `AppPublicChrome` | Sidebar no OTP | OTP centrado, um CTA |

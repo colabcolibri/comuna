@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { parseListField } from '@community/directory';
 import { DirectoryPanel } from '../apps/web/src/components/app/DirectoryPanel';
 import { LocaleProvider } from '@/components/app/LocaleProvider';
@@ -97,8 +97,74 @@ describe('directory panel', () => {
     await waitFor(() => {
       expect(screen.getByRole('dialog')).toBeTruthy();
     });
-    expect(screen.getByText('Mentora.')).toBeTruthy();
+    const dialog = screen.getByRole('dialog');
+    expect(dialog.className).toContain('app-dialog-fill');
+    expect(within(dialog).getByText('Produto e comunidades')).toBeTruthy();
+    expect(within(dialog).getByText('Mentora.')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Enviar mensagem' })).toBeTruthy();
+  });
+
+  it('switches between Sobre, Na comunidade, and Talentos tabs in the full profile modal (US-0141)', async () => {
+    const cohortField = parseListField({
+      name: 'cohort',
+      type: 'select',
+      storage: 'membership',
+      column_key: 'cohort_id',
+      placement: 'detail',
+      label: [{ locale: 'pt-BR', value: 'Turma' }],
+    })!;
+    render(
+      <LocaleProvider initialLocale="pt-BR">
+        <EnabledModulesProvider enabled={['directory', 'talent', 'contact-mediated']}>
+          <DirectoryPanel
+            rows={[
+              {
+                ...marina,
+                languages: [{ code: 'pt', proficiency: 'native' }],
+                cohort_name: 'Turma 2024',
+                offerings: [
+                  {
+                    title: 'Mentoria de carreira',
+                    description: 'Sessões quinzenais',
+                    url: 'https://example.org/mentoria',
+                    category_id: 'mentorship',
+                    category_other: null,
+                    audience: 'internal',
+                  },
+                ],
+              },
+            ]}
+            facets={[]}
+            listFields={[...listFields, cohortField]}
+            search=""
+            facetValues={{}}
+            cohorts={[]}
+            cohort=""
+            total={1}
+          />
+        </EnabledModulesProvider>
+      </LocaleProvider>
+    );
+    screen.getByRole('button', { name: 'Ver perfil: Marina Silva' }).click();
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeTruthy();
+    });
+    const dialog = screen.getByRole('dialog');
+    expect(screen.getByRole('tab', { name: 'Sobre' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Na comunidade' })).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Talentos' })).toBeTruthy();
+    const communityTab = screen.getByRole('tab', { name: 'Na comunidade' });
+    fireEvent.mouseDown(communityTab);
+    fireEvent.click(communityTab);
+    await waitFor(() => {
+      expect(within(dialog).getByText('Turma 2024')).toBeTruthy();
+    });
+    const talentsTab = screen.getByRole('tab', { name: 'Talentos' });
+    fireEvent.mouseDown(talentsTab);
+    fireEvent.click(talentsTab);
+    await waitFor(() => {
+      expect(within(dialog).getByText('Mentoria de carreira')).toBeTruthy();
+    });
   });
 
   it('shows the cohort filter and the cohort name when the list places the field', () => {

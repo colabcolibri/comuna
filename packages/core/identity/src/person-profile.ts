@@ -43,11 +43,46 @@ export function parseLanguages(raw: unknown): SpokenLanguage[] {
   return out;
 }
 
+export function isSafeHttpUrl(raw: unknown): boolean {
+  if (typeof raw !== 'string') {
+    return false;
+  }
+  const trimmed = raw.trim();
+  if (!trimmed || !/^https?:\/\/\S+$/i.test(trimmed)) {
+    return false;
+  }
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
+export function sanitizeHttpUrl(raw: unknown): string {
+  const trimmed = typeof raw === 'string' ? raw.trim() : '';
+  return isSafeHttpUrl(trimmed) ? trimmed : '';
+}
+
+export function isSafeAvatarUrl(raw: unknown): boolean {
+  if (typeof raw !== 'string') {
+    return false;
+  }
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return false;
+  }
+  if (/^\/api\/media\/person\/[a-zA-Z0-9_-]+\/avatar$/i.test(trimmed)) {
+    return true;
+  }
+  return isSafeHttpUrl(trimmed);
+}
+
 export function parseContacts(raw: unknown): PersonContacts {
   const row = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
   return {
-    linkedin: String(row.linkedin || '').trim(),
-    github: String(row.github || '').trim(),
-    portfolio: String(row.portfolio || '').trim(),
+    linkedin: sanitizeHttpUrl(row.linkedin),
+    github: sanitizeHttpUrl(row.github),
+    portfolio: sanitizeHttpUrl(row.portfolio),
   };
 }

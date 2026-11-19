@@ -21,6 +21,7 @@ import { ceilingsFrom, toPersonCard } from '@/lib/people/person-card';
 import { moduleRuntime } from '@/lib/server/membership';
 import { loadOfferingsPublic, offeringsByMembership } from '@/lib/server/talent-offers';
 import { publicTalentCategories } from '@/lib/server/talent-categories';
+import type { LocalizedText } from '@community/identity';
 import type { TalentCategory } from '@community/talent';
 
 export async function listPublicListFields(communityId: string): Promise<ListField[]> {
@@ -34,7 +35,7 @@ export async function listPublicProfiles(communityId: string, searchParams: URLS
     pageSize: SHOWCASE_PAGE_SIZE,
     total: 0,
     talentFilterEnabled: false,
-    talentCategories: [] as { id: string; label: unknown; allowsOtherText: boolean }[],
+    talentCategories: [] as { id: string; label: LocalizedText; allowsOtherText: boolean }[],
   };
   const on = await moduleRuntime.isEnabled(communityId, showcaseContribution.slug);
   if (!on) {

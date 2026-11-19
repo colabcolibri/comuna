@@ -133,8 +133,9 @@ describe('peopleListQuery', () => {
     expect(built.text).toContain('o.title ILIKE');
     expect(built.text).toContain('o.description ILIKE');
     expect(built.text).toContain('o.category_other');
-    expect(built.text).toContain('plugin_talent.categories');
+    expect(built.text).toContain('plugin_talent.categories cat ON cat.community_id = o.community_id AND cat.id = o.category_id');
     expect(built.text).toContain('plugin_talent.offerings');
+    expect(built.text).not.toContain('availability_status');
     expect(built.params).toContainEqual(['internal', 'external']);
   });
 

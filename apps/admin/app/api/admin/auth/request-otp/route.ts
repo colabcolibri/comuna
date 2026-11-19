@@ -15,6 +15,14 @@ export async function POST(req: NextRequest) {
       return jsonError('VALIDATION_ERROR', 'E-mail inválido', 400);
     }
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
+    if (ipHits.size > 5000) {
+      const now = Date.now();
+      for (const [k, times] of ipHits.entries()) {
+        const valid = times.filter((t) => now - t < 60_000);
+        if (valid.length === 0) ipHits.delete(k);
+        else ipHits.set(k, valid);
+      }
+    }
     const recentIp = ipHits.get(ip)?.filter((t) => Date.now() - t < 60_000) ?? [];
     if (recentIp.length >= 3) {
       return jsonError('RATE_LIMIT_EXCEEDED', 'Muitas solicitações', 429);

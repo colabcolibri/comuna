@@ -8,6 +8,9 @@ describe('app RLS context', () => {
     expect(helper).toContain('SET LOCAL ROLE community_app');
     expect(helper).toContain("set_config('app.user_id'");
     expect(helper).toContain("set_config('app.community_id'");
+    const opsHelper = readFileSync(path.resolve(__dirname, './with-ops-context.ts'), 'utf8');
+    expect(opsHelper).toContain('SET LOCAL ROLE community_app');
+    expect(opsHelper).toContain("set_config('app.ops'");
   });
 
   it('migration enables RLS on profiles and memberships without bypass', () => {

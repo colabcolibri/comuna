@@ -127,41 +127,57 @@ export function CommunityMembers({ communityId }: { communityId: string }) {
 
   const setRole = async (id: string, network_role: 'member' | 'coordinator') => {
     setSaving(id);
-    await fetch(`/api/admin/memberships/${id}/role`, {
+    const res = await fetch(`/api/admin/memberships/${id}/role`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ network_role }),
     });
     setSaving(null);
+    if (!res.ok) {
+      toast.error(copy.error);
+      return;
+    }
     loadMembers(0);
   };
 
   const setStatus = async (id: string, network_status: 'pending_approval' | 'active' | 'suspended') => {
     setSaving(id);
-    await fetch(`/api/admin/memberships/${id}/status`, {
+    const res = await fetch(`/api/admin/memberships/${id}/status`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ network_status }),
     });
     setSaving(null);
+    if (!res.ok) {
+      toast.error(copy.error);
+      return;
+    }
     loadMembers(0);
   };
 
   const setCohort = async (id: string, cohortId: string | null) => {
     setSaving(id);
-    await fetch(`/api/admin/memberships/${id}/cohort`, {
+    const res = await fetch(`/api/admin/memberships/${id}/cohort`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ cohortId }),
     });
     setSaving(null);
+    if (!res.ok) {
+      toast.error(copy.error);
+      return;
+    }
     loadMembers(0);
   };
 
   const remove = async (id: string) => {
     setSaving(id);
-    await fetch(`/api/admin/memberships/${id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/admin/memberships/${id}`, { method: 'DELETE' });
     setSaving(null);
+    if (!res.ok) {
+      toast.error(copy.error);
+      return;
+    }
     loadMembers(0);
   };
 

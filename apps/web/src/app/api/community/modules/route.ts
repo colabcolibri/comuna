@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   }
   const seats = await listMyCommunities(member.sub);
   const picked = pickCommunitySeat(seats, req.cookies.get(COMMUNITY_COOKIE)?.value);
-  if (!picked.ok) {
+  if (picked.ok === false) {
     if (picked.code === 'VALIDATION_ERROR') {
       return NextResponse.json(
         { error: { code: 'VALIDATION_ERROR', message: 'Escolha uma comunidade' } },

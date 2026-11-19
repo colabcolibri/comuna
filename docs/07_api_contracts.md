@@ -95,32 +95,32 @@ blocks: []
 | `POST` | `/api/admin/communities` | Cria comunidade | Super-admin | `{ "slug", "name" }` | `201` |
 | `GET` | `/api/admin/communities/:id` | Lê comunidade | Ops com escopo no `:id` | — | `{ id, slug, name, type, is_public_showcase, settings }` |
 | `PUT` | `/api/admin/communities/:id` | Nome, tipo enum, vitrine, settings conhecidas | Ops com escopo no `:id` | `{ "name", "type?", "is_public_showcase?", "settings?" }` | comunidade |
-| `GET` | `/api/admin/communities/:id/modules` | Estado dos plugins | Super-admin | — | `{ "data": [{ slug, enabled }] }` |
-| `PUT` | `/api/admin/communities/:id/modules/:slug` | Liga/desliga plugin | Super-admin | `{ "enabled": true }` | `200` |
-| `GET` | `/api/admin/communities/:id/memberships` | Roster paginado (50); `?email=` busca uma; `?q=` filtra se ≥2 | Super-admin | `?q=&offset=` | `{ "data", "meta.hasMore" }` ou membership |
-| `GET` | `/api/admin/communities/:id/people` | Busca pessoas **fora** deste tenant. `q` min 2; máx 20 hits. Sem `q` (ou curto) = `[]`. | Super-admin | `?q=` | `{ "data": [{ id, email, full_name }] }` |
-| `POST` | `/api/admin/communities/:id/memberships` | Liga user existente como membership `active` | Super-admin | `{ "userId", "network_role?" }` | `201` |
-| `GET` | `/api/admin/communities/:id/cohorts` | Turmas do tenant | Super-admin | — | `{ "data": CohortRow[] }` |
-| `POST` | `/api/admin/communities/:id/cohorts` | Cria turma | Super-admin | `{ "name", "code?" }` | `201` |
-| `DELETE` | `/api/admin/communities/:id/cohorts/:cohortId` | Apaga turma; memberships ficam sem turma | Super-admin | — | `{ ok }` |
-| `POST` | `/api/admin/memberships/:id/role` | Atribui `member` / `coordinator` | Super-admin | `{ "network_role" }` | `200` |
-| `POST` | `/api/admin/memberships/:id/status` | `pending_approval` / `active` / `suspended` | Super-admin | `{ "network_status" }` | `200` |
-| `POST` | `/api/admin/memberships/:id/cohort` | Liga ou tira turma | Super-admin | `{ "cohortId": uuid \| null }` | `{ ok }` |
-| `DELETE` | `/api/admin/memberships/:id` | Remove a membership | Super-admin | — | `{ ok }` |
-| `GET` | `/api/admin/communities/:id/fields` | Catálogo ops (grupos na ordem do perfil; `locked` no grupo seed e no campo se `storage` ≠ `attributes`) | Super-admin | — | `{ "data": OpsCatalogGroup[] }` com `fields[].description` LocalizedText e `fields[].options: [{ value, labelPt, labelEn }]` |
-| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` (tipos do catálogo; `span` 1–3; `required` default false). Listas: diretório `detail`, vitrine `off` | Super-admin | `{ groupId, name, type, labelPt, labelEn, descriptionPt, descriptionEn?, options?, optionsText?, span?, required? }` — `select`/`radio`/`checkbox` exigem `options[]` (ou `optionsText` legado); `descriptionPt` obrigatório | `{ 201, OpsCatalogField }` |
-| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | Metadados do campo (sem `options`). Sem `labelPt`: `descriptionPt`, `enabled`, `required` ou `span` (núcleo incluso). Com `labelPt`: label e descrição se `storage=attributes` | Super-admin | `{ "enabled": true\|false }` ou `{ "required": true\|false }` ou `{ "span": 1\|2\|3 }` ou `{ descriptionPt, descriptionEn? }` ou `{ labelPt, labelEn?, descriptionPt, descriptionEn? }` | `{ ok }` |
-| `POST` | `/api/admin/communities/:id/fields/:fieldId/options` | Preview de mudanças nas opções (`select`/`radio`/`checkbox`, `storage=attributes`) | Super-admin | `{ options: [{ value, labelPt, labelEn }], renames?: [{ from, to }] }` | `{ data: { safe, changes[], totalAffected, usage } }` |
-| `PATCH` | `/api/admin/communities/:id/fields/:fieldId/options` | Aplica opções com migração atômica em `custom_attributes` | Super-admin | `{ applyDataMigration: true, options[], acknowledged: string[], renames?: [{ from, to }] }` | `{ ok }`; `ACK_MISMATCH` / `OPTION_IN_USE` = 409 |
-| `GET` | `/api/admin/communities/:id/lists/:listKey` | Política da lista (`directory` \| `showcase`) | Super-admin | — | `{ "data": OpsListField[] }` (`fieldId`, label, type, `canFilter`, `filterable`, `placement`, travas) |
-| `PUT` | `/api/admin/communities/:id/lists/:listKey` | Grava filtro e placement em lote | Super-admin | `{ "fields": [{ "fieldId", "filterable", "placement": "off"\|"detail"\|"card" }] }` | `{ ok }` |
-| `DELETE` | `/api/admin/communities/:id/fields/:fieldId` | Apaga `storage=attributes` **só se** `enabled=false` | Super-admin | — | `{ ok }`; ainda ligado = 409 |
-| `POST` | `/api/admin/communities/:id/fields/reset-order` | Restaura ordem seed de grupos e campos; extras ficam no fim da seção; não muda `group_id` | Super-admin | — | `{ ok }` |
-| `POST` | `/api/admin/communities/:id/fields/:fieldId/move` | Sobe/desce **ou** muda de grupo no mesmo tenant | Super-admin | `{ "direction": "up"\|"down" }` ou `{ "groupId" }` | `{ ok }` |
-| `POST` | `/api/admin/communities/:id/groups` | Cria grupo (não seed) | Super-admin | `{ labelPt, labelEn, columns?, slug? }` | `201` |
-| `PATCH` | `/api/admin/communities/:id/groups/:groupId` | `columns`, `enabled` e/ou rótulo LocalizedText (seed incluso; slug imutável) | Super-admin | `{ "columns"?: 1\|2\|3, "enabled"?: boolean, "labelPt"?: string, "labelEn"?: string }` | `{ ok }` |
-| `DELETE` | `/api/admin/communities/:id/groups/:groupId` | Apaga grupo não-seed, **desativado** e vazio | Super-admin | — | `{ ok }`; ligado ou com campos = 409 |
-| `POST` | `/api/admin/communities/:id/groups/:groupId/move` | Sobe/desce o grupo | Super-admin | `{ "direction": "up" }` ou `"down"` | `{ ok }` |
+| `GET` | `/api/admin/communities/:id/modules` | Estado dos plugins | Ops com escopo no `:id` | — | `{ "data": [{ slug, enabled }] }` |
+| `PUT` | `/api/admin/communities/:id/modules/:slug` | Liga/desliga plugin | Ops com escopo no `:id` | `{ "enabled": true }` | `200` |
+| `GET` | `/api/admin/communities/:id/memberships` | Roster paginado (50); `?email=` busca uma; `?q=` filtra se ≥2 | Ops com escopo no `:id` | `?q=&offset=` | `{ "data", "meta.hasMore" }` ou membership |
+| `GET` | `/api/admin/communities/:id/people` | Busca pessoas **fora** deste tenant. `q` min 2; máx 20 hits. Sem `q` (ou curto) = `[]`. | Ops com escopo no `:id` | `?q=` | `{ "data": [{ id, email, full_name }] }` |
+| `POST` | `/api/admin/communities/:id/memberships` | Liga user existente como membership `active` | Ops com escopo no `:id` | `{ "userId", "network_role?" }` | `201` |
+| `GET` | `/api/admin/communities/:id/cohorts` | Turmas do tenant | Ops com escopo no `:id` | — | `{ "data": CohortRow[] }` |
+| `POST` | `/api/admin/communities/:id/cohorts` | Cria turma | Ops com escopo no `:id` | `{ "name", "code?" }` | `201` |
+| `DELETE` | `/api/admin/communities/:id/cohorts/:cohortId` | Apaga turma; memberships ficam sem turma | Ops com escopo no `:id` | — | `{ ok }` |
+| `POST` | `/api/admin/memberships/:id/role` | Atribui `member` / `coordinator` | Ops com escopo na comunidade da membership | `{ "network_role" }` | `200` |
+| `POST` | `/api/admin/memberships/:id/status` | `pending_approval` / `active` / `suspended` | Ops com escopo na comunidade da membership | `{ "network_status" }` | `200` |
+| `POST` | `/api/admin/memberships/:id/cohort` | Liga ou tira turma | Ops com escopo na comunidade da membership | `{ "cohortId": uuid \| null }` | `{ ok }` |
+| `DELETE` | `/api/admin/memberships/:id` | Remove a membership | Ops com escopo na comunidade da membership | — | `{ ok }` |
+| `GET` | `/api/admin/communities/:id/fields` | Catálogo ops (grupos na ordem do perfil; `locked` no grupo seed e no campo se `storage` ≠ `attributes`) | Ops com escopo no `:id` | — | `{ "data": OpsCatalogGroup[] }` com `fields[].description` LocalizedText e `fields[].options: [{ value, labelPt, labelEn }]` |
+| `POST` | `/api/admin/communities/:id/fields` | Cria campo `attributes` (tipos do catálogo; `span` 1–3; `required` default false). Listas: diretório `detail`, vitrine `off` | Ops com escopo no `:id` | `{ groupId, name, type, labelPt, labelEn, descriptionPt, descriptionEn?, options?, optionsText?, span?, required? }` — `select`/`radio`/`checkbox` exigem `options[]` (ou `optionsText` legado); `descriptionPt` obrigatório | `{ 201, OpsCatalogField }` |
+| `PATCH` | `/api/admin/communities/:id/fields/:fieldId` | Metadados do campo (sem `options`). Sem `labelPt`: `descriptionPt`, `enabled`, `required` ou `span` (núcleo incluso). Com `labelPt`: label e descrição se `storage=attributes` | Ops com escopo no `:id` | `{ "enabled": true\|false }` ou `{ "required": true\|false }` ou `{ "span": 1\|2\|3 }` ou `{ descriptionPt, descriptionEn? }` ou `{ labelPt, labelEn?, descriptionPt, descriptionEn? }` | `{ ok }` |
+| `POST` | `/api/admin/communities/:id/fields/:fieldId/options` | Preview de mudanças nas opções (`select`/`radio`/`checkbox`, `storage=attributes`) | Ops com escopo no `:id` | `{ options: [{ value, labelPt, labelEn }], renames?: [{ from, to }] }` | `{ data: { safe, changes[], totalAffected, usage } }` |
+| `PATCH` | `/api/admin/communities/:id/fields/:fieldId/options` | Aplica opções com migração atômica em `custom_attributes` | Ops com escopo no `:id` | `{ applyDataMigration: true, options[], acknowledged: string[], renames?: [{ from, to }] }` | `{ ok }`; `ACK_MISMATCH` / `OPTION_IN_USE` = 409 |
+| `GET` | `/api/admin/communities/:id/lists/:listKey` | Política da lista (`directory` \| `showcase`) | Ops com escopo no `:id` | — | `{ "data": OpsListField[] }` (`fieldId`, label, type, `canFilter`, `filterable`, `placement`, travas) |
+| `PUT` | `/api/admin/communities/:id/lists/:listKey` | Grava filtro e placement em lote | Ops com escopo no `:id` | `{ "fields": [{ "fieldId", "filterable", "placement": "off"\|"detail"\|"card" }] }` | `{ ok }` |
+| `DELETE` | `/api/admin/communities/:id/fields/:fieldId` | Apaga `storage=attributes` **só se** `enabled=false` | Ops com escopo no `:id` | — | `{ ok }`; ainda ligado = 409 |
+| `POST` | `/api/admin/communities/:id/fields/reset-order` | Restaura ordem seed de grupos e campos; extras ficam no fim da seção; não muda `group_id` | Ops com escopo no `:id` | — | `{ ok }` |
+| `POST` | `/api/admin/communities/:id/fields/:fieldId/move` | Sobe/desce **ou** muda de grupo no mesmo tenant | Ops com escopo no `:id` | `{ "direction": "up"\|"down" }` ou `{ "groupId" }` | `{ ok }` |
+| `POST` | `/api/admin/communities/:id/groups` | Cria grupo (não seed) | Ops com escopo no `:id` | `{ labelPt, labelEn, columns?, slug? }` | `201` |
+| `PATCH` | `/api/admin/communities/:id/groups/:groupId` | `columns`, `enabled` e/ou rótulo LocalizedText (seed incluso; slug imutável) | Ops com escopo no `:id` | `{ "columns"?: 1\|2\|3, "enabled"?: boolean, "labelPt"?: string, "labelEn"?: string }` | `{ ok }` |
+| `DELETE` | `/api/admin/communities/:id/groups/:groupId` | Apaga grupo não-seed, **desativado** e vazio | Ops com escopo no `:id` | — | `{ ok }`; ligado ou com campos = 409 |
+| `POST` | `/api/admin/communities/:id/groups/:groupId/move` | Sobe/desce o grupo | Ops com escopo no `:id` | `{ "direction": "up" }` ou `"down"` | `{ ok }` |
 
 APIs de membro de rede (`/api/directory/*`, `/api/memberships/me`, `/api/coord/*`) usam o cookie `community_slug` (e membership `active` nesse tenant). Sem contexto e com mais de uma membership: `400 VALIDATION_ERROR`. Uma membership só: default permitido. `docs/architecture/community-context.md`.
 

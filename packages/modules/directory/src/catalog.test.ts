@@ -83,6 +83,19 @@ describe('directory catalog', () => {
     expect(result).toEqual({ ok: true, value: { host_at_home: true } });
   });
 
+  it('validates url custom attributes against javascript: schemes (US-0135)', () => {
+    const field = parseField({
+      name: 'website',
+      type: 'url',
+      storage: 'attributes',
+    });
+    expect(validateCustomAttributes([field!], { website: 'javascript:alert(1)' }).ok).toBe(false);
+    expect(validateCustomAttributes([field!], { website: 'https://example.org' })).toEqual({
+      ok: true,
+      value: { website: 'https://example.org' },
+    });
+  });
+
   it('builds jsonb filters only for filterable names', () => {
     const field = parseListField({
       name: 'host_at_home',

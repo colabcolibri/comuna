@@ -1,4 +1,10 @@
-import { parseLanguages, pickLocalizedText, sortSpokenLanguages, spokenLanguageLabel } from '@community/identity';
+import {
+  isSafeHttpUrl,
+  parseLanguages,
+  pickLocalizedText,
+  sortSpokenLanguages,
+  spokenLanguageLabel,
+} from '@community/identity';
 import type { ListDensity, ListField } from './list-fields';
 import { isPersonViewSlot, visibleOn } from './list-fields';
 
@@ -104,10 +110,10 @@ export function projectPersonView(input: {
     }
     const contactKey = key.slice('contacts.'.length);
     const href = profile.contacts[contactKey];
-    if (href) {
+    if (href && isSafeHttpUrl(href)) {
       links.push({
         key: contactKey,
-        href,
+        href: href.trim(),
         label: pickLocalizedText(field.label, locale) || contactKey,
       });
     }

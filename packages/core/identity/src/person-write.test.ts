@@ -28,4 +28,19 @@ describe('person write', () => {
   it('requires full_name', () => {
     expect(personWriteFromBody({}).ok).toBe(false);
   });
+
+  it('rejects javascript: URLs in contacts and avatar_url (US-0135)', () => {
+    expect(
+      personWriteFromBody({
+        full_name: 'Ana Silva',
+        contacts: { linkedin: 'javascript:alert(1)' },
+      }).ok
+    ).toBe(false);
+    expect(
+      personWriteFromBody({
+        full_name: 'Ana Silva',
+        avatar_url: 'javascript:alert(1)',
+      }).ok
+    ).toBe(false);
+  });
 });

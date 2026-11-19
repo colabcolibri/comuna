@@ -1,7 +1,12 @@
 import 'server-only';
 
-import { NextRequest } from 'next/server';
 import { AUTH_COOKIE, OPS_COOKIE, verifyMemberToken, verifyOpsToken, MemberClaims } from './session';
+
+type RequestWithCookies = {
+  cookies: {
+    get(name: string): { value: string } | undefined;
+  };
+};
 
 export async function memberFromCookieValue(token: string | undefined): Promise<MemberClaims | null> {
   if (!token) {
@@ -14,7 +19,7 @@ export async function memberFromCookieValue(token: string | undefined): Promise<
   }
 }
 
-export async function memberFromRequest(req: NextRequest): Promise<MemberClaims | null> {
+export async function memberFromRequest(req: RequestWithCookies): Promise<MemberClaims | null> {
   return memberFromCookieValue(req.cookies.get(AUTH_COOKIE)?.value);
 }
 
@@ -29,6 +34,6 @@ export async function opsFromCookieValue(token: string | undefined): Promise<Mem
   }
 }
 
-export async function opsFromRequest(req: NextRequest): Promise<MemberClaims | null> {
+export async function opsFromRequest(req: RequestWithCookies): Promise<MemberClaims | null> {
   return opsFromCookieValue(req.cookies.get(OPS_COOKIE)?.value);
 }

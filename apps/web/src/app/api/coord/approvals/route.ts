@@ -9,7 +9,7 @@ async function coordinatorFromRequest(req: NextRequest) {
     return NextResponse.json({ error: { code: 'FORBIDDEN', message: 'Use o admin' } }, { status: 403 });
   }
   const resolved = await memberCommunityFromRequest(req);
-  if (!resolved.ok) {
+  if (resolved.ok === false) {
     return resolved.response;
   }
   if (resolved.seat.network_role !== 'coordinator') {

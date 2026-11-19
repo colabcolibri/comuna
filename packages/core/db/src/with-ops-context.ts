@@ -5,6 +5,7 @@ export async function withOpsContext<T>(fn: (client: PoolClient) => Promise<T>):
   const client = await getPool().connect();
   try {
     await client.query('BEGIN');
+    await client.query('SET LOCAL ROLE community_app');
     await client.query(`SELECT set_config('app.ops', '1', true)`);
     const result = await fn(client);
     await client.query('COMMIT');

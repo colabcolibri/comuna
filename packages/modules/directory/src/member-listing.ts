@@ -1,5 +1,6 @@
 import { parseLocalized } from '@community/identity';
-import { audiencePickerCeiling, audienceVisible, parseAudience, type CatalogField } from './audience';
+import { audiencePickerCeiling, audienceVisible, parseAudience } from './audience';
+import type { CatalogField } from './catalog';
 import { communityAllowsDirectoryListing, communityAllowsShowcaseListing } from './member-exposure';
 
 export type MemberCardSlice = {

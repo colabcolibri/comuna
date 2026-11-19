@@ -51,7 +51,10 @@ export async function createCohort(communityId: string, name: string, code?: str
 }
 
 export async function deleteCohort(communityId: string, cohortId: string): Promise<void> {
-  await queryAsOps(`UPDATE network_core.memberships SET cohort_id = NULL WHERE cohort_id = $1`, [cohortId]);
+  await queryAsOps(
+    `UPDATE network_core.memberships SET cohort_id = NULL WHERE cohort_id = $1 AND community_id = $2`,
+    [cohortId, communityId]
+  );
   const deleted = await queryAsOps(
     `DELETE FROM network_core.cohorts WHERE id = $1 AND community_id = $2 RETURNING id`,
     [cohortId, communityId]

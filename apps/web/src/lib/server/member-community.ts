@@ -16,7 +16,7 @@ export async function memberCommunityFromRequest(req: NextRequest): Promise<
   }
   const seats = await listMyCommunities(member.sub);
   const picked = pickCommunitySeat(seats, req.cookies.get(COMMUNITY_COOKIE)?.value);
-  if (!picked.ok) {
+  if (picked.ok === false) {
     const status = picked.code === 'VALIDATION_ERROR' ? 400 : 403;
     return {
       ok: false,

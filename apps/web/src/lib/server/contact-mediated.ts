@@ -1,0 +1,110 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { query } from '@community/db';
+import { sendKindEmail } from '@community/mail';
+import { contactMediatedContribution, parseContactPayload } from '@community/contact-mediated';
+import { showcaseScopeSql } from '@community/directory';
+import { moduleRuntime } from '@/lib/server/membership';
+
+const hits = new Map<string, number[]>();
+const MAX_TRACKED_IPS = 5000;
+
+function rateLimited(ip: string): boolean {
+  const now = Date.now();
+  const windowMs = 60 * 60 * 1000;
+  if (hits.size > MAX_TRACKED_IPS) {
+    for (const [key, times] of hits.entries()) {
+      const valid = times.filter((t) => now - t < windowMs);
+      if (valid.length === 0) {
+        hits.delete(key);
+      } else {
+        hits.set(key, valid);
+      }
+    }
+  }
+  const recent = (hits.get(ip) || []).filter((t) => now - t < windowMs);
+  if (recent.length >= 5) {
+    hits.set(ip, recent);
+    return true;
+  }
+  recent.push(now);
+  hits.set(ip, recent);
+  return false;
+}
+
+export async function handleMediatedContactRequest(req: NextRequest, membershipId: string) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
+  if (rateLimited(ip)) {
+    return NextResponse.json(
+      { error: { code: 'RATE_LIMIT_EXCEEDED', message: 'Muitas solicitações' } },
+      { status: 429 }
+    );
+  }
+  const membership = await query<{ community_id: string; user_id: string }>(
+    `SELECT community_id, user_id FROM network_core.memberships WHERE id = $1`,
+    [membershipId]
+  );
+  const row = membership.rows[0];
+  if (!row) {
+    return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Perfil não encontrado' } }, { status: 404 });
+  }
+  const on = await moduleRuntime.isEnabled(row.community_id, contactMediatedContribution.slug);
+  if (!on) {
+    return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Módulo desligado' } }, { status: 404 });
+  }
+  const card = await query<{ listed: boolean }>(
+    `SELECT ${showcaseScopeSql('c', 'm.community_id')} AS listed
+     FROM plugin_directory.cards c
+     JOIN network_core.memberships m ON m.id = c.membership_id
+     WHERE c.membership_id = $1`,
+    [membershipId]
+  );
+  if (!card.rows[0]?.listed) {
+    return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Perfil não encontrado' } }, { status: 404 });
+  }
+  const body = await req.json();
+  const parsed = parseContactPayload(body);
+  if (parsed.ok === false) {
+    return NextResponse.json(
+      {
+        error: {
+          code: 'VALIDATION_ERROR',
+          message:
+            parsed.reason === 'message_min'
+              ? 'A mensagem precisa ter pelo menos 40 caracteres.'
+              : 'Preencha nome, e-mail e mensagem.',
+        },
+      },
+      { status: 400 }
+    );
+  }
+  const { senderName, senderEmail, senderPhone, message } = parsed.value;
+  await query(
+    `INSERT INTO plugin_contact.messages (membership_id, sender_email, sender_name, sender_phone, body)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [membershipId, senderEmail, senderName, senderPhone || null, message]
+  );
+  const target = await query<{ email: string }>(`SELECT email FROM auth_core.users WHERE id = $1`, [row.user_id]);
+  const to = target.rows[0]?.email;
+  if (!to) {
+    return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Perfil não encontrado' } }, { status: 404 });
+  }
+  const community = await query<{ name: string; settings: unknown }>(
+    `SELECT name, settings FROM network_core.communities WHERE id = $1`,
+    [row.community_id]
+  );
+  const settings = community.rows[0]?.settings as { default_locale?: string } | undefined;
+  const locale = settings?.default_locale === 'en' ? 'en' : 'pt-BR';
+  await sendKindEmail({
+    kind: 'contact_notice',
+    to,
+    locale,
+    vars: {
+      community_name: community.rows[0]?.name || '',
+      sender_name: senderName,
+      sender_email: senderEmail,
+      sender_phone: senderPhone,
+      message,
+    },
+  });
+  return NextResponse.json({ message: 'Mensagem enviada com sucesso' });
+}

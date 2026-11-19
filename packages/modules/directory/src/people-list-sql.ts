@@ -79,7 +79,7 @@ export function peopleListQuery(input: {
     const searchSlot = params.length;
     const talent =
       talentAudienceSlot
-        ? ` OR EXISTS (SELECT 1 FROM plugin_talent.offerings o LEFT JOIN plugin_talent.categories cat ON cat.id = o.category_id WHERE o.membership_id = m.id AND o.audience = ANY($${talentAudienceSlot}::text[]) AND (o.title ILIKE $${searchSlot} OR o.description ILIKE $${searchSlot} OR coalesce(o.category_other, '') ILIKE $${searchSlot} OR cat.label::text ILIKE $${searchSlot}))`
+        ? ` OR EXISTS (SELECT 1 FROM plugin_talent.offerings o LEFT JOIN plugin_talent.categories cat ON cat.community_id = o.community_id AND cat.id = o.category_id WHERE o.membership_id = m.id AND o.audience = ANY($${talentAudienceSlot}::text[]) AND (o.title ILIKE $${searchSlot} OR o.description ILIKE $${searchSlot} OR coalesce(o.category_other, '') ILIKE $${searchSlot} OR cat.label::text ILIKE $${searchSlot}))`
         : '';
     clauses.push(
       `(p.full_name ILIKE $${searchSlot} OR c.headline::text ILIKE $${searchSlot} OR c.bio::text ILIKE $${searchSlot}${talent})`

@@ -7,7 +7,7 @@ import { memberTalentCategories, offeringCategoryRules } from '@/lib/server/tale
 
 async function gate(req: NextRequest) {
   const resolved = await memberCommunityFromRequest(req);
-  if (!resolved.ok) {
+  if (resolved.ok === false) {
     return { ok: false as const, response: resolved.response };
   }
   const on = await moduleRuntime.isEnabled(resolved.seat.id, talentContribution.slug);
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   const ctx = { userId: resolved.userId, communityId: resolved.seat.id };
   const categoryRules = offeringCategoryRules(await memberTalentCategories(ctx));
   const parsed = parseOffering(await req.json(), categoryRules);
-  if (!parsed.ok) {
+  if (parsed.ok === false) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: parsed.message } }, { status: 400 });
   }
   const count = await queryAsMember<{ total: number }>(

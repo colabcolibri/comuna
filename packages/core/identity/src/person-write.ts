@@ -1,5 +1,13 @@
 import { parsePlace, type GeoPlace } from '@community/places';
-import { parseContacts, parseGender, parseLanguages, type PersonContacts, type SpokenLanguage } from './person-profile';
+import {
+  isSafeAvatarUrl,
+  isSafeHttpUrl,
+  parseContacts,
+  parseGender,
+  parseLanguages,
+  type PersonContacts,
+  type SpokenLanguage,
+} from './person-profile';
 
 export const PERSON_PROFILE_COLUMNS = `
   full_name, avatar_url, preferred_locale, gender, birth_country, current_country,
@@ -26,13 +34,24 @@ export function personWriteFromBody(body: Record<string, unknown>):
   if (!fullName) {
     return { ok: false, message: 'full_name obrigatório' };
   }
+  const rawAvatar = body.avatar_url == null || body.avatar_url === '' ? null : String(body.avatar_url).trim();
+  if (rawAvatar && !isSafeAvatarUrl(rawAvatar)) {
+    return { ok: false, message: 'avatar_url inválido' };
+  }
+  const rawContacts = body.contacts && typeof body.contacts === 'object' ? (body.contacts as Record<string, unknown>) : {};
+  for (const key of ['linkedin', 'github', 'portfolio'] as const) {
+    const val = rawContacts[key];
+    if (val != null && String(val).trim() !== '' && !isSafeHttpUrl(val)) {
+      return { ok: false, message: `${key} URL inválida` };
+    }
+  }
   const birthCity = parsePlace(body.birth_city);
   const currentCity = parsePlace(body.current_city);
   return {
     ok: true,
     write: {
       full_name: fullName,
-      avatar_url: body.avatar_url == null || body.avatar_url === '' ? null : String(body.avatar_url),
+      avatar_url: rawAvatar || null,
       preferred_locale: String(body.preferred_locale || 'pt-BR'),
       gender: parseGender(body.gender),
       birth_country: birthCity?.country_code || null,

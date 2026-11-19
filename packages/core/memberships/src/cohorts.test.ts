@@ -27,11 +27,13 @@ describe('deleteCohort', () => {
     mockedOps.mockReset();
   });
 
-  it('clears memberships then deletes the cohort', async () => {
+  it('clears memberships then deletes the cohort scoped by community_id (US-0137)', async () => {
     mockedOps.mockResolvedValueOnce({ rows: [] } as never);
     mockedOps.mockResolvedValueOnce({ rows: [{ id: 'h1' }] } as never);
     await deleteCohort('c1', 'h1');
     expect(String(mockedOps.mock.calls[0]?.[0])).toContain('SET cohort_id = NULL');
+    expect(String(mockedOps.mock.calls[0]?.[0])).toContain('AND community_id = $2');
+    expect(mockedOps.mock.calls[0]?.[1]).toEqual(['h1', 'c1']);
     expect(String(mockedOps.mock.calls[1]?.[0])).toContain('DELETE FROM network_core.cohorts');
   });
 });

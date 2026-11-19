@@ -236,14 +236,18 @@ Comunidade nova: insert de `community_modules` para first-party (`directory`, `s
 
 ## Hot paths / indexes (alvo da primeira migração)
 
-- `auth_core.users (email)` unique.
+- `auth_core.users (email)` unique + `auth_core.users (lower(email))` unique (`users_email_lower_idx`).
 - `verification_tokens (email, expires_at)`.
 - `memberships (community_id, network_status)`.
 - `memberships (community_id, user_id)` unique.
+- `memberships (user_id, network_status)` (`memberships_user_status_idx`).
 - `plugin_directory.field_groups (community_id, slug)` unique.
 - `plugin_directory.fields (group_id, name)` unique.
 - `plugin_directory.fields.module_id` nullable FK `plugin_core.modules` (null = núcleo).
 - GIN em `plugin_directory.cards (custom_attributes)` (`jsonb_path_ops`) para facets `@>`.
+- GIN em `person_core.profiles (languages)` (`jsonb_path_ops`) para filtro de idiomas `@>`.
+- RLS (`ENABLE` + `FORCE ROW LEVEL SECURITY`) em `person_core.profiles`, `network_core.memberships`, `plugin_directory.field_groups`, `plugin_directory.fields`, `plugin_directory.list_fields`, `plugin_directory.cards` e `plugin_talent.offerings`.
+- FKs de `plugin_directory.cards(membership_id)` e `plugin_contact.messages(membership_id)` com `ON DELETE CASCADE`; `network_core.memberships(cohort_id)` com `ON DELETE SET NULL`.
 
 ## Retention
 

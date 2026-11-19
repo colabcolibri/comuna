@@ -1,4 +1,4 @@
-import { localizedPair, parseLocalized, type LocalizedText } from '@community/identity';
+import { isSafeHttpUrl, localizedPair, parseLocalized, type LocalizedText } from '@community/identity';
 import { parseExposure } from './audience';
 
 export const FIELD_TYPES = [
@@ -197,7 +197,10 @@ export function validateCustomAttributes(
   return { ok: true, value };
 }
 
-function coerceAttribute(field: Pick<CatalogField, 'name' | 'type' | 'options' | 'localized'>, raw: unknown): CoerceResult {
+function coerceAttribute(
+  field: Pick<CatalogField, 'name' | 'type' | 'options'> & { localized?: boolean },
+  raw: unknown
+): CoerceResult {
   if (field.type === 'boolean') {
     if (raw === true || raw === false) {
       return { ok: true, value: raw };
@@ -229,6 +232,19 @@ function coerceAttribute(field: Pick<CatalogField, 'name' | 'type' | 'options' |
     const parsed = parseLocalized(raw);
     return { ok: true, value: parsed.length > 0 ? parsed : undefined };
   }
+  if (field.type === 'url') {
+    if (typeof raw !== 'string') {
+      return { ok: false, message: `${field.name} tipo inválido` };
+    }
+    const value = raw.trim();
+    if (!value) {
+      return { ok: true, value: undefined };
+    }
+    if (!isSafeHttpUrl(value)) {
+      return { ok: false, message: `${field.name} URL inválida` };
+    }
+    return { ok: true, value };
+  }
   if (typeof raw === 'string') {
     const value = raw.trim();
     return { ok: true, value: value || undefined };
@@ -238,6 +254,7 @@ function coerceAttribute(field: Pick<CatalogField, 'name' | 'type' | 'options' |
 
 export type AttrFilterField = Pick<CatalogField, 'name' | 'type' | 'storage' | 'options'> & {
   filterable: boolean;
+  localized?: boolean;
 };
 
 export function parseAttrFilters(

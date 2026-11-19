@@ -13,7 +13,11 @@ export function composeMail(input: {
   overlay?: MailCopy | null;
 }): { subject: string; html: string; text: string } {
   const copy = input.overlay ?? defaultCopy(input.kind, input.locale);
-  const vars = { product_name: input.settings.product_name, support_url: input.settings.support_url, ...input.vars };
+  const vars: Record<string, string> = {
+    product_name: input.settings.product_name,
+    support_url: input.settings.support_url,
+    ...input.vars,
+  };
   if (vars.code && !/^\d+$/.test(vars.code)) {
     throw new Error('VALIDATION_ERROR');
   }
@@ -27,4 +31,4 @@ export function composeMail(input: {
 }
 
 export { defaultCopy } from './copy';
-export { KIND_SLOT, KIND_VARIABLES, previewVarsFor, type EmailSlot, type EmailVariable } from './tokens';
+export { KIND_SLOT, KIND_VARIABLES, previewVarsFor, type EmailKind, type EmailLocale, type EmailSlot, type EmailVariable } from './tokens';

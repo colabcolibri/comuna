@@ -4,7 +4,7 @@ import { memberCommunityFromRequest } from '@/lib/server/member-community';
 
 export async function GET(req: NextRequest) {
   const resolved = await memberCommunityFromRequest(req);
-  if (!resolved.ok) {
+  if (resolved.ok === false) {
     return resolved.response;
   }
   const listed = await listDirectoryMembers(

@@ -136,6 +136,14 @@ describe('projectPersonView', () => {
       values: ['Produto', 'Ops'],
     });
     expect(detail.links[0]?.href).toContain('linkedin');
+    const unsafe = projectPersonView({
+      profile: { ...profile, contacts: { linkedin: 'javascript:alert(1)' } },
+      fields,
+      density: 'detail',
+      locale: 'pt-BR',
+      cityLabel: 'São Paulo',
+    });
+    expect(unsafe.links).toEqual([]);
   });
 
   it('shows the cohort on the card and in the detail when the list places it', () => {

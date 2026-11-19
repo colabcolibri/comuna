@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@community/ui';
+import { Button, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, toast } from '@community/ui';
 import { AudienceMark } from '@/components/app/AudienceMark';
 import { contentFromCatalog, pickContent } from '@community/identity';
 import { pickLocalizedText, type LocalizedText } from '@community/identity';
@@ -56,6 +56,7 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
       audienceInternal: 'profile.audience_internal',
       audienceExternal: 'profile.audience_external',
       empty: 'profile.select_empty',
+      error: 'profile.error',
     }),
     locale
   );
@@ -104,6 +105,8 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
       body: JSON.stringify(draft),
     });
     if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      toast.error(data.error?.message || copy.error);
       return;
     }
     setDraft({ ...EMPTY_DRAFT, categoryId: categories[0]?.id || '' });
@@ -113,12 +116,22 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
   }
 
   async function remove(id: string) {
-    await fetch(`/api/talent/offerings/${id}`, { method: 'DELETE' });
+    const response = await fetch(`/api/talent/offerings/${id}`, { method: 'DELETE' });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      toast.error(data.error?.message || copy.error);
+      return;
+    }
     await load();
   }
 
   async function setFeatured(id: string) {
-    await fetch(`/api/talent/offerings/${id}/featured`, { method: 'POST' });
+    const response = await fetch(`/api/talent/offerings/${id}/featured`, { method: 'POST' });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      toast.error(data.error?.message || copy.error);
+      return;
+    }
     await load();
   }
 

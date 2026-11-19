@@ -1,9 +1,15 @@
 import type { ReactNode } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { isSafeHttpUrl } from '@community/identity';
 import { inspectSectionsOf } from '@community/module-runtime';
 import type { PersonCard } from '@/lib/people/person-card';
 import { offeringCategoryDisplay, type TalentCategoryView } from '@/lib/people/offering-label';
 import { firstPartyModules } from '@/modules/registry';
+
+export type InspectTabItem = {
+  id: string;
+  label: string;
+  content: ReactNode;
+};
 
 function TalentSection({
   profile,
@@ -20,32 +26,30 @@ function TalentSection({
     return null;
   }
   return (
-    <section className="mt-8 min-w-0">
-      <h3 className="text-lg font-semibold tracking-tight text-foreground">{copy.talents || 'Talentos'}</h3>
-      <ul className="mt-3 grid min-w-0 gap-2">
+    <section className="min-w-0">
+      <ul className="grid min-w-0 gap-3 sm:grid-cols-2">
         {profile.offerings.map((offer) => {
           const category = offeringCategoryDisplay(offer, locale, catalog) || '';
+          const safeUrl = offer.url && isSafeHttpUrl(offer.url) ? offer.url : null;
           return (
-            <li key={offer.title} className="min-w-0 rounded-xl border border-border bg-card">
-              <details className="group min-w-0">
-                <summary className="flex cursor-pointer list-none items-start justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
-                  <span className="min-w-0">
-                    <span className="block break-words text-base font-semibold text-foreground">{offer.title}</span>
-                    {category ? <span className="mt-0.5 block text-sm text-muted-foreground">{category}</span> : null}
-                  </span>
-                  <ChevronDown aria-hidden className="mt-1 size-4 shrink-0 text-muted-foreground group-open:rotate-180" />
-                </summary>
-                <div className="space-y-2 border-t border-border px-4 py-3">
-                  {offer.description ? (
-                    <p className="break-words text-base leading-relaxed text-muted-foreground">{offer.description}</p>
-                  ) : null}
-                  {offer.url ? (
-                    <a href={offer.url} target="_blank" rel="noopener noreferrer" className="inline-block text-base text-foreground underline">
-                      {copy.openLink || 'Abrir'}
-                    </a>
-                  ) : null}
-                </div>
-              </details>
+            <li key={`${offer.category_id}:${offer.title}`} className="min-w-0 rounded-xl border border-border bg-card p-4">
+              <div className="min-w-0">
+                <p className="break-words text-base font-semibold text-foreground">{offer.title}</p>
+                {category ? <p className="mt-1 text-sm text-muted-foreground">{category}</p> : null}
+              </div>
+              {offer.description ? (
+                <p className="mt-3 break-words text-base leading-relaxed text-muted-foreground">{offer.description}</p>
+              ) : null}
+              {safeUrl ? (
+                <a
+                  href={safeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-block text-sm font-medium text-foreground underline"
+                >
+                  {copy.openLink || 'Abrir'}
+                </a>
+              ) : null}
             </li>
           );
         })}
@@ -54,14 +58,36 @@ function TalentSection({
   );
 }
 
-const SECTION_BODY: Record<
+const TAB_BUILDERS: Record<
   string,
-  (profile: PersonCard, copy: Record<string, string>, locale: string, catalog: TalentCategoryView[]) => ReactNode
+  (profile: PersonCard, copy: Record<string, string>, locale: string, catalog: TalentCategoryView[]) => InspectTabItem | null
 > = {
-  talent: (profile, copy, locale, catalog) => (
-    <TalentSection profile={profile} copy={copy} locale={locale} catalog={catalog} />
-  ),
+  talent: (profile, copy, locale, catalog) => {
+    if (!profile.offerings?.length) {
+      return null;
+    }
+    return {
+      id: 'talent',
+      label: copy.talents || 'Talentos',
+      content: <TalentSection profile={profile} copy={copy} locale={locale} catalog={catalog} />,
+    };
+  },
 };
+
+export function inspectTabs(
+  enabled: Iterable<string>,
+  profile: PersonCard | null,
+  copy: Record<string, string>,
+  locale: string,
+  catalog: TalentCategoryView[] = []
+): InspectTabItem[] {
+  if (!profile) {
+    return [];
+  }
+  return inspectSectionsOf(firstPartyModules, enabled)
+    .map((module) => TAB_BUILDERS[module.slug]?.(profile, copy, locale, catalog) ?? null)
+    .filter((tab): tab is InspectTabItem => tab !== null);
+}
 
 export function inspectSections(
   enabled: Iterable<string>,
@@ -70,11 +96,9 @@ export function inspectSections(
   locale: string,
   catalog: TalentCategoryView[] = []
 ) {
-  if (!profile) {
+  const tabs = inspectTabs(enabled, profile, copy, locale, catalog);
+  if (!tabs.length) {
     return null;
   }
-  return inspectSectionsOf(firstPartyModules, enabled).map((module) => {
-    const render = SECTION_BODY[module.slug];
-    return render ? <div key={module.slug}>{render(profile, copy, locale, catalog)}</div> : null;
-  });
+  return tabs.map((tab) => <div key={tab.id}>{tab.content}</div>);
 }

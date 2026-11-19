@@ -30,7 +30,7 @@ import { PeopleCohortSelect, PeopleFilters } from '@/components/app/PeopleFilter
 import { PeopleMap } from '@/components/app/PeopleMap';
 import { PeopleMapToggle } from '@/components/app/PeopleMapToggle';
 import { PeoplePlaceFilters } from '@/components/app/PeoplePlaceFilters';
-import { inspectSections } from '@/components/app/inspect-sections';
+import { inspectTabs } from '@/components/app/inspect-sections';
 import { PersonInspect } from '@/components/app/PersonInspect';
 import { SHOWCASE_ROW_ACTION } from '@community/showcase';
 import { SHOWCASE_MAP_VIEW } from '@community/map';
@@ -390,7 +390,7 @@ export function ShowcasePanel({
         copy={copy}
         locale={locale}
         canContact={canContact}
-        sections={inspectSections(enabled, selected, copy, locale, talentCategories)}
+        tabs={inspectTabs(enabled, selected, copy, locale, talentCategories)}
         onClose={() => setSelected(null)}
       />
     </AppShowcasePortal>

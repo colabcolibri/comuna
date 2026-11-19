@@ -74,6 +74,9 @@ export const coreIdentityPack = definePack({
     'talent.featured_on_card': 'Destaque no card',
     'talent.featured_on_card_active': 'Em destaque no card',
     'talent.open': 'Abrir link',
+    'inspect.tab_overview': 'Sobre',
+    'inspect.tab_community': 'Na comunidade',
+    'inspect.links': 'Links',
   },
   en: {
     'profile.kicker': 'Account',
@@ -148,5 +151,8 @@ export const coreIdentityPack = definePack({
     'talent.featured_on_card': 'Featured on card',
     'talent.featured_on_card_active': 'Featured on card',
     'talent.open': 'Open link',
+    'inspect.tab_overview': 'About',
+    'inspect.tab_community': 'In this community',
+    'inspect.links': 'Links',
   },
 });

@@ -90,11 +90,10 @@ export function directoryScopeSql(card = 'c', community = 'm.community_id') {
   return `(
     (${card}.headline_audience IN (${levels}) AND ${fieldCeiling(community, 'headline', levels)})
     OR (${card}.bio_audience IN (${levels}) AND ${fieldCeiling(community, 'bio', levels)})
-    OR (${card}.availability_audience IN (${levels}) AND ${fieldCeiling(community, 'availability_status', levels)})
     OR EXISTS (
       SELECT 1 FROM jsonb_each_text(COALESCE(${card}.attribute_audience, '{}'::jsonb)) aud
-      JOIN plugin_directory.fields f ON f.name = aud.key
-      JOIN plugin_directory.field_groups g ON g.id = f.group_id AND g.community_id = ${community}
+      JOIN plugin_directory.fields f ON f.name = aud.key AND f.enabled
+      JOIN plugin_directory.field_groups g ON g.id = f.group_id AND g.community_id = ${community} AND g.enabled
       WHERE aud.value IN (${levels}) AND coalesce(f.exposure, 'external') IN (${levels})
     )
   )`;
@@ -105,6 +104,8 @@ function fieldCeiling(community: string, columnKey: string, min: string) {
     SELECT 1 FROM plugin_directory.fields f
     JOIN plugin_directory.field_groups g ON g.id = f.group_id
     WHERE g.community_id = ${community}
+      AND g.enabled
+      AND f.enabled
       AND f.column_key = '${columnKey}'
       AND coalesce(f.exposure, 'external') IN (${min})
   )`;
@@ -117,11 +118,10 @@ export function showcaseScopeSql(card = 'c', community = 'm.community_id') {
     AND (
       (${card}.headline_audience = 'external' AND ${fieldCeiling(community, 'headline', open)})
       OR (${card}.bio_audience = 'external' AND ${fieldCeiling(community, 'bio', open)})
-      OR (${card}.availability_audience = 'external' AND ${fieldCeiling(community, 'availability_status', open)})
       OR EXISTS (
         SELECT 1 FROM jsonb_each_text(COALESCE(${card}.attribute_audience, '{}'::jsonb)) aud
-        JOIN plugin_directory.fields f ON f.name = aud.key
-        JOIN plugin_directory.field_groups g ON g.id = f.group_id AND g.community_id = ${community}
+        JOIN plugin_directory.fields f ON f.name = aud.key AND f.enabled
+        JOIN plugin_directory.field_groups g ON g.id = f.group_id AND g.community_id = ${community} AND g.enabled
         WHERE aud.value = 'external' AND coalesce(f.exposure, 'external') = 'external'
       )
     )

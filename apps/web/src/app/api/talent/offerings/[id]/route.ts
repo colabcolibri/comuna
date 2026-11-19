@@ -7,7 +7,7 @@ import { memberTalentCategories, offeringCategoryRules } from '@/lib/server/tale
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const resolved = await memberCommunityFromRequest(req);
-  if (!resolved.ok) {
+  if (resolved.ok === false) {
     return resolved.response;
   }
   const on = await moduleRuntime.isEnabled(resolved.seat.id, talentContribution.slug);
@@ -17,7 +17,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
   const { id } = await ctx.params;
   const member = { userId: resolved.userId, communityId: resolved.seat.id };
   const parsed = parseOffering(await req.json(), offeringCategoryRules(await memberTalentCategories(member)));
-  if (!parsed.ok) {
+  if (parsed.ok === false) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: parsed.message } }, { status: 400 });
   }
   const settings = await queryAsMember<{ settings: unknown }>(
@@ -57,7 +57,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 
 export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const resolved = await memberCommunityFromRequest(req);
-  if (!resolved.ok) {
+  if (resolved.ok === false) {
     return resolved.response;
   }
   const on = await moduleRuntime.isEnabled(resolved.seat.id, talentContribution.slug);

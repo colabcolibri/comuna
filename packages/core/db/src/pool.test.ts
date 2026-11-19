@@ -43,4 +43,11 @@ describe('getPool', () => {
     process.env.RAILWAY_ENVIRONMENT = 'production';
     expect(poolConfig('postgresql://x:y@host/db').ssl).toEqual({ rejectUnauthorized: false });
   });
+
+  it('configures connection pool bounds and timeouts (US-0137)', () => {
+    const cfg = poolConfig('postgresql://postgres:postgres@localhost:5433/alumni_db');
+    expect(cfg.max).toBe(20);
+    expect(cfg.idleTimeoutMillis).toBe(30_000);
+    expect(cfg.connectionTimeoutMillis).toBe(5_000);
+  });
 });

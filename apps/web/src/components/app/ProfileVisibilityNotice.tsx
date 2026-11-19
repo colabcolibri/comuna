@@ -18,7 +18,7 @@ const COPY = contentFromCatalog(uiCatalog, 'plugin_directory', {
   communityShowcaseBlocked: 'profile.visibility_community_showcase_blocked',
 });
 
-const HINT_LINES: Record<ListingHint, keyof typeof COPY> = {
+const HINT_LINES: Record<ListingHint, keyof (typeof COPY)['pt-BR']> = {
   visible_directory: 'visibleDirectory',
   visible_showcase: 'visibleShowcase',
   all_private: 'allPrivate',
