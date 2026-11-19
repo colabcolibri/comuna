@@ -30,6 +30,7 @@ export function FieldControl({
   initials,
   aside,
   maxLength,
+  invalid = false,
 }: {
   field: CatalogField;
   locale: string;
@@ -38,6 +39,7 @@ export function FieldControl({
   initials?: string;
   aside?: React.ReactNode;
   maxLength?: number;
+  invalid?: boolean;
 }) {
   const label = pickLocalizedText(field.label, locale) || field.name;
   const description = pickLocalizedText(field.description, locale);
@@ -60,6 +62,7 @@ export function FieldControl({
         value={value}
         onChange={onChange}
         initials={initials}
+        invalid={invalid}
       />
     );
   }
@@ -243,6 +246,7 @@ function ImageControl({
   value,
   onChange,
   initials,
+  invalid = false,
 }: {
   id: string;
   label: string;
@@ -251,6 +255,7 @@ function ImageControl({
   value: unknown;
   onChange: (value: unknown) => void;
   initials?: string;
+  invalid?: boolean;
 }) {
   const copy = pickContent(CONTENT, useLocale());
   const [busy, setBusy] = useState(false);
@@ -279,7 +284,12 @@ function ImageControl({
   return (
     <div className="flex w-28 shrink-0 flex-col items-center gap-2 sm:w-32">
       <FieldMeta label={label} required={required} requiredLabel={requiredLabel} />
-      <span className="relative block size-28 overflow-hidden rounded-full border border-border bg-primary text-primary-foreground focus-within:ring-[3px] focus-within:ring-ring/50 sm:size-32">
+      <span
+        className={cn(
+          'relative block size-28 overflow-hidden rounded-full border bg-primary text-primary-foreground focus-within:ring-[3px] focus-within:ring-ring/50 sm:size-32',
+          invalid ? 'border-destructive ring-2 ring-destructive/50' : 'border-border'
+        )}
+      >
         {src ? (
           <img src={src} alt="" className="size-full object-cover" />
         ) : (

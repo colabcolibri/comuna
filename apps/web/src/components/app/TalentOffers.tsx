@@ -71,6 +71,7 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
   const [editing, setEditing] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [ceiling, setCeiling] = useState<Exposure>('internal');
+  const [formError, setFormError] = useState('');
 
   async function load() {
     const response = await fetch('/api/talent/offerings');
@@ -99,6 +100,7 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
 
   async function save(event: React.FormEvent) {
     event.preventDefault();
+    setFormError('');
     const response = await fetch(editing ? `/api/talent/offerings/${editing}` : '/api/talent/offerings', {
       method: editing ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -106,7 +108,9 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
     });
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
-      toast.error(data.error?.message || copy.error);
+      const msg = data.error?.message || copy.error;
+      setFormError(msg);
+      toast.error(msg);
       return;
     }
     setDraft({ ...EMPTY_DRAFT, categoryId: categories[0]?.id || '' });
@@ -145,6 +149,11 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
       </div>
       {open ? (
         <form onSubmit={save} className="grid min-w-0 gap-4 rounded-xl border border-border p-4">
+          {formError ? (
+            <p role="alert" className="text-sm font-medium text-destructive">
+              {formError}
+            </p>
+          ) : null}
           <label className="grid min-w-0 gap-2 text-sm">
             <Label>{copy.offerTitle}</Label>
             <input
@@ -165,9 +174,14 @@ export function TalentOffers({ heading = true }: { heading?: boolean }) {
           <label className="grid min-w-0 gap-2 text-sm">
             <Label>{copy.link}</Label>
             <input
+              type="url"
+              placeholder="https://..."
               className="h-11 w-full rounded-md border border-input bg-background px-3"
               value={draft.url}
-              onChange={(event) => setDraft({ ...draft, url: event.target.value })}
+              onChange={(event) => {
+                setFormError('');
+                setDraft({ ...draft, url: event.target.value });
+              }}
             />
           </label>
           <div className="min-w-0 space-y-2">

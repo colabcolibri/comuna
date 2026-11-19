@@ -68,6 +68,33 @@ function clusterIcon(cluster: L.MarkerCluster) {
   });
 }
 
+function spreadCoincidentPins(pins: { row: PersonCard; coords: { lat: number; lon: number } }[]) {
+  const groups = new Map<string, number>();
+  const totals = new Map<string, number>();
+  for (const pin of pins) {
+    const key = `${pin.coords.lat.toFixed(5)},${pin.coords.lon.toFixed(5)}`;
+    totals.set(key, (totals.get(key) ?? 0) + 1);
+  }
+  return pins.map((pin) => {
+    const key = `${pin.coords.lat.toFixed(5)},${pin.coords.lon.toFixed(5)}`;
+    const total = totals.get(key) ?? 1;
+    const index = groups.get(key) ?? 0;
+    groups.set(key, index + 1);
+    if (total <= 1) {
+      return pin;
+    }
+    const angle = (2 * Math.PI * index) / total;
+    const radius = 0.0022 * (1 + Math.floor(index / 8) * 0.6);
+    return {
+      row: pin.row,
+      coords: {
+        lat: pin.coords.lat + Math.sin(angle) * radius,
+        lon: pin.coords.lon + Math.cos(angle) * radius,
+      },
+    };
+  });
+}
+
 export function PeopleMapCanvas({
   rows,
   emptyLabel,
@@ -104,7 +131,7 @@ export function PeopleMapCanvas({
       chunkedLoading: true,
       maxClusterRadius: 52,
       spiderfyOnMaxZoom: true,
-      disableClusteringAtZoom: 15,
+      spiderfyDistanceMultiplier: 1.5,
       iconCreateFunction: clusterIcon,
     }).addTo(map);
     mapRef.current = map;
@@ -133,10 +160,12 @@ export function PeopleMapCanvas({
     }
     clusters.clearLayers();
     extras.clearLayers();
-    const pins = rows.flatMap((row) => {
-      const coords = placeLatLon(parsePlace(row.current_city));
-      return coords ? [{ row, coords }] : [];
-    });
+    const pins = spreadCoincidentPins(
+      rows.flatMap((row) => {
+        const coords = placeLatLon(parsePlace(row.current_city));
+        return coords ? [{ row, coords }] : [];
+      })
+    );
     const bounds = L.latLngBounds([]);
     pins.forEach(({ row, coords }) => {
       const city = displayPlaceLocality(row.current_city, locale);

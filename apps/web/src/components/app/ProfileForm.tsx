@@ -73,6 +73,7 @@ export function ProfileForm({
     groupsForScope(coreCatalog(), scope)
   );
   const [values, setValues] = useState<Record<string, unknown>>({});
+  const [missingNames, setMissingNames] = useState<Set<string>>(new Set());
   const [ready, setReady] = useState(false);
   const [saving, setSaving] = useState(false);
   const [listingHints, setListingHints] = useState<ListingHint[]>([]);
@@ -147,10 +148,16 @@ export function ProfileForm({
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (missingRequiredFields(fields, values).length) {
-      toast.error(copy.requiredMissing);
+    const missing = missingRequiredFields(fields, values);
+    if (missing.length) {
+      setMissingNames(new Set(missing.map((field) => field.name)));
+      const names = missing.map((field) => pickLocalizedText(field.label, locale) || field.name);
+      toast.error(`${copy.requiredMissing} (${names.join(', ')})`);
+      const firstEl = document.querySelector(`[data-field-name="${missing[0].name}"]`);
+      firstEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
+    setMissingNames(new Set());
     setSaving(true);
     if (scope === 'person') {
       const profileRes = await fetch('/api/profiles/me', {
@@ -212,27 +219,40 @@ export function ProfileForm({
 
   const renderField = (field: CatalogField) => {
     const key = scope === 'community' ? audienceKey(field) : '';
+    const isInvalid = missingNames.has(field.name);
     return (
       <AppProfileItem>
-        <FieldControl
-          field={field}
-          locale={locale}
-          value={values[field.name]}
-          onChange={(next) => setValues((current) => ({ ...current, [field.name]: next }))}
-          initials={initialsFrom(values.full_name)}
-          maxLength={communityCopyLimit(field.column_key)}
-          aside={
-            key ? (
-              <AudienceMark
-                value={String(values[key] || defaultMemberAudience(field.exposure))}
-                ceiling={field.exposure}
-                label={copy.audience}
-                labels={{ private: copy.audiencePrivate, internal: copy.audienceInternal, external: copy.audienceExternal }}
-                onChange={(next) => setValues((current) => ({ ...current, [key]: next }))}
-              />
-            ) : null
-          }
-        />
+        <div data-field-name={field.name} className={isInvalid ? 'rounded-xl ring-2 ring-destructive/60 p-2 -m-2' : undefined}>
+          <FieldControl
+            field={field}
+            locale={locale}
+            value={values[field.name]}
+            invalid={isInvalid}
+            onChange={(next) => {
+              setValues((current) => ({ ...current, [field.name]: next }));
+              if (missingNames.has(field.name)) {
+                setMissingNames((prev) => {
+                  const updated = new Set(prev);
+                  updated.delete(field.name);
+                  return updated;
+                });
+              }
+            }}
+            initials={initialsFrom(values.full_name)}
+            maxLength={communityCopyLimit(field.column_key)}
+            aside={
+              key ? (
+                <AudienceMark
+                  value={String(values[key] || defaultMemberAudience(field.exposure))}
+                  ceiling={field.exposure}
+                  label={copy.audience}
+                  labels={{ private: copy.audiencePrivate, internal: copy.audienceInternal, external: copy.audienceExternal }}
+                  onChange={(next) => setValues((current) => ({ ...current, [key]: next }))}
+                />
+              ) : null
+            }
+          />
+        </div>
       </AppProfileItem>
     );
   };

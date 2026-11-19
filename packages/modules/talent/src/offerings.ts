@@ -26,8 +26,12 @@ export function parseOffering(
     return { ok: false, message: 'Descrição longa demais.' };
   }
   const rawUrl = typeof body.url === 'string' ? body.url.trim() : '';
-  if (rawUrl && !/^https:\/\/\S+$/i.test(rawUrl)) {
-    return { ok: false, message: 'Link inválido.' };
+  const normalizedUrl =
+    rawUrl && !/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(rawUrl) && /^[^\s@]+\.[^\s@]+$/.test(rawUrl)
+      ? `https://${rawUrl}`
+      : rawUrl;
+  if (normalizedUrl && !/^https:\/\/\S+$/i.test(normalizedUrl)) {
+    return { ok: false, message: 'Link inválido. Use uma URL completa (ex: https://...).' };
   }
   const categoryId = typeof body.categoryId === 'string' ? body.categoryId : '';
   const category = categories.find((item) => item.id === categoryId);
@@ -44,7 +48,7 @@ export function parseOffering(
     value: {
       title,
       description,
-      url: rawUrl || null,
+      url: normalizedUrl || null,
       categoryId,
       categoryOther: category.allowsOtherText ? other : null,
       audience,

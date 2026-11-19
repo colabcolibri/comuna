@@ -179,10 +179,10 @@ export function PersonInspect({
             <div className="space-y-4">
               <div className="flex min-w-0 items-start gap-4">
                 {view.photoUrl ? (
-                  <img src={view.photoUrl} alt="" className="size-16 shrink-0 rounded-full object-cover" />
+                  <img src={view.photoUrl} alt="" className="size-16 shrink-0 rounded-full object-cover sm:size-20" />
                 ) : (
                   <div
-                    className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary text-base font-medium text-primary-foreground"
+                    className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary text-base font-medium text-primary-foreground sm:size-20 sm:text-lg"
                     aria-hidden
                   >
                     {personInitials(view.name)}
