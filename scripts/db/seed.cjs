@@ -16,9 +16,10 @@ const {
 const { membershipCard } = require('../seed/membership-cards.cjs');
 const { seedDemoAvatarsForPeople, seedDemoAvatarsEnabled } = require('../seed/demo-avatars.cjs');
 const { seedDemoTalents } = require('../seed/talent-demo.cjs');
+const { seedDemoCalendar } = require('../seed/calendar-demo.cjs');
 const { seedTalentCategories } = require('../seed/talent-categories.cjs');
 
-const MODULES = ['directory', 'showcase', 'contact-mediated', 'map'];
+const MODULES = ['directory', 'showcase', 'contact-mediated', 'map', 'calendar'];
 const PLUGIN_SLUGS = [...MODULES, 'talent'];
 
 async function ensureModules(client) {
@@ -210,10 +211,11 @@ async function seed(url, email) {
     }
     const avatarCount = await seedDemoAvatarsForPeople(client, people, async (person) => memberIds.get(person.n));
     await seedDemoTalents(client, tenants, memberIds);
+    const calendarCount = await seedDemoCalendar(client, tenants, memberIds);
     const demoId = tenants.demo.id;
     const avatarNote = seedDemoAvatarsEnabled() ? ` avatars=${avatarCount}` : '';
     console.log(
-      `seed ok user=${userId} communities=${SEED_COMMUNITIES.length} demo=${demoId} people=${DEMO_MEMBER_COUNT} memberships=${membershipCount}${avatarNote}`
+      `seed ok user=${userId} communities=${SEED_COMMUNITIES.length} demo=${demoId} people=${DEMO_MEMBER_COUNT} memberships=${membershipCount} calendar_events=${calendarCount}${avatarNote}`
     );
   } finally {
     await client.end();
