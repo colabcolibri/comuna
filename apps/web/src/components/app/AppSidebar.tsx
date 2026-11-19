@@ -15,9 +15,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarRail,
 } from '@community/ui';
 import { contentFromCatalog, mergeContent, pickContent } from '@community/identity';
@@ -59,7 +56,6 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
   const enabled = useEnabledModules();
   const pluginNav = visibleChrome(enabled, 'sidebar', Boolean(email));
   const showcaseItem = pluginNav.find((item) => item.href === '/showcase');
-  const talentItem = pluginNav.find((item) => item.href === '/talents');
   const workspaceNav = pluginNav.filter((item) => item.href !== '/showcase' && item.href !== '/talents');
   const [signOutOpen, setSignOutOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -111,20 +107,6 @@ export function AppSidebar({ email, seats }: { email: string | null; seats: MyCo
                       <span className="group-data-[collapsible=icon]:hidden">{copy.communityProfile}</span>
                     </Link>
                   </SidebarMenuButton>
-                  {slug && talentItem ? (
-                    <SidebarMenuSub>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton
-                          asChild
-                          isActive={pathname.startsWith(communityPath(slug, talentItem.href))}
-                        >
-                          <Link href={communityPath(slug, talentItem.href)}>
-                            <span>{copyFrom(copy, talentItem.copyKey)}</span>
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    </SidebarMenuSub>
-                  ) : null}
                 </SidebarMenuItem>
               ) : null}
               {email && isCoordinator ? (
