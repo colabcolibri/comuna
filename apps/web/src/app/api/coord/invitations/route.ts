@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
   const resolved = await coordinatorFromRequest(req);
   if (resolved instanceof NextResponse) return resolved;
 
-  let body: { email?: string };
+  let body: { email?: string; locale?: string };
   try {
     body = await req.json();
   } catch {
@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
   }
 
   const email = String(body.email || '').trim().toLowerCase();
+  const mailLocale = body.locale === 'en' ? 'en' : 'pt-BR';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: 'E-mail inválido.' } }, { status: 400 });
   }
@@ -78,11 +79,11 @@ export async function POST(req: NextRequest) {
     try {
       const communityName = resolved.seat.name || 'Comunidade';
       await sendKindEmail({
-        kind: 'person_invite',
+        kind: 'community_invite',
         to: email,
-        locale: 'pt-BR',
+        locale: mailLocale,
         vars: {
-          community: communityName,
+          community_name: communityName,
           login_url: inviteUrl,
         },
       });

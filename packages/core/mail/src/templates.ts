@@ -48,6 +48,10 @@ export async function upsertEmailOverlay(kind: EmailKind, locale: EmailLocale, c
     const origin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3014';
     vars.login_url = `${origin.replace(/\/$/, '')}/login`;
   }
+  if (kind === 'community_invite') {
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3014';
+    vars.login_url = `${origin.replace(/\/$/, '')}/invite/exemplo`;
+  }
   const rendered = composeMail({ kind, locale, vars, settings, overlay });
   await query(
     `INSERT INTO ops_core.email_templates (kind, locale, subject, heading, body, html_body, text_body)
@@ -98,6 +102,10 @@ export async function listEmailTemplates(kind: string, locale: string): Promise<
   if (kind === 'person_invite') {
     const origin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3014';
     vars.login_url = `${origin.replace(/\/$/, '')}/login`;
+  }
+  if (kind === 'community_invite') {
+    const origin = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3014';
+    vars.login_url = `${origin.replace(/\/$/, '')}/invite/exemplo`;
   }
   const preview = composeMail({
     kind,

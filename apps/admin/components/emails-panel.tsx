@@ -39,10 +39,11 @@ const CONTENT = contentFromCatalog(uiCatalog, 'core_admin', {
   member: 'emails.kind_member_otp',
   ops: 'emails.kind_ops_otp',
   invite: 'emails.kind_person_invite',
+  communityInvite: 'emails.kind_community_invite',
   contact: 'emails.kind_contact_notice',
 });
 
-const KINDS = ['member_otp', 'ops_otp', 'person_invite', 'contact_notice'] as const;
+const KINDS = ['member_otp', 'ops_otp', 'person_invite', 'community_invite', 'contact_notice'] as const;
 const FALLBACK_ENVELOPE = {
   product_name: 'Community',
   from_name: 'Community',
@@ -105,6 +106,7 @@ export function EmailsPanel() {
     { value: 'member_otp', label: copy.member },
     { value: 'ops_otp', label: copy.ops },
     { value: 'person_invite', label: copy.invite },
+    { value: 'community_invite', label: copy.communityInvite },
     { value: 'contact_notice', label: copy.contact },
   ];
   const localeItems = [

@@ -43,6 +43,18 @@ const DEFAULTS: Record<EmailKind, Record<EmailLocale, MailCopy>> = {
       body: 'An account was created for you on {{product_name}}.\n\nOpen sign-in with the button below. On that page, use this same email and request a code. The code arrives in a separate message.',
     },
   },
+  community_invite: {
+    'pt-BR': {
+      subject: 'Convite para entrar em {{community_name}}',
+      heading: 'Você recebeu um convite para {{community_name}}',
+      body: 'A coordenação de {{community_name}} convidou você para participar da comunidade em {{product_name}}.\n\nClique no botão abaixo para aceitar o convite e entrar diretamente no seu perfil. Este link vale por 14 dias.',
+    },
+    en: {
+      subject: 'Invitation to join {{community_name}}',
+      heading: 'You are invited to {{community_name}}',
+      body: 'The coordination of {{community_name}} invited you to join the community on {{product_name}}.\n\nClick the button below to accept the invitation and open your profile. This link expires in 14 days.',
+    },
+  },
   contact_notice: {
     'pt-BR': {
       subject: 'Mensagem para você em {{community_name}}',

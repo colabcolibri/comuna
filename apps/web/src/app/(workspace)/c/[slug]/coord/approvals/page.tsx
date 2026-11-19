@@ -34,6 +34,7 @@ export default function CoordApprovalsPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [invites, setInvites] = useState<InviteRow[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteLocale, setInviteLocale] = useState<'pt-BR' | 'en'>('pt-BR');
   const [sendingInvite, setSendingInvite] = useState(false);
   const [forbidden, setForbidden] = useState(false);
 
@@ -65,7 +66,7 @@ export default function CoordApprovalsPage() {
       const res = await fetch('/api/coord/invitations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: inviteEmail }),
+        body: JSON.stringify({ email: inviteEmail, locale: inviteLocale }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -156,6 +157,15 @@ export default function CoordApprovalsPage() {
                 onChange={(e) => setInviteEmail(e.target.value)}
                 className="flex-1"
               />
+              <select
+                aria-label="Idioma do e-mail"
+                value={inviteLocale}
+                onChange={(e) => setInviteLocale(e.target.value === 'en' ? 'en' : 'pt-BR')}
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="pt-BR">Português (PT-BR)</option>
+                <option value="en">English (EN)</option>
+              </select>
               <Button type="submit" disabled={sendingInvite}>
                 <MailPlus className="size-4" />
                 {sendingInvite ? 'Enviando…' : 'Gerar e enviar convite'}

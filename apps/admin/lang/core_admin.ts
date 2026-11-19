@@ -302,6 +302,7 @@ export const coreAdminPack = definePack({
     'emails.kind_member_otp': 'OTP membro',
     'emails.kind_ops_otp': 'OTP ops',
     'emails.kind_person_invite': 'Convite de pessoa',
+    'emails.kind_community_invite': 'Convite para comunidade',
     'emails.kind_contact_notice': 'Aviso de contato',
   },
   en: {
@@ -605,6 +606,7 @@ export const coreAdminPack = definePack({
     'emails.kind_member_otp': 'Member OTP',
     'emails.kind_ops_otp': 'Ops OTP',
     'emails.kind_person_invite': 'Person invite',
+    'emails.kind_community_invite': 'Community invite',
     'emails.kind_contact_notice': 'Contact notice',
   },
 });

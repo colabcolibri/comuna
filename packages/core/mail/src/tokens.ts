@@ -1,4 +1,4 @@
-export const EMAIL_KINDS = ['member_otp', 'ops_otp', 'person_invite', 'contact_notice'] as const;
+export const EMAIL_KINDS = ['member_otp', 'ops_otp', 'person_invite', 'community_invite', 'contact_notice'] as const;
 export type EmailKind = (typeof EMAIL_KINDS)[number];
 export type EmailLocale = 'pt-BR' | 'en';
 
@@ -16,6 +16,7 @@ export const KIND_SLOT: Record<EmailKind, EmailSlot> = {
   member_otp: 'otp',
   ops_otp: 'otp',
   person_invite: 'cta',
+  community_invite: 'cta',
   contact_notice: 'quote',
 };
 
@@ -40,6 +41,12 @@ export const KIND_VARIABLES: Record<EmailKind, EmailVariable[]> = {
     { name: 'product_name', sample: 'Community' },
     { name: 'support_url', sample: 'https://example.com/help' },
     { name: 'login_url', sample: 'http://localhost:3014/login', slot: true },
+  ],
+  community_invite: [
+    { name: 'product_name', sample: 'Community' },
+    { name: 'community_name', sample: 'Demo' },
+    { name: 'support_url', sample: 'https://example.com/help' },
+    { name: 'login_url', sample: 'http://localhost:3014/invite/exemplo', slot: true },
   ],
   contact_notice: [
     { name: 'product_name', sample: 'Community' },
